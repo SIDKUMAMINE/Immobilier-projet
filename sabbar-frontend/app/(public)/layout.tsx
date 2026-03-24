@@ -1,7 +1,5 @@
 
 import React from 'react';
-import PublicNavbarClient from '@/components/PublicNavbarClient';
-import PublicFooter from '@/components/PublicFooter';
 
 
 export const metadata = {
@@ -17,12 +15,11 @@ export default function PublicLayout({
 }) {
   return (
     <>
-      {/* Navbar avec Hamburger Button */}
-      <PublicNavbarClient />
+      
       
       {/* Main Content */}
       <main className="min-h-screen">{children}</main>
-      <PublicFooter />
+ 
 
     
     </>
