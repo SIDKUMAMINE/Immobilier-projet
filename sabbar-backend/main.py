@@ -1,12 +1,13 @@
 """
-FastAPI Main Application - VERSION FINALE COMPLÈTE
+FastAPI Main Application - VERSION FINALE CORRIGÉE
 Fichier: main.py
 
-✅ COMPLET:
+✅ COMPLET ET DANS LE BON ORDRE:
    - Routes CRUD propriétés
    - Normalisation des données
    - Upload d'images et vidéos
    - Gestion des buckets Supabase Storage
+   - ✅ AUTHENTIFICATION INTÉGRÉE
 """
 
 from fastapi import FastAPI, Query, HTTPException, UploadFile, File
@@ -20,6 +21,9 @@ import uuid
 
 # ✅ IMPORT SUPABASE
 from app.db.supabase_client import get_db, init_supabase
+
+# ✅ IMPORT AUTHENTIFICATION
+from app.api.v1.endpoints import auth as auth_routes
 
 # Configuration logging
 logging.basicConfig(
@@ -66,7 +70,6 @@ def normalize_property_data(data: dict) -> dict:
     
     return cleaned
 
-
 # ============================================================================
 # LIFESPAN - Startup/Shutdown
 # ============================================================================
@@ -100,11 +103,11 @@ async def lifespan(app: FastAPI):
 
 
 # ============================================================================
-# CRÉER L'APP
+# ✅ CRÉER L'APP (LIGNE 102 - AVANT include_router!)
 # ============================================================================
 app = FastAPI(
     title="SABBAR API",
-    description="API Immobilière SABBAR",
+    description="API Immobilière SABBAR avec Authentification",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -114,11 +117,27 @@ app = FastAPI(
 # ============================================================================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:8000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ============================================================================
+# ✅ INCLURE LES ROUTERS D'AUTHENTIFICATION (APRÈS app creation!)
+# ============================================================================
+logger.info("📌 Inclusion des routers...")
+app.include_router(
+    auth_routes.router,
+    prefix="/api/v1",
+    tags=["authentication"]
+)
+logger.info("✅ Router d'authentification inclus: /api/v1/auth/*")
 
 # ============================================================================
 # HEALTHCHECK
@@ -143,7 +162,15 @@ async def health_db():
 @app.get("/")
 async def root():
     """Endpoint racine"""
-    return {"message": "SABBAR API", "version": "1.0.0"}
+    return {
+        "message": "SABBAR API",
+        "version": "1.0.0",
+        "endpoints": {
+            "documentation": "/docs",
+            "authentification": "/api/v1/auth/register, /api/v1/auth/login",
+            "proprietes": "/api/v1/properties"
+        }
+    }
 
 
 # ============================================================================

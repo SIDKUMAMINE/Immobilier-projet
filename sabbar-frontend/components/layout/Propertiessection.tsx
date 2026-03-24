@@ -1,218 +1,176 @@
 'use client';
 
-import Link from 'next/link';
-import { ArrowRight, MapPin, Home, DollarSign } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
-
-interface Property {
-  id: string;
-  title: string;
-  city: string;
-  district?: string;
-  price: number;
-  property_type: string;
-  transaction_type: string;
-  images?: string[];
-  video?: string;
-  bedrooms?: number;
-  bathrooms?: number;
-  area?: number;
-}
+import { MapPin, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { getLatestProperties, Property } from '@/lib/properties-data';
 
 export default function PropertiesSection() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchProperties = async () => {
-      try {
-        console.log('🔄 Fetching properties from /api/v1/properties?limit=3...');
-        const response = await fetch('/api/v1/properties?limit=3');
-        
-        console.log('✅ Response status:', response.status);
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('❌ API Error:', response.status, errorText);
-          setError(`Erreur API: ${response.status}`);
-          setLoading(false);
-          return;
-        }
-
-        const data = await response.json();
-        console.log('✅ Data received:', data);
-        
-        if (Array.isArray(data)) {
-          console.log('✅ Setting properties (array):', data.length);
-          setProperties(data);
-        } else if (data && typeof data === 'object') {
-          const propArray = data.properties || data.data || data.rows || [];
-          setProperties(Array.isArray(propArray) ? propArray : []);
-        } else {
-          setProperties([]);
-        }
-        
-        setError(null);
-      } catch (error) {
-        console.error('❌ Fetch error:', error);
-        setError(`Erreur: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
-        setProperties([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProperties();
+    try {
+      // ✅ SIMPLE - Récupère directement les 3 dernières propriétés
+      const latestProps = getLatestProperties(3);
+      setProperties(latestProps);
+    } catch (err) {
+      console.error('Erreur:', err);
+      setProperties([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'MAD',
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
-
-  const getTransactionType = (type: string) => {
-    const types: { [key: string]: string } = {
-      'sale': 'Vente',
-      'rent': 'Location',
-      'vacation_rental': 'Location vacances'
-    };
-    return types[type] || type;
-  };
+  if (loading) {
+    return (
+      <section className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] py-24 px-[5%]">
+        <div className="max-w-[1400px] mx-auto flex items-center justify-center min-h-96">
+          <p className="text-[#8A9BB0]">Chargement des propriétés...</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section id="annonces" className="bg-gradient-to-b from-sabbar-900 to-sabbar-800 py-24 px-4 border-t border-turquoise-500/20">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-4xl md:text-5xl font-bold text-center mb-4">
-          <span className="text-white">Nos dernières annonces</span>
-        </h2>
-        <p className="text-center text-gray-300 text-xl mb-16 max-w-2xl mx-auto">
-          Découvrez nos propriétés les plus récentes et exclusives
-        </p>
-
-        {/* Loading State */}
-        {loading && (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin">
-              <div className="w-12 h-12 border-4 border-sabbar-700 border-t-turquoise-500 rounded-full"></div>
-            </div>
-            <p className="text-gray-300 mt-4">Chargement des propriétés...</p>
-          </div>
-        )}
-
-        {/* Error State */}
-        {error && (
-          <div className="bg-red-900/20 border border-red-600 rounded-lg p-6 text-center">
-            <p className="text-red-400">❌ {error}</p>
-            <p className="text-gray-400 mt-2 text-sm">Vérifiez la console (F12) pour plus de détails</p>
-          </div>
-        )}
+    <section className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] py-24 px-[5%]">
+      <div className="max-w-[1400px] mx-auto">
+        {/* Header */}
+        <div className="text-center mb-20">
+          <h2
+            className="text-5xl md:text-6xl font-bold text-white mb-6"
+            style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontWeight: 300,
+              lineHeight: 1.05,
+            }}
+          >
+            Nos <span className="text-[#C8A96E]">Réalisations</span>
+          </h2>
+          <p
+            className="text-lg text-[#8A9BB0] max-w-3xl mx-auto"
+            style={{
+              fontFamily: "'DM Sans', system-ui, sans-serif",
+              fontWeight: 400,
+              lineHeight: 1.7,
+            }}
+          >
+            Découvrez nos projets immobiliers prestigieux au Maroc
+          </p>
+        </div>
 
         {/* Properties Grid */}
-        {!loading && !error && properties.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {properties.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {properties.map((property) => (
-              <Link key={property.id} href={`/properties/${property.id}`}>
-                <div className="bg-sabbar-700/20 border border-turquoise-500/30 rounded-xl overflow-hidden hover:border-turquoise-500/60 transition-all duration-300 group hover:shadow-lg hover:shadow-turquoise-500/20">
-                  {/* Image */}
-                  <div className="relative h-48 overflow-hidden bg-sabbar-800">
-                    {property.images && property.images.length > 0 ? (
-                      <Image
-                        src={property.images[0]}
-                        alt={property.title}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-300"
-                        onError={(e) => {
-                          console.error(`❌ Image failed to load: ${property.images?.[0]}`);
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-sabbar-700 to-sabbar-800">
-                        <div className="text-center">
-                          <Home size={48} className="text-sabbar-600 mx-auto mb-2" />
-                          <p className="text-sabbar-500 text-xs">Pas d'image</p>
-                        </div>
-                      </div>
-                    )}
-                    {/* Badge */}
-                    <div className="absolute top-4 right-4 bg-gradient-to-r from-turquoise-600 to-turquoise-500 text-white px-3 py-1 rounded-lg text-sm font-semibold">
-                      {getTransactionType(property.transaction_type)}
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">
-                      {property.title}
-                    </h3>
-
-                    {/* Location */}
-                    <div className="flex items-center gap-2 text-gray-300 mb-4">
-                      <MapPin size={16} className="text-turquoise-500" />
-                      <span className="text-sm">{property.city}</span>
-                      {property.district && <span className="text-sm">- {property.district}</span>}
-                    </div>
-
-                    {/* Details */}
-                    {(property.bedrooms || property.area) && (
-                      <div className="flex gap-4 mb-4 py-4 border-y border-sabbar-700">
-                        {property.bedrooms && (
-                          <div className="text-sm text-gray-300">
-                            <span className="block font-semibold text-white">{property.bedrooms}</span>
-                            <span>Chambres</span>
-                          </div>
-                        )}
-                        {property.area && (
-                          <div className="text-sm text-gray-300">
-                            <span className="block font-semibold text-white">{property.area} m²</span>
-                            <span>Surface</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Price */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <DollarSign size={18} className="text-turquoise-500" />
-                        <span className="text-2xl font-bold text-turquoise-500">
-                          {formatPrice(property.price)}
-                        </span>
-                      </div>
-                      <button className="bg-gradient-to-r from-turquoise-600 to-turquoise-500 hover:from-turquoise-500 hover:to-turquoise-400 text-white p-2 rounded-lg transition-all group-hover:scale-110">
-                        <ArrowRight size={20} />
-                      </button>
-                    </div>
-                  </div>
+              <div
+                key={property.id}
+                className="group bg-[rgba(26,40,71,0.3)] border border-[rgba(200,169,110,0.15)] rounded-2xl overflow-hidden transition-all duration-300 hover:border-[rgba(200,169,110,0.4)] hover:shadow-[0_20px_40px_rgba(200,169,110,0.2)] hover:-translate-y-2"
+              >
+                {/* Image Container */}
+                <div className="relative h-64 overflow-hidden bg-[#0a0e1a] flex items-center justify-center">
+                  <img 
+                    src={property.image} 
+                    alt={property.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="400"%3E%3Crect fill="%231a2847" width="600" height="400"/%3E%3Ctext x="50%25" y="50%25" font-size="24" fill="%23C8A96E" text-anchor="middle" dy=".3em"%3EImage indisponible%3C/text%3E%3C/svg%3E';
+                    }}
+                  />
                 </div>
-              </Link>
+
+                {/* Content */}
+                <div className="p-6 space-y-4">
+                  {/* Title */}
+                  <h3
+                    className="text-xl font-bold text-white group-hover:text-[#C8A96E] transition-colors line-clamp-2"
+                    style={{
+                      fontFamily: "'Cormorant Garamond', Georgia, serif",
+                      fontWeight: 400,
+                    }}
+                  >
+                    {property.title}
+                  </h3>
+
+                  {/* Location */}
+                  <div className="flex items-center gap-2 text-[#8A9BB0] text-sm mb-4">
+                    <MapPin size={16} className="text-[#C8A96E] flex-shrink-0" />
+                    <span
+                      style={{
+                        fontFamily: "'DM Sans', system-ui, sans-serif",
+                        fontWeight: 400,
+                      }}
+                    >
+                      {property.location}
+                    </span>
+                  </div>
+
+                  {/* Price */}
+                  <div className="pt-4 border-t border-[rgba(200,169,110,0.1)]">
+                    <p
+                      className="text-3xl font-bold text-[#C8A96E]"
+                      style={{
+                        fontFamily: "'Cormorant Garamond', Georgia, serif",
+                        fontWeight: 300,
+                        fontStyle: 'italic',
+                      }}
+                    >
+                      {property.price.toLocaleString()}
+                    </p>
+                    <p
+                      className="text-xs text-[#8A9BB0]"
+                      style={{
+                        fontFamily: "'DM Sans', system-ui, sans-serif",
+                        fontWeight: 500,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.12em',
+                      }}
+                    >
+                      MAD
+                    </p>
+                  </div>
+
+                  {/* See Details Button */}
+                  <Link
+                    href={`/properties/${property.id}`}
+                    className="w-full bg-[#C8A96E] hover:bg-[#E2C98A] text-[#0D1F3C] py-2 rounded-lg font-bold transition-all duration-300 inline-flex items-center justify-center gap-2 mt-4"
+                    style={{
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontWeight: 500,
+                    }}
+                  >
+                    Voir les détails <ArrowRight size={16} />
+                  </Link>
+                </div>
+              </div>
             ))}
           </div>
         )}
 
-        {/* No Properties State */}
-        {!loading && !error && properties.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-300 text-lg">Aucune propriété disponible pour le moment.</p>
-          </div>
-        )}
+        {/* Buttons Section */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link
+            href="/properties"
+            className="px-8 py-4 bg-gradient-to-r from-[#C8A96E] to-[#E2C98A] text-[#0D1F3C] font-bold rounded-xl hover:shadow-[0_20px_40px_rgba(200,169,110,0.3)] hover:-translate-y-1 transition-all duration-300 inline-flex items-center justify-center gap-2"
+            style={{
+              fontFamily: "'DM Sans', system-ui, sans-serif",
+              fontWeight: 500,
+            }}
+          >
+            Voir tous les biens <ArrowRight size={18} />
+          </Link>
 
-        {/* View All Button */}
-        {!loading && !error && properties.length > 0 && (
-          <div className="text-center mt-12">
-            <Link
-              href="/properties"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-turquoise-600 to-turquoise-500 hover:from-turquoise-500 hover:to-turquoise-400 text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-105"
-            >
-              Voir toutes les annonces
-              <ArrowRight size={20} />
-            </Link>
-          </div>
-        )}
+          <Link
+            href="/contact"
+            className="px-8 py-4 border-2 border-[#C8A96E] text-[#C8A96E] font-bold rounded-xl hover:bg-[#C8A96E] hover:text-[#0D1F3C] transition-all duration-300 inline-flex items-center justify-center gap-2"
+            style={{
+              fontFamily: "'DM Sans', system-ui, sans-serif",
+              fontWeight: 500,
+            }}
+          >
+            Nous Contacter <ArrowRight size={18} />
+          </Link>
+        </div>
       </div>
     </section>
   );

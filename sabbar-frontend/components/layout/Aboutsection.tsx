@@ -1,53 +1,216 @@
 'use client';
 
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
-import Image from 'next/image';
-
 export default function AboutSection() {
   return (
-    <section className="bg-gradient-to-b from-sabbar-900 to-sabbar-800 py-24 px-4 border-t border-turquoise-500/20">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div>
-            <h2 className="text-4xl font-bold mb-6">
-              <span className="text-white">Qui sommes-nous</span>
-            </h2>
-            <p className="text-gray-300 text-lg leading-relaxed mb-6">
-              SABBAR est votre partenaire immobilier de confiance pour un accompagnement clair et sécurisé au Maroc.
-            </p>
-            <p className="text-gray-300 text-lg leading-relaxed mb-8">
-              Grâce à notre savoir-faire en intermédiaton et commercialisation, nous vous offrons des solutions sur mesure, innovantes et pleines de valeur pour concrétiser vos ambitions immobilières.
-            </p>
-            <Link
-              href="#contact"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-turquoise-600 to-turquoise-500 hover:from-turquoise-500 hover:to-turquoise-400 text-white font-bold rounded-lg transition-all duration-300 group"
-            >
-              Nous contacter
-              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
+    <section className="py-24 px-[5%] bg-gradient-to-b from-[#0a0e1a] to-[#0f1424]">
+      <div className="max-w-[1400px] mx-auto">
+        {/* Header - LANDMARK STYLES */}
+        <div className="text-center mb-16">
+          <h2
+            className="text-5xl md:text-6xl font-bold text-white mb-6"
+            style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontWeight: 300,
+              lineHeight: 1.05,
+            }}
+          >
+            Pourquoi Choisir <span className="text-[#C8A96E]">LANDMARK</span>
+          </h2>
+          <p
+            className="text-lg text-[#8A9BB0] max-w-3xl mx-auto"
+            style={{
+              fontFamily: "'DM Sans', system-ui, sans-serif",
+              fontWeight: 400,
+              lineHeight: 1.7,
+            }}
+          >
+            Leader reconnu dans l'immobilier à Casablanca, LANDMARK met à votre service une expertise reconnue et une approche client centrée qui a fait le succès de plus de 5000 transactions immobilières.
+          </p>
+        </div>
 
-          {/* Image Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              { src: '/images/cities/casablanca.jpg', alt: 'Property 1' },
-              { src: '/images/cities/rabat.jpg', alt: 'Property 2' },
-              { src: '/images/cities/marrakech.jpg', alt: 'Property 3' },
-              { src: '/images/cities/casablanca.jpg', alt: 'Property 4' }
-            ].map((img, idx) => (
-              <div key={idx} className="relative h-48 rounded-xl overflow-hidden border border-turquoise-500/20 bg-sabbar-800">
-                <Image
-                  src={img.src}
-                  alt={img.alt}
-                  fill
-                  className="object-cover"
-                  onError={(e) => {
-                    console.warn(`❌ About section image failed to load: ${img.src}`);
+        {/* Main Content - Simple layout */}
+        <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(200,169,110,0.2)] rounded-2xl p-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Left Column - Text */}
+            <div>
+              <h3
+                className="text-3xl font-bold text-white mb-8"
+                style={{
+                  fontFamily: "'Cormorant Garamond', Georgia, serif",
+                  fontWeight: 400,
+                }}
+              >
+                Qui Sommes-nous ?
+              </h3>
+              
+              <div className="space-y-6 leading-relaxed">
+                <p
+                  className="text-[#8A9BB0]"
+                  style={{
+                    fontFamily: "'DM Sans', system-ui, sans-serif",
+                    fontWeight: 400,
+                    lineHeight: 1.7,
                   }}
-                />
+                >
+                  <span className="text-[#C8A96E] font-semibold">Landmark Estate</span>, votre partenaire immobilier de confiance à Casablanca : des solutions commerciales exclusives pour les promoteurs, une plateforme de vente et location accessible à tous.
+                </p>
+                
+                <p
+                  className="text-[#8A9BB0]"
+                  style={{
+                    fontFamily: "'DM Sans', system-ui, sans-serif",
+                    fontWeight: 400,
+                    lineHeight: 1.7,
+                  }}
+                >
+                  Grâce à notre expertise en commercialisation immobilière et notre maîtrise du marché casablancais, nous vous offrons des solutions sur mesure, innovantes et pleines de valeur pour concrétiser vos ambitions immobilières.
+                </p>
+
+                <p
+                  className="text-[#8A9BB0]"
+                  style={{
+                    fontFamily: "'DM Sans', system-ui, sans-serif",
+                    fontWeight: 400,
+                    lineHeight: 1.7,
+                  }}
+                >
+                  Que vous soyez <strong className="text-white">promoteur</strong> cherchant une commercialisation exclusive, <strong className="text-white">propriétaire</strong> souhaitant vendre rapidement, ou <strong className="text-white">acheteur</strong> en quête du bien idéal, LANDMARK_ESTATE est l'interlocuteur unique pour tous vos projets immobiliers.
+                </p>
               </div>
-            ))}
+            </div>
+
+            {/* Right Column - Stats + Avantages */}
+            <div className="space-y-8">
+              {/* Stats */}
+              <div className="bg-[rgba(200,169,110,0.1)] border border-[rgba(200,169,110,0.2)] rounded-xl p-8">
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <div
+                      className="text-3xl font-bold text-[#C8A96E] mb-2"
+                      style={{
+                        fontFamily: "'Cormorant Garamond', Georgia, serif",
+                        fontWeight: 300,
+                      }}
+                    >
+                      5000+
+                    </div>
+                    <div
+                      className="text-sm text-[#8A9BB0]"
+                      style={{
+                        fontFamily: "'DM Sans', system-ui, sans-serif",
+                        fontWeight: 400,
+                      }}
+                    >
+                      Transactions réussies
+                    </div>
+                  </div>
+                  <div>
+                    <div
+                      className="text-3xl font-bold text-[#C8A96E] mb-2"
+                      style={{
+                        fontFamily: "'Cormorant Garamond', Georgia, serif",
+                        fontWeight: 300,
+                      }}
+                    >
+                      20+
+                    </div>
+                    <div
+                      className="text-sm text-[#8A9BB0]"
+                      style={{
+                        fontFamily: "'DM Sans', system-ui, sans-serif",
+                        fontWeight: 400,
+                      }}
+                    >
+                      Ans d'expérience
+                    </div>
+                  </div>
+                  <div>
+                    <div
+                      className="text-3xl font-bold text-[#C8A96E] mb-2"
+                      style={{
+                        fontFamily: "'Cormorant Garamond', Georgia, serif",
+                        fontWeight: 300,
+                      }}
+                    >
+                      98%
+                    </div>
+                    <div
+                      className="text-sm text-[#8A9BB0]"
+                      style={{
+                        fontFamily: "'DM Sans', system-ui, sans-serif",
+                        fontWeight: 400,
+                      }}
+                    >
+                      Satisfaction client
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Key Points */}
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="text-[#C8A96E] mt-1.5 flex-shrink-0 text-xl">●</div>
+                  <p
+                    className="text-[#8A9BB0]"
+                    style={{
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontWeight: 400,
+                    }}
+                  >
+                    Agents immobiliers certifiés et assermentes
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="text-[#C8A96E] mt-1.5 flex-shrink-0 text-xl">●</div>
+                  <p
+                    className="text-[#8A9BB0]"
+                    style={{
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontWeight: 400,
+                    }}
+                  >
+                    Portefeuille diversifié de propriétés premium
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="text-[#C8A96E] mt-1.5 flex-shrink-0 text-xl">●</div>
+                  <p
+                    className="text-[#8A9BB0]"
+                    style={{
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontWeight: 400,
+                    }}
+                  >
+                    Service de commercialisation complète
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="text-[#C8A96E] mt-1.5 flex-shrink-0 text-xl">●</div>
+                  <p
+                    className="text-[#8A9BB0]"
+                    style={{
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontWeight: 400,
+                    }}
+                  >
+                    Accompagnement juridique et administratif
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="text-[#C8A96E] mt-1.5 flex-shrink-0 text-xl">●</div>
+                  <p
+                    className="text-[#8A9BB0]"
+                    style={{
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontWeight: 400,
+                    }}
+                  >
+                    Confidentialité et discrétion garanties
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

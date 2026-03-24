@@ -8,72 +8,280 @@ export default function PublicNavbar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   return (
-    <nav className="bg-gradient-to-r from-teal-900 via-teal-800 to-teal-900 text-white sticky top-0 z-40 border-b border-yellow-500/20">
+    <nav
+      className="sticky top-0 z-40 border-b"
+      style={{
+        background: 'linear-gradient(to right, #0D1F3C, #162D4F, #0D1F3C)',
+        borderColor: 'rgba(200, 169, 110, 0.2)',
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 text-xl font-bold hover:text-yellow-400 transition">
-            🏠 SABBAR IMMOBILIER
+          <Link
+            href="/"
+            className="flex items-center gap-2 font-bold transition-colors hover:text-[#C8A96E]"
+            style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontWeight: 400,
+              fontSize: '22px',
+              color: '#F9F5EF',
+            }}
+          >
+            🏠 LANDMARK ESTATE
           </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-2">
-            <Link href="/" className="px-4 py-2 hover:text-yellow-400 transition rounded-lg">
+            {/* Accueil */}
+            <Link
+              href="/"
+              className="px-4 py-2 transition-colors rounded-lg"
+              style={{
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontSize: '14px',
+                fontWeight: 500,
+                color: '#E2C98A',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#C8A96E';
+                e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#E2C98A';
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
               Accueil
             </Link>
-            <Link href="/about" className="px-4 py-2 hover:text-yellow-400 transition rounded-lg">
+
+            {/* À propos */}
+            <Link
+              href="/a-propos"
+              className="px-4 py-2 transition-colors rounded-lg"
+              style={{
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontSize: '14px',
+                fontWeight: 500,
+                color: '#E2C98A',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#C8A96E';
+                e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#E2C98A';
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
               À propos
             </Link>
 
             {/* Services Dropdown */}
-            <div 
+            <div
               className="relative"
               onMouseEnter={() => setOpenDropdown('services')}
               onMouseLeave={() => setOpenDropdown(null)}
             >
-              <button className="px-4 py-2 flex items-center gap-1 hover:text-yellow-400 transition rounded-lg">
+              <button
+                className="px-4 py-2 flex items-center gap-1 transition-colors rounded-lg"
+                style={{
+                  fontFamily: "'DM Sans', system-ui, sans-serif",
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  color: '#E2C98A',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#C8A96E';
+                  e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#E2C98A';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
                 Services
-                <ChevronDown size={16} className={`transition ${openDropdown === 'services' ? 'rotate-180' : ''}`} />
+                <ChevronDown
+                  size={16}
+                  style={{
+                    transition: 'transform 0.3s ease',
+                    transform: openDropdown === 'services' ? 'rotate(180deg)' : 'rotate(0deg)',
+                  }}
+                />
               </button>
               {openDropdown === 'services' && (
-                <div className="absolute top-16 left-0 bg-teal-800 rounded-lg shadow-lg py-2 w-48 border border-yellow-500/20">
-                  <Link href="/services/intermediation" className="block px-4 py-2 hover:bg-teal-700">
-                    Intermédiaton
+                <div
+                  className="absolute top-16 left-0 rounded-lg shadow-lg py-2 w-48 border"
+                  style={{
+                    backgroundColor: '#162D4F',
+                    borderColor: 'rgba(200, 169, 110, 0.3)',
+                  }}
+                >
+                  <Link
+                    href="/services/intermediations"
+                    className="block px-4 py-2 transition-colors"
+                    style={{
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontSize: '14px',
+                      color: '#E2C98A',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.15)';
+                      e.currentTarget.style.color = '#C8A96E';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = '#E2C98A';
+                    }}
+                  >
+                    Intermédiations
                   </Link>
-                  <Link href="/services/commercialisation" className="block px-4 py-2 hover:bg-teal-700">
+                  <Link
+                    href="/services/commercialisation"
+                    className="block px-4 py-2 transition-colors"
+                    style={{
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontSize: '14px',
+                      color: '#E2C98A',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.15)';
+                      e.currentTarget.style.color = '#C8A96E';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = '#E2C98A';
+                    }}
+                  >
                     Commercialisation
                   </Link>
                 </div>
               )}
             </div>
 
-            {/* Projects Dropdown */}
-            <div 
+            {/* Projets Dropdown */}
+            <div
               className="relative"
               onMouseEnter={() => setOpenDropdown('projects')}
               onMouseLeave={() => setOpenDropdown(null)}
             >
-              <button className="px-4 py-2 flex items-center gap-1 hover:text-yellow-400 transition rounded-lg">
+              <button
+                className="px-4 py-2 flex items-center gap-1 transition-colors rounded-lg"
+                style={{
+                  fontFamily: "'DM Sans', system-ui, sans-serif",
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  color: '#E2C98A',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#C8A96E';
+                  e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#E2C98A';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
                 Projets
-                <ChevronDown size={16} className={`transition ${openDropdown === 'projects' ? 'rotate-180' : ''}`} />
+                <ChevronDown
+                  size={16}
+                  style={{
+                    transition: 'transform 0.3s ease',
+                    transform: openDropdown === 'projects' ? 'rotate(180deg)' : 'rotate(0deg)',
+                  }}
+                />
               </button>
               {openDropdown === 'projects' && (
-                <div className="absolute top-16 left-0 bg-teal-800 rounded-lg shadow-lg py-2 w-48 border border-yellow-500/20">
-                  <Link href="/projects/recent" className="block px-4 py-2 hover:bg-teal-700">
-                    Récents
+                <div
+                  className="absolute top-16 left-0 rounded-lg shadow-lg py-2 w-48 border"
+                  style={{
+                    backgroundColor: '#162D4F',
+                    borderColor: 'rgba(200, 169, 110, 0.3)',
+                  }}
+                >
+                  <Link
+                    href="/properties"
+                    className="block px-4 py-2 transition-colors"
+                    style={{
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontSize: '14px',
+                      color: '#E2C98A',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.15)';
+                      e.currentTarget.style.color = '#C8A96E';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = '#E2C98A';
+                    }}
+                  >
+                    Tous les Projets
                   </Link>
-                  <Link href="/projects/featured" className="block px-4 py-2 hover:bg-teal-700">
-                    En Vedette
+                  <Link
+                    href="/properties"
+                    className="block px-4 py-2 transition-colors"
+                    style={{
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontSize: '14px',
+                      color: '#E2C98A',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.15)';
+                      e.currentTarget.style.color = '#C8A96E';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = '#E2C98A';
+                    }}
+                  >
+                    Récents
                   </Link>
                 </div>
               )}
             </div>
 
-            <Link href="/blog" className="px-4 py-2 hover:text-yellow-400 transition rounded-lg">
+            {/* Blog */}
+            <Link
+              href="/blog"
+              className="px-4 py-2 transition-colors rounded-lg"
+              style={{
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontSize: '14px',
+                fontWeight: 500,
+                color: '#E2C98A',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#C8A96E';
+                e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#E2C98A';
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
               Blog
             </Link>
 
-            <Link href="/consultation" className="px-4 py-2 hover:text-yellow-400 transition rounded-lg">
+            {/* Consultation */}
+            <Link
+              href="/contact"
+              className="px-4 py-2 transition-colors rounded-lg"
+              style={{
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontSize: '14px',
+                fontWeight: 500,
+                color: '#E2C98A',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#C8A96E';
+                e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#E2C98A';
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
               Consultation
             </Link>
           </div>
@@ -81,10 +289,44 @@ export default function PublicNavbar() {
           {/* CTA Button */}
           <Link
             href="/contact"
-            className="hidden md:block px-6 py-2 bg-yellow-500 text-gray-900 font-bold rounded-lg hover:bg-yellow-400 transition"
+            className="hidden md:block px-6 py-2 font-bold rounded-lg transition-all"
+            style={{
+              fontFamily: "'DM Sans', system-ui, sans-serif",
+              fontSize: '14px',
+              fontWeight: 500,
+              backgroundColor: '#C8A96E',
+              color: '#0D1F3C',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#E2C98A';
+              e.currentTarget.style.boxShadow = '0 8px 16px rgba(200, 169, 110, 0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#C8A96E';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
           >
             Contactez-nous
           </Link>
+
+          {/* Mobile Hamburger - Hidden on desktop */}
+          <button
+            className="md:hidden p-2 rounded-lg"
+            style={{
+              color: '#C8A96E',
+              backgroundColor: 'rgba(200, 169, 110, 0.1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)';
+            }}
+          >
+            ☰
+          </button>
         </div>
       </div>
     </nav>

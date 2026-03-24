@@ -1,9 +1,9 @@
 'use client';
 
 import HeroSection from '@/components/layout/HeroSection';
-import FeaturesSection from '@/components/layout/FeaturesSection';
-import StatsSection from '@/components/layout/StatsSection';
-import TestimonialsSection from '@/components/layout/TestimonialsSection';
+import Aboutsection from '@/components/layout/Aboutsection';
+import PropertiesSection from '@/components/layout/PropertiesSection';
+import ServicesSection from '@/components/layout/Servicessection';
 import FAQSection from '@/components/layout/FAQSection';
 import CTASection from '@/components/layout/CTASection';
 
@@ -13,14 +13,14 @@ export default function HomePage() {
       {/* Hero Section */}
       <HeroSection />
 
-      {/* Features Section */}
-      <FeaturesSection />
+      {/* About Section */}
+      <Aboutsection />
+      
+      {/* Properties Section - Section des biens immobiliers */}
+      <PropertiesSection />
 
-      {/* Stats Section */}
-      <StatsSection />
-
-      {/* Testimonials Section */}
-      <TestimonialsSection />
+      {/* Services Section - Commercialisation et Intermédiaire */}
+      <ServicesSection />
 
       {/* FAQ Section */}
       <FAQSection />

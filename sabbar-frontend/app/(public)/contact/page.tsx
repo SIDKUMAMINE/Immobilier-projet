@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { ArrowRight, Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -27,16 +27,12 @@ export default function ContactPage() {
     setLoading(true);
 
     try {
-      // Simulation d'envoi - à adapter avec votre backend
       console.log('📧 Formulaire soumis:', formData);
-      
-      // Simuler un délai d'envoi
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       setSubmitted(true);
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
       
-      // Masquer le message de succès après 5 secondes
       setTimeout(() => setSubmitted(false), 5000);
     } catch (error) {
       console.error('❌ Erreur:', error);
@@ -47,115 +43,188 @@ export default function ContactPage() {
 
   const contactInfo = [
     {
-      icon: <Phone size={32} className="text-amber-500" />,
+      icon: '📞',
       title: 'Téléphone',
-      value: '+212 6 12 34 56 78',
+      value: '+212 5 61 51 12 51',
       subtext: 'Lun-Ven: 09:00 - 18:00'
     },
     {
-      icon: <Mail size={32} className="text-amber-500" />,
+      icon: '✉️',
       title: 'Email',
-      value: 'contact@immobilierm.ma',
+      value: 'contact@sabbar.ma',
       subtext: 'Réponse sous 24h'
     },
     {
-      icon: <MapPin size={32} className="text-amber-500" />,
+      icon: '📍',
       title: 'Adresse',
-      value: '123 Rue Hassan II, Casablanca',
-      subtext: 'Maroc, 20000'
+      value: 'Casablanca, Maroc',
+      subtext: 'Sur rendez-vous'
     },
     {
-      icon: <Clock size={32} className="text-amber-500" />,
+      icon: '🕐',
       title: 'Horaires',
       value: '09:00 - 18:00',
       subtext: 'Lundi - Vendredi'
     }
   ];
 
-  const faqItems = [
-    {
-      question: 'Quel est votre délai de réponse ?',
-      answer: 'Nous répondons à toutes les demandes dans les 24 heures ouvrables. Pour les questions urgentes, appelez directement notre ligne d\'assistance.'
-    },
-    {
-      question: 'Proposez-vous des consultations gratuites ?',
-      answer: 'Oui ! Nous offrons une première consultation gratuite pour comprendre vos besoins et vous proposer la meilleure solution.'
-    },
-    {
-      question: 'Travaillez-vous dans toutes les villes du Maroc ?',
-      answer: 'Nous sommes basés à Casablanca et nous servons les principales villes (Rabat, Marrakech, Tanger, Fès, Agadir) et régions du Maroc.'
-    },
-    {
-      question: 'Comment puis-je vendre ma propriété ?',
-      answer: 'Contactez-nous directement ou prenez rendez-vous pour une évaluation gratuite de votre propriété. Nous gérons ensuite tout le processus de commercialisation.'
-    },
-    {
-      question: 'Y a-t-il des frais cachés ?',
-      answer: 'Non, nous pratiquons une tarification totalement transparente. Tous les frais sont expliqués et convenus à l\'avance.'
-    },
-    {
-      question: 'Proposez-vous un financement immobilier ?',
-      answer: 'Nous pouvons vous mettre en relation avec des partenaires bancaires de confiance pour faciliter votre financement.'
-    }
-  ];
-
-  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
-
   return (
-    <div className="bg-black min-h-screen">
+    <div style={{ background: 'linear-gradient(to bottom, #0D1F3C, #050D1A)' }}>
+      
       {/* Hero Section */}
-      <section className="relative py-24 px-4 border-b border-amber-600 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-amber-900/10 via-transparent to-amber-900/10"></div>
-        <div className="relative max-w-7xl mx-auto text-center space-y-6">
-          <h1 className="text-5xl md:text-6xl font-bold text-white">
-            Nous Contacter
+      <section className="relative py-32 px-4 overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10"
+          style={{
+            background: 'radial-gradient(circle, #C8A96E 0%, transparent 70%)',
+            filter: 'blur(40px)'
+          }}
+        />
+        
+        <div className="relative max-w-6xl mx-auto text-center space-y-6">
+          <h1 
+            className="text-6xl md:text-7xl font-bold text-white mb-6"
+            style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontWeight: 300
+            }}
+          >
+            Nous <span style={{ color: '#C8A96E' }}>Contacter</span>
           </h1>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            Une question ? Une demande spéciale ? Notre équipe est là pour vous aider. Contactez-nous par téléphone, email ou via le formulaire ci-dessous.
+          
+          <p 
+            className="text-lg md:text-xl max-w-3xl mx-auto"
+            style={{
+              color: '#8A9BB0',
+              fontFamily: "'DM Sans', system-ui, sans-serif",
+              fontWeight: 400
+            }}
+          >
+            Une question ? Une demande spéciale ? Notre équipe SABBAR Immobilier est là pour vous accompagner dans votre projet immobilier.
           </p>
         </div>
       </section>
 
-      {/* Contact Info Cards */}
-      <section className="py-16 px-4 bg-gradient-to-b from-black to-gray-900">
-        <div className="max-w-7xl mx-auto">
+      {/* Contact Info Cards - 4 Columns */}
+      <section className="py-16 px-4">
+        <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {contactInfo.map((info, idx) => (
               <div
                 key={idx}
-                className="bg-gray-800/30 border border-amber-600/20 rounded-xl p-6 hover:border-amber-600/50 hover:bg-gray-800/50 transition-all duration-300 text-center"
+                className="group rounded-2xl p-8 transition-all duration-300 text-center cursor-pointer"
+                style={{
+                  background: 'rgba(26, 40, 71, 0.4)',
+                  border: '1px solid rgba(200, 169, 110, 0.2)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(26, 40, 71, 0.6)';
+                  e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
+                  e.currentTarget.style.transform = 'translateY(-5px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(26, 40, 71, 0.4)';
+                  e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.2)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
               >
-                <div className="flex justify-center mb-4">{info.icon}</div>
-                <h3 className="text-lg font-bold text-white mb-2">{info.title}</h3>
-                <p className="text-amber-500 font-semibold mb-1">{info.value}</p>
-                <p className="text-gray-400 text-sm">{info.subtext}</p>
+                <div className="text-5xl mb-4">{info.icon}</div>
+                <h3 
+                  className="text-lg font-bold mb-2"
+                  style={{
+                    color: '#F9F5EF',
+                    fontFamily: "'Cormorant Garamond', Georgia, serif",
+                    fontWeight: 400
+                  }}
+                >
+                  {info.title}
+                </h3>
+                <p 
+                  className="font-semibold mb-1"
+                  style={{
+                    color: '#C8A96E',
+                    fontFamily: "'DM Sans', system-ui, sans-serif",
+                    fontWeight: 500
+                  }}
+                >
+                  {info.value}
+                </p>
+                <p 
+                  style={{
+                    color: '#8A9BB0',
+                    fontSize: '14px',
+                    fontFamily: "'DM Sans', system-ui, sans-serif",
+                    fontWeight: 400
+                  }}
+                >
+                  {info.subtext}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Contact Form & Map */}
-      <section className="py-24 px-4 bg-black">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Formulaire */}
+      {/* Contact Section - Form + Map */}
+      <section className="py-24 px-4 relative">
+        <div className="absolute top-0 left-0 w-96 h-96 rounded-full opacity-5"
+          style={{
+            background: 'radial-gradient(circle, #C8A96E 0%, transparent 70%)',
+            filter: 'blur(40px)'
+          }}
+        />
+
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            
+            {/* Left - Form */}
             <div>
-              <h2 className="text-3xl font-bold text-white mb-8">Envoyez-nous un message</h2>
+              <h2 
+                className="text-5xl font-bold mb-10"
+                style={{
+                  color: '#F9F5EF',
+                  fontFamily: "'Cormorant Garamond', Georgia, serif",
+                  fontWeight: 300
+                }}
+              >
+                Envoyez-nous<br />
+                <span style={{ color: '#C8A96E' }}>un message</span>
+              </h2>
 
               {submitted && (
-                <div className="mb-6 p-4 bg-green-900/20 border border-green-600 rounded-lg">
-                  <p className="text-green-400 font-semibold flex items-center gap-2">
-                    <span>✅</span> Message envoyé avec succès ! Nous vous répondrons bientôt.
+                <div 
+                  className="mb-6 p-4 rounded-xl border-l-4"
+                  style={{
+                    background: 'rgba(181, 87, 58, 0.1)',
+                    borderColor: '#B5573A'
+                  }}
+                >
+                  <p 
+                    style={{
+                      color: '#B5573A',
+                      fontWeight: 600,
+                      fontFamily: "'DM Sans', system-ui, sans-serif"
+                    }}
+                  >
+                    ✅ Message envoyé avec succès ! Nous vous répondrons bientôt.
                   </p>
                 </div>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
+                
                 {/* Nom */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">
-                    Nom complet <span className="text-red-500">*</span>
+                  <label 
+                    className="block text-sm mb-3"
+                    style={{
+                      color: '#E2C98A',
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontWeight: 500,
+                      textTransform: 'uppercase',
+                      fontSize: '11px'
+                    }}
+                  >
+                    Nom complet <span style={{ color: '#B5573A' }}>*</span>
                   </label>
                   <input
                     type="text"
@@ -164,14 +233,37 @@ export default function ContactPage() {
                     onChange={handleChange}
                     placeholder="Votre nom"
                     required
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder:text-gray-500 focus:border-amber-600 focus:outline-none transition-colors"
+                    className="w-full px-5 py-3 rounded-lg text-white placeholder-opacity-50 focus:outline-none transition-all"
+                    style={{
+                      background: 'rgba(26, 40, 71, 0.5)',
+                      border: '1px solid rgba(200, 169, 110, 0.2)',
+                      color: '#F9F5EF',
+                      fontFamily: "'DM Sans', system-ui, sans-serif"
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
+                      e.currentTarget.style.background = 'rgba(26, 40, 71, 0.7)';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.2)';
+                      e.currentTarget.style.background = 'rgba(26, 40, 71, 0.5)';
+                    }}
                   />
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">
-                    Email <span className="text-red-500">*</span>
+                  <label 
+                    className="block text-sm mb-3"
+                    style={{
+                      color: '#E2C98A',
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontWeight: 500,
+                      textTransform: 'uppercase',
+                      fontSize: '11px'
+                    }}
+                  >
+                    Email <span style={{ color: '#B5573A' }}>*</span>
                   </label>
                   <input
                     type="email"
@@ -180,13 +272,36 @@ export default function ContactPage() {
                     onChange={handleChange}
                     placeholder="votre@email.com"
                     required
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder:text-gray-500 focus:border-amber-600 focus:outline-none transition-colors"
+                    className="w-full px-5 py-3 rounded-lg text-white placeholder-opacity-50 focus:outline-none transition-all"
+                    style={{
+                      background: 'rgba(26, 40, 71, 0.5)',
+                      border: '1px solid rgba(200, 169, 110, 0.2)',
+                      color: '#F9F5EF',
+                      fontFamily: "'DM Sans', system-ui, sans-serif"
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
+                      e.currentTarget.style.background = 'rgba(26, 40, 71, 0.7)';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.2)';
+                      e.currentTarget.style.background = 'rgba(26, 40, 71, 0.5)';
+                    }}
                   />
                 </div>
 
                 {/* Téléphone */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  <label 
+                    className="block text-sm mb-3"
+                    style={{
+                      color: '#E2C98A',
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontWeight: 500,
+                      textTransform: 'uppercase',
+                      fontSize: '11px'
+                    }}
+                  >
                     Téléphone
                   </label>
                   <input
@@ -194,22 +309,59 @@ export default function ContactPage() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="+212 6 12 34 56 78"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder:text-gray-500 focus:border-amber-600 focus:outline-none transition-colors"
+                    placeholder="+212 5 61 51 12 51"
+                    className="w-full px-5 py-3 rounded-lg text-white placeholder-opacity-50 focus:outline-none transition-all"
+                    style={{
+                      background: 'rgba(26, 40, 71, 0.5)',
+                      border: '1px solid rgba(200, 169, 110, 0.2)',
+                      color: '#F9F5EF',
+                      fontFamily: "'DM Sans', system-ui, sans-serif"
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
+                      e.currentTarget.style.background = 'rgba(26, 40, 71, 0.7)';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.2)';
+                      e.currentTarget.style.background = 'rgba(26, 40, 71, 0.5)';
+                    }}
                   />
                 </div>
 
                 {/* Sujet */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">
-                    Sujet <span className="text-red-500">*</span>
+                  <label 
+                    className="block text-sm mb-3"
+                    style={{
+                      color: '#E2C98A',
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontWeight: 500,
+                      textTransform: 'uppercase',
+                      fontSize: '11px'
+                    }}
+                  >
+                    Sujet <span style={{ color: '#B5573A' }}>*</span>
                   </label>
                   <select
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-amber-600 focus:outline-none transition-colors"
+                    className="w-full px-5 py-3 rounded-lg text-white focus:outline-none transition-all"
+                    style={{
+                      background: 'rgba(26, 40, 71, 0.5)',
+                      border: '1px solid rgba(200, 169, 110, 0.2)',
+                      color: '#F9F5EF',
+                      fontFamily: "'DM Sans', system-ui, sans-serif"
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
+                      e.currentTarget.style.background = 'rgba(26, 40, 71, 0.7)';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.2)';
+                      e.currentTarget.style.background = 'rgba(26, 40, 71, 0.5)';
+                    }}
                   >
                     <option value="">Sélectionner un sujet</option>
                     <option value="achat">Achat de propriété</option>
@@ -222,8 +374,17 @@ export default function ContactPage() {
 
                 {/* Message */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">
-                    Message <span className="text-red-500">*</span>
+                  <label 
+                    className="block text-sm mb-3"
+                    style={{
+                      color: '#E2C98A',
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontWeight: 500,
+                      textTransform: 'uppercase',
+                      fontSize: '11px'
+                    }}
+                  >
+                    Message <span style={{ color: '#B5573A' }}>*</span>
                   </label>
                   <textarea
                     name="message"
@@ -232,7 +393,21 @@ export default function ContactPage() {
                     placeholder="Décrivez votre demande..."
                     required
                     rows={6}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder:text-gray-500 focus:border-amber-600 focus:outline-none transition-colors resize-none"
+                    className="w-full px-5 py-3 rounded-lg text-white placeholder-opacity-50 focus:outline-none transition-all resize-none"
+                    style={{
+                      background: 'rgba(26, 40, 71, 0.5)',
+                      border: '1px solid rgba(200, 169, 110, 0.2)',
+                      color: '#F9F5EF',
+                      fontFamily: "'DM Sans', system-ui, sans-serif"
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
+                      e.currentTarget.style.background = 'rgba(26, 40, 71, 0.7)';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.2)';
+                      e.currentTarget.style.background = 'rgba(26, 40, 71, 0.5)';
+                    }}
                   />
                 </div>
 
@@ -240,27 +415,48 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full px-6 py-4 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-600 text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 flex items-center justify-center gap-2"
+                  className="w-full py-4 rounded-lg font-bold text-lg transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 flex items-center justify-center gap-2"
+                  style={{
+                    background: loading ? 'rgba(200, 169, 110, 0.5)' : 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)',
+                    color: '#0D1F3C',
+                    fontFamily: "'DM Sans', system-ui, sans-serif",
+                    fontWeight: 500,
+                    cursor: loading ? 'not-allowed' : 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!loading) {
+                      e.currentTarget.style.boxShadow = '0 20px 40px rgba(200, 169, 110, 0.3)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                 >
                   {loading ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      Envoi en cours...
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2" style={{ borderColor: '#0D1F3C' }}></div>
+                      <span>Envoi en cours...</span>
                     </>
                   ) : (
                     <>
                       <Send size={20} />
-                      Envoyer le message
+                      <span>Envoyer le message</span>
                     </>
                   )}
                 </button>
               </form>
             </div>
 
-            {/* Map & Info */}
+            {/* Right - Map + Info */}
             <div className="space-y-8">
-              {/* Carte */}
-              <div className="rounded-xl overflow-hidden border border-amber-600/20 h-96 bg-gray-800">
+              {/* Map Container */}
+              <div 
+                className="rounded-3xl overflow-hidden h-96 shadow-2xl"
+                style={{
+                  border: '2px solid rgba(200, 169, 110, 0.2)',
+                  background: 'rgba(26, 40, 71, 0.3)'
+                }}
+              >
                 <iframe
                   width="100%"
                   height="100%"
@@ -273,26 +469,93 @@ export default function ContactPage() {
                 ></iframe>
               </div>
 
-              {/* Infos supplémentaires */}
-              <div className="bg-gradient-to-br from-gray-800/30 to-gray-900 border border-amber-600/20 rounded-xl p-8">
-                <h3 className="text-2xl font-bold text-white mb-6">Informations supplémentaires</h3>
+              {/* Info Box */}
+              <div 
+                className="rounded-3xl p-8 space-y-6"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(26, 40, 71, 0.6), rgba(26, 40, 71, 0.4))',
+                  border: '1px solid rgba(200, 169, 110, 0.2)',
+                  backdropFilter: 'blur(10px)'
+                }}
+              >
+                <h3 
+                  className="text-2xl font-bold"
+                  style={{
+                    color: '#F9F5EF',
+                    fontFamily: "'Cormorant Garamond', Georgia, serif",
+                    fontWeight: 400
+                  }}
+                >
+                  Informations<br />
+                  <span style={{ color: '#C8A96E' }}>Supplémentaires</span>
+                </h3>
 
-                <div className="space-y-4 text-gray-300">
-                  <p>
-                    <span className="font-semibold text-white">Nous répondons aux demandes:</span>
-                    <br />
-                    Du lundi au vendredi de 09h00 à 18h00
-                  </p>
-                  <p>
-                    <span className="font-semibold text-white">Urgence en dehors des heures:</span>
-                    <br />
-                    Appelez notre ligne d'urgence: +212 6 12 34 56 78
-                  </p>
-                  <p>
-                    <span className="font-semibold text-white">Visite de nos bureaux:</span>
-                    <br />
-                    Sur rendez-vous uniquement (contactez-nous à l'avance)
-                  </p>
+                <div className="space-y-5">
+                  <div>
+                    <p 
+                      style={{
+                        color: '#F9F5EF',
+                        fontFamily: "'DM Sans', system-ui, sans-serif",
+                        fontWeight: 500,
+                        marginBottom: '6px'
+                      }}
+                    >
+                      Nous répondons aux demandes
+                    </p>
+                    <p 
+                      style={{
+                        color: '#8A9BB0',
+                        fontFamily: "'DM Sans', system-ui, sans-serif",
+                        fontWeight: 400
+                      }}
+                    >
+                      Lundi au vendredi de 09h00 à 18h00
+                    </p>
+                  </div>
+
+                  <div>
+                    <p 
+                      style={{
+                        color: '#F9F5EF',
+                        fontFamily: "'DM Sans', system-ui, sans-serif",
+                        fontWeight: 500,
+                        marginBottom: '6px'
+                      }}
+                    >
+                      Urgence en dehors des heures
+                    </p>
+                    <p 
+                      style={{
+                        color: '#C8A96E',
+                        fontFamily: "'DM Sans', system-ui, sans-serif",
+                        fontWeight: 500
+                      }}
+                    >
+                      +212 5 61 51 12 51
+                    </p>
+                  </div>
+
+                  <div>
+                    <p 
+                      style={{
+                        color: '#F9F5EF',
+                        fontFamily: "'DM Sans', system-ui, sans-serif",
+                        fontWeight: 500,
+                        marginBottom: '6px'
+                      }}
+                    >
+                      Visite de nos bureaux
+                    </p>
+                    <p 
+                      style={{
+                        color: '#8A9BB0',
+                        fontFamily: "'DM Sans', system-ui, sans-serif",
+                        fontWeight: 400
+                      }}
+                    >
+                      Sur rendez-vous uniquement (contactez-nous à l'avance)
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -300,70 +563,16 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="py-24 px-4 bg-gray-900 border-t border-amber-600">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Questions Fréquemment Posées
-            </h2>
-            <p className="text-xl text-gray-400">
-              Trouvez les réponses à vos questions les plus courantes
-            </p>
-          </div>
+      <style>{`
+        input::placeholder, textarea::placeholder, select {
+          color: rgba(138, 155, 176, 0.6) !important;
+        }
 
-          <div className="space-y-4">
-            {faqItems.map((item, idx) => (
-              <div
-                key={idx}
-                className="bg-black border border-amber-600/20 rounded-xl overflow-hidden hover:border-amber-600/50 transition-all duration-300"
-              >
-                <button
-                  onClick={() => setExpandedFaq(expandedFaq === idx ? null : idx)}
-                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-900/50 transition-colors"
-                >
-                  <h3 className="text-lg font-semibold text-white text-left">{item.question}</h3>
-                  <span className={`text-amber-500 transition-transform duration-300 ${expandedFaq === idx ? 'rotate-180' : ''}`}>
-                    ▼
-                  </span>
-                </button>
-
-                {expandedFaq === idx && (
-                  <div className="px-6 py-4 border-t border-amber-600/20 bg-gray-900/30">
-                    <p className="text-gray-300">{item.answer}</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Final */}
-      <section className="py-20 px-4 bg-gradient-to-r from-amber-900/20 via-black to-black border-t border-amber-600">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <h2 className="text-4xl md:text-5xl font-bold text-white">
-            Besoin d'une consultation ?
-          </h2>
-          <p className="text-xl text-gray-400">
-            Prenez rendez-vous avec nos experts immobiliers pour discuter de vos projets.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/chat">
-              <button className="px-8 py-4 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-105">
-                Chat avec un agent
-              </button>
-            </Link>
-            <button
-              onClick={() => document.querySelector('input[name="name"]')?.focus()}
-              className="px-8 py-4 border-2 border-amber-600 text-amber-500 hover:text-amber-400 font-bold rounded-lg transition-all duration-300"
-            >
-              Remplir le formulaire
-            </button>
-          </div>
-        </div>
-      </section>
+        option {
+          background: #0D1F3C;
+          color: #F9F5EF;
+        }
+      `}</style>
     </div>
   );
 }
