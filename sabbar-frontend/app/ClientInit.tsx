@@ -1,17 +1,10 @@
 'use client';
 
-import { getOrInitializeAgentId } from '@/lib/api';
-import { useEffect, ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 export function ClientInit({ children }: { children: ReactNode }) {
-  useEffect(() => {
-    try {
-      const agentId = getOrInitializeAgentId();
-      console.log('✓✓✓ AGENT INITIALIZED:', agentId.substring(0, 8) + '...');
-    } catch (error) {
-      console.error('❌ Failed to initialize agent:', error);
-    }
-  }, []);
-
+  // Aucune initialisation requise au demarrage
+  // Les agents et tokens sont initialises on-demand
+  
   return <>{children}</>;
 }
