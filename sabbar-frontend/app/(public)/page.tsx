@@ -1,8 +1,8 @@
 'use client';
 import HeroSection from '@/components/layout/HeroSection';
-import AboutSection from '@/components/layout/AboutSection';
+import AboutSection from '@/components/layout/Aboutsection';
 import PropertiesSection from '@/components/layout/PropertiesSection';
-import ServicesSection from '@/components/layout/ServicesSection';
+import ServicesSection from '@/components/layout/Servicessection';
 import FAQSection from '@/components/layout/FAQSection';
 import CTASection from '@/components/layout/CTASection';
 export default function HomePage() {
