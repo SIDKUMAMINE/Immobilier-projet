@@ -1,13 +1,13 @@
-"""
-Service d'upload d'images et vidéos
-Fichier: lib/uploadService.ts ou services/uploadService.ts
-
-Gère :
-✅ Upload d'images multiples
-✅ Upload de vidéo
-✅ Affichage de la progression
-✅ Gestion des erreurs
-"""
+/**
+ * Service d'upload d'images et videos
+ * Fichier: lib/uploadService.ts
+ *
+ * Gere:
+ * - Upload d'images multiples
+ * - Upload de video
+ * - Affichage de la progression
+ * - Gestion des erreurs
+ */
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
@@ -27,8 +27,8 @@ export interface UploadResponse {
 }
 
 /**
- * Upload des images pour une propriété
- * @param propertyId - ID de la propriété
+ * Upload des images pour une propriete
+ * @param propertyId - ID de la propriete
  * @param files - Liste des fichiers image
  * @param onProgress - Callback de progression
  */
@@ -43,24 +43,21 @@ export async function uploadPropertyImages(
     }
 
     if (!files || files.length === 0) {
-      throw new Error('Aucun fichier sélectionné');
+      throw new Error('Aucun fichier selectione');
     }
 
-    console.log(`📸 Upload ${files.length} image(s) pour propriété: ${propertyId}`);
+    console.log(`Upload ${files.length} image(s) pour propriete: ${propertyId}`);
 
-    // Créer FormData avec les fichiers
     const formData = new FormData();
     files.forEach((file) => {
       formData.append('files', file);
     });
 
-    // Upload
     const response = await fetch(
       `${API_BASE_URL}/api/v1/properties/${propertyId}/images`,
       {
         method: 'POST',
         body: formData,
-        // ⚠️ NE PAS définir Content-Type - le navigateur le fera automatiquement
       }
     );
 
@@ -68,16 +65,16 @@ export async function uploadPropertyImages(
       const error = await response.json().catch(() => ({
         detail: `Erreur HTTP ${response.status}`
       }));
-      throw new Error(error.detail || `Upload échoué: ${response.status}`);
+      throw new Error(error.detail || `Upload echoue: ${response.status}`);
     }
 
     const data: UploadResponse = await response.json();
 
-    console.log(`✅ Images uploadées:`, data);
+    console.log(`Images uploadees:`, data);
     return data;
 
   } catch (error) {
-    console.error(`❌ Erreur upload images:`, error);
+    console.error(`Erreur upload images:`, error);
     return {
       status: 'error',
       message: error instanceof Error ? error.message : 'Erreur upload'
@@ -86,9 +83,9 @@ export async function uploadPropertyImages(
 }
 
 /**
- * Upload d'une vidéo pour une propriété
- * @param propertyId - ID de la propriété
- * @param file - Fichier vidéo
+ * Upload d'une video pour une propriete
+ * @param propertyId - ID de la propriete
+ * @param file - Fichier video
  * @param onProgress - Callback de progression
  */
 export async function uploadPropertyVideo(
@@ -102,23 +99,20 @@ export async function uploadPropertyVideo(
     }
 
     if (!file) {
-      throw new Error('Aucun fichier sélectionné');
+      throw new Error('Aucun fichier selectione');
     }
 
-    // Vérifier la taille (max 100 MB)
     const maxSize = 100 * 1024 * 1024;
     if (file.size > maxSize) {
       throw new Error(`Fichier trop volumineux (max 100 MB, vous avez ${(file.size / 1024 / 1024).toFixed(2)} MB)`);
     }
 
-    console.log(`🎥 Upload vidéo pour propriété: ${propertyId}`);
+    console.log(`Upload video pour propriete: ${propertyId}`);
     console.log(`   Fichier: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
 
-    // Créer FormData
     const formData = new FormData();
     formData.append('file', file);
 
-    // Upload avec progression
     const xhr = new XMLHttpRequest();
 
     return new Promise((resolve, reject) => {
@@ -137,7 +131,7 @@ export async function uploadPropertyVideo(
       xhr.addEventListener('load', async () => {
         if (xhr.status === 200) {
           const data: UploadResponse = JSON.parse(xhr.responseText);
-          console.log(`✅ Vidéo uploadée:`, data);
+          console.log(`Video uploadee:`, data);
           resolve(data);
         } else {
           try {
@@ -150,7 +144,7 @@ export async function uploadPropertyVideo(
       });
 
       xhr.addEventListener('error', () => {
-        reject(new Error('Erreur réseau'));
+        reject(new Error('Erreur reseau'));
       });
 
       xhr.open(
@@ -162,7 +156,7 @@ export async function uploadPropertyVideo(
     });
 
   } catch (error) {
-    console.error(`❌ Erreur upload vidéo:`, error);
+    console.error(`Erreur upload video:`, error);
     return {
       status: 'error',
       message: error instanceof Error ? error.message : 'Erreur upload'
@@ -189,7 +183,7 @@ export async function deletePropertyImage(
 
     return await response.json();
   } catch (error) {
-    console.error(`❌ Erreur suppression image:`, error);
+    console.error(`Erreur suppression image:`, error);
     return {
       status: 'error',
       message: error instanceof Error ? error.message : 'Erreur suppression'
@@ -198,7 +192,7 @@ export async function deletePropertyImage(
 }
 
 /**
- * Supprimer la vidéo
+ * Supprimer la video
  */
 export async function deletePropertyVideo(
   propertyId: string
@@ -215,7 +209,7 @@ export async function deletePropertyVideo(
 
     return await response.json();
   } catch (error) {
-    console.error(`❌ Erreur suppression vidéo:`, error);
+    console.error(`Erreur suppression video:`, error);
     return {
       status: 'error',
       message: error instanceof Error ? error.message : 'Erreur suppression'
