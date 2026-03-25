@@ -1,8 +1,8 @@
 'use client';
 import HeroSection from '@/components/layout/HeroSection';
-import AboutSection from '@/components/layout/Aboutsection';
+import AboutSection from '@/components/layout/AboutSection';
 import PropertiesSection from '@/components/layout/PropertiesSection';
-import ServicesSection from '@/components/layout/Servicessection';
+import ServicesSection from '@/components/layout/ServicesSection';
 import FAQSection from '@/components/layout/FAQSection';
 import CTASection from '@/components/layout/CTASection';
 export default function HomePage() {
@@ -12,7 +12,7 @@ export default function HomePage() {
       <HeroSection />
 
       {/* About Section */}
-      <Aboutsection />
+      <AboutSection />
       
       {/* Properties Section - Section des biens immobiliers */}
       <PropertiesSection />
