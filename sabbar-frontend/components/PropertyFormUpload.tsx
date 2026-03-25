@@ -1,6 +1,7 @@
-"""
-Composant formulaire propriété avec upload
-Fichier: components/PropertyFormUpload.tsx
+/**
+ * Composant formulaire propriété avec upload
+ * Fichier: components/PropertyFormUpload.tsx
+ */
 
 Inclut :
 ✅ Formulaire de création de propriété

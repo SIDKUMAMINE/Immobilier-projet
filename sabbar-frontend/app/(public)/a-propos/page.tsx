@@ -724,28 +724,22 @@ export default function AProposPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/contact"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold transition-all duration-300"
-              style={{
-                background: 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)',
-                color: '#0D1F3C',
-                fontFamily: "'DM Sans', system-ui, sans-serif",
-                fontWeight: 500
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 20px 40px rgba(200, 169, 110, 0.3)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-              
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#C8A96E';
-                e.currentTarget.style.color = '#0D1F3C';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
+  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold transition-all duration-300"
+  style={{
+    background: 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)',
+    color: '#0D1F3C',
+    fontFamily: "'DM Sans', system-ui, sans-serif",
+    fontWeight: 500
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.boxShadow = '0 20px 40px rgba(200, 169, 110, 0.3)';
+    e.currentTarget.style.transform = 'translateY(-2px)';
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.boxShadow = 'none';
+    e.currentTarget.style.transform = 'translateY(0)';
+  }}
+>
               Prendre Rendez-Vous
             </Link>
           </div>

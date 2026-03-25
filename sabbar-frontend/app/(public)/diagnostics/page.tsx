@@ -173,7 +173,7 @@ export default function DiagnosticsPage() {
       <div className="mt-8 bg-blue-900 p-6 rounded-lg border border-blue-700">
         <h3 className="text-lg font-bold mb-2">💡 Comment lire ces résultats?</h3>
         <ul className="list-disc list-inside space-y-2 text-blue-100">
-          <li>Si Test 1 > Test 2: Il y a des annonces avec un status différent</li>
+          <li>Si Test 1 &gt; Test 2: Il y a des annonces avec un status différent</li>
           <li>Vérifiez si Test 3 (inactive) ou Test 4 (sold) a des résultats</li>
           <li>Ouvrez la console (F12) pour voir tous les détails</li>
           <li>Copiez les résultats pour m'aider à déboguer</li>
