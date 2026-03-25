@@ -1,5 +1,8 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 
+// Force cette route a etre dynamique (pas de rendu statique)
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -7,7 +10,7 @@ export async function GET(request: NextRequest) {
     const city = searchParams.get('city');
     const type = searchParams.get('type');
 
-    console.log('📥 Frontend API - Fetching properties from backend');
+    console.log('Frontend API - Fetching properties from backend');
     console.log(`  Limit: ${limit}, City: ${city}, Type: ${type}`);
 
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
@@ -19,7 +22,7 @@ export async function GET(request: NextRequest) {
     if (type) queryParams.append('type', type);
 
     const apiUrl = `${backendUrl}/api/v1/properties?${queryParams}`;
-    console.log(`🔗 Calling backend: ${apiUrl}`);
+    console.log(`Calling backend: ${apiUrl}`);
 
     const response = await fetch(apiUrl, {
       method: 'GET',
@@ -30,7 +33,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      console.error(`❌ Backend Error: ${response.status}`);
+      console.error(`Backend Error: ${response.status}`);
       return NextResponse.json(
         { error: `Backend returned ${response.status}` },
         { status: response.status }
@@ -38,9 +41,8 @@ export async function GET(request: NextRequest) {
     }
 
     let data = await response.json();
-    console.log(`✅ Backend returned ${Array.isArray(data) ? data.length : 0} properties`);
+    console.log(`Backend returned ${Array.isArray(data) ? data.length : 0} properties`);
     
-    // 🔥 AJOUTER DES IMAGES PAR DÉFAUT SI MANQUANTES
     const defaultImages = [
       'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop',
       'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop',
@@ -59,13 +61,13 @@ export async function GET(request: NextRequest) {
       }));
 
       data.forEach((prop: any, idx: number) => {
-        console.log(`  [${idx}] ${prop.title} - Image: ${prop.image_url ? '✅' : '❌'}`);
+        console.log(`  [${idx}] ${prop.title} - Image: ${prop.image_url ? 'OK' : 'DEFAULT'}`);
       });
     }
 
     return NextResponse.json(Array.isArray(data) ? data : []);
   } catch (error) {
-    console.error('❌ Frontend API Error:', error);
+    console.error('Frontend API Error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal Server Error' },
       { status: 500 }
