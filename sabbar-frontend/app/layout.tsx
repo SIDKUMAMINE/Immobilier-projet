@@ -22,3 +22,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+// FIX: Vercel deployment issue - force rebuild
