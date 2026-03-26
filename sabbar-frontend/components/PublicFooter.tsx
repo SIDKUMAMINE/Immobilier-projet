@@ -38,7 +38,7 @@ export default function PublicFooter() {
                     color: '#F9F5EF'
                   }}
                 >
-                  SABBAR
+                  LANDMARK ESTATE
                 </span>
                 <p 
                   style={{
@@ -272,7 +272,7 @@ export default function PublicFooter() {
               <li className="flex gap-2">
                 <span style={{ color: '#C8A96E', fontSize: '16px' }}>📧</span>
                 <a 
-                  href="mailto:contact@sabbar.ma" 
+                  href="mailto:contact@landmark.ma" 
                   style={{
                     color: '#8A8A8A',
                     fontFamily: "'DM Sans', system-ui, sans-serif",
@@ -289,7 +289,7 @@ export default function PublicFooter() {
                     e.currentTarget.style.color = '#8A8A8A';
                   }}
                 >
-                  contact@sabbar.ma
+                  contact@  S.ma
                 </a>
               </li>
               <li className="flex gap-2">
@@ -330,7 +330,7 @@ export default function PublicFooter() {
 
         {/* Bottom */}
         <div className="flex flex-col md:flex-row items-center justify-between text-xs" style={{ color: '#5A5A5A', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
-          <p style={{ margin: '0', fontSize: '12px', fontWeight: '400' }}>&copy; 2026 SABBAR Immobilier. Tous droits réservés.</p>
+          <p style={{ margin: '0', fontSize: '12px', fontWeight: '400' }}>&copy; 2026 LANDMARK ESTATE. Tous droits réservés.</p>
           <div className="flex gap-4 mt-4 md:mt-0">
             {/* Facebook */}
             <a 
