@@ -6,6 +6,9 @@ import { Eye, EyeOff, Loader } from 'lucide-react';
 import { useAuth } from '@/lib/auth/context';
 import { API_BASE_URL } from '@/lib/config';
 
+// Desactiver le pre-render statique pour cette page d'auth
+export const dynamic = 'force-dynamic';
+
 function LoginForm() {
   const { login } = useAuth();
 
@@ -34,7 +37,6 @@ function LoginForm() {
         return;
       }
 
-      // ✅ La redirection vers /dashboard est gérée dans context.tsx
       await login(data.access_token, data.refresh_token);
 
     } catch (err) {
