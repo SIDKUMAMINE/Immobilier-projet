@@ -1,9 +1,12 @@
 'use client';
 
+import FeaturesSection from '@/components/layout/FeaturesSection';
+
 export default function HeroAndServicesPage() {
   return (
     <>
       <HeroSection />
+      <FeaturesSection />
       <ServicesSection />
     </>
   );
