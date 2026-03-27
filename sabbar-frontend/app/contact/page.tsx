@@ -45,13 +45,13 @@ export default function ContactPage() {
     {
       icon: '📞',
       title: 'Téléphone',
-      value: '+212 5 61 51 12 51',
+      value: '+212 6 05 58 57 20',
       subtext: 'Lun-Ven: 09:00 - 18:00'
     },
     {
       icon: '✉️',
       title: 'Email',
-      value: 'contact@sabbar.ma',
+      value: 'Landmarkestate3@gmail.com',
       subtext: 'Réponse sous 24h'
     },
     {
@@ -99,7 +99,7 @@ export default function ContactPage() {
               fontWeight: 400
             }}
           >
-            Une question ? Une demande spéciale ? Notre équipe SABBAR Immobilier est là pour vous accompagner dans votre projet immobilier.
+            Une question ? Une demande spéciale ? Notre équipe LANDMARK ESTATE est là pour vous accompagner dans votre projet immobilier.
           </p>
         </div>
       </section>
@@ -309,7 +309,7 @@ export default function ContactPage() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="+212 5 61 51 12 51"
+                    placeholder="+212 6 05 58 57 20"
                     className="w-full px-5 py-3 rounded-lg text-white placeholder-opacity-50 focus:outline-none transition-all"
                     style={{
                       background: 'rgba(26, 40, 71, 0.5)',
@@ -531,7 +531,7 @@ export default function ContactPage() {
                         fontWeight: 500
                       }}
                     >
-                      +212 5 61 51 12 51
+                      +212 6 05 58 57 20
                     </p>
                   </div>
 

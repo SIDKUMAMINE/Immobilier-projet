@@ -272,7 +272,7 @@ export default function PublicFooter() {
               <li className="flex gap-2">
                 <span style={{ color: '#C8A96E', fontSize: '16px' }}>📧</span>
                 <a 
-                  href="mailto:contact@landmark.ma" 
+                  href="mailto:Landmarkestate3@gmail.com" 
                   style={{
                     color: '#8A8A8A',
                     fontFamily: "'DM Sans', system-ui, sans-serif",
@@ -289,13 +289,13 @@ export default function PublicFooter() {
                     e.currentTarget.style.color = '#8A8A8A';
                   }}
                 >
-                  contact@  S.ma
+                  Landmarkestate3@gmail.com
                 </a>
               </li>
               <li className="flex gap-2">
                 <span style={{ color: '#C8A96E', fontSize: '16px' }}>📞</span>
                 <a 
-                  href="tel:+212561511251" 
+                  href="tel:+212605585720" 
                   style={{
                     color: '#8A8A8A',
                     fontFamily: "'DM Sans', system-ui, sans-serif",
@@ -312,7 +312,7 @@ export default function PublicFooter() {
                     e.currentTarget.style.color = '#8A8A8A';
                   }}
                 >
-                  +212 5 61 51 12 51
+                  +212 6 05 58 57 20
                 </a>
               </li>
               <li className="flex gap-2">
