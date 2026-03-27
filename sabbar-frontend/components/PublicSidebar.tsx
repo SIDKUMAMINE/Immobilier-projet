@@ -2,6 +2,7 @@
 
 import { X, MapPin, Phone, Mail, Send, Facebook, Instagram, Youtube, Music } from 'lucide-react';
 import { useState } from 'react';
+import LandmarkLogo from '@/components/ui/LandmarkLogo';
 
 interface Props {
   isOpen: boolean;
@@ -58,12 +59,13 @@ export default function PublicSidebar({ isOpen, onClose }: Props) {
         {/* Content - Scrollable */}
         <div className="flex-1 overflow-y-auto px-8 py-8 space-y-12 dm-sans">
           
-          {/* Logo */}
-          <div className="text-center mt-8">
-            <h2 className="cormorant-display text-5xl font-bold mb-4" style={{ color: '#0D1F3C' }}>
+          {/* Logo with text */}
+          <div className="text-center mt-8 flex flex-col items-center gap-4">
+            <LandmarkLogo size="md" />
+            <h2 className="cormorant-display text-4xl font-bold" style={{ color: '#0D1F3C' }}>
               LANDMARK ESTATE
             </h2>
-            <div className="h-1 w-20 mx-auto" style={{
+            <div className="h-1 w-20" style={{
               background: 'linear-gradient(to right, #0D1F3C, #C8A96E)'
             }}></div>
           </div>
@@ -108,8 +110,8 @@ export default function PublicSidebar({ isOpen, onClose }: Props) {
                 </div>
                 <div>
                   <p className="text-sm font-semibold" style={{ color: '#0D1F3C' }}>Téléphone</p>
-                  <a href="tel:+212561511251" className="text-sm mt-1 transition-colors hover:font-semibold" style={{ color: '#0D1F3C' }}>
-                    +212 5 61 51 12 51
+                  <a href="tel:+212605585720" className="text-sm mt-1 transition-colors hover:font-semibold" style={{ color: '#0D1F3C' }}>
+                    +212 6 05 58 57 20
                   </a>
                 </div>
               </div>
@@ -125,8 +127,8 @@ export default function PublicSidebar({ isOpen, onClose }: Props) {
                 </div>
                 <div>
                   <p className="text-sm font-semibold" style={{ color: '#0D1F3C' }}>Email</p>
-                  <a href="mailto:contact@sabbar.ma" className="text-sm mt-1 transition-colors hover:font-semibold" style={{ color: '#0D1F3C' }}>
-                    contact@sabbar.ma
+                  <a href="mailto:Landmarkestate3@gmail.com" className="text-sm mt-1 transition-colors hover:font-semibold" style={{ color: '#0D1F3C' }}>
+                    Landmarkestate3@gmail.com
                   </a>
                 </div>
               </div>
@@ -285,7 +287,7 @@ export default function PublicSidebar({ isOpen, onClose }: Props) {
           <div className="h-1 w-16 mx-auto mb-4" style={{
             background: 'linear-gradient(to right, #0D1F3C, #C8A96E)'
           }}></div>
-          <p className="text-xs" style={{ color: '#5A5A5A' }}>© 2026 SABBAR Immobilier</p>
+          <p className="text-xs" style={{ color: '#5A5A5A' }}>© 2026 LANDMARK ESTATE</p>
           <p className="text-xs mt-1" style={{ color: '#8A8A8A' }}>Tous droits réservés</p>
         </div>
       </aside>

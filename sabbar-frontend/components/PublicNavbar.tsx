@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
+import LandmarkLogo from '@/components/ui/LandmarkLogo';
 
 export default function PublicNavbar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -17,10 +18,10 @@ export default function PublicNavbar() {
     >
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-20">
-          {/* Logo */}
+          {/* Logo avec texte */}
           <Link
             href="/"
-            className="flex items-center gap-2 font-bold transition-colors hover:text-[#C8A96E]"
+            className="flex items-center gap-3 font-bold transition-colors hover:text-[#C8A96E]"
             style={{
               fontFamily: "'Cormorant Garamond', Georgia, serif",
               fontWeight: 400,
@@ -28,7 +29,8 @@ export default function PublicNavbar() {
               color: '#F9F5EF',
             }}
           >
-            🏠 LANDMARK ESTATE
+            <LandmarkLogo size="sm" />
+            LANDMARK ESTATE
           </Link>
 
           {/* Desktop Menu */}

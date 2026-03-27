@@ -1,5 +1,7 @@
 'use client';
 
+import LandmarkLogo from '@/components/ui/LandmarkLogo';
+
 export default function PublicFooter() {
   return (
     <footer 
@@ -15,20 +17,7 @@ export default function PublicFooter() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <svg
-                className="w-8 h-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                style={{ color: '#C8A96E' }}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M3 12l2.393-7.179A2 2 0 015.416 3h13.168a2 2 0 011.923 1.821L21 12M3 12a9 9 0 0118 0m0 0a9 9 0 00-18 0m9 9v-6m0-6V3m0 0h.01"
-                />
-              </svg>
+              <LandmarkLogo size="md" />
               <div>
                 <span 
                   style={{
