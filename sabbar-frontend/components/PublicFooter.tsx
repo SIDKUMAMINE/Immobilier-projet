@@ -27,7 +27,7 @@ export default function PublicFooter() {
                     color: '#F9F5EF'
                   }}
                 >
-                  LANDMARK ESTATE
+                  Landmark estate
                 </span>
                 <p 
                   style={{
