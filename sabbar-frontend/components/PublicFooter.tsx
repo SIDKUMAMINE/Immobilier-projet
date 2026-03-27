@@ -293,9 +293,11 @@ export default function PublicFooter() {
                 </a>
               </li>
               <li className="flex gap-2">
-                <span style={{ color: '#C8A96E', fontSize: '16px' }}>📞</span>
+                <span style={{ color: '#C8A96E', fontSize: '16px' }}>💬</span>
                 <a 
-                  href="tel:+212605585720" 
+                  href="https://wa.me/212605585720" 
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
                     color: '#8A8A8A',
                     fontFamily: "'DM Sans', system-ui, sans-serif",

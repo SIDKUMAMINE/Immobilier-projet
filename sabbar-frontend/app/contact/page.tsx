@@ -524,15 +524,26 @@ export default function ContactPage() {
                     >
                       Urgence en dehors des heures
                     </p>
-                    <p 
+                    <a
+                      href="https://wa.me/212605585720"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       style={{
                         color: '#C8A96E',
                         fontFamily: "'DM Sans', system-ui, sans-serif",
-                        fontWeight: 500
+                        fontWeight: 500,
+                        textDecoration: 'none',
+                        cursor: 'pointer'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = '#E2C98A';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = '#C8A96E';
                       }}
                     >
-                      +212 6 05 58 57 20
-                    </p>
+                      💬 +212 6 05 58 57 20 (WhatsApp)
+                    </a>
                   </div>
 
                   <div>
