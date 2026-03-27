@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -14,6 +15,12 @@ export default function ContactPage() {
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Initialiser EmailJS
+  useEffect(() => {
+    emailjs.init('hTTnBv9DSUcGkL6Bl');
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -25,17 +32,31 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     try {
-      console.log('📧 Formulaire soumis:', formData);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      // Envoyer l'email via EmailJS
+      await emailjs.send(
+        'service_yktzmd1', // Service ID
+        'template_b8rxmer', // Template ID
+        {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          message: formData.message,
+          to_email: 'Landmarkestate3@gmail.com'
+        }
+      );
+
+      // Succès
       setSubmitted(true);
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
       
       setTimeout(() => setSubmitted(false), 5000);
-    } catch (error) {
-      console.error('❌ Erreur:', error);
+    } catch (err) {
+      console.error('❌ Erreur:', err);
+      setError('Erreur lors de l\'envoi du message. Veuillez réessayer.');
     } finally {
       setLoading(false);
     }
@@ -206,6 +227,26 @@ export default function ContactPage() {
                     }}
                   >
                     ✅ Message envoyé avec succès ! Nous vous répondrons bientôt.
+                  </p>
+                </div>
+              )}
+
+              {error && (
+                <div 
+                  className="mb-6 p-4 rounded-xl border-l-4"
+                  style={{
+                    background: 'rgba(220, 38, 38, 0.1)',
+                    borderColor: '#dc2626'
+                  }}
+                >
+                  <p 
+                    style={{
+                      color: '#dc2626',
+                      fontWeight: 600,
+                      fontFamily: "'DM Sans', system-ui, sans-serif"
+                    }}
+                  >
+                    ❌ {error}
                   </p>
                 </div>
               )}
