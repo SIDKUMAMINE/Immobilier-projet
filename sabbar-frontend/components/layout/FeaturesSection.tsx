@@ -1,6 +1,6 @@
 'use client';
 
-export default function AboutSection() {
+export default function FeaturesSection() {
   return (
     <section className="py-24 px-[5%] bg-gradient-to-b from-[#0a0e1a] to-[#0f1424]">
       <div className="max-w-[1400px] mx-auto">
