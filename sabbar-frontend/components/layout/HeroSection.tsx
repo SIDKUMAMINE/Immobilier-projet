@@ -1,13 +1,6 @@
 'use client';
 
-export default function HeroAndServicesPage() {
-  return (
-    <>
-      <HeroSection />
-      <ServicesSection />
-    </>
-  );
-}
+
 
 function HeroSection() {
   return (
