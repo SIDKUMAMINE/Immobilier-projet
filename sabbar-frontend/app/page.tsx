@@ -11,7 +11,7 @@ export default function HomePage() {
   return (
     <div className="overflow-hidden">
       <HeroSection />
-      <AboutSection />
+      <FeaturesSection />
       <PropertiesSection />
       <ServicesSection />
       <FAQSection />
