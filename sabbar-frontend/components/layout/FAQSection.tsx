@@ -8,20 +8,20 @@ export default function FAQSection() {
 
   const faqs = [
     {
-      question: 'Quels services propose LANDMARK?',
-      answer: 'LANDMARK propose une gamme complète de services immobiliers incluant la vente, la location, la gestion de propriétés, et le conseil en investissement immobilier au Maroc.'
+      question: 'Combien de temps pour vendre ma propriété?',
+      answer: '20-40 jours en moyenne. Nos clients vendent 3x plus vite que le marché.'
     },
     {
-      question: 'Comment fonctionne le processus de vente avec LANDMARK?',
-      answer: 'Notre processus est simple: inscription de votre propriété, marketing professionnel, visites, négociation, et finalisation de la vente avec tous les documents légaux.'
+      question: 'Quel est votre taux de réussite?',
+      answer: '95% de satisfaction client. 85% des propriétés vendues en 90 jours. Résultats garantis.'
     },
     {
-      question: 'Quels sont vos frais de commission?',
-      answer: 'Nos frais de commission sont compétitifs et négociables selon le type de propriété et le marché. Contactez-nous pour une consultation gratuite et des informations détaillées.'
+      question: 'Combien coûte vos services?',
+      answer: '2.0-3.0% de commission selon le segment. Transparent, sans frais cachés.'
     },
     {
-      question: 'Pouvez-vous m\'aider à obtenir un financement?',
-      answer: 'Oui, nous avons des partenaires bancaires et pouvons vous guider dans le processus de demande de financement immobilier.'
+      question: 'Comment ça marche pour les promoteurs?',
+      answer: 'Partenariat exclusif. Stratégie 360°. Équipe dédiée. Ventes 40% plus rapides.'
     }
   ];
 
@@ -47,7 +47,7 @@ export default function FAQSection() {
             Questions <span style={{ color: '#C8A96E' }}>Fréquentes</span>
           </h2>
           <p className="dm-sans text-lg text-[#A8A8A8]">
-            Trouvez les réponses à vos questions
+            Trouvez les réponses rapidement
           </p>
         </div>
 
@@ -96,6 +96,28 @@ export default function FAQSection() {
               )}
             </div>
           ))}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="mt-12 text-center">
+          <a
+            href="/contact"
+            className="inline-block dm-sans font-semibold text-base px-8 py-4 rounded-lg transition-all duration-300"
+            style={{
+              background: 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)',
+              color: '#0D1F3C'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 20px 40px rgba(200, 169, 110, 0.3)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = 'none';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            Prendre Rendez-Vous →
+          </a>
         </div>
       </div>
     </section>
