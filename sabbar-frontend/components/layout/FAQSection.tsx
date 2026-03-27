@@ -8,20 +8,28 @@ export default function FAQSection() {
 
   const faqs = [
     {
-      question: 'Combien de temps pour vendre ma propriété?',
-      answer: '20-40 jours en moyenne. Nos clients vendent 3x plus vite que le marché.'
+      question: 'Comment commencer avec LANDMARK_ESTATE?',
+      answer: 'Contactez-nous pour une consultation gratuite. Nous évaluerons votre projet, analyserons le marché, et proposerons une stratégie personnalisée. Le processus est simple, transparent, et sans engagement.'
     },
     {
-      question: 'Quel est votre taux de réussite?',
-      answer: '95% de satisfaction client. 85% des propriétés vendues en 90 jours. Résultats garantis.'
+      question: 'Qu\'est-ce qui différencie LANDMARK_ESTATE des autres agences?',
+      answer: 'Nous offrons un partenariat exclusif avec zéro concurrence interne. Notre méthodologie éprouvée, équipe dédiée, et transparence totale avec rapports mensuels garantissent des résultats supérieurs. 40% plus rapide, 100% de valeur préservée.'
     },
     {
-      question: 'Combien coûte vos services?',
-      answer: '2.0-3.0% de commission selon le segment. Transparent, sans frais cachés.'
+      question: 'Quelles garanties offrez-vous?',
+      answer: 'Partenariat exclusif contractuel. Engagement long-terme avec objectifs clairs. Transparence totale avec accès données temps réel. Taux de satisfaction de 95%. Résultats mesurables documentés mensuellement.'
     },
     {
-      question: 'Comment ça marche pour les promoteurs?',
-      answer: 'Partenariat exclusif. Stratégie 360°. Équipe dédiée. Ventes 40% plus rapides.'
+      question: 'Quelle est votre valeur ajoutée unique?',
+      answer: 'Notre Gateway Strategy assure zéro prospecting waste : si commercialisation est rejetée, nous proposons intermédiaton. 100% taux de conversion. Combinaison unique de force B2B (promoteurs) et B2C (propriétaires).'
+    },
+    {
+      question: 'Combien de promoteurs faites-vous confiance?',
+      answer: 'Plus de 50 promoteurs en portefeuille actif. Chiffre d\'affaires Year 1 : MAD 11.25M. 25-30 transactions mensuelles. Partenaires de confiance du marché casablancais.'
+    },
+    {
+      question: 'Qu\'est-ce qui est inclus dans le package?',
+      answer: 'Pour Commercialisation : Analyse marché, stratégie 360°, contenu 4K, équipe commerciale dédiée, campagnes multi-canaux, rapports mensuels. Pour Intermédiaton : Lead management complet, valuation professionnelle, négociation, gestion administrative, support post-signature.'
     }
   ];
 
@@ -40,14 +48,14 @@ export default function FAQSection() {
         }
       `}</style>
 
-      <div className="max-w-[800px] mx-auto">
+      <div className="max-w-[900px] mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="cormorant-display text-6xl md:text-7xl text-white mb-6">
             Questions <span style={{ color: '#C8A96E' }}>Fréquentes</span>
           </h2>
           <p className="dm-sans text-lg text-[#A8A8A8]">
-            Trouvez les réponses rapidement
+            Découvrez comment LANDMARK_ESTATE peut transformer votre projet immobilier
           </p>
         </div>
 
@@ -99,10 +107,13 @@ export default function FAQSection() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="mt-12 text-center">
+        <div className="mt-16 text-center">
+          <p className="dm-sans text-[#A8A8A8] mb-6 text-base">
+            Prêt à démarrer votre projet avec LANDMARK_ESTATE?
+          </p>
           <a
             href="/contact"
-            className="inline-block dm-sans font-semibold text-base px-8 py-4 rounded-lg transition-all duration-300"
+            className="inline-block dm-sans font-semibold text-base px-10 py-4 rounded-lg transition-all duration-300"
             style={{
               background: 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)',
               color: '#0D1F3C'
@@ -116,7 +127,7 @@ export default function FAQSection() {
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            Prendre Rendez-Vous →
+            Consultation Gratuite →
           </a>
         </div>
       </div>
