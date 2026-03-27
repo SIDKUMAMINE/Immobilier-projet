@@ -4,7 +4,7 @@ export default function HeroAndServicesPage() {
   return (
     <>
       <HeroSection />
-     
+      <ServicesSection />
     </>
   );
 }
@@ -77,25 +77,6 @@ function HeroSection() {
             }}
           >
             Découvrir Nos Services →
-          </button>
-
-          <button 
-            className="text-[#C8A96E] border-2 border-[#C8A96E] px-10 py-4 rounded-lg font-bold text-base transition-all duration-300 hover:bg-[#C8A96E]/10 hover:-translate-y-1 cursor-pointer"
-            style={{
-              fontFamily: "'DM Sans', system-ui, sans-serif",
-              fontWeight: 500,
-              background: 'transparent'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = '#E2C98A';
-              e.currentTarget.style.color = '#E2C98A';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = '#C8A96E';
-              e.currentTarget.style.color = '#C8A96E';
-            }}
-          >
-            📋 Voir Portfolio
           </button>
         </div>
 
