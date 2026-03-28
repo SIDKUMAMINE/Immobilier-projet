@@ -1,33 +1,100 @@
-# Web Framework
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
+"""
+FastAPI Main Application - Configuration CORS pour Railway
+"""
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import os
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement
+load_dotenv()
+
+app = FastAPI(
+    title="SABBAR API",
+    description="API Immobilière avec Railway deployment",
+    version="1.0.0"
+)
+
+# ============================================================================
+# CORS MIDDLEWARE - Configuration pour Railway
+# ============================================================================
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        # LOCAL
+        "http://localhost:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8000",
+        # PRODUCTION - landmark-estate.com
+        "https://landmark-estate.com",
+        "https://www.landmark-estate.com",
+        # PRODUCTION - Vercel
+        "https://immobilier-projet-sexp.vercel.app",
+        # WILDCARD pour Railway (accepte tous les domaines Railway)
+        "*.railway.app",
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
+)
+
+# ============================================================================
+# HEALTH CHECK
+# ============================================================================
+@app.get("/health")
+async def health():
+    """Vérifier l'API"""
+    return {"status": "ok", "service": "sabbar-api"}
 
 
-# Validation
-pydantic==2.5.0
-pydantic-settings==2.1.0
+@app.get("/health/db")
+async def health_db():
+    """Vérifier la connexion BD"""
+    try:
+        # Importer le client Supabase
+        from app.db.supabase_client import get_db
+        
+        supabase = get_db()
+        response = supabase.table("properties").select("count", count="exact").execute()
+        return {"status": "ok", "database": "connected"}
+    except Exception as e:
+        return {"status": "error", "database": "disconnected", "error": str(e)}
 
-# Environnement
-python-dotenv==1.0.0
 
-# Database
-supabase==2.3.0
-postgrest==0.10.1
+@app.get("/")
+async def root():
+    """Endpoint racine"""
+    return {
+        "message": "SABBAR API - Railway Deployment",
+        "version": "1.0.0",
+        "docs": "/docs",
+        "health": "/health"
+    }
 
-# HTTP (CRUCIAL)
-httpx==0.25.0
 
-# AI - Groq
-groq==0.4.2
+# ============================================================================
+# INCLURE LES ROUTERS
+# ============================================================================
+# À adapter selon votre structure réelle
+try:
+    from app.api.v1.endpoints import auth as auth_routes
+    
+    app.include_router(
+        auth_routes.router,
+        prefix="/api/v1",
+        tags=["authentication"]
+    )
+except ImportError:
+    print("⚠️ Module auth non trouvé, en attente de configuration")
 
-# AI - Claude/Anthropic
-anthropic==0.25.1
 
-# Authentication
-python-jose==3.3.0
-passlib==1.7.4
-bcrypt==4.1.1
-
-# Testing
-pytest==7.4.3
-pytest-asyncio==0.21.1
+# ============================================================================
+# LANCER L'APP
+# ============================================================================
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
