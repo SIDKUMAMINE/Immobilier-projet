@@ -104,34 +104,6 @@ export default function HeroSection() {
                 </div>
               ))}
             </div>
-
-            {/* Gateway Strategy Highlight */}
-            <div 
-              className="mt-8 md:mt-12 p-4 md:p-6 rounded-2xl"
-              style={{
-                background: 'rgba(200, 169, 110, 0.05)',
-                border: '1px solid rgba(200, 169, 110, 0.2)'
-              }}
-            >
-              <p 
-                className="text-xs md:text-sm text-[#C8A96E] font-bold mb-2 uppercase tracking-wider"
-                style={{
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                  fontWeight: 500
-                }}
-              >
-                🎯 Notre Avantage Stratégique
-              </p>
-              <p 
-                className="text-[#8A9BB0] text-xs md:text-sm leading-relaxed"
-                style={{
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                  fontWeight: 400
-                }}
-              >
-                <span style={{ color: '#F9F5EF', fontWeight: 500 }}>Gateway Strategy:</span> Si commercialisation est rejetée, nous offrons intermédiaton. Aucune opportunité perdue. <span style={{ color: '#C8A96E', fontWeight: 600 }}>Taux de conversion 100%.</span>
-              </p>
-            </div>
           </div>
 
           {/* Right - 3D Floating Property Illustration - HIDDEN ON MOBILE */}
