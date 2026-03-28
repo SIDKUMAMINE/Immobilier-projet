@@ -20,7 +20,7 @@ export default function ServicesSection() {
       link: '/services/intermediations'
     },
     {
-      icon: '💼',
+      icon: '📊',
       title: 'Commercialisation',
       description: 'Stratégie complète pour valoriser et vendre rapidement votre propriété.',
       features: [
@@ -36,103 +36,126 @@ export default function ServicesSection() {
   ];
 
   return (
-    <section className="bg-gradient-to-b from-[#0D1F3C] to-[#0A1629] py-24 px-[5%]" style={{ fontFamily: 'DM Sans, system-ui, sans-serif' }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@400;500;600&display=swap');
-        
-        .cormorant-display {
-          font-family: 'Cormorant Garamond', serif;
-          font-weight: 300;
-        }
-        
-        .dm-sans {
-          font-family: 'DM Sans', system-ui, sans-serif;
-        }
-        
-        .dm-sans-label {
-          font-family: 'DM Sans', system-ui, sans-serif;
-          font-weight: 500;
-          font-size: 11px;
-          text-transform: uppercase;
-        }
-      `}</style>
+    <section 
+      id="nos-services"
+      className="min-h-screen bg-gradient-to-br from-[#050D1A] via-[#0D1F3C] to-[#1a2847] py-16 md:py-20 px-4 md:px-[5%] relative overflow-hidden"
+    >
+      {/* Background decoration */}
+      <div className="absolute top-0 left-[-10%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] rounded-full pointer-events-none opacity-[0.05]" 
+        style={{
+          background: 'radial-gradient(circle, rgba(200, 169, 110, 0.1) 0%, transparent 70%)',
+          animation: 'float 20s ease-in-out infinite'
+        }} />
 
-      <div className="max-w-[1400px] mx-auto">
-        {/* Header */}
-        <div className="text-center mb-20">
-          <h2 className="cormorant-display text-6xl md:text-7xl text-white mb-6">
-            Nos <span style={{ color: '#C8A96E' }}>Services</span>
-          </h2>
+      {/* Header */}
+      <div className="text-center mb-12 md:mb-20 relative z-10">
+        <h2 
+          className="text-4xl md:text-5xl font-bold text-white mb-4 md:mb-6"
+          style={{
+            fontFamily: "'Cormorant Garamond', Georgia, serif",
+            fontWeight: 300
+          }}
+        >
+          Nos{' '}
+          <span className="bg-gradient-to-r from-[#C8A96E] to-[#E2C98A] bg-clip-text text-transparent">
+            Services
+          </span>
+        </h2>
+        <p 
+          className="text-base md:text-lg text-[#8A9BB0] max-w-[600px] mx-auto px-4"
+          style={{
+            fontFamily: "'DM Sans', system-ui, sans-serif",
+            fontWeight: 400
+          }}
+        >
+          Solutions immobilières complètes et adaptées à vos besoins, combinant expertise traditionnelle et technologies modernes
+        </p>
+      </div>
 
-          <p className="dm-sans text-lg text-[#A8A8A8] max-w-3xl mx-auto leading-relaxed">
-            Solutions immobilières complètes et adaptées à vos besoins, combinant expertise traditionnelle et technologies modernes
-          </p>
-        </div>
-
-        {/* Services Grid - 2 COLONNES CÔTE À CÔTE */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {services.map((service, idx) => (
-            <div
-              key={idx}
-              className="rounded-lg p-12 transition-all duration-300 group"
+      {/* Services Grid - Responsive */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-[1200px] mx-auto relative z-10">
+        {services.map((service, idx) => (
+          <div 
+            key={idx}
+            className="p-6 md:p-8 rounded-2xl border transition-all duration-300 hover:border-[#C8A96E] group cursor-pointer"
+            style={{
+              background: 'rgba(13, 31, 60, 0.4)',
+              border: '1px solid rgba(200, 169, 110, 0.2)',
+              backdropFilter: 'blur(10px)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(13, 31, 60, 0.6)';
+              e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
+              e.currentTarget.style.transform = 'translateY(-10px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(13, 31, 60, 0.4)';
+              e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.2)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <div className="text-3xl md:text-4xl mb-4 md:mb-6">{service.icon}</div>
+            <h3 
+              className="text-xl md:text-2xl font-bold text-white mb-4"
               style={{
-                backgroundColor: 'rgba(13, 31, 60, 0.5)',
-                border: '1px solid rgba(200, 169, 110, 0.2)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
-                e.currentTarget.style.boxShadow = '0 20px 40px rgba(200, 169, 110, 0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.2)';
-                e.currentTarget.style.boxShadow = 'none';
+                fontFamily: "'Cormorant Garamond', Georgia, serif",
+                fontWeight: 300
               }}
             >
-              {/* Icon */}
-              <div className="text-5xl mb-6 transition-transform group-hover:scale-110">{service.icon}</div>
+              {service.title}
+            </h3>
+            <p 
+              className="text-sm md:text-base text-[#8A9BB0] mb-6 md:mb-8"
+              style={{
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontWeight: 400
+              }}
+            >
+              {service.description}
+            </p>
 
-              {/* Title */}
-              <h3 className="cormorant-display text-4xl text-white mb-4 transition-colors" style={{ color: '#F9F5EF' }}>
-                {service.title}
-              </h3>
+            <ul className="space-y-3 md:space-y-4 mb-6 md:mb-8">
+              {service.features.map((feature, featureIdx) => (
+                <li key={featureIdx} className="flex items-start gap-3">
+                  <span className="text-[#C8A96E] mt-1 flex-shrink-0">✓</span>
+                  <span 
+                    className="text-xs md:text-sm text-[#8A9BB0]"
+                    style={{
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontWeight: 400
+                    }}
+                  >
+                    {feature}
+                  </span>
+                </li>
+              ))}
+            </ul>
 
-              {/* Description BRÈVE */}
-              <p className="dm-sans text-base text-[#A8A8A8] mb-8 leading-relaxed">{service.description}</p>
-
-              {/* Features - 6 items */}
-              <div className="space-y-3 mb-8">
-                {service.features.map((feature, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <CheckCircle2 size={20} className="flex-shrink-0 mt-1" style={{ color: '#C8A96E' }} />
-                    <span className="dm-sans text-sm text-[#A8A8A8]">{feature}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* CTA Button - LIEN DIRECT VERS SOUS-PAGE */}
-              <Link
-                href={service.link}
-                className="inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-lg transition-all duration-300 dm-sans"
-                style={{
-                  border: '1px solid #C8A96E',
-                  color: '#C8A96E',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#C8A96E';
-                  e.currentTarget.style.color = '#0D1F3C';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = '#C8A96E';
-                }}
-              >
-                En savoir plus
-                <ArrowRight size={18} />
-              </Link>
-            </div>
-          ))}
-        </div>
+            <button 
+              className="text-[#C8A96E] border border-[#C8A96E] px-4 md:px-6 py-2 md:py-3 rounded-lg font-bold text-xs md:text-sm transition-all duration-300"
+              style={{
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontWeight: 500
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(200, 169, 110, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              En savoir plus →
+            </button>
+          </div>
+        ))}
       </div>
+
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-30px); }
+        }
+      `}</style>
     </section>
   );
 }
