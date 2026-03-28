@@ -131,21 +131,18 @@ export default function ServicesSection() {
               ))}
             </ul>
 
-            <button 
-              className="text-[#C8A96E] border border-[#C8A96E] px-4 md:px-6 py-2 md:py-3 rounded-lg font-bold text-xs md:text-sm transition-all duration-300"
-              style={{
-                fontFamily: "'DM Sans', system-ui, sans-serif",
-                fontWeight: 500
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(200, 169, 110, 0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-              }}
-            >
-              En savoir plus →
-            </button>
+            {/* Bouton "En savoir plus" - FONCTIONNEL */}
+            <Link href={service.link}>
+              <button 
+                className="w-full text-[#C8A96E] border border-[#C8A96E] px-4 md:px-6 py-2 md:py-3 rounded-lg font-bold text-xs md:text-sm transition-all duration-300 hover:bg-[#C8A96E] hover:text-[#0D1F3C]"
+                style={{
+                  fontFamily: "'DM Sans', system-ui, sans-serif",
+                  fontWeight: 500
+                }}
+              >
+                En savoir plus →
+              </button>
+            </Link>
           </div>
         ))}
       </div>
