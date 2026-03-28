@@ -2,8 +2,6 @@
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 
-# CORS (IMPORTANT POUR RENDER!)
-fastapi-cors==0.0.6
 
 # Validation
 pydantic==2.5.0
