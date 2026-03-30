@@ -1,4 +1,4 @@
-   const API_BASE_URL = https://api.landmarkk-estate.com;
+   const API_BASE_URL = "https://api.landmarkk-estate.com";
 
  
  // ✅ Initialiser ou récupérer l'Agent ID
@@ -8,6 +8,7 @@ export function getOrInitializeAgentId(): string {
   const key = 'landmark_agent_id';
   let agentId = localStorage.getItem(key);
   
+
   if (!agentId) {
     agentId = `agent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     try {
