@@ -4,7 +4,7 @@
  */
 
 // URL de base pour l'API FastAPI
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+export const API_BASE_URL = "https://api.landmarkk-estate.com" ;
 
 // URLs des endpoints
 export const API_ENDPOINTS = {
