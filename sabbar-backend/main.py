@@ -9,7 +9,7 @@ Fichier: main.py
    - Gestion des buckets Supabase Storage
    - ✅ AUTHENTIFICATION INTÉGRÉE
 """
-
+import json
 from fastapi import FastAPI, Query, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import logging
@@ -18,6 +18,7 @@ from typing import Optional
 from supabase import Client
 from pathlib import Path
 import uuid
+import os
 
 # ✅ IMPORT SUPABASE
 from app.db.supabase_client import get_db, init_supabase
@@ -112,17 +113,18 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# ============================================================================
-# CORS MIDDLEWARE
-# ============================================================================
+    # CORS MIDDLEWARE
+cors_origins = os.getenv("BACKEND_CORS_ORIGINS", '["http://localhost:3000"]')
+
+    # Parse the JSON string into a Python list
+try:
+    allowed_origins = json.loads(cors_origins)
+except json.JSONDecodeError:
+    allowed_origins = ["http://localhost:3000"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:8000",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:8000",
-    ],
+    allow_origins=allowed_origins,  # Use the parsed environment variable
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

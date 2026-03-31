@@ -14,15 +14,11 @@ Modules implémentés:
 # ====================================
 # PROPERTY MODELS (Implémenté)
 # ====================================
-from .property import (
-    PropertyType,
-    TransactionType,
-    PropertyBase,
-    PropertyCreate,
-    PropertyUpdate,
-    PropertyList,
-    Property
-)
+from .property import Property
+
+__all__ = [
+    "Property",
+]
 
 # ====================================
 # LEAD MODELS (Nouveau)

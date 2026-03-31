@@ -1,18 +1,22 @@
 """
-CRUD operations for Property
+CRUD operations for Property - CORRIGÉ
 Fichier: sabbar-backend/app/crud/property.py
 
 ✅ CORRIGÉ:
-- Import depuis app.models.property (PAS schemas)
-- SANS vérification propriétaire pour update/delete
+- Import depuis app.models.property (modèles SQLAlchemy)
+- Import depuis app.schemas.property (modèles Pydantic)
+- Indentation correcte
+- SANS vérification propriétaire pour update/delete (l'admin peut tout modifier)
 """
 
+import json
 from typing import List, Optional
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-# ✅ IMPORT CORRECT - PropertyCreate et PropertyUpdate sont dans property.py
-from app.models.property import PropertyCreate, PropertyUpdate, Property
+# ✅ IMPORTS CORRECTS
+from app.models.property import Property  # Modèle SQLAlchemy
+from app.schemas.property import PropertyCreate, PropertyUpdate  # Modèles Pydantic
 
 
 class PropertyCRUD:
@@ -27,6 +31,9 @@ class PropertyCRUD:
         """
         Créer une nouvelle propriété
         """
+        # Convertir les images en JSON string
+        images_json = json.dumps(property_data.images) if property_data.images else "[]"
+        
         new_property = Property(
             title=property_data.title,
             description=property_data.description,
@@ -40,8 +47,16 @@ class PropertyCRUD:
             district=property_data.district,
             address=property_data.address,
             owner_id=owner_id,
-            is_available=getattr(property_data, 'is_available', True),
-            images=getattr(property_data, 'images', [])
+            floor=property_data.floor,
+            has_parking=property_data.has_parking,
+            has_garden=property_data.has_garden,
+            has_pool=property_data.has_pool,
+            has_elevator=property_data.has_elevator,
+            is_furnished=property_data.is_furnished,
+            is_available=property_data.is_available,
+            images=images_json,
+            video=property_data.video,
+            status=property_data.status
         )
         session.add(new_property)
         await session.commit()
@@ -115,6 +130,10 @@ class PropertyCRUD:
 
         # ✅ UPDATE DIRECT - SANS VÉRIFICATION DE PROPRIÉTAIRE
         update_data = property_data.dict(exclude_unset=True)
+        
+        # Convertir les images en JSON si présentes
+        if 'images' in update_data and update_data['images'] is not None:
+            update_data['images'] = json.dumps(update_data['images'])
         
         await session.execute(
             update(Property)
@@ -197,6 +216,42 @@ class PropertyCRUD:
         query = query.limit(limit)
         result = await session.execute(query)
         return result.scalars().all()
+
+    @staticmethod
+    async def get_available_properties(
+        session: AsyncSession,
+        limit: int = 50
+    ) -> List[Property]:
+        """
+        Récupérer les propriétés disponibles
+        """
+        result = await session.execute(
+            select(Property)
+            .where(Property.is_available == True)
+            .limit(limit)
+        )
+        return result.scalars().all()
+
+    @staticmethod
+    async def increment_views(
+        session: AsyncSession,
+        property_id: str
+    ) -> Optional[Property]:
+        """
+        Incrémenter le compteur de vues
+        """
+        property_obj = await PropertyCRUD.get_property(session, property_id)
+        if not property_obj:
+            return None
+
+        await session.execute(
+            update(Property)
+            .where(Property.id == property_id)
+            .values(views_count=Property.views_count + 1)
+        )
+        await session.commit()
+
+        return await PropertyCRUD.get_property(session, property_id)
 
 
 # ✅ Factory function pour rétrocompatibilité

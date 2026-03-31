@@ -1,113 +1,68 @@
 """
-Modèles Pydantic pour Property - CORRIGÉ
+Modèles SQLAlchemy pour Property
+Fichier: sabbar-backend/app/models/property.py
+
+✅ CORRIGÉ:
+- Modèles SQLAlchemy UNIQUEMENT (pas Pydantic)
+- Tous les champs nécessaires
 """
-from pydantic import BaseModel, Field, field_validator
-from typing import Optional
+
+from sqlalchemy import Column, String, Float, Integer, Boolean, DateTime, Text
+from sqlalchemy.orm import declarative_base
 from datetime import datetime
-from enum import Enum
 
-class PropertyType(str, Enum):
-    apartment = "apartment"
-    villa = "villa"
-    house = "house"
-    riad = "riad"
-    land = "land"
-    office = "office"
-    commercial = "commercial"
+Base = declarative_base()
 
-class TransactionType(str, Enum):
-    sale = "sale"
-    rent = "rent"
-    vacation_rental = "vacation_rental"
 
-class PropertyStatus(str, Enum):
-    """Status des propriétés"""
-    available = "available"      # Disponible
-    pending = "pending"          # En attente
-    inactive = "inactive"        # Inactive (annonce ancienne)
-    sold = "sold"               # Vendue/louée
-    archived = "archived"       # Archivée
+class Property(Base):
+    """Modèle SQLAlchemy pour la table properties"""
+    __tablename__ = "properties"
 
-class PropertyBase(BaseModel):
-    title: str = Field(..., min_length=10, max_length=200)
-    description: str = Field(..., min_length=20, max_length=2000)
-    price: float = Field(..., gt=0)
-    property_type: PropertyType
-    transaction_type: TransactionType
-    city: str = Field(..., min_length=2, max_length=100)
-    district: Optional[str] = Field(None, max_length=100)
-    address: Optional[str] = Field(None, max_length=255)
-    area: float = Field(..., gt=0)
-    bedrooms: Optional[int] = Field(None, ge=0)
-    bathrooms: Optional[int] = Field(None, ge=0)
-    floor: Optional[int] = None
-    has_parking: bool = False
-    has_garden: bool = False
-    has_pool: bool = False
-    has_elevator: bool = False
-    is_furnished: bool = False
-    is_available: bool = True
-    images: Optional[list[str]] = []
-    video: Optional[str] = None
-    status: PropertyStatus = PropertyStatus.available  # ✅ AJOUTÉ AVEC VALEUR PAR DÉFAUT
+    # Clés primaires et relations
+    id = Column(String, primary_key=True, index=True)
+    owner_id = Column(String, nullable=False, index=True)
 
-class PropertyCreate(PropertyBase):
-    """Modèle pour créer une propriété"""
-    # ✅ Hérite du status avec la valeur par défaut "available"
-    pass
+    # Informations de base
+    title = Column(String(200), nullable=False)
+    description = Column(Text, nullable=False)
+    
+    # Type et transaction
+    property_type = Column(String, nullable=False)  # apartment, villa, house, etc.
+    transaction_type = Column(String, nullable=False)  # sale, rent, etc.
+    
+    # Prix et dimensions
+    price = Column(Float, nullable=False)
+    area = Column(Float, nullable=False)
+    
+    # Détails du logement
+    bedrooms = Column(Integer, nullable=True)
+    bathrooms = Column(Integer, nullable=True)
+    floor = Column(Integer, nullable=True)
+    
+    # Localisation
+    city = Column(String(100), nullable=False, index=True)
+    district = Column(String(100), nullable=True)
+    address = Column(String(255), nullable=True)
+    
+    # Équipements et caractéristiques
+    has_parking = Column(Boolean, default=False)
+    has_garden = Column(Boolean, default=False)
+    has_pool = Column(Boolean, default=False)
+    has_elevator = Column(Boolean, default=False)
+    is_furnished = Column(Boolean, default=False)
+    
+    # Médias
+    images = Column(String, default="[]")  # JSON array stored as string
+    video = Column(String, nullable=True)
+    
+    # Statuts et métadonnées
+    is_available = Column(Boolean, default=True)
+    status = Column(String, default="available")  # available, pending, sold, archived, inactive
+    views_count = Column(Integer, default=0)
+    
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-class PropertyUpdate(BaseModel):
-    """Tous les champs sont optionnels pour la mise à jour"""
-    title: Optional[str] = Field(None, min_length=10, max_length=200)
-    description: Optional[str] = Field(None, min_length=20, max_length=2000)
-    price: Optional[float] = Field(None, gt=0)
-    property_type: Optional[PropertyType] = None
-    transaction_type: Optional[TransactionType] = None
-    city: Optional[str] = Field(None, min_length=2, max_length=100)
-    district: Optional[str] = Field(None, max_length=100)
-    address: Optional[str] = Field(None, max_length=255)
-    area: Optional[float] = Field(None, gt=0)
-    bedrooms: Optional[int] = Field(None, ge=0)
-    bathrooms: Optional[int] = Field(None, ge=0)
-    floor: Optional[int] = None
-    has_parking: Optional[bool] = None
-    has_garden: Optional[bool] = None
-    has_pool: Optional[bool] = None
-    has_elevator: Optional[bool] = None
-    is_furnished: Optional[bool] = None
-    is_available: Optional[bool] = None
-    images: Optional[list[str]] = None
-    video: Optional[str] = None
-    status: Optional[PropertyStatus] = None  # ✅ Permet de changer le status
-
-class PropertyList(BaseModel):
-    """Version simplifiée pour les listes"""
-    id: str
-    title: str
-    price: float
-    property_type: PropertyType
-    transaction_type: TransactionType
-    city: str
-    district: Optional[str]
-    area: float
-    bedrooms: Optional[int]
-    bathrooms: Optional[int]
-    images: Optional[list[str]] = []
-    video: Optional[str]
-    status: PropertyStatus = PropertyStatus.available  # ✅ AJOUTÉ ICI
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-class Property(PropertyBase):
-    """Modèle complet avec métadonnées"""
-    id: str
-    owner_id: str
-    views_count: int = 0
-    status: PropertyStatus = PropertyStatus.available  # ✅ AJOUTÉ ICI
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        from_attributes = True
+    def __repr__(self):
+        return f"<Property(id={self.id}, title={self.title}, city={self.city})>"

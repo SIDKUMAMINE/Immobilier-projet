@@ -35,6 +35,13 @@ interface FormData {
   address: string;
   bedrooms: string;
   bathrooms: string;
+  // ✨ NOUVEAUX CHAMPS
+  floor: string;
+  has_parking: boolean;
+  has_garden: boolean;
+  has_pool: boolean;
+  has_elevator: boolean;
+  is_furnished: boolean;
 }
 
 export default function NewPropertyPage() {
@@ -54,6 +61,13 @@ export default function NewPropertyPage() {
     address: '',
     bedrooms: '',
     bathrooms: '',
+    // ✨ INITIALISER LES NOUVEAUX CHAMPS
+    floor: '',
+    has_parking: false,
+    has_garden: false,
+    has_pool: false,
+    has_elevator: false,
+    is_furnished: false,
   });
 
   const [photos, setPhotos] = useState<File[]>([]);
@@ -64,7 +78,7 @@ export default function NewPropertyPage() {
   const [error, setError] = useState('');
   const [uploadProgress, setUploadProgress] = useState('');
 
-  const set = (k: keyof FormData, v: string) => setForm(f => ({ ...f, [k]: v }));
+  const set = (k: keyof FormData, v: string | boolean) => setForm(f => ({ ...f, [k]: v }));
 
   const handlePhotos = (files: FileList | null) => {
     if (!files) return;
@@ -123,6 +137,13 @@ export default function NewPropertyPage() {
         address: form.address || null,
         bedrooms: form.bedrooms ? parseInt(form.bedrooms) : null,
         bathrooms: form.bathrooms ? parseInt(form.bathrooms) : null,
+        // ✨ AJOUTER LES NOUVEAUX CHAMPS
+        floor: form.floor ? parseInt(form.floor) : null,
+        has_parking: form.has_parking,
+        has_garden: form.has_garden,
+        has_pool: form.has_pool,
+        has_elevator: form.has_elevator,
+        is_furnished: form.is_furnished,
         status: 'available',
       });
 
@@ -274,8 +295,84 @@ export default function NewPropertyPage() {
           </div>
         </Section>
 
-        {/* 3. Photos */}
-        <Section num={3} title="Photos">
+        {/* ✨ 3. CRITÈRES SUPPLÉMENTAIRES (NOUVEAU) */}
+        <Section num={3} title="Critères supplémentaires">
+          <div className="space-y-4">
+            {/* Sous-section: Caractéristiques structurelles */}
+            <div>
+              <h4 className="text-xs font-semibold text-slate-600 mb-3">Caractéristiques</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Étage">
+                  <input
+                    type="number"
+                    placeholder="Ex: 2"
+                    value={form.floor}
+                    onChange={e => set('floor', e.target.value)}
+                    className={inputCls}
+                    min="0"
+                  />
+                </Field>
+                <Field label="">
+                  <label className="flex items-center gap-2 cursor-pointer py-2.5">
+                    <input
+                      type="checkbox"
+                      checked={form.has_elevator}
+                      onChange={e => set('has_elevator', e.target.checked)}
+                      className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer"
+                    />
+                    <span className="text-sm text-slate-700">Ascenseur</span>
+                  </label>
+                </Field>
+              </div>
+            </div>
+
+            {/* Sous-section: Équipements extérieurs */}
+            <div>
+              <h4 className="text-xs font-semibold text-slate-600 mb-3">Équipements</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <label className="flex items-center gap-2 cursor-pointer p-2.5 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+                  <input
+                    type="checkbox"
+                    checked={form.has_parking}
+                    onChange={e => set('has_parking', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer"
+                  />
+                  <span className="text-sm text-slate-700">Parking</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer p-2.5 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+                  <input
+                    type="checkbox"
+                    checked={form.has_garden}
+                    onChange={e => set('has_garden', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer"
+                  />
+                  <span className="text-sm text-slate-700">Jardin</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer p-2.5 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+                  <input
+                    type="checkbox"
+                    checked={form.has_pool}
+                    onChange={e => set('has_pool', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer"
+                  />
+                  <span className="text-sm text-slate-700">Piscine</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer p-2.5 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+                  <input
+                    type="checkbox"
+                    checked={form.is_furnished}
+                    onChange={e => set('is_furnished', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer"
+                  />
+                  <span className="text-sm text-slate-700">Meublé</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </Section>
+
+        {/* ✨ 4. Photos (anciennement 3) */}
+        <Section num={4} title="Photos">
           <div
             className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:border-blue-300 transition cursor-pointer bg-slate-50"
             onClick={() => photoInputRef.current?.click()}
@@ -319,8 +416,8 @@ export default function NewPropertyPage() {
           )}
         </Section>
 
-        {/* 4. Vidéo */}
-        <Section num={4} title="Vidéo (optionnel)">
+        {/* ✨ 5. Vidéo (anciennement 4) */}
+        <Section num={5} title="Vidéo (optionnel)">
           {!videoPreview ? (
             <div
               className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:border-blue-300 transition cursor-pointer bg-slate-50"
@@ -393,7 +490,7 @@ function Section({ num, title, children }: { num: number; title: string; childre
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs font-semibold text-slate-600 mb-1.5">{label}</label>
+      {label && <label className="block text-xs font-semibold text-slate-600 mb-1.5">{label}</label>}
       {children}
     </div>
   );
