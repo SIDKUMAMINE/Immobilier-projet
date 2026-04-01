@@ -2,17 +2,21 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Heart, ArrowRight } from 'lucide-react';
+import { ArrowLeft, MapPin, Heart, ArrowRight, ChevronDown } from 'lucide-react';
 import { propertiesApi } from '@/lib/api';
 
 export default function PropertiesPage() {
   const [selectedCity, setSelectedCity] = useState('all');
   const [selectedTransactionType, setSelectedTransactionType] = useState('all');
   const [selectedPropertyType, setSelectedPropertyType] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedFloor, setSelectedFloor] = useState('all');
+  const [selectedEquipments, setSelectedEquipments] = useState<string[]>([]);
   const [favorites, setFavorites] = useState<(number | string)[]>([]);
   const [allProperties, setAllProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandFilters, setExpandFilters] = useState(false);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -50,15 +54,38 @@ export default function PropertiesPage() {
   // Extract unique property types from API data
   const propertyTypes = useMemo(() => [...new Set(allProperties.map(p => p.property_type).filter(Boolean))], [allProperties]);
 
+  // Extract unique statuses from API data
+  const statuses = useMemo(() => [...new Set(allProperties.map(p => p.status).filter(Boolean))], [allProperties]);
+
+  // Extract unique floors from API data
+  const floors = useMemo(() => [...new Set(allProperties.map(p => p.floor).filter(Boolean))].sort(), [allProperties]);
+
+  // Extract unique equipments from API data
+  const equipmentsList = useMemo(() => {
+    const equipments = new Set<string>();
+    allProperties.forEach(p => {
+      if (p.equipments && Array.isArray(p.equipments)) {
+        p.equipments.forEach((eq: string) => equipments.add(eq));
+      }
+    });
+    return Array.from(equipments).sort();
+  }, [allProperties]);
+
   // Filter properties based on selected filters
   const filteredProperties = useMemo(() => {
     return allProperties.filter(prop => {
       const matchCity = selectedCity === 'all' || prop.city === selectedCity;
       const matchTransactionType = selectedTransactionType === 'all' || prop.transaction_type === selectedTransactionType;
       const matchPropertyType = selectedPropertyType === 'all' || prop.property_type === selectedPropertyType;
-      return matchCity && matchTransactionType && matchPropertyType;
+      const matchStatus = selectedStatus === 'all' || prop.status === selectedStatus;
+      const matchFloor = selectedFloor === 'all' || prop.floor === selectedFloor;
+      const matchEquipments = selectedEquipments.length === 0 || 
+        (prop.equipments && Array.isArray(prop.equipments) && 
+         selectedEquipments.some(eq => prop.equipments.includes(eq)));
+      
+      return matchCity && matchTransactionType && matchPropertyType && matchStatus && matchFloor && matchEquipments;
     });
-  }, [allProperties, selectedCity, selectedTransactionType, selectedPropertyType]);
+  }, [allProperties, selectedCity, selectedTransactionType, selectedPropertyType, selectedStatus, selectedFloor, selectedEquipments]);
 
   const toggleFavorite = (e: React.MouseEvent, propertyId: number | string) => {
     e.preventDefault();
@@ -70,11 +97,31 @@ export default function PropertiesPage() {
     localStorage.setItem('sabbar_favorites', JSON.stringify(newFavorites));
   };
 
+  const toggleEquipment = (equipment: string) => {
+    setSelectedEquipments(prev => 
+      prev.includes(equipment) 
+        ? prev.filter(eq => eq !== equipment)
+        : [...prev, equipment]
+    );
+  };
+
   const resetFilters = () => {
     setSelectedCity('all');
     setSelectedTransactionType('all');
     setSelectedPropertyType('all');
+    setSelectedStatus('all');
+    setSelectedFloor('all');
+    setSelectedEquipments([]);
   };
+
+  const activeFiltersCount = [
+    selectedCity !== 'all' ? 1 : 0,
+    selectedTransactionType !== 'all' ? 1 : 0,
+    selectedPropertyType !== 'all' ? 1 : 0,
+    selectedStatus !== 'all' ? 1 : 0,
+    selectedFloor !== 'all' ? 1 : 0,
+    selectedEquipments.length > 0 ? 1 : 0
+  ].reduce((a, b) => a + b, 0);
 
   return (
     <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
@@ -103,6 +150,7 @@ export default function PropertiesPage() {
       {/* Filters Section */}
       <section className="py-8 px-[5%] bg-[#0f1a2e] border-b border-[rgba(212,175,55,0.2)]">
         <div className="max-w-[1400px] mx-auto">
+          {/* Main Filters Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {/* City Filter */}
             <div>
@@ -149,16 +197,84 @@ export default function PropertiesPage() {
               </select>
             </div>
 
-            {/* Reset Button */}
+            {/* Advanced Filters Toggle */}
             <div className="flex items-end">
               <button
-                onClick={resetFilters}
-                className="w-full bg-gradient-to-r from-[#d4af37] to-[#f4d03f] hover:shadow-[0_10px_30px_rgba(212,175,55,0.3)] text-[#0f1a2e] font-bold px-4 py-3 rounded-lg transition-all"
+                onClick={() => setExpandFilters(!expandFilters)}
+                className="w-full bg-[rgba(212,175,55,0.2)] hover:bg-[rgba(212,175,55,0.3)] border border-[#d4af37] text-[#d4af37] font-bold px-4 py-3 rounded-lg transition-all inline-flex items-center justify-center gap-2"
               >
-                Réinitialiser
+                Filtres avancés {activeFiltersCount > 0 && <span className="bg-[#d4af37] text-[#0f1a2e] px-2 py-0.5 rounded-full text-xs">{activeFiltersCount}</span>}
+                <ChevronDown size={18} className={`transition-transform ${expandFilters ? 'rotate-180' : ''}`} />
               </button>
             </div>
           </div>
+
+          {/* Advanced Filters */}
+          {expandFilters && (
+            <div className="mb-6 p-6 bg-[rgba(26,40,71,0.2)] border border-[rgba(212,175,55,0.2)] rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Status Filter */}
+                <div>
+                  <label className="block text-[#d4af37] font-bold text-sm mb-3">Statut</label>
+                  <select
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
+                    className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors"
+                  >
+                    <option value="all">Tous les statuts</option>
+                    {statuses.map(status => (
+                      <option key={status} value={status}>{status}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Floor Filter */}
+                <div>
+                  <label className="block text-[#d4af37] font-bold text-sm mb-3">Étage</label>
+                  <select
+                    value={selectedFloor}
+                    onChange={(e) => setSelectedFloor(e.target.value)}
+                    className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors"
+                  >
+                    <option value="all">Tous les étages</option>
+                    {floors.map(floor => (
+                      <option key={floor} value={floor}>{floor}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Reset Advanced Button */}
+                <div className="flex items-end">
+                  <button
+                    onClick={resetFilters}
+                    className="w-full bg-gradient-to-r from-[#d4af37] to-[#f4d03f] hover:shadow-[0_10px_30px_rgba(212,175,55,0.3)] text-[#0f1a2e] font-bold px-4 py-3 rounded-lg transition-all"
+                  >
+                    Réinitialiser tous
+                  </button>
+                </div>
+              </div>
+
+              {/* Equipments Filter */}
+              {equipmentsList.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-[rgba(212,175,55,0.2)]">
+                  <label className="block text-[#d4af37] font-bold text-sm mb-3">Équipements</label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {equipmentsList.map(equipment => (
+                      <label key={equipment} className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedEquipments.includes(equipment)}
+                          onChange={() => toggleEquipment(equipment)}
+                          className="w-4 h-4 accent-[#d4af37] bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] rounded cursor-pointer"
+                        />
+                        <span className="text-[#b0b0b0] text-sm">{equipment}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Results Count */}
           <div className="text-[#b0b0b0]">
