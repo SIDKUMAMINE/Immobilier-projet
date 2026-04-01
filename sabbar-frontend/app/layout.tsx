@@ -17,11 +17,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr">
       <body className={inter.className}>
         <AuthProvider>
-          <PublicNavbarClient />
-          {children}
-          <PublicFooter />
+          <LayoutContent>{children}</LayoutContent>
         </AuthProvider>
       </body>
     </html>
+  );
+}
+
+function LayoutContent({ children }: { children: React.ReactNode }) {
+  // Note: usePathname n'est pas disponible dans un Server Component
+  // On va utiliser une approche différente
+  return (
+    <>
+      <PublicNavbarClient />
+      {children}
+      <PublicFooter />
+    </>
   );
 }

@@ -1,8 +1,16 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import LandmarkLogo from '@/components/ui/LandmarkLogo';
 
 export default function PublicFooter() {
+  const pathname = usePathname();
+
+  // Cacher le footer sur les pages admin
+  if (pathname?.startsWith('/admin') || pathname?.includes('/(admin)')) {
+    return null;
+  }
+
   return (
     <footer 
       className="py-16 border-t"

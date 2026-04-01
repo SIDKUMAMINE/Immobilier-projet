@@ -3,10 +3,17 @@
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import LandmarkLogo from '@/components/ui/LandmarkLogo';
 
 export default function PublicNavbar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const pathname = usePathname();
+
+  // Cacher la navbar sur les pages admin
+  if (pathname?.startsWith('/admin') || pathname?.includes('/(admin)')) {
+    return null;
+  }
 
   return (
     <nav
