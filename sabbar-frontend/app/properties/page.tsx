@@ -5,6 +5,46 @@ import Link from 'next/link';
 import { ArrowLeft, MapPin, Heart, ArrowRight, ChevronDown } from 'lucide-react';
 import { propertiesApi } from '@/lib/api';
 
+// Static cities list
+const staticCities = [
+  'Casablanca',
+  'Rabat',
+  'Marrakech',
+  'Fès',
+  'Tanger',
+  'Agadir',
+  'Meknès',
+  'Oujda',
+  'Kénitra',
+  'Tétouan'
+];
+
+// Static transaction types
+const staticTransactionTypes = [
+  { original: 'vente', label: 'Vente' },
+  { original: 'location', label: 'Location' },
+  { original: 'location-vacances', label: 'Location vacances' }
+];
+
+// Static property types
+const staticPropertyTypes = [
+  { original: 'apartment', label: 'Appartement' },
+  { original: 'villa', label: 'Villa' },
+  { original: 'maison', label: 'Maison' },
+  { original: 'riad', label: 'Riad' },
+  { original: 'terrain', label: 'Terrain' },
+  { original: 'bureau', label: 'Bureau' },
+  { original: 'local-commercial', label: 'Local commercial' }
+];
+
+// Static equipment list
+const staticEquipments = [
+  'Parking',
+  'Jardin',
+  'Piscine',
+  'Meublé'
+];
+
 // Mapping pour traduire les types de transaction en français
 const transactionTypeMap: { [key: string]: string } = {
   'sale': 'Vente',
@@ -15,6 +55,7 @@ const transactionTypeMap: { [key: string]: string } = {
   'location': 'Location',
   'vacation': 'Location vacances',
   'vacances': 'Location vacances',
+  'location-vacances': 'Location vacances',
 };
 
 const getTransactionTypeLabel = (type: string): string => {
@@ -35,6 +76,7 @@ const propertyTypeMap: { [key: string]: string } = {
   'terrain': 'Terrain',
   'bureau': 'Bureau',
   'local commercial': 'Local commercial',
+  'local-commercial': 'Local commercial',
 };
 
 const getPropertyTypeLabel = (type: string): string => {
@@ -87,29 +129,14 @@ export default function PropertiesPage() {
     fetchProperties();
   }, []);
 
-  // Extract unique cities from API data
-  const cities = useMemo(() => 
-    [...new Set(allProperties.map(p => p.city).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr-FR')),
-    [allProperties]
-  );
+  // Use static cities list
+  const cities = staticCities;
 
-  // Extract unique transaction types from API data - avec traduction
-  const transactionTypes = useMemo(() => {
-    const types = new Set(allProperties.map(p => p.transaction_type).filter(Boolean));
-    return Array.from(types).map(type => ({
-      original: type,
-      label: getTransactionTypeLabel(type)
-    })).sort((a, b) => a.label.localeCompare(b.label, 'fr-FR'));
-  }, [allProperties]);
+  // Use static transaction types list
+  const transactionTypes = staticTransactionTypes;
 
-  // Extract unique property types from API data - avec traduction
-  const propertyTypes = useMemo(() => {
-    const types = new Set(allProperties.map(p => p.property_type).filter(Boolean));
-    return Array.from(types).map(type => ({
-      original: type,
-      label: getPropertyTypeLabel(type)
-    })).sort((a, b) => a.label.localeCompare(b.label, 'fr-FR'));
-  }, [allProperties]);
+  // Use static property types list
+  const propertyTypes = staticPropertyTypes;
 
   // Extract unique floors from API data
   const floors = useMemo(() => {
@@ -125,16 +152,8 @@ export default function PropertiesPage() {
     });
   }, [allProperties]);
 
-  // Extract unique equipments from API data
-  const equipmentsList = useMemo(() => {
-    const equipments = new Set<string>();
-    allProperties.forEach(p => {
-      if (p.equipments && Array.isArray(p.equipments)) {
-        p.equipments.forEach((eq: string) => equipments.add(eq));
-      }
-    });
-    return Array.from(equipments).sort((a, b) => a.localeCompare(b, 'fr-FR'));
-  }, [allProperties]);
+  // Use static equipments list instead of extracting from API
+  const equipmentsList = staticEquipments;
 
   // Filter properties based on selected filters
   const filteredProperties = useMemo(() => {
@@ -307,7 +326,7 @@ export default function PropertiesPage() {
 
           {/* Advanced Criteria Section */}
           {expandCriteria && (
-            <div className="mb-6 p-6 bg-[rgba(26,40,71,0.2)] border border-[rgba(212,175,55,0.2)] rounded-lg">
+            <div className="mb-6 p-6 bg-[rgba(212,175,55,0.15)] border border-[rgba(212,175,55,0.3)] rounded-lg">
               {/* 1. Caractéristiques */}
               <div className="mb-8">
                 <h3 className="text-[#d4af37] font-bold text-sm mb-4 flex items-center gap-2">
@@ -322,7 +341,7 @@ export default function PropertiesPage() {
                     <select
                       value={selectedFloor}
                       onChange={(e) => setSelectedFloor(e.target.value)}
-                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors"
+                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors"
                     >
                       <option value="all">Tous les étages</option>
                       {floors.map(floor => (
@@ -353,7 +372,7 @@ export default function PropertiesPage() {
                       onChange={(e) => setMinBedrooms(e.target.value)}
                       placeholder="Ex: 2"
                       min="0"
-                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
+                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
                     />
                   </div>
 
@@ -366,14 +385,14 @@ export default function PropertiesPage() {
                       onChange={(e) => setMinBathrooms(e.target.value)}
                       placeholder="Ex: 1"
                       min="0"
-                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
+                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
                     />
                   </div>
                 </div>
               </div>
 
               {/* 2. Prix */}
-              <div className="mb-8 pt-6 border-t border-[rgba(212,175,55,0.2)]">
+              <div className="mb-8 pt-6 border-t border-[rgba(212,175,55,0.3)]">
                 <h3 className="text-[#d4af37] font-bold text-sm mb-4 flex items-center gap-2">
                   <span className="bg-[#d4af37] text-[#0f1a2e] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">2</span>
                   Prix (MAD)
@@ -388,7 +407,7 @@ export default function PropertiesPage() {
                       onChange={(e) => setPriceMin(e.target.value)}
                       placeholder="Ex: 500000"
                       min="0"
-                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
+                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
                     />
                   </div>
 
@@ -400,14 +419,14 @@ export default function PropertiesPage() {
                       onChange={(e) => setPriceMax(e.target.value)}
                       placeholder="Ex: 5000000"
                       min="0"
-                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
+                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
                     />
                   </div>
                 </div>
               </div>
 
               {/* 3. Surface */}
-              <div className="mb-8 pt-6 border-t border-[rgba(212,175,55,0.2)]">
+              <div className="mb-8 pt-6 border-t border-[rgba(212,175,55,0.3)]">
                 <h3 className="text-[#d4af37] font-bold text-sm mb-4 flex items-center gap-2">
                   <span className="bg-[#d4af37] text-[#0f1a2e] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">3</span>
                   Surface (m²)
@@ -422,7 +441,7 @@ export default function PropertiesPage() {
                       onChange={(e) => setMinArea(e.target.value)}
                       placeholder="Ex: 50"
                       min="0"
-                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
+                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
                     />
                   </div>
 
@@ -434,7 +453,7 @@ export default function PropertiesPage() {
                       onChange={(e) => setMaxArea(e.target.value)}
                       placeholder="Ex: 500"
                       min="0"
-                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
+                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
                     />
                   </div>
                 </div>
@@ -442,7 +461,7 @@ export default function PropertiesPage() {
 
               {/* 4. Équipements */}
               {equipmentsList.length > 0 && (
-                <div className="pt-6 border-t border-[rgba(212,175,55,0.2)]">
+                <div className="pt-6 border-t border-[rgba(212,175,55,0.3)]">
                   <h3 className="text-[#d4af37] font-bold text-sm mb-4 flex items-center gap-2">
                     <span className="bg-[#d4af37] text-[#0f1a2e] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">4</span>
                     Équipements
@@ -474,7 +493,7 @@ export default function PropertiesPage() {
               )}
 
               {/* Reset Button */}
-              <div className="mt-8 pt-6 border-t border-[rgba(212,175,55,0.2)]">
+              <div className="mt-8 pt-6 border-t border-[rgba(212,175,55,0.3)]">
                 <button
                   onClick={resetFilters}
                   className="w-full bg-gradient-to-r from-[#d4af37] to-[#f4d03f] hover:shadow-[0_10px_30px_rgba(212,175,55,0.3)] text-[#0f1a2e] font-bold px-4 py-3 rounded-lg transition-all"
