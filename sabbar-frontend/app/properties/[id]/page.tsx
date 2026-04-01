@@ -142,12 +142,26 @@ export default function PropertyDetailPage() {
   // Helper function to determine if URL is a direct video file
   const isDirectVideoFile = (videoUrl: string): boolean => {
     if (!videoUrl) return false;
-    return videoUrl.includes('.mp4') || 
-           videoUrl.includes('.webm') || 
-           videoUrl.includes('.mov') || 
-           videoUrl.includes('.avi') ||
-           videoUrl.includes('supabase') ||
-           videoUrl.includes('storage');
+    
+    // Check for direct video file extensions
+    if (videoUrl.includes('.mp4') || 
+        videoUrl.includes('.webm') || 
+        videoUrl.includes('.mov') || 
+        videoUrl.includes('.avi') ||
+        videoUrl.includes('.mkv') ||
+        videoUrl.includes('.flv')) {
+      return true;
+    }
+    
+    // Supabase Storage URLs are direct video files
+    // They contain 'supabase.co' and have 'storage' or 'object' in the path
+    if ((videoUrl.includes('supabase.co') && 
+         (videoUrl.includes('/storage/') || videoUrl.includes('/object/'))) ||
+        videoUrl.includes('supabase.co/storage')) {
+      return true;
+    }
+    
+    return false;
   };
 
   const toggleFavorite = () => {
