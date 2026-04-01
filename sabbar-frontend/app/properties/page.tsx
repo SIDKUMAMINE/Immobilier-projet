@@ -48,6 +48,12 @@ export default function PropertiesPage() {
   const [selectedFloor, setSelectedFloor] = useState('all');
   const [hasElevator, setHasElevator] = useState(false);
   const [selectedEquipments, setSelectedEquipments] = useState<string[]>([]);
+  const [priceMin, setPriceMin] = useState('');
+  const [priceMax, setPriceMax] = useState('');
+  const [minArea, setMinArea] = useState('');
+  const [maxArea, setMaxArea] = useState('');
+  const [minBedrooms, setMinBedrooms] = useState('');
+  const [minBathrooms, setMinBathrooms] = useState('');
   const [favorites, setFavorites] = useState<(number | string)[]>([]);
   const [allProperties, setAllProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -142,9 +148,30 @@ export default function PropertiesPage() {
         (prop.equipments && Array.isArray(prop.equipments) && 
          selectedEquipments.some(eq => prop.equipments.includes(eq)));
       
-      return matchCity && matchTransactionType && matchPropertyType && matchFloor && matchElevator && matchEquipments;
+      // Price filter
+      const price = prop.price || 0;
+      const matchPriceMin = !priceMin || price >= parseInt(priceMin);
+      const matchPriceMax = !priceMax || price <= parseInt(priceMax);
+      
+      // Area filter
+      const area = prop.area || 0;
+      const matchAreaMin = !minArea || area >= parseInt(minArea);
+      const matchAreaMax = !maxArea || area <= parseInt(maxArea);
+      
+      // Bedrooms filter
+      const bedrooms = prop.bedrooms || 0;
+      const matchBedrooms = !minBedrooms || bedrooms >= parseInt(minBedrooms);
+      
+      // Bathrooms filter
+      const bathrooms = prop.bathrooms || 0;
+      const matchBathrooms = !minBathrooms || bathrooms >= parseInt(minBathrooms);
+      
+      return matchCity && matchTransactionType && matchPropertyType && matchFloor && matchElevator && 
+             matchEquipments && matchPriceMin && matchPriceMax && matchAreaMin && matchAreaMax && 
+             matchBedrooms && matchBathrooms;
     });
-  }, [allProperties, selectedCity, selectedTransactionType, selectedPropertyType, selectedFloor, hasElevator, selectedEquipments]);
+  }, [allProperties, selectedCity, selectedTransactionType, selectedPropertyType, selectedFloor, hasElevator, 
+      selectedEquipments, priceMin, priceMax, minArea, maxArea, minBedrooms, minBathrooms]);
 
   const toggleFavorite = (e: React.MouseEvent, propertyId: number | string) => {
     e.preventDefault();
@@ -171,6 +198,12 @@ export default function PropertiesPage() {
     setSelectedFloor('all');
     setHasElevator(false);
     setSelectedEquipments([]);
+    setPriceMin('');
+    setPriceMax('');
+    setMinArea('');
+    setMaxArea('');
+    setMinBedrooms('');
+    setMinBathrooms('');
   };
 
   const activeFiltersCount = [
@@ -179,7 +212,11 @@ export default function PropertiesPage() {
     selectedPropertyType !== 'all' ? 1 : 0,
     selectedFloor !== 'all' ? 1 : 0,
     hasElevator ? 1 : 0,
-    selectedEquipments.length > 0 ? 1 : 0
+    selectedEquipments.length > 0 ? 1 : 0,
+    priceMin || priceMax ? 1 : 0,
+    minArea || maxArea ? 1 : 0,
+    minBedrooms ? 1 : 0,
+    minBathrooms ? 1 : 0
   ].reduce((a, b) => a + b, 0);
 
   return (
@@ -210,7 +247,7 @@ export default function PropertiesPage() {
       <section className="py-8 px-[5%] bg-[#0f1a2e] border-b border-[rgba(212,175,55,0.2)]">
         <div className="max-w-[1400px] mx-auto">
           {/* Main Filters Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
             {/* City Filter */}
             <div>
               <label className="block text-[#d4af37] font-bold text-sm mb-2">Ville</label>
@@ -262,7 +299,7 @@ export default function PropertiesPage() {
                 onClick={() => setExpandCriteria(!expandCriteria)}
                 className="w-full bg-[rgba(212,175,55,0.2)] hover:bg-[rgba(212,175,55,0.3)] border border-[#d4af37] text-[#d4af37] font-bold px-4 py-3 rounded-lg transition-all inline-flex items-center justify-center gap-2"
               >
-                Critères supplémentaires {activeFiltersCount > 0 && <span className="bg-[#d4af37] text-[#0f1a2e] px-2 py-0.5 rounded-full text-xs font-bold">{activeFiltersCount - 3}</span>}
+                Critères supplémentaires {activeFiltersCount > 3 && <span className="bg-[#d4af37] text-[#0f1a2e] px-2 py-0.5 rounded-full text-xs font-bold">{activeFiltersCount - 3}</span>}
                 <ChevronDown size={18} className={`transition-transform ${expandCriteria ? 'rotate-180' : ''}`} />
               </button>
             </div>
@@ -271,14 +308,14 @@ export default function PropertiesPage() {
           {/* Advanced Criteria Section */}
           {expandCriteria && (
             <div className="mb-6 p-6 bg-[rgba(26,40,71,0.2)] border border-[rgba(212,175,55,0.2)] rounded-lg">
-              {/* Caractéristiques */}
-              <div className="mb-6">
+              {/* 1. Caractéristiques */}
+              <div className="mb-8">
                 <h3 className="text-[#d4af37] font-bold text-sm mb-4 flex items-center gap-2">
                   <span className="bg-[#d4af37] text-[#0f1a2e] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">1</span>
                   Caractéristiques
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {/* Floor Filter */}
                   <div>
                     <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Étage</label>
@@ -306,14 +343,108 @@ export default function PropertiesPage() {
                       <span className="text-[#b0b0b0] font-bold">Ascenseur</span>
                     </label>
                   </div>
+
+                  {/* Min Bedrooms */}
+                  <div>
+                    <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Chambres min</label>
+                    <input
+                      type="number"
+                      value={minBedrooms}
+                      onChange={(e) => setMinBedrooms(e.target.value)}
+                      placeholder="Ex: 2"
+                      min="0"
+                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
+                    />
+                  </div>
+
+                  {/* Min Bathrooms */}
+                  <div>
+                    <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Salles bain min</label>
+                    <input
+                      type="number"
+                      value={minBathrooms}
+                      onChange={(e) => setMinBathrooms(e.target.value)}
+                      placeholder="Ex: 1"
+                      min="0"
+                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
+                    />
+                  </div>
                 </div>
               </div>
 
-              {/* Equipements */}
+              {/* 2. Prix */}
+              <div className="mb-8 pt-6 border-t border-[rgba(212,175,55,0.2)]">
+                <h3 className="text-[#d4af37] font-bold text-sm mb-4 flex items-center gap-2">
+                  <span className="bg-[#d4af37] text-[#0f1a2e] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                  Prix (MAD)
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Prix min</label>
+                    <input
+                      type="number"
+                      value={priceMin}
+                      onChange={(e) => setPriceMin(e.target.value)}
+                      placeholder="Ex: 500000"
+                      min="0"
+                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Prix max</label>
+                    <input
+                      type="number"
+                      value={priceMax}
+                      onChange={(e) => setPriceMax(e.target.value)}
+                      placeholder="Ex: 5000000"
+                      min="0"
+                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. Surface */}
+              <div className="mb-8 pt-6 border-t border-[rgba(212,175,55,0.2)]">
+                <h3 className="text-[#d4af37] font-bold text-sm mb-4 flex items-center gap-2">
+                  <span className="bg-[#d4af37] text-[#0f1a2e] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                  Surface (m²)
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Surface min</label>
+                    <input
+                      type="number"
+                      value={minArea}
+                      onChange={(e) => setMinArea(e.target.value)}
+                      placeholder="Ex: 50"
+                      min="0"
+                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Surface max</label>
+                    <input
+                      type="number"
+                      value={maxArea}
+                      onChange={(e) => setMaxArea(e.target.value)}
+                      placeholder="Ex: 500"
+                      min="0"
+                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. Équipements */}
               {equipmentsList.length > 0 && (
                 <div className="pt-6 border-t border-[rgba(212,175,55,0.2)]">
                   <h3 className="text-[#d4af37] font-bold text-sm mb-4 flex items-center gap-2">
-                    <span className="bg-[#d4af37] text-[#0f1a2e] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                    <span className="bg-[#d4af37] text-[#0f1a2e] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">4</span>
                     Équipements
                   </h3>
 
@@ -343,7 +474,7 @@ export default function PropertiesPage() {
               )}
 
               {/* Reset Button */}
-              <div className="mt-6 pt-6 border-t border-[rgba(212,175,55,0.2)]">
+              <div className="mt-8 pt-6 border-t border-[rgba(212,175,55,0.2)]">
                 <button
                   onClick={resetFilters}
                   className="w-full bg-gradient-to-r from-[#d4af37] to-[#f4d03f] hover:shadow-[0_10px_30px_rgba(212,175,55,0.3)] text-[#0f1a2e] font-bold px-4 py-3 rounded-lg transition-all"
