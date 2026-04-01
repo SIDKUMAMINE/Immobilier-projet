@@ -356,7 +356,7 @@ if (pathname?.startsWith('/dashboard')) {
 
             {/* Instagram */}
             <a 
-              href="https://www.instagram.com/mohamedimmobilier12?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" 
+              href="https://www.instagram.com/landmark_estate_ma/" 
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded transition"
@@ -381,7 +381,7 @@ if (pathname?.startsWith('/dashboard')) {
 
             {/* TikTok */}
             <a 
-              href="https://l.instagram.com/?u=https%3A%2F%2Fwww.tiktok.com%2F%40immohamed122%3F_t%3DZS-90KVLRYYHDk%26_r%3D1%26fbclid%3DPAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGnI1WgdmSYHgdBgWnAl2kWzGvoLazbMyZbT6w-0QWdP6B6Tqa6xjiqkm8Iqqo_aem_qSPOZN5pgQvvUOCR-FvtfQ&e=AT5rpQ7gK5kN_HRFxYuFyP6rawoBJKMj_UMqQJVh9KE_MfXUSItnVkB4bHDFHVI_YipesN-cOvw2k9ZEnFNTmsHkovya3vC-K5iTDPA_6w" 
+              href="https://www.tiktok.com/@landmark_estate?lang=en" 
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded transition"
