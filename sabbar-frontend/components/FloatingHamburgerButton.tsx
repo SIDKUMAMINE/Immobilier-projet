@@ -1,6 +1,15 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
+
 export default function FloatingHamburgerButton({ onClick }: { onClick: () => void }) {
+  const pathname = usePathname();
+
+  // Ne pas afficher le bouton dans le dashboard
+  if (pathname?.startsWith('/dashboard')) {
+    return null;
+  }
+
   return (
     <button
       onClick={onClick}
