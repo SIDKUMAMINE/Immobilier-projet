@@ -465,45 +465,43 @@ export default function PropertyDetailPage() {
               <h2 className="text-2xl font-bold text-white mb-6">🎬 Vidéo de la propriété</h2>
               
               {property.video_url || property.videoUrl ? (
-                <>
-                  {isDirectVideoFile(property.video_url || property.videoUrl) ? (
-                    // Direct video file (Supabase Storage, etc.)
-                    <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
-                      <video
-                        width="100%"
-                        height="100%"
-                        controls
-                        className="w-full h-full"
-                        controlsList="nodownload"
-                      >
-                        <source src={property.video_url || property.videoUrl} type="video/mp4" />
-                        Votre navigateur ne supporte pas le lecteur vidéo HTML5.
-                      </video>
+                isDirectVideoFile(property.video_url || property.videoUrl) ? (
+                  // Direct video file (Supabase Storage, etc.)
+                  <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
+                    <video
+                      width="100%"
+                      height="100%"
+                      controls
+                      className="w-full h-full"
+                      controlsList="nodownload"
+                    >
+                      <source src={property.video_url || property.videoUrl} type="video/mp4" />
+                      Votre navigateur ne supporte pas le lecteur vidéo HTML5.
+                    </video>
+                  </div>
+                ) : getEmbedUrl(property.video_url || property.videoUrl) ? (
+                  // Embedded video (YouTube, Vimeo, etc.)
+                  <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src={getEmbedUrl(property.video_url || property.videoUrl)!}
+                      title="Property Video"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  // Unsupported format
+                  <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
+                    <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
+                      <Play size={48} className="text-[#d4af37]" />
                     </div>
-                  ) : getEmbedUrl(property.video_url || property.videoUrl) ? (
-                    // Embedded video (YouTube, Vimeo, etc.)
-                    <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
-                      <iframe
-                        width="100%"
-                        height="100%"
-                        src={getEmbedUrl(property.video_url || property.videoUrl)!}
-                        title="Property Video"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    </div>
-                  ) : (
-                    // Unsupported format
-                    <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
-                      <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
-                        <Play size={48} className="text-[#d4af37]" />
-                      </div>
-                      <p className="text-[#b0b0b0] text-lg font-semibold">Format vidéo non supporté</p>
-                      <p className="text-[#666] text-sm mt-2">Veuillez vérifier l'URL de la vidéo</p>
-                    </div>
-                  )}
-                </>
+                    <p className="text-[#b0b0b0] text-lg font-semibold">Format vidéo non supporté</p>
+                    <p className="text-[#666] text-sm mt-2">Veuillez vérifier l'URL de la vidéo</p>
+                  </div>
+                )
               ) : (
                 <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
                   <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
