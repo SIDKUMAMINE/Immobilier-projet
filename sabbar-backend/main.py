@@ -8,6 +8,7 @@ Fichier: main.py
    - Upload d'images et vidéos
    - Gestion des buckets Supabase Storage
    - ✅ AUTHENTIFICATION INTÉGRÉE
+   - ✅ CORS CORRIGÉ
 """
 import json
 from fastapi import FastAPI, Query, HTTPException, UploadFile, File
@@ -104,7 +105,7 @@ async def lifespan(app: FastAPI):
 
 
 # ============================================================================
-# ✅ CRÉER L'APP (LIGNE 102 - AVANT include_router!)
+# ✅ CRÉER L'APP (AVANT include_router!)
 # ============================================================================
 app = FastAPI(
     title="SABBAR API",
@@ -113,22 +114,33 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-    # CORS MIDDLEWARE
-cors_origins = os.getenv("BACKEND_CORS_ORIGINS", '["http://localhost:3000"]')
+# ============================================================================
+# ✅ CORS MIDDLEWARE - CONFIGURATION CORRIGÉE
+# ============================================================================
+cors_origins = os.getenv("BACKEND_CORS_ORIGINS", '["http://localhost:3000", "http://localhost:8000"]')
 
-    # Parse the JSON string into a Python list
+# Parse the JSON string into a Python list
 try:
     allowed_origins = json.loads(cors_origins)
-except json.JSONDecodeError:
-    allowed_origins = ["http://localhost:3000"]
+    logger.info(f"✅ CORS Origines autorisées: {allowed_origins}")
+except json.JSONDecodeError as e:
+    logger.warning(f"⚠️ Erreur parsing CORS_ORIGINS: {str(e)}")
+    allowed_origins = ["http://localhost:3000", "http://localhost:8000", "https://landmarkk-estate.com"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,  # Use the parsed environment variable
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Allow ALL methods
+    allow_headers=["*"],  # Allow ALL headers
+    expose_headers=["*"],
+    max_age=86400,  # Longer cache for preflight
 )
+@app.options("/{full_path:path}") 
+async def preflight_handler(full_path: str):
+    """Handle CORS preflight requests"""    
+    return {"message": "CORS OK"}
+logger.info("✅ Middleware CORS configuré")
 
 # ============================================================================
 # ✅ INCLURE LES ROUTERS D'AUTHENTIFICATION (APRÈS app creation!)

@@ -1,7 +1,7 @@
 ﻿"""Client Supabase - Lazy Loading avec singleton global"""
 import logging
+import os
 from supabase import create_client, Client
-from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -13,9 +13,17 @@ class SupabaseClient:
         if cls._instance is None:
             try:
                 logger.info("🔌 Initialisation Supabase...")
+                
+                # Récupérer les variables d'environnement
+                supabase_url = os.getenv("SUPABASE_URL")
+                supabase_key = os.getenv("SUPABASE_KEY")
+                
+                if not supabase_url or not supabase_key:
+                    raise ValueError("❌ SUPABASE_URL ou SUPABASE_KEY manquants dans .env")
+                
                 cls._instance = create_client(
-                    supabase_url=settings.SUPABASE_URL,
-                    supabase_key=settings.SUPABASE_KEY
+                    supabase_url=supabase_url,
+                    supabase_key=supabase_key
                 )
                 logger.info("✅ Supabase OK")
             except Exception as e:
@@ -24,18 +32,21 @@ class SupabaseClient:
         return cls._instance
 
 
-# ✅ AJOUT: Fonctions utilitaires
+# ✅ Fonctions utilitaires
 def get_supabase() -> Client:
+    """Récupérer le client Supabase"""
     return SupabaseClient.get_client()
 
 def get_supabase_client() -> Client:
+    """Récupérer le client Supabase (alias)"""
     return SupabaseClient.get_client()
 
 def get_db() -> Client:
+    """Récupérer le client Supabase (alias pour compatibilité)"""
     return SupabaseClient.get_client()
 
 
-# ✅ AJOUT CRITIQUE: Variable singleton globale (ce qui manquait!)
+# ✅ Variable singleton globale (ce qui manquait!)
 supabase: Client = None
 
 def init_supabase():

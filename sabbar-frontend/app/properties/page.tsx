@@ -1,24 +1,53 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Home, Maximize2, Heart, ArrowRight, Droplets } from 'lucide-react';
-import { getAllProperties, Property } from '@/lib/properties-data';
+import { ArrowLeft, MapPin, Heart, ArrowRight } from 'lucide-react';
+import { propertiesApi } from '@/lib/api';
 
 export default function PropertiesPage() {
   const [selectedCity, setSelectedCity] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [favorites, setFavorites] = useState<(number | string)[]>([]);
+  const [allProperties, setAllProperties] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Récupérer toutes les propriétés une fois au mount
-  const allProperties = useMemo(() => getAllProperties(), []);
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        console.log('📡 Fetching properties from API...');
+        
+        const response = await propertiesApi.getProperties({
+          limit: 100,
+          offset: 0
+        });
+        
+        console.log('✅ Properties loaded:', response);
+        setAllProperties(response || []);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Erreur lors du chargement';
+        console.error('❌ Erreur:', message);
+        setError(message);
+        setAllProperties([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const cities = useMemo(() => [...new Set(allProperties.map(p => p.city))], [allProperties]);
+    fetchProperties();
+  }, []);
 
+  // Extract unique cities from API data
+  const cities = useMemo(() => [...new Set(allProperties.map(p => p.city).filter(Boolean))], [allProperties]);
+
+  // Filter properties based on selected filters
   const filteredProperties = useMemo(() => {
     return allProperties.filter(prop => {
       const matchCity = selectedCity === 'all' || prop.city === selectedCity;
-      const matchType = selectedType === 'all'; // Pas de type dans les données locales
+      const matchType = selectedType === 'all' || prop.transaction_type === selectedType;
       return matchCity && matchType;
     });
   }, [allProperties, selectedCity, selectedType]);
@@ -79,7 +108,10 @@ export default function PropertiesPage() {
             {/* Reset Button */}
             <div className="flex items-end">
               <button
-                onClick={() => setSelectedCity('all')}
+                onClick={() => {
+                  setSelectedCity('all');
+                  setSelectedType('all');
+                }}
                 className="w-full bg-gradient-to-r from-[#d4af37] to-[#f4d03f] hover:shadow-[0_10px_30px_rgba(212,175,55,0.3)] text-[#0f1a2e] font-bold px-4 py-3 rounded-lg transition-all"
               >
                 Réinitialiser
@@ -89,9 +121,15 @@ export default function PropertiesPage() {
 
           {/* Results Count */}
           <div className="mt-6 text-[#b0b0b0]">
-            <span className="text-lg">
-              <span className="text-[#d4af37] font-bold">{filteredProperties.length}</span> propriétés trouvées
-            </span>
+            {loading ? (
+              <span className="text-lg">⏳ Chargement des propriétés...</span>
+            ) : error ? (
+              <span className="text-lg text-red-400">❌ Erreur: {error}</span>
+            ) : (
+              <span className="text-lg">
+                <span className="text-[#d4af37] font-bold">{filteredProperties.length}</span> propriétés trouvées
+              </span>
+            )}
           </div>
         </div>
       </section>
@@ -99,7 +137,21 @@ export default function PropertiesPage() {
       {/* Properties Grid */}
       <section className="py-24 px-[5%]">
         <div className="max-w-[1400px] mx-auto">
-          {filteredProperties.length > 0 ? (
+          {loading ? (
+            <div className="text-center py-16">
+              <p className="text-[#b0b0b0] text-lg">⏳ Chargement des propriétés...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-16">
+              <p className="text-red-400 text-lg mb-6">❌ Erreur: {error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#0f1a2e] font-bold rounded-xl hover:shadow-[0_20px_40px_rgba(212,175,55,0.3)] transition-all"
+              >
+                Réessayer
+              </button>
+            </div>
+          ) : filteredProperties.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredProperties.map((property) => (
                 <Link
@@ -111,7 +163,7 @@ export default function PropertiesPage() {
                     {/* Image */}
                     <div className="relative h-64 overflow-hidden bg-[rgba(26,40,71,0.5)]">
                       <img
-                        src={property.image}
+                        src={property.images?.[0] || '/placeholder.jpg'}
                         alt={property.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
@@ -141,18 +193,34 @@ export default function PropertiesPage() {
                       {/* Location */}
                       <div className="flex items-center gap-1 text-[#b0b0b0] text-sm mb-4">
                         <MapPin size={16} />
-                        <span>{property.location}</span>
+                        <span>{property.city}, {property.quarter}</span>
                       </div>
 
                       {/* Price */}
                       <div className="flex items-baseline justify-between mb-4">
                         <div className="text-[#d4af37] font-bold text-lg">
-                          {property.price.toLocaleString('fr-FR', { 
-                            minimumFractionDigits: 2, 
-                            maximumFractionDigits: 2 
+                          {property.price?.toLocaleString('fr-FR', { 
+                            minimumFractionDigits: 0, 
+                            maximumFractionDigits: 0 
                           })}
                         </div>
                         <div className="text-[#b0b0b0] text-xs">MAD</div>
+                      </div>
+
+                      {/* Property Details */}
+                      <div className="grid grid-cols-3 gap-2 mb-4 text-xs text-[#b0b0b0]">
+                        <div>
+                          <div className="font-bold text-[#d4af37]">{property.bedrooms}</div>
+                          <div>Chambres</div>
+                        </div>
+                        <div>
+                          <div className="font-bold text-[#d4af37]">{property.area} m²</div>
+                          <div>Surface</div>
+                        </div>
+                        <div>
+                          <div className="font-bold text-[#d4af37]">{property.bathrooms}</div>
+                          <div>Salles bain</div>
+                        </div>
                       </div>
 
                       {/* CTA Button */}
@@ -173,7 +241,10 @@ export default function PropertiesPage() {
                 Aucune propriété ne correspond à vos critères.
               </p>
               <button
-                onClick={() => setSelectedCity('all')}
+                onClick={() => {
+                  setSelectedCity('all');
+                  setSelectedType('all');
+                }}
                 className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#0f1a2e] font-bold rounded-xl hover:shadow-[0_20px_40px_rgba(212,175,55,0.3)] transition-all"
               >
                 Réinitialiser les filtres
