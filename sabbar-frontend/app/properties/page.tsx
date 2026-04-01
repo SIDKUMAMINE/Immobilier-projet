@@ -7,7 +7,8 @@ import { propertiesApi } from '@/lib/api';
 
 export default function PropertiesPage() {
   const [selectedCity, setSelectedCity] = useState('all');
-  const [selectedType, setSelectedType] = useState('all');
+  const [selectedTransactionType, setSelectedTransactionType] = useState('all');
+  const [selectedPropertyType, setSelectedPropertyType] = useState('all');
   const [favorites, setFavorites] = useState<(number | string)[]>([]);
   const [allProperties, setAllProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,14 +44,21 @@ export default function PropertiesPage() {
   // Extract unique cities from API data
   const cities = useMemo(() => [...new Set(allProperties.map(p => p.city).filter(Boolean))], [allProperties]);
 
+  // Extract unique transaction types from API data
+  const transactionTypes = useMemo(() => [...new Set(allProperties.map(p => p.transaction_type).filter(Boolean))], [allProperties]);
+
+  // Extract unique property types from API data
+  const propertyTypes = useMemo(() => [...new Set(allProperties.map(p => p.property_type).filter(Boolean))], [allProperties]);
+
   // Filter properties based on selected filters
   const filteredProperties = useMemo(() => {
     return allProperties.filter(prop => {
       const matchCity = selectedCity === 'all' || prop.city === selectedCity;
-      const matchType = selectedType === 'all' || prop.transaction_type === selectedType;
-      return matchCity && matchType;
+      const matchTransactionType = selectedTransactionType === 'all' || prop.transaction_type === selectedTransactionType;
+      const matchPropertyType = selectedPropertyType === 'all' || prop.property_type === selectedPropertyType;
+      return matchCity && matchTransactionType && matchPropertyType;
     });
-  }, [allProperties, selectedCity, selectedType]);
+  }, [allProperties, selectedCity, selectedTransactionType, selectedPropertyType]);
 
   const toggleFavorite = (e: React.MouseEvent, propertyId: number | string) => {
     e.preventDefault();
@@ -60,6 +68,12 @@ export default function PropertiesPage() {
     
     setFavorites(newFavorites);
     localStorage.setItem('sabbar_favorites', JSON.stringify(newFavorites));
+  };
+
+  const resetFilters = () => {
+    setSelectedCity('all');
+    setSelectedTransactionType('all');
+    setSelectedPropertyType('all');
   };
 
   return (
@@ -89,7 +103,7 @@ export default function PropertiesPage() {
       {/* Filters Section */}
       <section className="py-8 px-[5%] bg-[#0f1a2e] border-b border-[rgba(212,175,55,0.2)]">
         <div className="max-w-[1400px] mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {/* City Filter */}
             <div>
               <label className="block text-[#d4af37] font-bold text-sm mb-2">Ville</label>
@@ -105,13 +119,40 @@ export default function PropertiesPage() {
               </select>
             </div>
 
+            {/* Transaction Type Filter */}
+            <div>
+              <label className="block text-[#d4af37] font-bold text-sm mb-2">Type de transaction</label>
+              <select
+                value={selectedTransactionType}
+                onChange={(e) => setSelectedTransactionType(e.target.value)}
+                className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors hover:border-[rgba(212,175,55,0.3)]"
+              >
+                <option value="all">Tous les types</option>
+                {transactionTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Property Type Filter */}
+            <div>
+              <label className="block text-[#d4af37] font-bold text-sm mb-2">Type de propriété</label>
+              <select
+                value={selectedPropertyType}
+                onChange={(e) => setSelectedPropertyType(e.target.value)}
+                className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors hover:border-[rgba(212,175,55,0.3)]"
+              >
+                <option value="all">Tous les types</option>
+                {propertyTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+
             {/* Reset Button */}
             <div className="flex items-end">
               <button
-                onClick={() => {
-                  setSelectedCity('all');
-                  setSelectedType('all');
-                }}
+                onClick={resetFilters}
                 className="w-full bg-gradient-to-r from-[#d4af37] to-[#f4d03f] hover:shadow-[0_10px_30px_rgba(212,175,55,0.3)] text-[#0f1a2e] font-bold px-4 py-3 rounded-lg transition-all"
               >
                 Réinitialiser
@@ -120,7 +161,7 @@ export default function PropertiesPage() {
           </div>
 
           {/* Results Count */}
-          <div className="mt-6 text-[#b0b0b0]">
+          <div className="text-[#b0b0b0]">
             {loading ? (
               <span className="text-lg">⏳ Chargement des propriétés...</span>
             ) : error ? (
@@ -163,7 +204,7 @@ export default function PropertiesPage() {
                     {/* Image */}
                     <div className="relative h-64 overflow-hidden bg-[rgba(26,40,71,0.5)]">
                       <img
-                        src={property.images?.[0] || '/placeholder.jpg'}
+                        src={property.images?.[0] || property.image || '/placeholder.jpg'}
                         alt={property.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
@@ -185,6 +226,20 @@ export default function PropertiesPage() {
 
                     {/* Content */}
                     <div className="p-6">
+                      {/* Transaction & Property Type Badge */}
+                      <div className="flex gap-2 mb-3 flex-wrap">
+                        {property.transaction_type && (
+                          <span className="px-3 py-1 bg-[rgba(212,175,55,0.2)] text-[#d4af37] text-xs font-bold rounded-full border border-[rgba(212,175,55,0.3)]">
+                            {property.transaction_type}
+                          </span>
+                        )}
+                        {property.property_type && (
+                          <span className="px-3 py-1 bg-[rgba(176,176,176,0.1)] text-[#b0b0b0] text-xs font-bold rounded-full border border-[rgba(176,176,176,0.2)]">
+                            {property.property_type}
+                          </span>
+                        )}
+                      </div>
+
                       {/* Title */}
                       <h3 className="text-xl font-bold text-white mb-2 group-hover:text-[#d4af37] transition-colors line-clamp-2">
                         {property.title}
@@ -193,7 +248,7 @@ export default function PropertiesPage() {
                       {/* Location */}
                       <div className="flex items-center gap-1 text-[#b0b0b0] text-sm mb-4">
                         <MapPin size={16} />
-                        <span>{property.city}, {property.quarter}</span>
+                        <span>{property.city}{property.district ? `, ${property.district}` : ''}</span>
                       </div>
 
                       {/* Price */}
@@ -209,18 +264,24 @@ export default function PropertiesPage() {
 
                       {/* Property Details */}
                       <div className="grid grid-cols-3 gap-2 mb-4 text-xs text-[#b0b0b0]">
-                        <div>
-                          <div className="font-bold text-[#d4af37]">{property.bedrooms}</div>
-                          <div>Chambres</div>
-                        </div>
-                        <div>
-                          <div className="font-bold text-[#d4af37]">{property.area} m²</div>
-                          <div>Surface</div>
-                        </div>
-                        <div>
-                          <div className="font-bold text-[#d4af37]">{property.bathrooms}</div>
-                          <div>Salles bain</div>
-                        </div>
+                        {property.bedrooms && (
+                          <div>
+                            <div className="font-bold text-[#d4af37]">{property.bedrooms}</div>
+                            <div>Chambres</div>
+                          </div>
+                        )}
+                        {property.area && (
+                          <div>
+                            <div className="font-bold text-[#d4af37]">{property.area} m²</div>
+                            <div>Surface</div>
+                          </div>
+                        )}
+                        {property.bathrooms && (
+                          <div>
+                            <div className="font-bold text-[#d4af37]">{property.bathrooms}</div>
+                            <div>Salles bain</div>
+                          </div>
+                        )}
                       </div>
 
                       {/* CTA Button */}
@@ -241,10 +302,7 @@ export default function PropertiesPage() {
                 Aucune propriété ne correspond à vos critères.
               </p>
               <button
-                onClick={() => {
-                  setSelectedCity('all');
-                  setSelectedType('all');
-                }}
+                onClick={resetFilters}
                 className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#0f1a2e] font-bold rounded-xl hover:shadow-[0_20px_40px_rgba(212,175,55,0.3)] transition-all"
               >
                 Réinitialiser les filtres
