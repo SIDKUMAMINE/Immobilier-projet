@@ -21,9 +21,9 @@ const staticCities = [
 
 // Static transaction types
 const staticTransactionTypes = [
-  { original: 'vente', label: 'Vente' },
-  { original: 'location', label: 'Location' },
-  { original: 'location-vacances', label: 'Location vacances' }
+  { original: 'sale', label: 'Vente' },
+  { original: 'rent', label: 'Location' },
+  { original: 'vacation_rental', label: 'Location vacances' }
 ];
 
 // Static property types
