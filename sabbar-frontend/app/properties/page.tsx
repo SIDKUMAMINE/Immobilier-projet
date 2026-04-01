@@ -87,7 +87,7 @@ export default function PropertiesPage() {
   const [selectedCity, setSelectedCity] = useState('all');
   const [selectedTransactionType, setSelectedTransactionType] = useState('all');
   const [selectedPropertyType, setSelectedPropertyType] = useState('all');
-  const [selectedFloor, setSelectedFloor] = useState('all');
+  const [selectedFloor, setSelectedFloor] = useState('');
   const [hasElevator, setHasElevator] = useState(false);
   const [selectedEquipments, setSelectedEquipments] = useState<string[]>([]);
   const [priceMin, setPriceMin] = useState('');
@@ -161,7 +161,7 @@ export default function PropertiesPage() {
       const matchCity = selectedCity === 'all' || prop.city === selectedCity;
       const matchTransactionType = selectedTransactionType === 'all' || prop.transaction_type === selectedTransactionType;
       const matchPropertyType = selectedPropertyType === 'all' || prop.property_type === selectedPropertyType;
-      const matchFloor = selectedFloor === 'all' || String(prop.floor) === selectedFloor;
+      const matchFloor = !selectedFloor || String(prop.floor) === selectedFloor;
       const matchElevator = !hasElevator || (prop.elevator === true || prop.has_elevator === true);
       const matchEquipments = selectedEquipments.length === 0 || 
         (prop.equipments && Array.isArray(prop.equipments) && 
@@ -214,7 +214,7 @@ export default function PropertiesPage() {
     setSelectedCity('all');
     setSelectedTransactionType('all');
     setSelectedPropertyType('all');
-    setSelectedFloor('all');
+    setSelectedFloor('');
     setHasElevator(false);
     setSelectedEquipments([]);
     setPriceMin('');
@@ -229,7 +229,7 @@ export default function PropertiesPage() {
     selectedCity !== 'all' ? 1 : 0,
     selectedTransactionType !== 'all' ? 1 : 0,
     selectedPropertyType !== 'all' ? 1 : 0,
-    selectedFloor !== 'all' ? 1 : 0,
+    selectedFloor ? 1 : 0,
     hasElevator ? 1 : 0,
     selectedEquipments.length > 0 ? 1 : 0,
     priceMin || priceMax ? 1 : 0,
@@ -338,16 +338,13 @@ export default function PropertiesPage() {
                   {/* Floor Filter */}
                   <div>
                     <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Étage</label>
-                    <select
+                    <input
+                      type="text"
                       value={selectedFloor}
                       onChange={(e) => setSelectedFloor(e.target.value)}
-                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors"
-                    >
-                      <option value="all">Tous les étages</option>
-                      {floors.map(floor => (
-                        <option key={floor} value={floor}>{floor}</option>
-                      ))}
-                    </select>
+                      placeholder="Ex: 2"
+                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
+                    />
                   </div>
 
                   {/* Elevator Checkbox */}
@@ -677,7 +674,7 @@ export default function PropertiesPage() {
               href="tel:+212561511251"
               className="inline-flex items-center justify-center px-8 py-4 border-2 border-[#d4af37] text-[#d4af37] font-bold rounded-xl hover:bg-[#d4af37] hover:text-[#0f1a2e] transition-all"
             >
-              +212 5 61 51 12 51
+             +212 6 05 58 57 20
             </a>
           </div>
         </div>

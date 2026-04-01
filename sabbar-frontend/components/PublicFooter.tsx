@@ -27,7 +27,7 @@ export default function PublicFooter() {
                     color: '#F9F5EF'
                   }}
                 >
-                  Landmark estate
+                  Landmark Estate
                 </span>
                 <p 
                   style={{
@@ -40,7 +40,6 @@ export default function PublicFooter() {
                     letterSpacing: '0.05em'
                   }}
                 >
-                  Immobilier
                 </p>
               </div>
             </div>
