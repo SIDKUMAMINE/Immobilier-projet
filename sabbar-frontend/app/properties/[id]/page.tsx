@@ -80,6 +80,7 @@ export default function PropertyDetailPage() {
         const foundProperty = response?.find((p: any) => String(p.id) === String(propertyId));
         
         if (foundProperty) {
+          console.log('🎬 Property found with video_url:', foundProperty.video_url || foundProperty.videoUrl);
           setProperty(foundProperty);
         } else {
           setError('Propriété non trouvée');
@@ -240,6 +241,85 @@ export default function PropertyDetailPage() {
   }
 
   const images = property.images && property.images.length > 0 ? property.images : [property.image || '/placeholder.jpg'];
+
+  // ✅ FIX #1: Extraire la videoUrl en haut du composant avec gestion propre
+  const videoUrl = property?.video_url || property?.videoUrl;
+
+  // ✅ FIX #2: Créer un composant pour le rendu vidéo réutilisable
+  const VideoSection = () => {
+    console.log('🎬 VideoSection - videoUrl:', videoUrl);
+
+    if (!videoUrl) {
+      console.log('ℹ️ Aucune vidéo trouvée');
+      return (
+        <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
+          <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
+            <Play size={48} className="text-[#d4af37]" />
+          </div>
+          <p className="text-[#b0b0b0] text-lg font-semibold">Aucune vidéo disponible</p>
+          <p className="text-[#666] text-sm mt-2">Les vidéos seront disponibles prochainement</p>
+        </div>
+      );
+    }
+
+    // ✅ FIX #3: Vérifier les formats directs EN PREMIER
+    if (isDirectVideoFile(videoUrl)) {
+      console.log('✅ Rendu vidéo directe (MP4, WebM, etc.)');
+      return (
+        <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
+          <video
+            width="100%"
+            height="100%"
+            controls
+            controlsList="nodownload"
+            className="w-full h-full"
+            style={{ display: 'block' }}
+          >
+            <source src={videoUrl} type="video/mp4" />
+            <source src={videoUrl} type="video/webm" />
+            Votre navigateur ne supporte pas le lecteur vidéo HTML5.
+          </video>
+        </div>
+      );
+    }
+
+    // ✅ FIX #4: Vérifier YouTube/Vimeo après
+    const embedUrl = getEmbedUrl(videoUrl);
+    if (embedUrl) {
+      console.log('✅ Rendu vidéo intégrée (YouTube/Vimeo)');
+      return (
+        <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
+          <iframe
+            width="100%"
+            height="100%"
+            src={embedUrl}
+            title="Property Video"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            style={{ display: 'block' }}
+          />
+        </div>
+      );
+    }
+
+    // ✅ FIX #5: Format non supporté
+    console.log('❌ Format vidéo non supporté:', videoUrl);
+    return (
+      <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
+        <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
+          <Play size={48} className="text-[#d4af37]" />
+        </div>
+        <p className="text-[#b0b0b0] text-lg font-semibold">Format vidéo non supporté</p>
+        <p className="text-[#666] text-sm mt-2 break-all max-w-xs">
+          URL: {videoUrl.substring(0, 80)}...
+        </p>
+        <p className="text-[#666] text-xs mt-1">
+          Formats supportés: MP4, WebM, YouTube, Vimeo, Supabase
+        </p>
+      </div>
+    );
+  };
 
   return (
     <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
@@ -455,70 +535,7 @@ export default function PropertyDetailPage() {
             {/* Video Section */}
             <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
               <h2 className="text-2xl font-bold text-white mb-6">🎬 Vidéo de la propriété</h2>
-              
-              {(() => {
-                const videoUrl = property.video_url || property.videoUrl;
-                console.log('🎬 Video URL:', videoUrl);
-                
-                if (!videoUrl) {
-                  return (
-                    <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
-                      <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
-                        <Play size={48} className="text-[#d4af37]" />
-                      </div>
-                      <p className="text-[#b0b0b0] text-lg font-semibold">Aucune vidéo disponible</p>
-                      <p className="text-[#666] text-sm mt-2">Les vidéos seront disponibles prochainement</p>
-                    </div>
-                  );
-                }
-
-                if (isDirectVideoFile(videoUrl)) {
-                  console.log('✅ Playing as direct video file');
-                  return (
-                    <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
-                      <video
-                        width="100%"
-                        height="100%"
-                        controls
-                        className="w-full h-full"
-                        controlsList="nodownload"
-                      >
-                        <source src={videoUrl} type="video/mp4" />
-                        Votre navigateur ne supporte pas le lecteur vidéo HTML5.
-                      </video>
-                    </div>
-                  );
-                }
-
-                const embedUrl = getEmbedUrl(videoUrl);
-                if (embedUrl) {
-                  console.log('✅ Playing as embedded video');
-                  return (
-                    <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
-                      <iframe
-                        width="100%"
-                        height="100%"
-                        src={embedUrl}
-                        title="Property Video"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    </div>
-                  );
-                }
-
-                console.log('❌ Unsupported video format');
-                return (
-                  <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
-                    <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
-                      <Play size={48} className="text-[#d4af37]" />
-                    </div>
-                    <p className="text-[#b0b0b0] text-lg font-semibold">Format vidéo non supporté</p>
-                    <p className="text-[#666] text-sm mt-2 break-all">{videoUrl.substring(0, 100)}...</p>
-                  </div>
-                );
-              })()}
+              <VideoSection />
             </div>
           </div>
 
