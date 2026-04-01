@@ -406,7 +406,7 @@ if (pathname?.startsWith('/dashboard')) {
 
             {/* LinkedIn */}
             <a 
-              href="https://www.linkedin.com/in/mohammed-amine-rakehi-b140402a5/" 
+              href="https://www.linkedin.com/in/mohamed-sabbar-00a55a3ba?utm_source=share_via&utm_content=profile&utm_medium=member_ios" 
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded transition"
