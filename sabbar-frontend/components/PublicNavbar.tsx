@@ -8,9 +8,12 @@ import LandmarkLogo from '@/components/ui/LandmarkLogo';
 
 export default function PublicNavbarClient() {
   const pathname = usePathname();
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   
   // ✅ Cacher complètement la navbar sur les pages admin
-  if (pathname?.includes('/admin') || pathname?.includes('/(admin)')) {
+  const isAdminPage = pathname?.startsWith('/dashboard');
+
+  if (isAdminPage) {
     return null;
   }
   return (

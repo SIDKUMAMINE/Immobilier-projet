@@ -6,10 +6,9 @@ import LandmarkLogo from '@/components/ui/LandmarkLogo';
 export default function PublicFooter() {
   const pathname = usePathname();
 
-  // Cacher le footer sur les pages admin
-  if (pathname?.startsWith('/admin') || pathname?.includes('/(admin)')) {
-    return null;
-  }
+if (pathname?.startsWith('/dashboard')) {
+  return null;
+}
 
   return (
     <footer 
