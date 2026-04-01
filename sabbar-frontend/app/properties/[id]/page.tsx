@@ -287,6 +287,14 @@ export default function PropertyDetailPage() {
               </div>
             </div>
 
+            {/* Description */}
+            {property.description && (
+              <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
+                <h2 className="text-2xl font-bold text-white mb-6">📝 Description</h2>
+                <p className="text-[#b0b0b0] leading-relaxed">{property.description}</p>
+              </div>
+            )}
+
             {/* Characteristics Section */}
             <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
               <h2 className="text-2xl font-bold text-white mb-6">📋 Caractéristiques</h2>
@@ -385,22 +393,14 @@ export default function PropertyDetailPage() {
               </div>
             </div>
 
-            {/* Description */}
-            {property.description && (
-              <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
-                <h2 className="text-2xl font-bold text-white mb-6">📝 Description</h2>
-                <p className="text-[#b0b0b0] leading-relaxed">{property.description}</p>
-              </div>
-            )}
-
             {/* Video Section */}
             <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
               <h2 className="text-2xl font-bold text-white mb-6">🎬 Vidéo de la propriété</h2>
               
               {property.video_url || property.videoUrl ? (
-                <div className="relative bg-black rounded-lg overflow-hidden h-96 sm:h-[500px] flex items-center justify-center group cursor-pointer">
+                <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
                   <iframe
-                    src={property.video_url || property.videoUrl}
+                    src={(property.video_url || property.videoUrl).replace('watch?v=', 'embed/')}
                     title="Property Video"
                     className="w-full h-full"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -408,9 +408,11 @@ export default function PropertyDetailPage() {
                   />
                 </div>
               ) : (
-                <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg h-96 flex flex-col items-center justify-center text-center p-8">
-                  <Play size={48} className="text-[#d4af37] mb-4 opacity-50" />
-                  <p className="text-[#b0b0b0] text-lg">Aucune vidéo disponible pour cette propriété</p>
+                <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
+                  <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
+                    <Play size={48} className="text-[#d4af37]" />
+                  </div>
+                  <p className="text-[#b0b0b0] text-lg font-semibold">Aucune vidéo disponible</p>
                   <p className="text-[#666] text-sm mt-2">Les vidéos seront disponibles prochainement</p>
                 </div>
               )}
@@ -420,40 +422,40 @@ export default function PropertyDetailPage() {
           {/* Right Column - Price and Contact */}
           <div className="lg:col-span-1">
             {/* Price Card */}
-            <div className="bg-gradient-to-br from-[#d4af37] to-[#f4d03f] rounded-2xl p-8 mb-8 sticky top-8">
-              <p className="text-[#0f1a2e] font-bold text-sm mb-2">PRIX</p>
-              <div className="text-3xl font-bold text-[#0f1a2e] mb-2 break-words">
+            <div className="bg-gradient-to-br from-[#d4af37] to-[#f4d03f] rounded-xl p-6 mb-6 sticky top-8">
+              <p className="text-[#0f1a2e] font-bold text-xs mb-1">PRIX</p>
+              <div className="text-2xl font-bold text-[#0f1a2e] mb-1 break-words">
                 {property.price.toLocaleString('fr-FR', { 
                   minimumFractionDigits: 0, 
                   maximumFractionDigits: 0 
                 })}
               </div>
-              <p className="text-[#0f1a2e] font-semibold text-lg mb-8">MAD</p>
+              <p className="text-[#0f1a2e] font-semibold text-sm">MAD</p>
             </div>
 
             {/* Contact Card */}
-            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
-              <h3 className="text-2xl font-bold text-white mb-6">📞 Nous contacter</h3>
+            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-6">
+              <h3 className="text-xl font-bold text-white mb-4">📞 Nous contacter</h3>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <a
                   href="tel:+212561511251"
-                  className="w-full flex items-center justify-center gap-3 bg-[#d4af37] hover:bg-[#f4d03f] text-[#0f1a2e] font-bold py-3 rounded-lg transition"
+                  className="w-full flex items-center justify-center gap-3 bg-[#d4af37] hover:bg-[#f4d03f] text-[#0f1a2e] font-bold py-2 px-3 rounded-lg transition text-sm"
                 >
-                  <Phone size={20} />
+                  <Phone size={18} />
                   +212 5 61 51 12 51
                 </a>
 
                 <a
                   href="mailto:contact@landmark-estate.com"
-                  className="w-full flex items-center justify-center gap-3 border-2 border-[#d4af37] hover:bg-[#d4af37] text-[#d4af37] hover:text-[#0f1a2e] font-bold py-3 rounded-lg transition"
+                  className="w-full flex items-center justify-center gap-3 border-2 border-[#d4af37] hover:bg-[#d4af37] text-[#d4af37] hover:text-[#0f1a2e] font-bold py-2 px-3 rounded-lg transition text-sm"
                 >
-                  <Mail size={20} />
+                  <Mail size={18} />
                   contact@landmark.ma
                 </a>
 
-                <button className="w-full flex items-center justify-center gap-3 border-2 border-[#b0b0b0] hover:border-[#d4af37] text-[#b0b0b0] hover:text-[#d4af37] font-bold py-3 rounded-lg transition">
-                  <Share2 size={20} />
+                <button className="w-full flex items-center justify-center gap-3 border-2 border-[#b0b0b0] hover:border-[#d4af37] text-[#b0b0b0] hover:text-[#d4af37] font-bold py-2 px-3 rounded-lg transition text-sm">
+                  <Share2 size={18} />
                   Partager
                 </button>
               </div>
