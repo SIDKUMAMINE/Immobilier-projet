@@ -4,6 +4,7 @@ import './globals.css';
 import PublicFooter from '@/components/PublicFooter';
 import PublicNavbarClient from '@/components/PublicNavbarClient';
 import { AuthProvider } from '@/lib/auth/context';
+import { RootLayoutClient } from '@/components/layout/RootLayoutClient';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -17,9 +18,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr">
       <body className={inter.className}>
         <AuthProvider>
-          <PublicNavbarClient />
-          {children}
-          <PublicFooter />
+          <RootLayoutClient>
+            {children}
+          </RootLayoutClient>
         </AuthProvider>
       </body>
     </html>
