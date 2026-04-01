@@ -3,30 +3,67 @@
 import { useState, useEffect } from 'react';
 import { MapPin, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { getLatestProperties, Property } from '@/lib/properties-data';
+import { propertiesApi } from '@/lib/api';
 
 export default function PropertiesSection() {
-  const [properties, setProperties] = useState<Property[]>([]);
+  const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      // ✅ SIMPLE - Récupère directement les 3 dernières propriétés
-      const latestProps = getLatestProperties(3);
-      setProperties(latestProps);
-    } catch (err) {
-      console.error('Erreur:', err);
-      setProperties([]);
-    } finally {
-      setLoading(false);
-    }
+    const fetchProperties = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        console.log('📡 Fetching latest properties from API...');
+        
+        const response = await propertiesApi.getProperties({
+          limit: 100,
+          offset: 0
+        });
+        
+        console.log('✅ Properties loaded:', response);
+        
+        // Récupère les 3 dernières propriétés (les plus récemment ajoutées)
+        const latestProps = response && Array.isArray(response) 
+          ? response.sort((a: any, b: any) => {
+              const dateA = new Date(a.createdAt || a.created_at || 0).getTime();
+              const dateB = new Date(b.createdAt || b.created_at || 0).getTime();
+              return dateB - dateA; // Tri décroissant (plus récentes en premier)
+            }).slice(0, 3)
+          : [];
+        
+        setProperties(latestProps);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Erreur lors du chargement';
+        console.error('❌ Erreur:', message);
+        setError(message);
+        setProperties([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperties();
   }, []);
 
   if (loading) {
     return (
       <section className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] py-24 px-[5%]">
         <div className="max-w-[1400px] mx-auto flex items-center justify-center min-h-96">
-          <p className="text-[#8A9BB0]">Chargement des propriétés...</p>
+          <p className="text-[#8A9BB0]">⏳ Chargement des propriétés...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] py-24 px-[5%]">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="bg-[rgba(220,38,38,0.1)] border border-[rgba(220,38,38,0.3)] text-[#fca5a5] px-6 py-4 rounded-lg text-center">
+            ❌ Erreur: {error}
+          </div>
         </div>
       </section>
     );
@@ -70,7 +107,7 @@ export default function PropertiesSection() {
                 {/* Image Container */}
                 <div className="relative h-64 overflow-hidden bg-[#0a0e1a] flex items-center justify-center">
                   <img 
-                    src={property.image} 
+                    src={property.images?.[0] || property.image || '/placeholder.jpg'} 
                     alt={property.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     onError={(e) => {
@@ -101,7 +138,7 @@ export default function PropertiesSection() {
                         fontWeight: 400,
                       }}
                     >
-                      {property.location}
+                      {property.city && property.quarter ? `${property.city}, ${property.quarter}` : property.city || property.quarter || 'Localisation non disponible'}
                     </span>
                   </div>
 
@@ -115,7 +152,10 @@ export default function PropertiesSection() {
                         fontStyle: 'italic',
                       }}
                     >
-                      {property.price.toLocaleString()}
+                      {property.price?.toLocaleString('fr-FR', { 
+                        minimumFractionDigits: 0, 
+                        maximumFractionDigits: 0 
+                      })}
                     </p>
                     <p
                       className="text-xs text-[#8A9BB0]"
@@ -144,6 +184,15 @@ export default function PropertiesSection() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* No Properties Message */}
+        {!loading && properties.length === 0 && (
+          <div className="text-center mb-12">
+            <p className="text-[#8A9BB0] text-lg">
+              Aucune propriété disponible pour le moment.
+            </p>
           </div>
         )}
 
