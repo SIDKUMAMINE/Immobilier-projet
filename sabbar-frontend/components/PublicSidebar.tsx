@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { X, MapPin, Phone, Mail, Send, Facebook, Instagram, Youtube, Music } from 'lucide-react';
 import { useState } from 'react';
 import LandmarkLogo from '@/components/ui/LandmarkLogo';
@@ -10,8 +11,14 @@ interface Props {
 }
 
 export default function PublicSidebar({ isOpen, onClose }: Props) {
+  const pathname = usePathname();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+
+  // ✅ Cacher le sidebar sur les pages admin/dashboard
+  if (pathname?.startsWith('/dashboard')) {
+    return null;
+  }
 
   return (
     <>
