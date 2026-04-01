@@ -43,6 +43,7 @@ interface FormData {
   has_pool: boolean;
   has_elevator: boolean;
   is_furnished: boolean;
+  is_new: boolean;
 }
 
 export default function NewPropertyPage() {
@@ -69,6 +70,7 @@ export default function NewPropertyPage() {
     has_pool: false,
     has_elevator: false,
     is_furnished: false,
+    is_new: false,
   });
 
   const [photos, setPhotos] = useState<File[]>([]);
@@ -145,6 +147,7 @@ export default function NewPropertyPage() {
         has_pool: form.has_pool,
         has_elevator: form.has_elevator,
         is_furnished: form.is_furnished,
+        is_new: form.is_new,
         status: 'available',
       });
 
@@ -366,6 +369,15 @@ export default function NewPropertyPage() {
                     className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer"
                   />
                   <span className="text-sm text-slate-700">Meublé</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer p-2.5 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+                  <input
+                    type="checkbox"
+                    checked={form.is_new}
+                    onChange={e => set('is_new', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer"
+                  />
+                  <span className="text-sm text-slate-700">🆕 Neuf</span>
                 </label>
               </div>
             </div>

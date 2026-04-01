@@ -43,7 +43,8 @@ const staticEquipments = [
   'Parking',
   'Jardin',
   'Piscine',
-  'Meublé'
+  'Meublé',
+  '🆕 Neuf'
 ];
 
 // Mapping pour traduire les types de transaction en français
@@ -98,6 +99,7 @@ export default function PropertiesPage() {
   const [maxArea, setMaxArea] = useState('');
   const [minBedrooms, setMinBedrooms] = useState('');
   const [minBathrooms, setMinBathrooms] = useState('');
+  const [isNewOnly, setIsNewOnly] = useState(false);
   const [favorites, setFavorites] = useState<(number | string)[]>([]);
   const [allProperties, setAllProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -165,6 +167,10 @@ export default function PropertiesPage() {
       const matchPropertyType = selectedPropertyType === 'all' || prop.property_type === selectedPropertyType;
       const matchFloor = !selectedFloor || String(prop.floor) === selectedFloor;
       const matchElevator = !hasElevator || (prop.elevator === true || prop.has_elevator === true);
+      
+      // Filtre pour "Neuf"
+      const matchIsNew = !isNewOnly || (prop.is_new === true);
+      
       const matchEquipments = selectedEquipments.length === 0 || 
         (prop.equipments && Array.isArray(prop.equipments) && 
          selectedEquipments.some(eq => prop.equipments.includes(eq)));
@@ -188,11 +194,11 @@ export default function PropertiesPage() {
       const matchBathrooms = !minBathrooms || bathrooms >= parseInt(minBathrooms);
       
       return matchCity && matchTransactionType && matchPropertyType && matchFloor && matchElevator && 
-             matchEquipments && matchPriceMin && matchPriceMax && matchAreaMin && matchAreaMax && 
+             matchIsNew && matchEquipments && matchPriceMin && matchPriceMax && matchAreaMin && matchAreaMax && 
              matchBedrooms && matchBathrooms;
     });
   }, [allProperties, selectedCity, selectedTransactionType, selectedPropertyType, selectedFloor, hasElevator, 
-      selectedEquipments, priceMin, priceMax, minArea, maxArea, minBedrooms, minBathrooms]);
+      isNewOnly, selectedEquipments, priceMin, priceMax, minArea, maxArea, minBedrooms, minBathrooms]);
 
   const toggleFavorite = (e: React.MouseEvent, propertyId: number | string) => {
     e.preventDefault();
@@ -205,11 +211,16 @@ export default function PropertiesPage() {
   };
 
   const toggleEquipment = (equipment: string) => {
-    setSelectedEquipments(prev => 
-      prev.includes(equipment) 
-        ? prev.filter(eq => eq !== equipment)
-        : [...prev, equipment]
-    );
+    // Special handling for "🆕 Neuf"
+    if (equipment === '🆕 Neuf') {
+      setIsNewOnly(!isNewOnly);
+    } else {
+      setSelectedEquipments(prev => 
+        prev.includes(equipment) 
+          ? prev.filter(eq => eq !== equipment)
+          : [...prev, equipment]
+      );
+    }
   };
 
   const resetFilters = () => {
@@ -219,6 +230,7 @@ export default function PropertiesPage() {
     setSelectedFloor('');
     setHasElevator(false);
     setSelectedEquipments([]);
+    setIsNewOnly(false);
     setPriceMin('');
     setPriceMax('');
     setMinArea('');
@@ -234,6 +246,7 @@ export default function PropertiesPage() {
     selectedFloor ? 1 : 0,
     hasElevator ? 1 : 0,
     selectedEquipments.length > 0 ? 1 : 0,
+    isNewOnly ? 1 : 0,
     priceMin || priceMax ? 1 : 0,
     minArea || maxArea ? 1 : 0,
     minBedrooms ? 1 : 0,
@@ -471,7 +484,7 @@ export default function PropertiesPage() {
                       <label key={equipment} className="flex items-center gap-3 cursor-pointer group">
                         <input
                           type="checkbox"
-                          checked={selectedEquipments.includes(equipment)}
+                          checked={equipment === '🆕 Neuf' ? isNewOnly : selectedEquipments.includes(equipment)}
                           onChange={() => toggleEquipment(equipment)}
                           className="w-4 h-4 accent-[#d4af37] bg-[#d4af37] border-2 border-[#d4af37] rounded cursor-pointer"
                         />
@@ -480,9 +493,12 @@ export default function PropertiesPage() {
                     ))}
                   </div>
 
-                  {selectedEquipments.length > 0 && (
+                  {(selectedEquipments.length > 0 || isNewOnly) && (
                     <button
-                      onClick={() => setSelectedEquipments([])}
+                      onClick={() => {
+                        setSelectedEquipments([]);
+                        setIsNewOnly(false);
+                      }}
                       className="text-[#d4af37] text-xs hover:text-[#f4d03f] transition-colors"
                     >
                       Effacer la sélection
@@ -551,6 +567,12 @@ export default function PropertiesPage() {
                         alt={property.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
+                      {/* Badge Neuf - if is_new is true */}
+                      {property.is_new && (
+                        <div className="absolute top-4 right-4 bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#0f1a2e] px-3 py-1 rounded-full font-bold text-xs">
+                          🆕 Neuf
+                        </div>
+                      )}
                       {/* Heart Icon - Favoris */}
                       <button
                         onClick={(e) => toggleFavorite(e, property.id)}
