@@ -1,4 +1,3 @@
-// app/(admin)/layout.tsx
 'use client';
 
 import { AdminProtectedLayout } from '@/components/layout/AdminProtectedLayout';

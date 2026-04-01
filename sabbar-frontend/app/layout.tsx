@@ -1,8 +1,5 @@
-'use client';
-
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { usePathname } from 'next/navigation';
 import './globals.css';
 import PublicFooter from '@/components/PublicFooter';
 import PublicNavbarClient from '@/components/PublicNavbarClient';
@@ -15,25 +12,14 @@ export const metadata: Metadata = {
   description: 'Plateforme immobiliere Marocaine',
 };
 
-function LayoutContent({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const isAdminPage = pathname?.startsWith('/admin');
-
-  return (
-    <>
-      {!isAdminPage && <PublicNavbarClient />}
-      {children}
-      {!isAdminPage && <PublicFooter />}
-    </>
-  );
-}
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
       <body className={inter.className}>
         <AuthProvider>
-          <LayoutContent>{children}</LayoutContent>
+          <PublicNavbarClient />
+          {children}
+          <PublicFooter />
         </AuthProvider>
       </body>
     </html>
