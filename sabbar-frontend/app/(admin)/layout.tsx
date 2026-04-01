@@ -1,7 +1,4 @@
-/**
- * Layout Admin - Protection d'authentification uniquement
- * Fichier: app/(admin)/layout.tsx
- */
+// app/(admin)/layout.tsx
 'use client';
 
 import { AdminProtectedLayout } from '@/components/layout/AdminProtectedLayout';
