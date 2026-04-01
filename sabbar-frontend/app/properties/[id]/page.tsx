@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, MapPin, Heart, Phone, Mail, Share2, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { propertiesApi } from '@/lib/api';
-import { API_BASE_URL } from '@/lib/config';
 
 // Translation mappings
 const transactionTypeMap: { [key: string]: string } = {
@@ -51,402 +50,522 @@ export default function PropertyDetailPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const videoInputRef = useRef<HTMLInputElement>(null);
-  const [uploadingVideo, setUploadingVideo] = useState(false);
-  const [uploadError, setUploadError] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [favorites, setFavorites] = useState<(number | string)[]>([]);
+  const touchStartRef = useRef<number>(0);
 
-  // Charger la propriété
+  // Load favorites from localStorage
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem('sabbar_favorites');
+    const favs = savedFavorites ? JSON.parse(savedFavorites) : [];
+    setFavorites(favs);
+    setIsFavorite(favs.includes(parseInt(propertyId)));
+  }, [propertyId]);
+
+  // Fetch property from API
   useEffect(() => {
     const fetchProperty = async () => {
       try {
         setLoading(true);
-        const response = await propertiesApi.getProperty(propertyId);
-        console.log('📋 Property loaded:', response);
-        console.log('🎬 Video URL:', response.video_url);
-        setProperty(response);
-      } catch (err: any) {
-        setError(err.message || 'Erreur lors du chargement');
+        setError(null);
+        console.log('📡 Fetching property from API...', propertyId);
+        
+        const response = await propertiesApi.getProperties({
+          limit: 100,
+          offset: 0
+        });
+        
+        console.log('✅ Properties loaded:', response);
+        
+        const foundProperty = response?.find((p: any) => String(p.id) === String(propertyId));
+        
+        if (foundProperty) {
+          setProperty(foundProperty);
+        } else {
+          setError('Propriété non trouvée');
+          setProperty(null);
+        }
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Erreur lors du chargement';
+        console.error('❌ Erreur:', message);
+        setError(message);
+        setProperty(null);
       } finally {
         setLoading(false);
       }
     };
 
-    if (propertyId) {
-      fetchProperty();
-    }
+    fetchProperty();
   }, [propertyId]);
 
-  // 🎥 Fonction pour uploader la vidéo (depuis le dashboard)
-  const handleVideoUpload = async (file: File) => {
-    if (!property) return;
+  // Helper function to convert video URL to embed format
+  const getEmbedUrl = (videoUrl: string): string | null => {
+    if (!videoUrl) return null;
+    
+    // YouTube watch URL format
+    if (videoUrl.includes('youtube.com/watch?v=')) {
+      const videoId = videoUrl.split('v=')[1]?.split('&')[0];
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+    }
+    
+    // YouTube youtu.be short format
+    if (videoUrl.includes('youtu.be/')) {
+      const videoId = videoUrl.split('youtu.be/')[1]?.split('?')[0];
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+    }
+    
+    // Already embed format
+    if (videoUrl.includes('youtube.com/embed/')) {
+      return videoUrl;
+    }
+    
+    // Vimeo format
+    if (videoUrl.includes('vimeo.com/')) {
+      const videoId = videoUrl.split('vimeo.com/')[1]?.split('?')[0];
+      return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
+    }
+    
+    return null;
+  };
 
-    setUploadingVideo(true);
-    setUploadError('');
-    try {
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        throw new Error('Vous devez être connecté pour uploader une vidéo');
+  // Helper function to determine if URL is a direct video file (including Supabase)
+  const isDirectVideoFile = (videoUrl: string): boolean => {
+    if (!videoUrl) {
+      console.log('❌ isDirectVideoFile: videoUrl est vide');
+      return false;
+    }
+    
+    console.log('🎬 Checking video URL:', videoUrl);
+    
+    // Check for direct video file extensions (this should catch .mp4)
+    const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.flv', '.m4v', '.3gp'];
+    for (const ext of videoExtensions) {
+      if (videoUrl.toLowerCase().includes(ext)) {
+        console.log(`✅ Detected video extension: ${ext}`);
+        return true;
       }
+    }
+    
+    // Supabase Storage URLs - these are direct video files
+    if (videoUrl.includes('supabase.co') && (videoUrl.includes('/storage/') || videoUrl.includes('/object/'))) {
+      console.log('✅ Detected Supabase Storage URL');
+      return true;
+    }
+    
+    console.log('❌ Not detected as direct video file');
+    return false;
+  };
 
-      const formData = new FormData();
-      formData.append('file', file);
+  const toggleFavorite = () => {
+    const newFavorites = favorites.includes(parseInt(propertyId))
+      ? favorites.filter(id => id !== parseInt(propertyId))
+      : [...favorites, parseInt(propertyId)];
+    
+    setFavorites(newFavorites);
+    setIsFavorite(!isFavorite);
+    localStorage.setItem('sabbar_favorites', JSON.stringify(newFavorites));
+  };
 
-      console.log('📤 Uploading video to:', `${API_BASE_URL}/api/v1/properties/${propertyId}/video`);
+  // Image navigation handlers
+  const handlePrevImage = () => {
+    if (images && images.length > 0) {
+      setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    }
+  };
 
-      // 1️⃣ Uploader la vidéo
-      const res = await fetch(`${API_BASE_URL}/api/v1/properties/${propertyId}/video`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+  const handleNextImage = () => {
+    if (images && images.length > 0) {
+      setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    }
+  };
 
-      if (!res.ok) {
-        const data = await res.json();
-        console.error('❌ Upload error:', data);
-        throw new Error(data.detail || 'Erreur lors de l\'upload');
+  // Touch handlers for swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const touchEndValue = e.changedTouches[0].clientX;
+    const distance = touchStartRef.current - touchEndValue;
+
+    if (Math.abs(distance) > 50) {
+      if (distance > 0) {
+        handleNextImage();
+      } else {
+        handlePrevImage();
       }
-
-      const uploadedData = await res.json();
-      console.log('✅ Video uploaded:', uploadedData);
-
-      // 2️⃣ Recharger la propriété pour obtenir la nouvelle URL vidéo
-      const getRes = await fetch(`${API_BASE_URL}/api/v1/properties/${propertyId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (getRes.ok) {
-        const updatedProperty = await getRes.json();
-        console.log('🔄 Property reloaded:', updatedProperty);
-        setProperty(updatedProperty);
-      }
-    } catch (e: any) {
-      console.error('❌ Video upload error:', e);
-      setUploadError(e.message);
-    } finally {
-      setUploadingVideo(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0f1a2e] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-3 border-[#d4af37] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-[#b0b0b0]">Chargement...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-[#0f1a2e] p-6">
-        <Link href="/" className="flex items-center gap-2 text-[#d4af37] hover:text-[#e6c55c] mb-4">
-          <ArrowLeft size={20} />
-          Retour
-        </Link>
-        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 text-red-400">
-          {error}
-        </div>
-      </div>
-    );
-  }
-
-  if (!property) {
-    return (
-      <div className="min-h-screen bg-[#0f1a2e] p-6">
-        <Link href="/" className="flex items-center gap-2 text-[#d4af37] hover:text-[#e6c55c] mb-4">
-          <ArrowLeft size={20} />
-          Retour
-        </Link>
-        <p className="text-[#b0b0b0]">Propriété non trouvée</p>
-      </div>
-    );
-  }
-
-  const images = property.images && Array.isArray(property.images) ? property.images : [];
-  const currentImage = images[currentImageIndex] || '/placeholder.jpg';
-
-  return (
-    <div className="min-h-screen bg-[#0f1a2e]">
-      {/* Header Navigation */}
-      <div className="sticky top-0 z-50 bg-[#0f1a2e]/95 backdrop-blur border-b border-[rgba(212,175,55,0.1)] px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-[#d4af37] hover:text-[#e6c55c] transition">
-            <ArrowLeft size={20} />
-            <span className="text-sm font-semibold">Retour</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsFavorite(!isFavorite)}
-              className={`p-2 rounded-full transition ${
-                isFavorite
-                  ? 'bg-[rgba(212,175,55,0.2)] text-[#d4af37]'
-                  : 'hover:bg-[rgba(212,175,55,0.1)] text-[#b0b0b0] hover:text-[#d4af37]'
-              }`}
-            >
-              <Heart size={20} fill={isFavorite ? 'currentColor' : 'none'} />
-            </button>
-            <button className="p-2 rounded-full hover:bg-[rgba(212,175,55,0.1)] text-[#b0b0b0] hover:text-[#d4af37] transition">
-              <Share2 size={20} />
-            </button>
+      <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
+        <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
+          <div className="max-w-[1400px] mx-auto">
+            <Link href="/properties" className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#f4d03f] transition-colors">
+              <ArrowLeft size={20} />
+              <span>Retour aux propriétés</span>
+            </Link>
           </div>
         </div>
+        <div className="py-12 px-[5%]">
+          <div className="max-w-[1400px] mx-auto">
+            <p className="text-[#b0b0b0] text-lg">⏳ Chargement de la propriété...</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !property) {
+    return (
+      <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
+        <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
+          <div className="max-w-[1400px] mx-auto">
+            <Link href="/properties" className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#f4d03f] transition-colors">
+              <ArrowLeft size={20} />
+              <span>Retour aux propriétés</span>
+            </Link>
+          </div>
+        </div>
+        <div className="py-12 px-[5%]">
+          <div className="max-w-[1400px] mx-auto">
+            <div className="bg-[rgba(220,38,38,0.1)] border border-[rgba(220,38,38,0.3)] text-[#fca5a5] px-6 py-4 rounded-lg">
+              ❌ {error || 'Propriété non trouvée'}
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  const images = property.images && property.images.length > 0 ? property.images : [property.image || '/placeholder.jpg'];
+
+  return (
+    <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
+      {/* Back Button */}
+      <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
+        <div className="max-w-[1400px] mx-auto">
+          <Link href="/properties" className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#f4d03f] transition-colors">
+            <ArrowLeft size={20} />
+            <span>Retour aux propriétés</span>
+          </Link>
+        </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column - Images & Details */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Image Gallery with Swipe */}
-          {images.length > 0 && (
-            <div className="group relative bg-black rounded-2xl overflow-hidden aspect-video">
-              <img
-                src={currentImage}
-                alt={property.title}
-                className="w-full h-full object-cover"
-              />
+      {/* Image Gallery with Swipe */}
+      <section className="py-12 px-[5%]">
+        <div className="max-w-[1400px] mx-auto">
+          <div 
+            className="relative bg-[#0f1a2e] rounded-2xl overflow-hidden h-96 sm:h-[500px] md:h-[600px] flex items-center justify-center group mb-8 cursor-grab active:cursor-grabbing"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            {/* Main Image */}
+            <img
+              src={images[currentImageIndex]}
+              alt={property.title}
+              className="w-full h-full object-cover transition-opacity duration-300"
+            />
 
-              {/* Arrows */}
-              {images.length > 1 && (
-                <>
-                  <button
-                    onClick={() =>
-                      setCurrentImageIndex(i => (i === 0 ? images.length - 1 : i - 1))
-                    }
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition"
-                  >
-                    <ChevronLeft size={24} />
-                  </button>
-                  <button
-                    onClick={() =>
-                      setCurrentImageIndex(i => (i === images.length - 1 ? 0 : i + 1))
-                    }
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition"
-                  >
-                    <ChevronRight size={24} />
-                  </button>
-                </>
-              )}
+            {/* Favorite Button */}
+            <button
+              onClick={toggleFavorite}
+              className={`absolute top-4 left-4 p-3 rounded-full transition-all z-10 ${
+                isFavorite
+                  ? 'bg-[#d4af37] text-[#0f1a2e]'
+                  : 'bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white'
+              }`}
+            >
+              <Heart size={24} fill={isFavorite ? 'currentColor' : 'none'} />
+            </button>
 
-              {/* Counter */}
-              {images.length > 1 && (
-                <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  {currentImageIndex + 1} / {images.length}
-                </div>
-              )}
+            {/* Image Counter */}
+            <div className="absolute bottom-4 right-4 bg-[rgba(0,0,0,0.7)] text-white px-4 py-2 rounded-lg text-sm font-bold">
+              {currentImageIndex + 1} / {images.length}
             </div>
-          )}
 
-          {/* Thumbnails */}
+            {/* Left Arrow */}
+            {images.length > 1 && (
+              <button
+                onClick={handlePrevImage}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white hover:text-[#0f1a2e] p-3 rounded-full transition-all z-10 hidden group-hover:block"
+              >
+                <ChevronLeft size={24} />
+              </button>
+            )}
+
+            {/* Right Arrow */}
+            {images.length > 1 && (
+              <button
+                onClick={handleNextImage}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white hover:text-[#0f1a2e] p-3 rounded-full transition-all z-10 hidden group-hover:block"
+              >
+                <ChevronRight size={24} />
+              </button>
+            )}
+
+            {/* Swipe Hint */}
+            <div className="absolute bottom-4 left-4 bg-[rgba(0,0,0,0.7)] text-white px-3 py-1 rounded-lg text-xs font-semibold">
+              👉 Glissez pour naviguer
+            </div>
+          </div>
+
+          {/* Thumbnail Images */}
           {images.length > 1 && (
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {images.map((img, idx) => (
+            <div className="flex gap-2 overflow-x-auto pb-4">
+              {images.map((img: string, index: number) => (
                 <button
-                  key={idx}
-                  onClick={() => setCurrentImageIndex(idx)}
-                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition ${
-                    idx === currentImageIndex
+                  key={index}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                    currentImageIndex === index
                       ? 'border-[#d4af37]'
-                      : 'border-[rgba(212,175,55,0.2)] hover:border-[rgba(212,175,55,0.5)]'
+                      : 'border-[rgba(212,175,55,0.2)] hover:border-[#d4af37]'
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <img src={img} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
           )}
+        </div>
+      </section>
 
-          {/* Title & Location */}
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">{property.title}</h1>
-            <div className="flex items-center gap-2 text-[#d4af37] mb-4">
-              <MapPin size={20} />
-              <span className="text-lg">
-                {property.quarter || property.district || ''} {property.city}
-              </span>
+      {/* Main Content */}
+      <section className="py-12 px-[5%]">
+        <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column */}
+          <div className="lg:col-span-2">
+            {/* Title and Location */}
+            <div className="mb-8">
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{property.title}</h1>
+              <div className="flex items-center gap-2 text-[#d4af37] text-lg mb-4">
+                <MapPin size={24} />
+                <span>{property.city} - {property.quarter || property.district}</span>
+              </div>
             </div>
+
+            {/* Description */}
             {property.description && (
-              <p className="text-[#b0b0b0] text-base leading-relaxed">{property.description}</p>
+              <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
+                <h2 className="text-2xl font-bold text-white mb-6">📝 Description</h2>
+                <p className="text-[#b0b0b0] leading-relaxed">{property.description}</p>
+              </div>
             )}
-          </div>
 
-          {/* Caractéristiques */}
-          <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8">
-            <h2 className="text-2xl font-bold text-white mb-6">Caractéristiques</h2>
-            <div className="grid grid-cols-2 gap-6">
-              {property.transaction_type && (
-                <div>
-                  <p className="text-[#b0b0b0] text-sm mb-1">Type de transaction</p>
-                  <p className="text-white font-semibold">{getTransactionTypeLabel(property.transaction_type)}</p>
+            {/* Characteristics Section */}
+            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
+              <h2 className="text-2xl font-bold text-white mb-6">📋 Caractéristiques</h2>
+              <div className="space-y-4">
+                {/* Transaction Type */}
+                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                  <span className="text-[#b0b0b0]">Type de transaction</span>
+                  <span className="text-white font-bold">{getTransactionTypeLabel(property.transaction_type)}</span>
                 </div>
-              )}
-              {property.property_type && (
-                <div>
-                  <p className="text-[#b0b0b0] text-sm mb-1">Type de bien</p>
-                  <p className="text-white font-semibold">{getPropertyTypeLabel(property.property_type)}</p>
+
+                {/* Property Type */}
+                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                  <span className="text-[#b0b0b0]">Type de bien</span>
+                  <span className="text-white font-bold">{getPropertyTypeLabel(property.property_type)}</span>
                 </div>
-              )}
-              {property.city && (
-                <div>
-                  <p className="text-[#b0b0b0] text-sm mb-1">Ville</p>
-                  <p className="text-white font-semibold">{property.city}</p>
+
+                {/* City */}
+                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                  <span className="text-[#b0b0b0]">Ville</span>
+                  <span className="text-white font-bold">{property.city}</span>
                 </div>
-              )}
-              {property.quarter && (
-                <div>
-                  <p className="text-[#b0b0b0] text-sm mb-1">Quartier</p>
-                  <p className="text-white font-semibold">{property.quarter}</p>
+
+                {/* District/Quarter */}
+                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                  <span className="text-[#b0b0b0]">Quartier</span>
+                  <span className="text-white font-bold">{property.quarter || property.district || 'N/A'}</span>
                 </div>
-              )}
-              {property.floor !== undefined && property.floor !== null && (
-                <div>
-                  <p className="text-[#b0b0b0] text-sm mb-1">Étage</p>
-                  <p className="text-white font-semibold">{property.floor}</p>
-                </div>
-              )}
-              {property.has_elevator !== undefined && (
-                <div>
-                  <p className="text-[#b0b0b0] text-sm mb-1">Ascenseur</p>
-                  <p className="text-white font-semibold">{property.has_elevator ? '✓ Oui' : '✗ Non'}</p>
-                </div>
-              )}
-              {property.bedrooms && (
-                <div>
-                  <p className="text-[#b0b0b0] text-sm mb-1">Chambres</p>
-                  <p className="text-white font-semibold">{property.bedrooms}</p>
-                </div>
-              )}
-              {property.bathrooms && (
-                <div>
-                  <p className="text-[#b0b0b0] text-sm mb-1">Salles de bain</p>
-                  <p className="text-white font-semibold">{property.bathrooms}</p>
-                </div>
-              )}
-              {property.area && (
-                <div>
-                  <p className="text-[#b0b0b0] text-sm mb-1">Surface</p>
-                  <p className="text-white font-semibold">{property.area} m²</p>
-                </div>
-              )}
-              {property.equipments && Array.isArray(property.equipments) && property.equipments.length > 0 && (
-                <div className="col-span-2">
-                  <p className="text-[#b0b0b0] text-sm mb-3">Équipements</p>
-                  <div className="flex flex-wrap gap-2">
-                    {property.equipments.map((eq: string, idx: number) => (
-                      <span key={idx} className="px-3 py-1 bg-[rgba(212,175,55,0.15)] text-[#d4af37] rounded-full text-sm">
-                        {eq}
-                      </span>
-                    ))}
+
+                {/* Floor */}
+                {property.floor && (
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                    <span className="text-[#b0b0b0]">Étage</span>
+                    <span className="text-white font-bold">{property.floor}</span>
                   </div>
+                )}
+
+                {/* Elevator */}
+                {property.elevator || property.has_elevator ? (
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                    <span className="text-[#b0b0b0]">Ascenseur</span>
+                    <span className="text-[#d4af37] font-bold">✓ Oui</span>
+                  </div>
+                ) : null}
+
+                {/* Bedrooms */}
+                {property.bedrooms && (
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                    <span className="text-[#b0b0b0]">Chambres</span>
+                    <span className="text-white font-bold">{property.bedrooms}</span>
+                  </div>
+                )}
+
+                {/* Bathrooms */}
+                {property.bathrooms && (
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                    <span className="text-[#b0b0b0]">Salles de bain</span>
+                    <span className="text-white font-bold">{property.bathrooms}</span>
+                  </div>
+                )}
+
+                {/* Area */}
+                {property.area && (
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                    <span className="text-[#b0b0b0]">Surface</span>
+                    <span className="text-white font-bold">{property.area} m²</span>
+                  </div>
+                )}
+
+                {/* Equipment */}
+                {property.equipments && property.equipments.length > 0 && (
+                  <div className="pb-4">
+                    <span className="text-[#b0b0b0] block mb-3">Équipements</span>
+                    <div className="flex flex-wrap gap-2">
+                      {property.equipments.map((equipment: string, index: number) => (
+                        <span key={index} className="bg-[rgba(212,175,55,0.2)] text-[#d4af37] px-3 py-1 rounded-full text-sm font-bold border border-[rgba(212,175,55,0.3)]">
+                          {equipment}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Status */}
+                {property.status && (
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                    <span className="text-[#b0b0b0]">Statut</span>
+                    <span className="text-white font-bold">{property.status}</span>
+                  </div>
+                )}
+
+                {/* Creation Date */}
+                <div className="flex justify-between items-center">
+                  <span className="text-[#b0b0b0]">Date de création</span>
+                  <span className="text-white font-bold">{new Date(property.createdAt || property.created_at).toLocaleDateString('fr-FR')}</span>
                 </div>
-              )}
-              {property.status && (
-                <div>
-                  <p className="text-[#b0b0b0] text-sm mb-1">Statut</p>
-                  <p className="text-white font-semibold">{property.status}</p>
-                </div>
-              )}
-              {property.createdAt || property.created_at && (
-                <div>
-                  <p className="text-[#b0b0b0] text-sm mb-1">Date de création</p>
-                  <p className="text-white font-semibold">
-                    {new Date(property.createdAt || property.created_at).toLocaleDateString('fr-FR')}
-                  </p>
-                </div>
-              )}
+              </div>
+            </div>
+
+            {/* Video Section */}
+            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
+              <h2 className="text-2xl font-bold text-white mb-6">🎬 Vidéo de la propriété</h2>
+              
+              {(() => {
+                const videoUrl = property.video_url || property.videoUrl;
+                console.log('🎬 Video URL:', videoUrl);
+                
+                if (!videoUrl) {
+                  return (
+                    <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
+                      <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
+                        <Play size={48} className="text-[#d4af37]" />
+                      </div>
+                      <p className="text-[#b0b0b0] text-lg font-semibold">Aucune vidéo disponible</p>
+                      <p className="text-[#666] text-sm mt-2">Les vidéos seront disponibles prochainement</p>
+                    </div>
+                  );
+                }
+
+                if (isDirectVideoFile(videoUrl)) {
+                  console.log('✅ Playing as direct video file');
+                  return (
+                    <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
+                      <video
+                        width="100%"
+                        height="100%"
+                        controls
+                        className="w-full h-full"
+                        controlsList="nodownload"
+                      >
+                        <source src={videoUrl} type="video/mp4" />
+                        Votre navigateur ne supporte pas le lecteur vidéo HTML5.
+                      </video>
+                    </div>
+                  );
+                }
+
+                const embedUrl = getEmbedUrl(videoUrl);
+                if (embedUrl) {
+                  console.log('✅ Playing as embedded video');
+                  return (
+                    <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        src={embedUrl}
+                        title="Property Video"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  );
+                }
+
+                console.log('❌ Unsupported video format');
+                return (
+                  <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
+                    <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
+                      <Play size={48} className="text-[#d4af37]" />
+                    </div>
+                    <p className="text-[#b0b0b0] text-lg font-semibold">Format vidéo non supporté</p>
+                    <p className="text-[#666] text-sm mt-2 break-all">{videoUrl.substring(0, 100)}...</p>
+                  </div>
+                );
+              })()}
             </div>
           </div>
 
-          {/* Video Section */}
-          <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8">
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-              <Play size={24} className="text-[#d4af37]" />
-              Vidéo de la propriété
-            </h2>
-
-            {uploadError && (
-              <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
-                {uploadError}
+          {/* Right Column - Price and Contact */}
+          <div className="lg:col-span-1">
+            {/* Price Card */}
+            <div className="bg-gradient-to-br from-[#d4af37] to-[#f4d03f] rounded-xl p-6 mb-6 sticky top-8">
+              <p className="text-[#0f1a2e] font-bold text-xs mb-1">PRIX</p>
+              <div className="text-2xl font-bold text-[#0f1a2e] mb-1 break-words">
+                {property.price.toLocaleString('fr-FR', { 
+                  minimumFractionDigits: 0, 
+                  maximumFractionDigits: 0 
+                })}
               </div>
-            )}
+              <p className="text-[#0f1a2e] font-semibold text-sm">MAD</p>
+            </div>
 
-            {property.video_url ? (
-              <div className="space-y-4">
-                <div className="relative bg-black rounded-xl overflow-hidden w-full aspect-video">
-                  <video
-                    src={property.video_url}
-                    controls
-                    className="w-full h-full"
-                    controlsList="nodownload"
-                  />
-                </div>
-                <p className="text-sm text-[#b0b0b0]">
-                  ✅ Vidéo: {property.video_url.substring(0, 60)}...
-                </p>
-              </div>
-            ) : (
-              <div
-                onClick={() => videoInputRef.current?.click()}
-                className="border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-xl p-12 text-center cursor-pointer hover:border-[rgba(212,175,55,0.6)] transition"
-              >
-                <div className="bg-[rgba(212,175,55,0.1)] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Play size={32} className="text-[#d4af37]" />
-                </div>
-                <p className="text-[#b0b0b0] text-lg font-semibold">Aucune vidéo disponible</p>
-                <p className="text-[#666] text-sm mt-2">Les vidéos seront disponibles prochainement</p>
-              </div>
-            )}
+            {/* Contact Card */}
+            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-6">
+              <h3 className="text-xl font-bold text-white mb-4">📞 Nous contacter</h3>
 
-            <input
-              ref={videoInputRef}
-              type="file"
-              accept="video/*"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files?.[0]) {
-                  handleVideoUpload(e.target.files[0]);
-                }
-              }}
-              disabled={uploadingVideo}
-            />
+              <div className="space-y-3">
+                <a
+                  href="tel:+212561511251"
+                  className="w-full flex items-center justify-center gap-3 bg-[#d4af37] hover:bg-[#f4d03f] text-[#0f1a2e] font-bold py-2 px-3 rounded-lg transition text-sm"
+                >
+                  <Phone size={18} />
+                  +212 5 61 51 12 51
+                </a>
+
+                <a
+                  href="mailto:contact@landmark-estate.com"
+                  className="w-full flex items-center justify-center gap-3 border-2 border-[#d4af37] hover:bg-[#d4af37] text-[#d4af37] hover:text-[#0f1a2e] font-bold py-2 px-3 rounded-lg transition text-sm"
+                >
+                  <Mail size={18} />
+                  contact@landmark.ma
+                </a>
+
+                <button className="w-full flex items-center justify-center gap-3 border-2 border-[#b0b0b0] hover:border-[#d4af37] text-[#b0b0b0] hover:text-[#d4af37] font-bold py-2 px-3 rounded-lg transition text-sm">
+                  <Share2 size={18} />
+                  Partager
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* Right Column - Price & Contact */}
-        <div className="space-y-6">
-          {/* Price Card */}
-          <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-6">
-            <p className="text-[#b0b0b0] text-sm mb-2">Prix</p>
-            <p className="text-4xl font-bold text-[#d4af37] mb-2">
-              {property.price?.toLocaleString('fr-MA')}
-            </p>
-            <p className="text-[#b0b0b0] text-sm">MAD</p>
-          </div>
-
-          {/* Contact Card */}
-          <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-6 space-y-4">
-            <h3 className="text-white font-bold mb-4">Contacter l'annonceur</h3>
-            <button className="w-full flex items-center justify-center gap-2 bg-[#d4af37] hover:bg-[#e6c55c] text-[#0f1a2e] py-2 px-4 rounded-lg font-semibold transition">
-              <Phone size={18} />
-              Appeler
-            </button>
-            <button className="w-full flex items-center justify-center gap-2 bg-[rgba(212,175,55,0.15)] hover:bg-[rgba(212,175,55,0.25)] text-[#d4af37] py-2 px-4 rounded-lg font-semibold transition">
-              <Mail size={18} />
-              Email
-            </button>
-            <button className="w-full flex items-center justify-center gap-2 bg-[rgba(212,175,55,0.15)] hover:bg-[rgba(212,175,55,0.25)] text-[#d4af37] py-2 px-4 rounded-lg font-semibold transition">
-              <Share2 size={18} />
-              Partager
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
