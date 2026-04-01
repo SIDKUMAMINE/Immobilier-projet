@@ -230,3 +230,8 @@ textarea::placeholder {
     font-size: 16px;
   }
 }
+/* Masquer navbar et footer pour pages admin */
+body[data-admin-page="true"] > :first-child,
+body[data-admin-page="true"] > :last-child {
+  display: none !important;
+}

@@ -13,8 +13,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
 
   useEffect(() => {
+    // Ajouter l'attribut data-admin-page
+    document.body.setAttribute('data-admin-page', 'true');
+    
     const token = localStorage.getItem('accessToken');
-    const user = localStorage.getItem('user');
 
     if (!token) {
       setIsAuthenticated(false);
@@ -25,6 +27,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
     setIsAuthenticated(true);
     setIsLoading(false);
+
+    // Cleanup
+    return () => {
+      document.body.removeAttribute('data-admin-page');
+    };
   }, [router]);
 
   if (isLoading) {
@@ -32,7 +39,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <div className="text-center">
           <div className="w-8 h-8 border-3 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-white text-sm">Vérification de l'authentification...</p>
+          <p className="text-white text-sm">Chargement...</p>
         </div>
       </div>
     );
