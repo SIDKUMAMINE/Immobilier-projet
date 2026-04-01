@@ -263,13 +263,13 @@ export default function PropertiesPage() {
       </section>
 
       {/* Filters Section */}
-      <section className="py-8 px-[5%] bg-[#0f1a2e] border-b border-[rgba(212,175,55,0.2)]">
+      <section className="py-6 sm:py-8 px-[5%] bg-[#0f1a2e] border-b border-[rgba(212,175,55,0.2)]">
         <div className="max-w-[1400px] mx-auto">
           {/* Main Filters Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
             {/* City Filter */}
             <div>
-              <label className="block text-[#d4af37] font-bold text-sm mb-2">Ville</label>
+              <label className="block text-[#d4af37] font-bold text-xs sm:text-sm mb-2">Ville</label>
               <select
                 value={selectedCity}
                 onChange={(e) => setSelectedCity(e.target.value)}
@@ -284,7 +284,7 @@ export default function PropertiesPage() {
 
             {/* Transaction Type Filter */}
             <div>
-              <label className="block text-[#d4af37] font-bold text-sm mb-2">Type de transaction</label>
+              <label className="block text-[#d4af37] font-bold text-xs sm:text-sm mb-2">Type de transaction</label>
               <select
                 value={selectedTransactionType}
                 onChange={(e) => setSelectedTransactionType(e.target.value)}
@@ -299,7 +299,7 @@ export default function PropertiesPage() {
 
             {/* Property Type Filter */}
             <div>
-              <label className="block text-[#d4af37] font-bold text-sm mb-2">Type de bien</label>
+              <label className="block text-[#d4af37] font-bold text-xs sm:text-sm mb-2">Type de bien</label>
               <select
                 value={selectedPropertyType}
                 onChange={(e) => setSelectedPropertyType(e.target.value)}
@@ -326,7 +326,7 @@ export default function PropertiesPage() {
 
           {/* Advanced Criteria Section */}
           {expandCriteria && (
-            <div className="mb-6 p-6 bg-[rgba(212,175,55,0.15)] border border-[rgba(212,175,55,0.3)] rounded-lg">
+            <div className="mb-6 p-6 bg-[rgba(15,26,46,0.8)] border border-[rgba(212,175,55,0.3)] rounded-lg">
               {/* 1. Caractéristiques */}
               <div className="mb-8">
                 <h3 className="text-[#d4af37] font-bold text-sm mb-4 flex items-center gap-2">
@@ -334,7 +334,7 @@ export default function PropertiesPage() {
                   Caractéristiques
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   {/* Floor Filter */}
                   <div>
                     <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Étage</label>
@@ -395,7 +395,7 @@ export default function PropertiesPage() {
                   Prix (MAD)
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Prix min</label>
                     <input
@@ -429,7 +429,7 @@ export default function PropertiesPage() {
                   Surface (m²)
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Surface min</label>
                     <input
@@ -464,7 +464,7 @@ export default function PropertiesPage() {
                     Équipements
                   </h3>
 
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
                     {equipmentsList.map(equipment => (
                       <label key={equipment} className="flex items-center gap-3 cursor-pointer group">
                         <input
@@ -534,7 +534,7 @@ export default function PropertiesPage() {
               </button>
             </div>
           ) : filteredProperties.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {filteredProperties.map((property) => (
                 <Link
                   key={property.id}
@@ -671,10 +671,10 @@ export default function PropertiesPage() {
               Nous Contacter
             </Link>
             <a
-              href="tel:+212561511251"
+              href="tel:+212605585720"
               className="inline-flex items-center justify-center px-8 py-4 border-2 border-[#d4af37] text-[#d4af37] font-bold rounded-xl hover:bg-[#d4af37] hover:text-[#0f1a2e] transition-all"
             >
-             +212 6 05 58 57 20
+              +212 6 05 58 57 20
             </a>
           </div>
         </div>
