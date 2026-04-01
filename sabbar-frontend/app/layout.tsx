@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import PublicFooter from '@/components/PublicFooter';
-import PublicNavbarClient from '@/components/PublicNavbarClient';
 import { AuthProvider } from '@/lib/auth/context';
+import { LayoutWrapper } from '@/components/layout/LayoutWrapper';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -17,9 +16,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr">
       <body className={inter.className}>
         <AuthProvider>
-          <PublicNavbarClient />
-          {children}
-          <PublicFooter />
+          <LayoutWrapper>
+            {children}
+          </LayoutWrapper>
         </AuthProvider>
       </body>
     </html>
