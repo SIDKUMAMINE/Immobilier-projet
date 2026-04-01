@@ -102,16 +102,6 @@ export default function PropertyDetailPage() {
   const getEmbedUrl = (videoUrl: string): string | null => {
     if (!videoUrl) return null;
     
-    // Direct video file URLs (Supabase Storage, etc.)
-    if (videoUrl.includes('.mp4') || videoUrl.includes('.webm') || videoUrl.includes('.mov') || videoUrl.includes('.avi')) {
-      return videoUrl;
-    }
-    
-    // Supabase Storage URLs
-    if (videoUrl.includes('supabase') || videoUrl.includes('storage')) {
-      return videoUrl;
-    }
-    
     // YouTube watch URL format
     if (videoUrl.includes('youtube.com/watch?v=')) {
       const videoId = videoUrl.split('v=')[1]?.split('&')[0];
@@ -135,32 +125,34 @@ export default function PropertyDetailPage() {
       return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
     }
     
-    // Direct URL (assuming it's already proper embed)
-    return videoUrl;
+    return null;
   };
 
-  // Helper function to determine if URL is a direct video file
+  // Helper function to determine if URL is a direct video file (including Supabase)
   const isDirectVideoFile = (videoUrl: string): boolean => {
-    if (!videoUrl) return false;
+    if (!videoUrl) {
+      console.log('❌ isDirectVideoFile: videoUrl est vide');
+      return false;
+    }
     
-    // Check for direct video file extensions
-    if (videoUrl.includes('.mp4') || 
-        videoUrl.includes('.webm') || 
-        videoUrl.includes('.mov') || 
-        videoUrl.includes('.avi') ||
-        videoUrl.includes('.mkv') ||
-        videoUrl.includes('.flv')) {
+    console.log('🎬 Checking video URL:', videoUrl);
+    
+    // Check for direct video file extensions (this should catch .mp4)
+    const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.flv', '.m4v', '.3gp'];
+    for (const ext of videoExtensions) {
+      if (videoUrl.toLowerCase().includes(ext)) {
+        console.log(`✅ Detected video extension: ${ext}`);
+        return true;
+      }
+    }
+    
+    // Supabase Storage URLs - these are direct video files
+    if (videoUrl.includes('supabase.co') && (videoUrl.includes('/storage/') || videoUrl.includes('/object/'))) {
+      console.log('✅ Detected Supabase Storage URL');
       return true;
     }
     
-    // Supabase Storage URLs are direct video files
-    // They contain 'supabase.co' and have 'storage' or 'object' in the path
-    if ((videoUrl.includes('supabase.co') && 
-         (videoUrl.includes('/storage/') || videoUrl.includes('/object/'))) ||
-        videoUrl.includes('supabase.co/storage')) {
-      return true;
-    }
-    
+    console.log('❌ Not detected as direct video file');
     return false;
   };
 
@@ -464,53 +456,69 @@ export default function PropertyDetailPage() {
             <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
               <h2 className="text-2xl font-bold text-white mb-6">🎬 Vidéo de la propriété</h2>
               
-              {property.video_url || property.videoUrl ? (
-                isDirectVideoFile(property.video_url || property.videoUrl) ? (
-                  // Direct video file (Supabase Storage, etc.)
-                  <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
-                    <video
-                      width="100%"
-                      height="100%"
-                      controls
-                      className="w-full h-full"
-                      controlsList="nodownload"
-                    >
-                      <source src={property.video_url || property.videoUrl} type="video/mp4" />
-                      Votre navigateur ne supporte pas le lecteur vidéo HTML5.
-                    </video>
-                  </div>
-                ) : getEmbedUrl(property.video_url || property.videoUrl) ? (
-                  // Embedded video (YouTube, Vimeo, etc.)
-                  <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
-                    <iframe
-                      width="100%"
-                      height="100%"
-                      src={getEmbedUrl(property.video_url || property.videoUrl)!}
-                      title="Property Video"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                ) : (
-                  // Unsupported format
+              {(() => {
+                const videoUrl = property.video_url || property.videoUrl;
+                console.log('🎬 Video URL:', videoUrl);
+                
+                if (!videoUrl) {
+                  return (
+                    <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
+                      <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
+                        <Play size={48} className="text-[#d4af37]" />
+                      </div>
+                      <p className="text-[#b0b0b0] text-lg font-semibold">Aucune vidéo disponible</p>
+                      <p className="text-[#666] text-sm mt-2">Les vidéos seront disponibles prochainement</p>
+                    </div>
+                  );
+                }
+
+                if (isDirectVideoFile(videoUrl)) {
+                  console.log('✅ Playing as direct video file');
+                  return (
+                    <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
+                      <video
+                        width="100%"
+                        height="100%"
+                        controls
+                        className="w-full h-full"
+                        controlsList="nodownload"
+                      >
+                        <source src={videoUrl} type="video/mp4" />
+                        Votre navigateur ne supporte pas le lecteur vidéo HTML5.
+                      </video>
+                    </div>
+                  );
+                }
+
+                const embedUrl = getEmbedUrl(videoUrl);
+                if (embedUrl) {
+                  console.log('✅ Playing as embedded video');
+                  return (
+                    <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        src={embedUrl}
+                        title="Property Video"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  );
+                }
+
+                console.log('❌ Unsupported video format');
+                return (
                   <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
                     <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
                       <Play size={48} className="text-[#d4af37]" />
                     </div>
                     <p className="text-[#b0b0b0] text-lg font-semibold">Format vidéo non supporté</p>
-                    <p className="text-[#666] text-sm mt-2">Veuillez vérifier l'URL de la vidéo</p>
+                    <p className="text-[#666] text-sm mt-2 break-all">{videoUrl.substring(0, 100)}...</p>
                   </div>
-                )
-              ) : (
-                <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
-                  <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
-                    <Play size={48} className="text-[#d4af37]" />
-                  </div>
-                  <p className="text-[#b0b0b0] text-lg font-semibold">Aucune vidéo disponible</p>
-                  <p className="text-[#666] text-sm mt-2">Les vidéos seront disponibles prochainement</p>
-                </div>
-              )}
+                );
+              })()}
             </div>
           </div>
 
