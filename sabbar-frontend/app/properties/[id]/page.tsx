@@ -1,40 +1,96 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, MapPin, Heart, Phone, Mail, Share2 } from 'lucide-react';
-import { getPropertyById, Property } from '@/lib/properties-data';
+import { propertiesApi } from '@/lib/api';
 
 export default function PropertyDetailPage() {
   const params = useParams();
   const propertyId = params.id as string;
   const [isFavorite, setIsFavorite] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [property, setProperty] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [favorites, setFavorites] = useState<(number | string)[]>([]);
 
-  // Récupérer la propriété
-  const property = useMemo(() => {
-    const id = parseInt(propertyId);
-    return getPropertyById(id);
+  // Charger les favoris depuis localStorage
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem('sabbar_favorites');
+    const favs = savedFavorites ? JSON.parse(savedFavorites) : [];
+    setFavorites(favs);
+    setIsFavorite(favs.includes(parseInt(propertyId)));
+  }, [propertyId]);
+
+  // Récupérer la propriété depuis l'API
+  useEffect(() => {
+    const fetchProperty = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        console.log('📡 Fetching property from API...', propertyId);
+        
+        const response = await propertiesApi.getProperties({
+          limit: 100,
+          offset: 0
+        });
+        
+        console.log('✅ Properties loaded:', response);
+        
+        const foundProperty = response?.find((p: any) => String(p.id) === String(propertyId));
+        
+        if (foundProperty) {
+          setProperty(foundProperty);
+        } else {
+          setError('Propriété non trouvée');
+          setProperty(null);
+        }
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Erreur lors du chargement';
+        console.error('❌ Erreur:', message);
+        setError(message);
+        setProperty(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperty();
   }, [propertyId]);
 
   const toggleFavorite = () => {
-    const savedFavorites = localStorage.getItem('sabbar_favorites');
-    const favorites = savedFavorites ? JSON.parse(savedFavorites) : [];
-    const propId = parseInt(propertyId);
-
-    if (isFavorite) {
-      const newFavorites = favorites.filter((id: number) => id !== propId);
-      localStorage.setItem('sabbar_favorites', JSON.stringify(newFavorites));
-    } else {
-      favorites.push(propId);
-      localStorage.setItem('sabbar_favorites', JSON.stringify(favorites));
-    }
-
+    const newFavorites = favorites.includes(parseInt(propertyId))
+      ? favorites.filter(id => id !== parseInt(propertyId))
+      : [...favorites, parseInt(propertyId)];
+    
+    setFavorites(newFavorites);
     setIsFavorite(!isFavorite);
+    localStorage.setItem('sabbar_favorites', JSON.stringify(newFavorites));
   };
 
-  if (!property) {
+  if (loading) {
+    return (
+      <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
+        <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
+          <div className="max-w-[1400px] mx-auto">
+            <Link href="/properties" className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#f4d03f] transition-colors">
+              <ArrowLeft size={20} />
+              <span>Retour aux propriétés</span>
+            </Link>
+          </div>
+        </div>
+        <div className="py-12 px-[5%]">
+          <div className="max-w-[1400px] mx-auto">
+            <p className="text-[#b0b0b0] text-lg">⏳ Chargement de la propriété...</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !property) {
     return (
       <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
         <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
@@ -48,7 +104,7 @@ export default function PropertyDetailPage() {
         <div className="py-12 px-[5%]">
           <div className="max-w-[1400px] mx-auto">
             <div className="bg-[rgba(220,38,38,0.1)] border border-[rgba(220,38,38,0.3)] text-[#fca5a5] px-6 py-4 rounded-lg">
-              ❌ Propriété non trouvée
+              ❌ {error || 'Propriété non trouvée'}
             </div>
           </div>
         </div>
@@ -56,7 +112,7 @@ export default function PropertyDetailPage() {
     );
   }
 
-  const images = [property.image]; // Utiliser l'image principale
+  const images = property.images && property.images.length > 0 ? property.images : [property.image || '/placeholder.jpg'];
 
   return (
     <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
@@ -94,7 +150,7 @@ export default function PropertyDetailPage() {
 
             {/* Indicateur */}
             <div className="absolute bottom-4 right-4 bg-[rgba(0,0,0,0.7)] text-white px-4 py-2 rounded-lg text-sm font-bold">
-              1 / 1
+              {currentImageIndex + 1} / {images.length}
             </div>
           </div>
         </div>
@@ -110,7 +166,7 @@ export default function PropertyDetailPage() {
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{property.title}</h1>
               <div className="flex items-center gap-2 text-[#d4af37] text-lg mb-4">
                 <MapPin size={24} />
-                <span>{property.city} - {property.district}</span>
+                <span>{property.city} - {property.quarter || property.district}</span>
               </div>
             </div>
 
@@ -120,7 +176,7 @@ export default function PropertyDetailPage() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
                   <span className="text-[#b0b0b0]">Type</span>
-                  <span className="text-white font-bold">{property.name || property.title}</span>
+                  <span className="text-white font-bold">{property.transaction_type || property.name || property.title}</span>
                 </div>
                 <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
                   <span className="text-[#b0b0b0]">Ville</span>
@@ -128,11 +184,29 @@ export default function PropertyDetailPage() {
                 </div>
                 <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
                   <span className="text-[#b0b0b0]">Quartier</span>
-                  <span className="text-white font-bold">{property.district}</span>
+                  <span className="text-white font-bold">{property.quarter || property.district}</span>
                 </div>
+                {property.bedrooms && (
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                    <span className="text-[#b0b0b0]">Chambres</span>
+                    <span className="text-white font-bold">{property.bedrooms}</span>
+                  </div>
+                )}
+                {property.bathrooms && (
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                    <span className="text-[#b0b0b0]">Salles de bain</span>
+                    <span className="text-white font-bold">{property.bathrooms}</span>
+                  </div>
+                )}
+                {property.area && (
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                    <span className="text-[#b0b0b0]">Surface</span>
+                    <span className="text-white font-bold">{property.area} m²</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center">
                   <span className="text-[#b0b0b0]">Date de création</span>
-                  <span className="text-white font-bold">{new Date(property.createdAt).toLocaleDateString('fr-FR')}</span>
+                  <span className="text-white font-bold">{new Date(property.createdAt || property.created_at).toLocaleDateString('fr-FR')}</span>
                 </div>
               </div>
             </div>
