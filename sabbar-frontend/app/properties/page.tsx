@@ -273,7 +273,7 @@ export default function PropertiesPage() {
               <select
                 value={selectedCity}
                 onChange={(e) => setSelectedCity(e.target.value)}
-                className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors hover:border-[rgba(212,175,55,0.3)]"
+                className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(125, 116, 63, 0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors hover:border-[rgba(212,175,55,0.3)]"
               >
                 <option value="all">Sélectionner une ville</option>
                 {cities.map(city => (
@@ -326,7 +326,7 @@ export default function PropertiesPage() {
 
           {/* Advanced Criteria Section */}
           {expandCriteria && (
-            <div className="mb-6 p-6 bg-[rgba(26,40,71,0.6)] border border-[rgba(212,175,55,0.3)] rounded-lg">
+            <div className="mb-6 p-6 bg-[rgba(15,26,46,0.8)] border border-[rgba(212,175,55,0.3)] rounded-lg">
               {/* 1. Caractéristiques */}
               <div className="mb-8">
                 <h3 className="text-[#d4af37] font-bold text-sm mb-4 flex items-center gap-2">
@@ -671,10 +671,10 @@ export default function PropertiesPage() {
               Nous Contacter
             </Link>
             <a
-              href="tel:+212561511251"
+              href="tel:+212605585720"
               className="inline-flex items-center justify-center px-8 py-4 border-2 border-[#d4af37] text-[#d4af37] font-bold rounded-xl hover:bg-[#d4af37] hover:text-[#0f1a2e] transition-all"
             >
-              +212 5 61 51 12 51
+              +212 6 05 58 57 20
             </a>
           </div>
         </div>

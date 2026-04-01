@@ -52,9 +52,6 @@ export default function PropertyDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<(number | string)[]>([]);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
-  const [showVideoModal, setShowVideoModal] = useState(false);
   const touchStartRef = useRef<number>(0);
 
   // Load favorites from localStorage
@@ -101,6 +98,58 @@ export default function PropertyDetailPage() {
     fetchProperty();
   }, [propertyId]);
 
+  // Helper function to convert video URL to embed format
+  const getEmbedUrl = (videoUrl: string): string | null => {
+    if (!videoUrl) return null;
+    
+    // Direct video file URLs (Supabase Storage, etc.)
+    if (videoUrl.includes('.mp4') || videoUrl.includes('.webm') || videoUrl.includes('.mov') || videoUrl.includes('.avi')) {
+      return videoUrl;
+    }
+    
+    // Supabase Storage URLs
+    if (videoUrl.includes('supabase') || videoUrl.includes('storage')) {
+      return videoUrl;
+    }
+    
+    // YouTube watch URL format
+    if (videoUrl.includes('youtube.com/watch?v=')) {
+      const videoId = videoUrl.split('v=')[1]?.split('&')[0];
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+    }
+    
+    // YouTube youtu.be short format
+    if (videoUrl.includes('youtu.be/')) {
+      const videoId = videoUrl.split('youtu.be/')[1]?.split('?')[0];
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+    }
+    
+    // Already embed format
+    if (videoUrl.includes('youtube.com/embed/')) {
+      return videoUrl;
+    }
+    
+    // Vimeo format
+    if (videoUrl.includes('vimeo.com/')) {
+      const videoId = videoUrl.split('vimeo.com/')[1]?.split('?')[0];
+      return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
+    }
+    
+    // Direct URL (assuming it's already proper embed)
+    return videoUrl;
+  };
+
+  // Helper function to determine if URL is a direct video file
+  const isDirectVideoFile = (videoUrl: string): boolean => {
+    if (!videoUrl) return false;
+    return videoUrl.includes('.mp4') || 
+           videoUrl.includes('.webm') || 
+           videoUrl.includes('.mov') || 
+           videoUrl.includes('.avi') ||
+           videoUrl.includes('supabase') ||
+           videoUrl.includes('storage');
+  };
+
   const toggleFavorite = () => {
     const newFavorites = favorites.includes(parseInt(propertyId))
       ? favorites.filter(id => id !== parseInt(propertyId))
@@ -113,11 +162,15 @@ export default function PropertyDetailPage() {
 
   // Image navigation handlers
   const handlePrevImage = () => {
-    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    if (images && images.length > 0) {
+      setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    }
   };
 
   const handleNextImage = () => {
-    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    if (images && images.length > 0) {
+      setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    }
   };
 
   // Touch handlers for swipe
@@ -398,15 +451,45 @@ export default function PropertyDetailPage() {
               <h2 className="text-2xl font-bold text-white mb-6">🎬 Vidéo de la propriété</h2>
               
               {property.video_url || property.videoUrl ? (
-                <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
-                  <iframe
-                    src={(property.video_url || property.videoUrl).replace('watch?v=', 'embed/')}
-                    title="Property Video"
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
+                <>
+                  {isDirectVideoFile(property.video_url || property.videoUrl) ? (
+                    // Direct video file (Supabase Storage, etc.)
+                    <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
+                      <video
+                        width="100%"
+                        height="100%"
+                        controls
+                        className="w-full h-full"
+                        controlsList="nodownload"
+                      >
+                        <source src={property.video_url || property.videoUrl} type="video/mp4" />
+                        Votre navigateur ne supporte pas le lecteur vidéo HTML5.
+                      </video>
+                    </div>
+                  ) : getEmbedUrl(property.video_url || property.videoUrl) ? (
+                    // Embedded video (YouTube, Vimeo, etc.)
+                    <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        src={getEmbedUrl(property.video_url || property.videoUrl)!}
+                        title="Property Video"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  ) : (
+                    // Unsupported format
+                    <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
+                      <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
+                        <Play size={48} className="text-[#d4af37]" />
+                      </div>
+                      <p className="text-[#b0b0b0] text-lg font-semibold">Format vidéo non supporté</p>
+                      <p className="text-[#666] text-sm mt-2">Veuillez vérifier l'URL de la vidéo</p>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
                   <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
