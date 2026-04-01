@@ -8,6 +8,7 @@ import { propertiesApi, ApiCallError } from '@/lib/api';
 const CITIES = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kénitra', 'Tétouan'];
 
 const PROPERTY_TYPES = [
+  { value: 'studio', label: 'Studio' },  // ✨ NOUVEAU - Studio ajouté
   { value: 'apartment', label: 'Appartement' },
   { value: 'villa', label: 'Villa' },
   { value: 'house', label: 'Maison' },
