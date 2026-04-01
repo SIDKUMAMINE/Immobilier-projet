@@ -28,6 +28,7 @@ const staticTransactionTypes = [
 
 // Static property types
 const staticPropertyTypes = [
+  { original: 'studio', label: 'Studio' },  // ✨ NOUVEAU - Studio ajouté
   { original: 'apartment', label: 'Appartement' },
   { original: 'villa', label: 'Villa' },
   { original: 'maison', label: 'Maison' },
@@ -77,6 +78,7 @@ const propertyTypeMap: { [key: string]: string } = {
   'bureau': 'Bureau',
   'local commercial': 'Local commercial',
   'local-commercial': 'Local commercial',
+  'studio': 'Studio',  // ✨ AJOUTER POUR LA TRADUCTION
 };
 
 const getPropertyTypeLabel = (type: string): string => {
