@@ -1,548 +1,497 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, MapPin, Heart, Phone, Mail, Share2, ChevronLeft, ChevronRight, Play } from 'lucide-react';
-import { propertiesApi } from '@/lib/api';
+import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { Upload, X, Video, AlertCircle, ChevronDown } from 'lucide-react';
+import { propertiesApi, ApiCallError } from '@/lib/api';
 
-// Translation mappings
-const transactionTypeMap: { [key: string]: string } = {
-  'sale': 'Vente',
-  'rental': 'Location',
-  'vacation rental': 'Location vacances',
-  'location vacances': 'Location vacances',
-  'vente': 'Vente',
-  'location': 'Location',
-  'vacation': 'Location vacances',
-  'vacances': 'Location vacances',
-  'location-vacances': 'Location vacances',
-};
+const CITIES = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kénitra', 'Tétouan'];
 
-const propertyTypeMap: { [key: string]: string } = {
-  'apartment': 'Appartement',
-  'villa': 'Villa',
-  'house': 'Maison',
-  'riad': 'Riad',
-  'land': 'Terrain',
-  'office': 'Bureau',
-  'commercial': 'Local commercial',
-  'apartement': 'Appartement',
-  'maison': 'Maison',
-  'terrain': 'Terrain',
-  'bureau': 'Bureau',
-  'local commercial': 'Local commercial',
-  'local-commercial': 'Local commercial',
-};
+const PROPERTY_TYPES = [
+  { value: 'apartment', label: 'Appartement' },
+  { value: 'villa', label: 'Villa' },
+  { value: 'house', label: 'Maison' },
+  { value: 'riad', label: 'Riad' },
+  { value: 'land', label: 'Terrain' },
+  { value: 'office', label: 'Bureau' },
+  { value: 'commercial', label: 'Local commercial' },
+];
 
-const getTransactionTypeLabel = (type: string): string => {
-  return transactionTypeMap[type.toLowerCase()] || type;
-};
+const TRANSACTION_TYPES = [
+  { value: 'sale', label: 'Vente' },
+  { value: 'rent', label: 'Location' },
+  { value: 'vacation_rent', label: 'Location vacances' },
+];
 
-const getPropertyTypeLabel = (type: string): string => {
-  return propertyTypeMap[type.toLowerCase()] || type;
-};
+interface FormData {
+  title: string;
+  description: string;
+  transaction_type: string;
+  property_type: string;
+  price: string;
+  area: string;
+  city: string;
+  district: string;
+  address: string;
+  bedrooms: string;
+  bathrooms: string;
+  // ✨ NOUVEAUX CHAMPS
+  floor: string;
+  has_parking: boolean;
+  has_garden: boolean;
+  has_pool: boolean;
+  has_elevator: boolean;
+  is_furnished: boolean;
+}
 
-  // Helper function to convert video URL to embed format
-  const getEmbedUrl = (videoUrl: string): string | null => {
-    if (!videoUrl) return null;
-    
-    // Direct video file URLs (Supabase Storage, etc.)
-    if (videoUrl.includes('.mp4') || videoUrl.includes('.webm') || videoUrl.includes('.mov') || videoUrl.includes('.avi')) {
-      return videoUrl;
-    }
-    
-    // Supabase Storage URLs
-    if (videoUrl.includes('supabase') || videoUrl.includes('storage')) {
-      return videoUrl;
-    }
-    
-    // YouTube watch URL format
-    if (videoUrl.includes('youtube.com/watch?v=')) {
-      const videoId = videoUrl.split('v=')[1]?.split('&')[0];
-      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
-    }
-    
-    // YouTube youtu.be short format
-    if (videoUrl.includes('youtu.be/')) {
-      const videoId = videoUrl.split('youtu.be/')[1]?.split('?')[0];
-      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
-    }
-    
-    // Already embed format
-    if (videoUrl.includes('youtube.com/embed/')) {
-      return videoUrl;
-    }
-    
-    // Vimeo format
-    if (videoUrl.includes('vimeo.com/')) {
-      const videoId = videoUrl.split('vimeo.com/')[1]?.split('?')[0];
-      return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
-    }
-    
-    // Direct URL (assuming it's already proper embed)
-    return videoUrl;
+export default function NewPropertyPage() {
+  const router = useRouter();
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+
+  const [form, setForm] = useState<FormData>({
+    title: '',
+    description: '',
+    transaction_type: 'sale',
+    property_type: 'apartment',
+    price: '',
+    area: '',
+    city: '',
+    district: '',
+    address: '',
+    bedrooms: '',
+    bathrooms: '',
+    // ✨ INITIALISER LES NOUVEAUX CHAMPS
+    floor: '',
+    has_parking: false,
+    has_garden: false,
+    has_pool: false,
+    has_elevator: false,
+    is_furnished: false,
+  });
+
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
+  const [video, setVideo] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [uploadProgress, setUploadProgress] = useState('');
+
+  const set = (k: keyof FormData, v: string | boolean) => setForm(f => ({ ...f, [k]: v }));
+
+  const handlePhotos = (files: FileList | null) => {
+    if (!files) return;
+    const arr = Array.from(files).slice(0, 10 - photos.length);
+    setPhotos(prev => [...prev, ...arr]);
+    arr.forEach(f => {
+      const reader = new FileReader();
+      reader.onload = e => setPhotoPreviews(prev => [...prev, e.target?.result as string]);
+      reader.readAsDataURL(f);
+    });
   };
 
-  // Helper function to determine if URL is a direct video file
-  const isDirectVideoFile = (videoUrl: string): boolean => {
-    if (!videoUrl) return false;
-    return videoUrl.includes('.mp4') || 
-           videoUrl.includes('.webm') || 
-           videoUrl.includes('.mov') || 
-           videoUrl.includes('.avi') ||
-           videoUrl.includes('supabase') ||
-           videoUrl.includes('storage');
+  const handleVideo = (files: FileList | null) => {
+    if (!files?.[0]) return;
+    setVideo(files[0]);
+    setVideoPreview(URL.createObjectURL(files[0]));
   };
-  const params = useParams();
-  const propertyId = params.id as string;
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [property, setProperty] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [favorites, setFavorites] = useState<(number | string)[]>([]);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
-  const [showVideoModal, setShowVideoModal] = useState(false);
-  const touchStartRef = useRef<number>(0);
 
-  // Load favorites from localStorage
-  useEffect(() => {
-    const savedFavorites = localStorage.getItem('sabbar_favorites');
-    const favs = savedFavorites ? JSON.parse(savedFavorites) : [];
-    setFavorites(favs);
-    setIsFavorite(favs.includes(parseInt(propertyId)));
-  }, [propertyId]);
+  const removePhoto = (i: number) => {
+    setPhotos(prev => prev.filter((_, idx) => idx !== i));
+    setPhotoPreviews(prev => prev.filter((_, idx) => idx !== i));
+  };
 
-  // Fetch property from API
-  useEffect(() => {
-    const fetchProperty = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        console.log('📡 Fetching property from API...', propertyId);
-        
-        const response = await propertiesApi.getProperties({
-          limit: 100,
-          offset: 0
-        });
-        
-        console.log('✅ Properties loaded:', response);
-        
-        const foundProperty = response?.find((p: any) => String(p.id) === String(propertyId));
-        
-        if (foundProperty) {
-          setProperty(foundProperty);
-        } else {
-          setError('Propriété non trouvée');
-          setProperty(null);
+  const handleSubmit = async () => {
+    setError('');
+    setUploadProgress('');
+
+    // Validation
+    if (!form.title?.trim()) {
+      setError('Veuillez remplir le titre');
+      return;
+    }
+    if (!form.price || parseFloat(form.price) <= 0) {
+      setError('Veuillez entrer un prix valide');
+      return;
+    }
+    if (!form.city) {
+      setError('Veuillez sélectionner une ville');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // ÉTAPE 1: Créer l'annonce
+      setUploadProgress('Création de l\'annonce...');
+      const property = await propertiesApi.createProperty({
+        title: form.title,
+        description: form.description,
+        transaction_type: form.transaction_type,
+        property_type: form.property_type,
+        price: parseFloat(form.price),
+        area: form.area ? parseFloat(form.area) : null,
+        city: form.city,
+        district: form.district || null,
+        address: form.address || null,
+        bedrooms: form.bedrooms ? parseInt(form.bedrooms) : null,
+        bathrooms: form.bathrooms ? parseInt(form.bathrooms) : null,
+        // ✨ AJOUTER LES NOUVEAUX CHAMPS
+        floor: form.floor ? parseInt(form.floor) : null,
+        has_parking: form.has_parking,
+        has_garden: form.has_garden,
+        has_pool: form.has_pool,
+        has_elevator: form.has_elevator,
+        is_furnished: form.is_furnished,
+        status: 'available',
+      });
+
+      console.log('✅ Annonce créée:', property.id);
+      console.log('Status retourné:', property.status);
+
+      // ÉTAPE 2: Uploader les photos
+      if (photos.length > 0) {
+        setUploadProgress(`Upload des photos (${photos.length})...`);
+        try {
+          await propertiesApi.uploadImages(property.id, photos);
+          console.log('✅ Photos uploadées');
+        } catch (err: any) {
+          console.warn('⚠️ Erreur upload photos:', err.message);
+          // Continuer même si les photos échouent
         }
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Erreur lors du chargement';
-        console.error('❌ Erreur:', message);
-        setError(message);
-        setProperty(null);
-      } finally {
-        setLoading(false);
       }
-    };
 
-    fetchProperty();
-  }, [propertyId]);
-
-  const toggleFavorite = () => {
-    const newFavorites = favorites.includes(parseInt(propertyId))
-      ? favorites.filter(id => id !== parseInt(propertyId))
-      : [...favorites, parseInt(propertyId)];
-    
-    setFavorites(newFavorites);
-    setIsFavorite(!isFavorite);
-    localStorage.setItem('sabbar_favorites', JSON.stringify(newFavorites));
-  };
-
-  // Image navigation handlers
-  const handlePrevImage = () => {
-    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  };
-
-  const handleNextImage = () => {
-    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-  };
-
-  // Touch handlers for swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartRef.current = e.targetTouches[0].clientX;
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const touchEndValue = e.changedTouches[0].clientX;
-    const distance = touchStartRef.current - touchEndValue;
-
-    if (Math.abs(distance) > 50) {
-      if (distance > 0) {
-        handleNextImage();
-      } else {
-        handlePrevImage();
+      // ÉTAPE 3: Uploader la vidéo
+      if (video) {
+        setUploadProgress('Upload de la vidéo...');
+        try {
+          await propertiesApi.uploadVideo(property.id, video);
+          console.log('✅ Vidéo uploadée');
+        } catch (err: any) {
+          console.warn('⚠️ Erreur upload vidéo:', err.message);
+          // Continuer même si la vidéo échoue
+        }
       }
+
+      // Succès!
+      setUploadProgress('');
+      router.push('/dashboard/properties');
+    } catch (e: any) {
+      const errorMsg = e instanceof ApiCallError 
+        ? e.message 
+        : e.message || 'Erreur lors de la création de l\'annonce';
+      setError(errorMsg);
+      console.error('❌ Erreur:', e);
+    } finally {
+      setLoading(false);
+      setUploadProgress('');
     }
   };
 
-  if (loading) {
-    return (
-      <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
-        <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
-          <div className="max-w-[1400px] mx-auto">
-            <Link href="/properties" className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#f4d03f] transition-colors">
-              <ArrowLeft size={20} />
-              <span>Retour aux propriétés</span>
-            </Link>
-          </div>
-        </div>
-        <div className="py-12 px-[5%]">
-          <div className="max-w-[1400px] mx-auto">
-            <p className="text-[#b0b0b0] text-lg">⏳ Chargement de la propriété...</p>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  if (error || !property) {
-    return (
-      <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
-        <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
-          <div className="max-w-[1400px] mx-auto">
-            <Link href="/properties" className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#f4d03f] transition-colors">
-              <ArrowLeft size={20} />
-              <span>Retour aux propriétés</span>
-            </Link>
-          </div>
-        </div>
-        <div className="py-12 px-[5%]">
-          <div className="max-w-[1400px] mx-auto">
-            <div className="bg-[rgba(220,38,38,0.1)] border border-[rgba(220,38,38,0.3)] text-[#fca5a5] px-6 py-4 rounded-lg">
-              ❌ {error || 'Propriété non trouvée'}
-            </div>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  const images = property.images && property.images.length > 0 ? property.images : [property.image || '/placeholder.jpg'];
+  const inputCls = "w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition";
+  const selectCls = "w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition appearance-none cursor-pointer";
 
   return (
-    <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
-      {/* Back Button */}
-      <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
-        <div className="max-w-[1400px] mx-auto">
-          <Link href="/properties" className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#f4d03f] transition-colors">
-            <ArrowLeft size={20} />
-            <span>Retour aux propriétés</span>
-          </Link>
-        </div>
-      </div>
+    <div className="p-6">
+      <div className="max-w-2xl mx-auto space-y-5">
 
-      {/* Image Gallery with Swipe */}
-      <section className="py-12 px-[5%]">
-        <div className="max-w-[1400px] mx-auto">
-          <div 
-            className="relative bg-[#0f1a2e] rounded-2xl overflow-hidden h-96 sm:h-[500px] md:h-[600px] flex items-center justify-center group mb-8 cursor-grab active:cursor-grabbing"
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
-          >
-            {/* Main Image */}
-            <img
-              src={images[currentImageIndex]}
-              alt={property.title}
-              className="w-full h-full object-cover transition-opacity duration-300"
-            />
+        {error && (
+          <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+            <AlertCircle size={16} className="shrink-0" />
+            {error}
+          </div>
+        )}
 
-            {/* Favorite Button */}
-            <button
-              onClick={toggleFavorite}
-              className={`absolute top-4 left-4 p-3 rounded-full transition-all z-10 ${
-                isFavorite
-                  ? 'bg-[#d4af37] text-[#0f1a2e]'
-                  : 'bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white'
-              }`}
-            >
-              <Heart size={24} fill={isFavorite ? 'currentColor' : 'none'} />
-            </button>
+        {uploadProgress && (
+          <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 text-sm">
+            <div className="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+            {uploadProgress}
+          </div>
+        )}
 
-            {/* Image Counter */}
-            <div className="absolute bottom-4 right-4 bg-[rgba(0,0,0,0.7)] text-white px-4 py-2 rounded-lg text-sm font-bold">
-              {currentImageIndex + 1} / {images.length}
+        {/* 1. Informations générales */}
+        <Section num={1} title="Informations générales">
+          <div className="space-y-4">
+            <Field label="Titre de l'annonce *">
+              <input
+                type="text"
+                placeholder="Ex: Appartement moderne 3 chambres - Maarif"
+                value={form.title}
+                onChange={e => set('title', e.target.value)}
+                className={inputCls}
+              />
+            </Field>
+
+            <Field label="Description">
+              <textarea
+                placeholder="Décrivez le bien en détail..."
+                value={form.description}
+                onChange={e => set('description', e.target.value)}
+                rows={3}
+                className={`${inputCls} resize-none`}
+              />
+            </Field>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Type de transaction *">
+                <div className="relative">
+                  <select value={form.transaction_type} onChange={e => set('transaction_type', e.target.value)} className={selectCls}>
+                    {TRANSACTION_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                  </select>
+                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                </div>
+              </Field>
+              <Field label="Type de bien *">
+                <div className="relative">
+                  <select value={form.property_type} onChange={e => set('property_type', e.target.value)} className={selectCls}>
+                    {PROPERTY_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                  </select>
+                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                </div>
+              </Field>
             </div>
 
-            {/* Left Arrow */}
-            {images.length > 1 && (
-              <button
-                onClick={handlePrevImage}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white hover:text-[#0f1a2e] p-3 rounded-full transition-all z-10 hidden group-hover:block"
-              >
-                <ChevronLeft size={24} />
-              </button>
-            )}
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Prix (MAD) *">
+                <input type="number" placeholder="Ex: 450000" value={form.price} onChange={e => set('price', e.target.value)} className={inputCls} />
+              </Field>
+              <Field label="Surface (m²)">
+                <input type="number" placeholder="Ex: 90" value={form.area} onChange={e => set('area', e.target.value)} className={inputCls} />
+              </Field>
+            </div>
 
-            {/* Right Arrow */}
-            {images.length > 1 && (
-              <button
-                onClick={handleNextImage}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white hover:text-[#0f1a2e] p-3 rounded-full transition-all z-10 hidden group-hover:block"
-              >
-                <ChevronRight size={24} />
-              </button>
-            )}
-
-            {/* Swipe Hint */}
-            <div className="absolute bottom-4 left-4 bg-[rgba(0,0,0,0.7)] text-white px-3 py-1 rounded-lg text-xs font-semibold">
-              👉 Glissez pour naviguer
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Nombre de chambres">
+                <input type="number" placeholder="Ex: 3" value={form.bedrooms} onChange={e => set('bedrooms', e.target.value)} className={inputCls} />
+              </Field>
+              <Field label="Nombre de salles de bain">
+                <input type="number" placeholder="Ex: 2" value={form.bathrooms} onChange={e => set('bathrooms', e.target.value)} className={inputCls} />
+              </Field>
             </div>
           </div>
+        </Section>
 
-          {/* Thumbnail Images */}
-          {images.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto pb-4">
-              {images.map((img: string, index: number) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentImageIndex(index)}
-                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                    currentImageIndex === index
-                      ? 'border-[#d4af37]'
-                      : 'border-[rgba(212,175,55,0.2)] hover:border-[#d4af37]'
-                  }`}
-                >
-                  <img src={img} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
-                </button>
+        {/* 2. Localisation */}
+        <Section num={2} title="Localisation">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Ville *">
+                <div className="relative">
+                  <select value={form.city} onChange={e => set('city', e.target.value)} className={selectCls}>
+                    <option value="">Sélectionner une ville</option>
+                    {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                </div>
+              </Field>
+              <Field label="Quartier">
+                <input type="text" placeholder="Ex: Maarif, Gueliz..." value={form.district} onChange={e => set('district', e.target.value)} className={inputCls} />
+              </Field>
+            </div>
+            <Field label="Adresse complète">
+              <input type="text" placeholder="Ex: Avenue Hassan II..." value={form.address} onChange={e => set('address', e.target.value)} className={inputCls} />
+            </Field>
+          </div>
+        </Section>
+
+        {/* ✨ 3. CRITÈRES SUPPLÉMENTAIRES (NOUVEAU) */}
+        <Section num={3} title="Critères supplémentaires">
+          <div className="space-y-4">
+            {/* Sous-section: Caractéristiques structurelles */}
+            <div>
+              <h4 className="text-xs font-semibold text-slate-600 mb-3">Caractéristiques</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Étage">
+                  <input
+                    type="number"
+                    placeholder="Ex: 2"
+                    value={form.floor}
+                    onChange={e => set('floor', e.target.value)}
+                    className={inputCls}
+                    min="0"
+                  />
+                </Field>
+                <Field label="">
+                  <label className="flex items-center gap-2 cursor-pointer py-2.5">
+                    <input
+                      type="checkbox"
+                      checked={form.has_elevator}
+                      onChange={e => set('has_elevator', e.target.checked)}
+                      className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer"
+                    />
+                    <span className="text-sm text-slate-700">Ascenseur</span>
+                  </label>
+                </Field>
+              </div>
+            </div>
+
+            {/* Sous-section: Équipements extérieurs */}
+            <div>
+              <h4 className="text-xs font-semibold text-slate-600 mb-3">Équipements</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <label className="flex items-center gap-2 cursor-pointer p-2.5 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+                  <input
+                    type="checkbox"
+                    checked={form.has_parking}
+                    onChange={e => set('has_parking', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer"
+                  />
+                  <span className="text-sm text-slate-700">Parking</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer p-2.5 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+                  <input
+                    type="checkbox"
+                    checked={form.has_garden}
+                    onChange={e => set('has_garden', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer"
+                  />
+                  <span className="text-sm text-slate-700">Jardin</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer p-2.5 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+                  <input
+                    type="checkbox"
+                    checked={form.has_pool}
+                    onChange={e => set('has_pool', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer"
+                  />
+                  <span className="text-sm text-slate-700">Piscine</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer p-2.5 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+                  <input
+                    type="checkbox"
+                    checked={form.is_furnished}
+                    onChange={e => set('is_furnished', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer"
+                  />
+                  <span className="text-sm text-slate-700">Meublé</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </Section>
+
+        {/* ✨ 4. Photos (anciennement 3) */}
+        <Section num={4} title="Photos">
+          <div
+            className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:border-blue-300 transition cursor-pointer bg-slate-50"
+            onClick={() => photoInputRef.current?.click()}
+            onDragOver={e => e.preventDefault()}
+            onDrop={e => { e.preventDefault(); handlePhotos(e.dataTransfer.files); }}
+          >
+            <Upload size={24} className="text-slate-300 mx-auto mb-3" />
+            <p className="text-sm text-slate-500">Cliquez pour ajouter des photos ou glissez-déposez</p>
+            <p className="text-xs text-slate-400 mt-1">JPG, PNG, WEBP · Max 5 MB · 10 photos max</p>
+            <input ref={photoInputRef} type="file" accept="image/*" multiple className="hidden" onChange={e => handlePhotos(e.target.files)} />
+          </div>
+
+          {photoPreviews.length > 0 && (
+            <div className="flex flex-wrap gap-3 mt-3">
+              {photoPreviews.map((src, i) => (
+                <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden border border-slate-200 group">
+                  <img src={src} alt="" className="w-full h-full object-cover" />
+                  {i === 0 && (
+                    <span className="absolute top-1 left-1 bg-blue-600 text-white text-[9px] px-1.5 py-0.5 rounded font-semibold">#1</span>
+                  )}
+                  <button
+                    onClick={() => removePhoto(i)}
+                    className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                  >
+                    <X size={10} />
+                  </button>
+                </div>
               ))}
+              <button
+                onClick={() => photoInputRef.current?.click()}
+                className="w-20 h-20 rounded-lg border-2 border-dashed border-blue-200 flex items-center justify-center text-blue-400 hover:border-blue-400 transition text-xs font-medium"
+              >
+                + Ajouter
+              </button>
             </div>
           )}
-        </div>
-      </section>
+          {photoPreviews.length > 0 && (
+            <p className="text-xs text-slate-400 mt-2">
+              ℹ️ La première photo sera utilisée comme image principale
+            </p>
+          )}
+        </Section>
 
-      {/* Main Content */}
-      <section className="py-12 px-[5%]">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column */}
-          <div className="lg:col-span-2">
-            {/* Title and Location */}
-            <div className="mb-8">
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{property.title}</h1>
-              <div className="flex items-center gap-2 text-[#d4af37] text-lg mb-4">
-                <MapPin size={24} />
-                <span>{property.city} - {property.quarter || property.district}</span>
-              </div>
+        {/* ✨ 5. Vidéo (anciennement 4) */}
+        <Section num={5} title="Vidéo (optionnel)">
+          {!videoPreview ? (
+            <div
+              className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:border-blue-300 transition cursor-pointer bg-slate-50"
+              onClick={() => videoInputRef.current?.click()}
+            >
+              <Video size={24} className="text-slate-300 mx-auto mb-3" />
+              <p className="text-sm text-slate-500">Cliquez pour ajouter une vidéo</p>
+              <p className="text-xs text-slate-400 mt-1">MP4, MOV · Max 50 MB</p>
+              <input ref={videoInputRef} type="file" accept="video/*" className="hidden" onChange={e => handleVideo(e.target.files)} />
             </div>
-
-            {/* Description */}
-            {property.description && (
-              <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
-                <h2 className="text-2xl font-bold text-white mb-6">📝 Description</h2>
-                <p className="text-[#b0b0b0] leading-relaxed">{property.description}</p>
-              </div>
-            )}
-
-            {/* Characteristics Section */}
-            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
-              <h2 className="text-2xl font-bold text-white mb-6">📋 Caractéristiques</h2>
-              <div className="space-y-4">
-                {/* Transaction Type */}
-                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                  <span className="text-[#b0b0b0]">Type de transaction</span>
-                  <span className="text-white font-bold">{getTransactionTypeLabel(property.transaction_type)}</span>
-                </div>
-
-                {/* Property Type */}
-                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                  <span className="text-[#b0b0b0]">Type de bien</span>
-                  <span className="text-white font-bold">{getPropertyTypeLabel(property.property_type)}</span>
-                </div>
-
-                {/* City */}
-                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                  <span className="text-[#b0b0b0]">Ville</span>
-                  <span className="text-white font-bold">{property.city}</span>
-                </div>
-
-                {/* District/Quarter */}
-                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                  <span className="text-[#b0b0b0]">Quartier</span>
-                  <span className="text-white font-bold">{property.quarter || property.district || 'N/A'}</span>
-                </div>
-
-                {/* Floor */}
-                {property.floor && (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Étage</span>
-                    <span className="text-white font-bold">{property.floor}</span>
-                  </div>
-                )}
-
-                {/* Elevator */}
-                {property.elevator || property.has_elevator ? (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Ascenseur</span>
-                    <span className="text-[#d4af37] font-bold">✓ Oui</span>
-                  </div>
-                ) : null}
-
-                {/* Bedrooms */}
-                {property.bedrooms && (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Chambres</span>
-                    <span className="text-white font-bold">{property.bedrooms}</span>
-                  </div>
-                )}
-
-                {/* Bathrooms */}
-                {property.bathrooms && (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Salles de bain</span>
-                    <span className="text-white font-bold">{property.bathrooms}</span>
-                  </div>
-                )}
-
-                {/* Area */}
-                {property.area && (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Surface</span>
-                    <span className="text-white font-bold">{property.area} m²</span>
-                  </div>
-                )}
-
-                {/* Equipment */}
-                {property.equipments && property.equipments.length > 0 && (
-                  <div className="pb-4">
-                    <span className="text-[#b0b0b0] block mb-3">Équipements</span>
-                    <div className="flex flex-wrap gap-2">
-                      {property.equipments.map((equipment: string, index: number) => (
-                        <span key={index} className="bg-[rgba(212,175,55,0.2)] text-[#d4af37] px-3 py-1 rounded-full text-sm font-bold border border-[rgba(212,175,55,0.3)]">
-                          {equipment}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Status */}
-                {property.status && (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Statut</span>
-                    <span className="text-white font-bold">{property.status}</span>
-                  </div>
-                )}
-
-                {/* Creation Date */}
-                <div className="flex justify-between items-center">
-                  <span className="text-[#b0b0b0]">Date de création</span>
-                  <span className="text-white font-bold">{new Date(property.createdAt || property.created_at).toLocaleDateString('fr-FR')}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Video Section */}
-            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
-              <h2 className="text-2xl font-bold text-white mb-6">🎬 Vidéo de la propriété</h2>
-              
-              {property.video_url || property.videoUrl ? (
-                <>
-                  {isDirectVideoFile(property.video_url || property.videoUrl) ? (
-                    // Direct video file (Supabase Storage, etc.)
-                    <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
-                      <video
-                        width="100%"
-                        height="100%"
-                        controls
-                        className="w-full h-full"
-                        controlsList="nodownload"
-                      >
-                        <source src={property.video_url || property.videoUrl} type="video/mp4" />
-                        Votre navigateur ne supporte pas le lecteur vidéo HTML5.
-                      </video>
-                    </div>
-                  ) : getEmbedUrl(property.video_url || property.videoUrl) ? (
-                    // Embedded video (YouTube, Vimeo, etc.)
-                    <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
-                      <iframe
-                        width="100%"
-                        height="100%"
-                        src={getEmbedUrl(property.video_url || property.videoUrl)!}
-                        title="Property Video"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    </div>
-                  ) : (
-                    // Unsupported format
-                    <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
-                      <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
-                        <Play size={48} className="text-[#d4af37]" />
-                      </div>
-                      <p className="text-[#b0b0b0] text-lg font-semibold">Format vidéo non supporté</p>
-                      <p className="text-[#666] text-sm mt-2">Veuillez vérifier l'URL de la vidéo</p>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
-                  <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
-                    <Play size={48} className="text-[#d4af37]" />
-                  </div>
-                  <p className="text-[#b0b0b0] text-lg font-semibold">Aucune vidéo disponible</p>
-                  <p className="text-[#666] text-sm mt-2">Les vidéos seront disponibles prochainement</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Right Column - Price and Contact */}
-          <div className="lg:col-span-1">
-            {/* Price Card */}
-            <div className="bg-gradient-to-br from-[#d4af37] to-[#f4d03f] rounded-xl p-6 mb-6 sticky top-8">
-              <p className="text-[#0f1a2e] font-bold text-xs mb-1">PRIX</p>
-              <div className="text-2xl font-bold text-[#0f1a2e] mb-1 break-words">
-                {property.price.toLocaleString('fr-FR', { 
-                  minimumFractionDigits: 0, 
-                  maximumFractionDigits: 0 
-                })}
-              </div>
-              <p className="text-[#0f1a2e] font-semibold text-sm">MAD</p>
-            </div>
-
-            {/* Contact Card */}
-            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-6">
-              <h3 className="text-xl font-bold text-white mb-4">📞 Nous contacter</h3>
-
-              <div className="space-y-3">
-                <a
-                  href="tel:+212561511251"
-                  className="w-full flex items-center justify-center gap-3 bg-[#d4af37] hover:bg-[#f4d03f] text-[#0f1a2e] font-bold py-2 px-3 rounded-lg transition text-sm"
+          ) : (
+            <div className="space-y-2">
+              <div className="relative rounded-xl overflow-hidden bg-black">
+                <video src={videoPreview} controls className="w-full max-h-64 object-contain" />
+                <button
+                  onClick={() => { setVideo(null); setVideoPreview(null); }}
+                  className="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition"
                 >
-                  <Phone size={18} />
-                  +212 5 61 51 12 51
-                </a>
-
-                <a
-                  href="mailto:contact@landmark-estate.com"
-                  className="w-full flex items-center justify-center gap-3 border-2 border-[#d4af37] hover:bg-[#d4af37] text-[#d4af37] hover:text-[#0f1a2e] font-bold py-2 px-3 rounded-lg transition text-sm"
-                >
-                  <Mail size={18} />
-                  contact@landmark.ma
-                </a>
-
-                <button className="w-full flex items-center justify-center gap-3 border-2 border-[#b0b0b0] hover:border-[#d4af37] text-[#b0b0b0] hover:text-[#d4af37] font-bold py-2 px-3 rounded-lg transition text-sm">
-                  <Share2 size={18} />
-                  Partager
+                  <X size={14} />
                 </button>
               </div>
+              <div className="flex items-center justify-between text-xs text-slate-400">
+                <span>{video?.name}</span>
+                <button onClick={() => videoInputRef.current?.click()} className="text-blue-500 hover:text-blue-700 font-medium">Remplacer</button>
+                <input ref={videoInputRef} type="file" accept="video/*" className="hidden" onChange={e => handleVideo(e.target.files)} />
+              </div>
             </div>
-          </div>
+          )}
+        </Section>
+
+        {/* Actions */}
+        <div className="flex items-center justify-between pt-2 pb-4">
+          <button
+            onClick={() => router.push('/dashboard/properties')}
+            className="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition"
+          >
+            Annuler
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="flex items-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition disabled:opacity-60 shadow-md shadow-blue-500/20"
+          >
+            {loading ? (
+              <>
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Publication en cours...
+              </>
+            ) : 'Publier l\'annonce'}
+          </button>
         </div>
-      </section>
-    </main>
+
+      </div>
+    </div>
+  );
+}
+
+function Section({ num, title, children }: { num: number; title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+      <div className="px-6 py-4 border-b border-slate-50 flex items-center gap-3">
+        <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center shrink-0">{num}</span>
+        <h3 className="font-semibold text-slate-800 text-sm">{title}</h3>
+      </div>
+      <div className="px-6 py-5">{children}</div>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      {label && <label className="block text-xs font-semibold text-slate-600 mb-1.5">{label}</label>}
+      {children}
+    </div>
   );
 }
