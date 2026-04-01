@@ -9,8 +9,12 @@ import { propertiesApi } from '@/lib/api';
 const transactionTypeMap: { [key: string]: string } = {
   'sale': 'Vente',
   'rental': 'Location',
+  'vacation rental': 'Location vacances',
+  'location vacances': 'Location vacances',
   'vente': 'Vente',
   'location': 'Location',
+  'vacation': 'Location vacances',
+  'vacances': 'Location vacances',
 };
 
 const getTransactionTypeLabel = (type: string): string => {
@@ -41,12 +45,14 @@ export default function PropertiesPage() {
   const [selectedCity, setSelectedCity] = useState('all');
   const [selectedTransactionType, setSelectedTransactionType] = useState('all');
   const [selectedPropertyType, setSelectedPropertyType] = useState('all');
+  const [selectedFloor, setSelectedFloor] = useState('all');
+  const [hasElevator, setHasElevator] = useState(false);
   const [selectedEquipments, setSelectedEquipments] = useState<string[]>([]);
   const [favorites, setFavorites] = useState<(number | string)[]>([]);
   const [allProperties, setAllProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [expandFilters, setExpandFilters] = useState(false);
+  const [expandCriteria, setExpandCriteria] = useState(false);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -77,7 +83,7 @@ export default function PropertiesPage() {
 
   // Extract unique cities from API data
   const cities = useMemo(() => 
-    [...new Set(allProperties.map(p => p.city).filter(Boolean))].sort(),
+    [...new Set(allProperties.map(p => p.city).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr-FR')),
     [allProperties]
   );
 
@@ -99,6 +105,20 @@ export default function PropertiesPage() {
     })).sort((a, b) => a.label.localeCompare(b.label, 'fr-FR'));
   }, [allProperties]);
 
+  // Extract unique floors from API data
+  const floors = useMemo(() => {
+    const floorSet = new Set<string>();
+    allProperties.forEach(p => {
+      if (p.floor) floorSet.add(String(p.floor));
+    });
+    return Array.from(floorSet).sort((a, b) => {
+      const numA = parseInt(a);
+      const numB = parseInt(b);
+      if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+      return a.localeCompare(b, 'fr-FR');
+    });
+  }, [allProperties]);
+
   // Extract unique equipments from API data
   const equipmentsList = useMemo(() => {
     const equipments = new Set<string>();
@@ -116,13 +136,15 @@ export default function PropertiesPage() {
       const matchCity = selectedCity === 'all' || prop.city === selectedCity;
       const matchTransactionType = selectedTransactionType === 'all' || prop.transaction_type === selectedTransactionType;
       const matchPropertyType = selectedPropertyType === 'all' || prop.property_type === selectedPropertyType;
+      const matchFloor = selectedFloor === 'all' || String(prop.floor) === selectedFloor;
+      const matchElevator = !hasElevator || (prop.elevator === true || prop.has_elevator === true);
       const matchEquipments = selectedEquipments.length === 0 || 
         (prop.equipments && Array.isArray(prop.equipments) && 
          selectedEquipments.some(eq => prop.equipments.includes(eq)));
       
-      return matchCity && matchTransactionType && matchPropertyType && matchEquipments;
+      return matchCity && matchTransactionType && matchPropertyType && matchFloor && matchElevator && matchEquipments;
     });
-  }, [allProperties, selectedCity, selectedTransactionType, selectedPropertyType, selectedEquipments]);
+  }, [allProperties, selectedCity, selectedTransactionType, selectedPropertyType, selectedFloor, hasElevator, selectedEquipments]);
 
   const toggleFavorite = (e: React.MouseEvent, propertyId: number | string) => {
     e.preventDefault();
@@ -146,6 +168,8 @@ export default function PropertiesPage() {
     setSelectedCity('all');
     setSelectedTransactionType('all');
     setSelectedPropertyType('all');
+    setSelectedFloor('all');
+    setHasElevator(false);
     setSelectedEquipments([]);
   };
 
@@ -153,6 +177,8 @@ export default function PropertiesPage() {
     selectedCity !== 'all' ? 1 : 0,
     selectedTransactionType !== 'all' ? 1 : 0,
     selectedPropertyType !== 'all' ? 1 : 0,
+    selectedFloor !== 'all' ? 1 : 0,
+    hasElevator ? 1 : 0,
     selectedEquipments.length > 0 ? 1 : 0
   ].reduce((a, b) => a + b, 0);
 
@@ -193,7 +219,7 @@ export default function PropertiesPage() {
                 onChange={(e) => setSelectedCity(e.target.value)}
                 className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors hover:border-[rgba(212,175,55,0.3)]"
               >
-                <option value="all">Toutes les villes</option>
+                <option value="all">Sélectionner une ville</option>
                 {cities.map(city => (
                   <option key={city} value={city}>{city}</option>
                 ))}
@@ -217,7 +243,7 @@ export default function PropertiesPage() {
 
             {/* Property Type Filter */}
             <div>
-              <label className="block text-[#d4af37] font-bold text-sm mb-2">Type de propriété</label>
+              <label className="block text-[#d4af37] font-bold text-sm mb-2">Type de bien</label>
               <select
                 value={selectedPropertyType}
                 onChange={(e) => setSelectedPropertyType(e.target.value)}
@@ -230,48 +256,89 @@ export default function PropertiesPage() {
               </select>
             </div>
 
-            {/* Advanced Filters Toggle */}
+            {/* Advanced Criteria Toggle */}
             <div className="flex items-end">
               <button
-                onClick={() => setExpandFilters(!expandFilters)}
+                onClick={() => setExpandCriteria(!expandCriteria)}
                 className="w-full bg-[rgba(212,175,55,0.2)] hover:bg-[rgba(212,175,55,0.3)] border border-[#d4af37] text-[#d4af37] font-bold px-4 py-3 rounded-lg transition-all inline-flex items-center justify-center gap-2"
               >
-                Filtres avancés {activeFiltersCount > 0 && <span className="bg-[#d4af37] text-[#0f1a2e] px-2 py-0.5 rounded-full text-xs font-bold">{activeFiltersCount}</span>}
-                <ChevronDown size={18} className={`transition-transform ${expandFilters ? 'rotate-180' : ''}`} />
+                Critères supplémentaires {activeFiltersCount > 0 && <span className="bg-[#d4af37] text-[#0f1a2e] px-2 py-0.5 rounded-full text-xs font-bold">{activeFiltersCount - 3}</span>}
+                <ChevronDown size={18} className={`transition-transform ${expandCriteria ? 'rotate-180' : ''}`} />
               </button>
             </div>
           </div>
 
-          {/* Advanced Filters */}
-          {expandFilters && (
+          {/* Advanced Criteria Section */}
+          {expandCriteria && (
             <div className="mb-6 p-6 bg-[rgba(26,40,71,0.2)] border border-[rgba(212,175,55,0.2)] rounded-lg">
-              {/* Equipments Filter */}
-              {equipmentsList.length > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <label className="text-[#d4af37] font-bold text-sm">Équipements</label>
-                    {selectedEquipments.length > 0 && (
-                      <button
-                        onClick={() => setSelectedEquipments([])}
-                        className="text-[#d4af37] text-xs hover:text-[#f4d03f] transition-colors"
-                      >
-                        Effacer la sélection
-                      </button>
-                    )}
+              {/* Caractéristiques */}
+              <div className="mb-6">
+                <h3 className="text-[#d4af37] font-bold text-sm mb-4 flex items-center gap-2">
+                  <span className="bg-[#d4af37] text-[#0f1a2e] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                  Caractéristiques
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Floor Filter */}
+                  <div>
+                    <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Étage</label>
+                    <select
+                      value={selectedFloor}
+                      onChange={(e) => setSelectedFloor(e.target.value)}
+                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors"
+                    >
+                      <option value="all">Tous les étages</option>
+                      {floors.map(floor => (
+                        <option key={floor} value={floor}>{floor}</option>
+                      ))}
+                    </select>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+
+                  {/* Elevator Checkbox */}
+                  <div className="flex items-end">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={hasElevator}
+                        onChange={(e) => setHasElevator(e.target.checked)}
+                        className="w-4 h-4 accent-[#d4af37] bg-[#d4af37] border-2 border-[#d4af37] rounded cursor-pointer"
+                      />
+                      <span className="text-[#b0b0b0] font-bold">Ascenseur</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Equipements */}
+              {equipmentsList.length > 0 && (
+                <div className="pt-6 border-t border-[rgba(212,175,55,0.2)]">
+                  <h3 className="text-[#d4af37] font-bold text-sm mb-4 flex items-center gap-2">
+                    <span className="bg-[#d4af37] text-[#0f1a2e] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                    Équipements
+                  </h3>
+
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
                     {equipmentsList.map(equipment => (
                       <label key={equipment} className="flex items-center gap-3 cursor-pointer group">
                         <input
                           type="checkbox"
                           checked={selectedEquipments.includes(equipment)}
                           onChange={() => toggleEquipment(equipment)}
-                          className="w-4 h-4 accent-[#d4af37] bg-[#d4af37] border-2 border-[#d4af37] rounded cursor-pointer checked:bg-[#d4af37]"
+                          className="w-4 h-4 accent-[#d4af37] bg-[#d4af37] border-2 border-[#d4af37] rounded cursor-pointer"
                         />
                         <span className="text-[#b0b0b0] text-sm group-hover:text-[#d4af37] transition-colors">{equipment}</span>
                       </label>
                     ))}
                   </div>
+
+                  {selectedEquipments.length > 0 && (
+                    <button
+                      onClick={() => setSelectedEquipments([])}
+                      className="text-[#d4af37] text-xs hover:text-[#f4d03f] transition-colors"
+                    >
+                      Effacer la sélection
+                    </button>
+                  )}
                 </div>
               )}
 
