@@ -76,11 +76,15 @@ export default function PropertyDetailPage() {
         });
         
         console.log('✅ Properties loaded:', response);
+        console.log('📊 Total properties:', Array.isArray(response) ? response.length : 0);
         
         const foundProperty = response?.find((p: any) => String(p.id) === String(propertyId));
         
         if (foundProperty) {
-          console.log('🎬 Property found with video_url:', foundProperty.video_url || foundProperty.videoUrl);
+          console.log('🏠 Property found:', foundProperty);
+          console.log('🎬 Video URL (video_url):', foundProperty.video_url);
+          console.log('🎬 Video URL (videoUrl):', foundProperty.videoUrl);
+          console.log('🎬 All keys in property:', Object.keys(foundProperty));
           setProperty(foundProperty);
         } else {
           setError('Propriété non trouvée');
@@ -167,37 +171,6 @@ export default function PropertyDetailPage() {
     localStorage.setItem('sabbar_favorites', JSON.stringify(newFavorites));
   };
 
-  // Image navigation handlers
-  const handlePrevImage = () => {
-    if (images && images.length > 0) {
-      setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-    }
-  };
-
-  const handleNextImage = () => {
-    if (images && images.length > 0) {
-      setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-    }
-  };
-
-  // Touch handlers for swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartRef.current = e.targetTouches[0].clientX;
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const touchEndValue = e.changedTouches[0].clientX;
-    const distance = touchStartRef.current - touchEndValue;
-
-    if (Math.abs(distance) > 50) {
-      if (distance > 0) {
-        handleNextImage();
-      } else {
-        handlePrevImage();
-      }
-    }
-  };
-
   if (loading) {
     return (
       <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
@@ -240,14 +213,72 @@ export default function PropertyDetailPage() {
     );
   }
 
+  // ✅ Définir les images et vidéo EN HAUT avant le return JSX
   const images = property.images && property.images.length > 0 ? property.images : [property.image || '/placeholder.jpg'];
 
-  // ✅ FIX #1: Extraire la videoUrl en haut du composant avec gestion propre
-  const videoUrl = property?.video_url || property?.videoUrl;
+  // ✅ IMPORTANT: Chercher la vidéo dans TOUS les champs possibles
+  const videoUrl = property?.video_url 
+    || property?.videoUrl 
+    || property?.video 
+    || property?.video_URL
+    || property?.Video
+    || property?.VIDEO
+    || property?.video_path
+    || property?.videoPath
+    || null;
 
-  // ✅ FIX #2: Créer un composant pour le rendu vidéo réutilisable
+  console.log('🎯 FINAL videoUrl extracted:', videoUrl);
+
+  // ✅ Extraire et afficher tous les champs liés à la vidéo
+  if (!videoUrl) {
+    console.warn('⚠️ VIDEO URL NOT FOUND. Checking all property keys...');
+    const allKeys = Object.keys(property);
+    const videoRelatedKeys = allKeys.filter(key => 
+      key.toLowerCase().includes('video') || 
+      key.toLowerCase().includes('url') ||
+      key.toLowerCase().includes('path') ||
+      key.toLowerCase().includes('media')
+    );
+    console.log('🔍 Video-related keys found:', videoRelatedKeys);
+    videoRelatedKeys.forEach(key => {
+      console.log(`  ${key}:`, property[key]);
+    });
+  }
+
+  // Image navigation handlers
+  const handlePrevImage = () => {
+    if (images && images.length > 0) {
+      setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    }
+  };
+
+  const handleNextImage = () => {
+    if (images && images.length > 0) {
+      setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    }
+  };
+
+  // Touch handlers for swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const touchEndValue = e.changedTouches[0].clientX;
+    const distance = touchStartRef.current - touchEndValue;
+
+    if (Math.abs(distance) > 50) {
+      if (distance > 0) {
+        handleNextImage();
+      } else {
+        handlePrevImage();
+      }
+    }
+  };
+
+  // ✅ Composant VideoSection - logique de rendu vidéo
   const VideoSection = () => {
-    console.log('🎬 VideoSection - videoUrl:', videoUrl);
+    console.log('🎬 VideoSection render - videoUrl:', videoUrl);
 
     if (!videoUrl) {
       console.log('ℹ️ Aucune vidéo trouvée');
@@ -262,9 +293,9 @@ export default function PropertyDetailPage() {
       );
     }
 
-    // ✅ FIX #3: Vérifier les formats directs EN PREMIER
+    // ✅ Vérifier les formats directs EN PREMIER
     if (isDirectVideoFile(videoUrl)) {
-      console.log('✅ Rendu vidéo directe (MP4, WebM, etc.)');
+      console.log('✅ Rendering direct video (MP4, WebM, etc.)');
       return (
         <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
           <video
@@ -274,6 +305,12 @@ export default function PropertyDetailPage() {
             controlsList="nodownload"
             className="w-full h-full"
             style={{ display: 'block' }}
+            onError={(e) => {
+              console.error('❌ Video playback error:', e);
+            }}
+            onLoadedMetadata={() => {
+              console.log('✅ Video metadata loaded');
+            }}
           >
             <source src={videoUrl} type="video/mp4" />
             <source src={videoUrl} type="video/webm" />
@@ -283,10 +320,10 @@ export default function PropertyDetailPage() {
       );
     }
 
-    // ✅ FIX #4: Vérifier YouTube/Vimeo après
+    // ✅ Vérifier YouTube/Vimeo après
     const embedUrl = getEmbedUrl(videoUrl);
     if (embedUrl) {
-      console.log('✅ Rendu vidéo intégrée (YouTube/Vimeo)');
+      console.log('✅ Rendering embedded video (YouTube/Vimeo)');
       return (
         <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
           <iframe
@@ -303,8 +340,8 @@ export default function PropertyDetailPage() {
       );
     }
 
-    // ✅ FIX #5: Format non supporté
-    console.log('❌ Format vidéo non supporté:', videoUrl);
+    // ✅ Format non supporté
+    console.log('❌ Unsupported video format:', videoUrl);
     return (
       <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
         <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
