@@ -16,6 +16,15 @@ export default function PublicNavbarClient() {
   if (isAdminPage) {
     return null;
   }
+
+  const toggleDropdown = (dropdown: string) => {
+    setOpenDropdown(openDropdown === dropdown ? null : dropdown);
+  };
+
+  const closeDropdown = () => {
+    setOpenDropdown(null);
+  };
+
   return (
     <nav
       className="sticky top-0 z-40 border-b"
@@ -61,6 +70,7 @@ export default function PublicNavbarClient() {
                 e.currentTarget.style.color = '#E2C98A';
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
+              onClick={closeDropdown}
             >
               Accueil
             </Link>
@@ -83,6 +93,7 @@ export default function PublicNavbarClient() {
                 e.currentTarget.style.color = '#E2C98A';
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
+              onClick={closeDropdown}
             >
               À propos
             </Link>
@@ -99,15 +110,21 @@ export default function PublicNavbarClient() {
                   fontFamily: "'DM Sans', system-ui, sans-serif",
                   fontSize: '14px',
                   fontWeight: 500,
-                  color: '#E2C98A',
+                  color: openDropdown === 'services' ? '#C8A96E' : '#E2C98A',
+                  backgroundColor: openDropdown === 'services' ? 'rgba(200, 169, 110, 0.1)' : 'transparent',
                 }}
+                onClick={() => toggleDropdown('services')}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#C8A96E';
-                  e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)';
+                  if (openDropdown !== 'services') {
+                    e.currentTarget.style.color = '#C8A96E';
+                    e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)';
+                  }
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#E2C98A';
-                  e.currentTarget.style.backgroundColor = 'transparent';
+                  if (openDropdown !== 'services') {
+                    e.currentTarget.style.color = '#E2C98A';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
                 }}
               >
                 Services
@@ -143,6 +160,7 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = '#E2C98A';
                     }}
+                    onClick={closeDropdown}
                   >
                     Intermédiations
                   </Link>
@@ -162,6 +180,7 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = '#E2C98A';
                     }}
+                    onClick={closeDropdown}
                   >
                     Commercialisation
                   </Link>
@@ -181,15 +200,21 @@ export default function PublicNavbarClient() {
                   fontFamily: "'DM Sans', system-ui, sans-serif",
                   fontSize: '14px',
                   fontWeight: 500,
-                  color: '#E2C98A',
+                  color: openDropdown === 'projects' ? '#C8A96E' : '#E2C98A',
+                  backgroundColor: openDropdown === 'projects' ? 'rgba(200, 169, 110, 0.1)' : 'transparent',
                 }}
+                onClick={() => toggleDropdown('projects')}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#C8A96E';
-                  e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)';
+                  if (openDropdown !== 'projects') {
+                    e.currentTarget.style.color = '#C8A96E';
+                    e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)';
+                  }
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#E2C98A';
-                  e.currentTarget.style.backgroundColor = 'transparent';
+                  if (openDropdown !== 'projects') {
+                    e.currentTarget.style.color = '#E2C98A';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
                 }}
               >
                 Projets
@@ -225,6 +250,7 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = '#E2C98A';
                     }}
+                    onClick={closeDropdown}
                   >
                     Tous les Projets
                   </Link>
@@ -244,6 +270,7 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = '#E2C98A';
                     }}
+                    onClick={closeDropdown}
                   >
                     Récents
                   </Link>
@@ -269,6 +296,7 @@ export default function PublicNavbarClient() {
                 e.currentTarget.style.color = '#E2C98A';
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
+              onClick={closeDropdown}
             >
               Blog
             </Link>
@@ -291,6 +319,7 @@ export default function PublicNavbarClient() {
                 e.currentTarget.style.color = '#E2C98A';
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
+              onClick={closeDropdown}
             >
               Consultation
             </Link>
@@ -317,6 +346,7 @@ export default function PublicNavbarClient() {
               e.currentTarget.style.backgroundColor = '#C8A96E';
               e.currentTarget.style.boxShadow = 'none';
             }}
+            onClick={closeDropdown}
           >
             Contactez-nous
           </Link>
