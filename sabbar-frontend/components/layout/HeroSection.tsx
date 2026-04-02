@@ -1,18 +1,23 @@
 'use client';
 
+import Image from 'next/image';
+import heroBuilding from '@/public/images/cities/cdcdc.jpg';
+
 export default function HeroSection() {
   return (
     <section className="relative overflow-hidden py-12 md:py-20 px-4 md:px-[5%] min-h-screen flex items-center">
-      {/* Background Image with Overlay */}
-      <div 
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: 'url(public/images/cities/cdcdc.jpeg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center right',
-          backgroundAttachment: 'fixed'
-        }}
-      >
+      {/* Background Image with Next.js Image for optimization */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src={heroBuilding}
+          alt="Building Background"
+          fill
+          priority
+          quality={90}
+          className="object-cover object-right"
+          style={{ objectPosition: 'center right' }}
+        />
+        
         {/* Dark Overlay with Gradient */}
         <div className="absolute inset-0 bg-gradient-to-r from-[rgba(13,31,60,0.95)] via-[rgba(13,31,60,0.85)] to-[rgba(13,31,60,0.5)]" />
         
@@ -116,7 +121,7 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Right - Optional SVG Illustration (HIDDEN ON MOBILE) - Can be replaced with image if needed */}
+          {/* Right - Optional SVG Illustration (HIDDEN ON MOBILE) */}
           <div className="hidden md:flex md:max-w-[40%] relative z-10 h-[600px] items-center justify-center animate-slideInRight">
             <svg
               viewBox="0 0 500 600"
