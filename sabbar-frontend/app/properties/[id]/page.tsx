@@ -6,17 +6,22 @@ import Link from 'next/link';
 import { ArrowLeft, MapPin, Heart, Phone, Mail, Share2, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { propertiesApi } from '@/lib/api';
 
-// Translation mappings
 const transactionTypeMap: { [key: string]: string } = {
+  // Vente
   'sale': 'Vente',
-  'rental': 'Location',
-  'vacation rental': 'Location vacances',
-  'location vacances': 'Location vacances',
   'vente': 'Vente',
+  
+  // Location
   'location': 'Location',
+  'location': 'Location',
+  
+  // Location Vacances
+  'vacation_rental': 'Location vacances',
+  'vacation rental': 'Location vacances',
   'vacation': 'Location vacances',
-  'vacances': 'Location vacances',
+  'location vacances': 'Location vacances',
   'location-vacances': 'Location vacances',
+  'vacances': 'Location vacances',
 };
 
 const propertyTypeMap: { [key: string]: string } = {
