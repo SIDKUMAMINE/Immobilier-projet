@@ -143,6 +143,7 @@ export default function PublicNavbarClient() {
                     backgroundColor: '#162D4F',
                     borderColor: 'rgba(200, 169, 110, 0.3)',
                   }}
+                  onMouseLeave={() => setOpenDropdown(null)}
                 >
                   <Link
                     href="/services/intermediations"
@@ -160,7 +161,6 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = '#E2C98A';
                     }}
-                    onClick={closeDropdown}
                   >
                     Intermédiations
                   </Link>
@@ -180,7 +180,6 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = '#E2C98A';
                     }}
-                    onClick={closeDropdown}
                   >
                     Commercialisation
                   </Link>
@@ -233,6 +232,7 @@ export default function PublicNavbarClient() {
                     backgroundColor: '#162D4F',
                     borderColor: 'rgba(200, 169, 110, 0.3)',
                   }}
+                  onMouseLeave={() => setOpenDropdown(null)}
                 >
                   <Link
                     href="/properties"
@@ -250,7 +250,6 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = '#E2C98A';
                     }}
-                    onClick={closeDropdown}
                   >
                     Tous les Projets
                   </Link>
@@ -270,7 +269,6 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = '#E2C98A';
                     }}
-                    onClick={closeDropdown}
                   >
                     Récents
                   </Link>
