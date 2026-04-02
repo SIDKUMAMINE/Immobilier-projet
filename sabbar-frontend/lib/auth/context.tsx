@@ -19,7 +19,7 @@ export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (accessToken: string, refreshToken: string) => Promise<void>;
+  login: (accessToken: string, refreshToken: string, user: User) => Promise<void>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<boolean>;
 }
@@ -138,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const data = await response.json();
-      await login(data.access_token, data.refresh_token);
+      await login(data.access_token, data.refresh_token, data.user);
       return true;
     } catch (err) {
       console.error('Token refresh error:', err);
