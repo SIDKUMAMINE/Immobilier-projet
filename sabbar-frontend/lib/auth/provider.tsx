@@ -5,6 +5,15 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+export interface User {
+  id: string;
+  email: string;
+  full_name: string;
+  agency_name?: string;
+  phone_number?: string;
+  role?: string;
+}
+
 export interface AuthContextType {
   login: (accessToken: string, refreshToken: string, user: User) => Promise<void>;
   logout: () => void;
