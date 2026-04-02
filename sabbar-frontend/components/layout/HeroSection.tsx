@@ -7,15 +7,19 @@ export default function HeroSection() {
   return (
     <section className="relative overflow-hidden py-12 md:py-20 px-4 md:px-[5%] min-h-screen flex items-center">
       {/* Background Image with Next.js Image for optimization */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 overflow-hidden">
         <Image
           src={heroBuilding}
           alt="Building Background"
           fill
           priority
           quality={90}
-          className="object-cover object-right"
-          style={{ objectPosition: 'center right' }}
+          className="object-cover"
+          style={{ 
+            objectPosition: 'center right',
+            width: '100%',
+            height: '100%'
+          }}
         />
         
         {/* Dark Overlay with Gradient */}
@@ -120,8 +124,6 @@ export default function HeroSection() {
               ))}
             </div>
           </div>
-
-
         </div>
       </div>
 
