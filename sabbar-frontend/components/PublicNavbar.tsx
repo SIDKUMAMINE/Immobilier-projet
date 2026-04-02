@@ -17,16 +17,6 @@ export default function PublicNavbarClient() {
     return null;
   }
 
-  const toggleDropdown = (dropdown: string) => {
-    setOpenDropdown(openDropdown === dropdown ? null : dropdown);
-  };
-
-  const closeDropdownWithDelay = () => {
-    setTimeout(() => {
-      setOpenDropdown(null);
-    }, 100);
-  };
-
   return (
     <nav
       className="sticky top-0 z-40 border-b"
@@ -72,7 +62,6 @@ export default function PublicNavbarClient() {
                 e.currentTarget.style.color = '#E2C98A';
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
-              onClick={closeDropdown}
             >
               Accueil
             </Link>
@@ -95,7 +84,6 @@ export default function PublicNavbarClient() {
                 e.currentTarget.style.color = '#E2C98A';
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
-              onClick={closeDropdown}
             >
               À propos
             </Link>
@@ -115,7 +103,6 @@ export default function PublicNavbarClient() {
                   color: openDropdown === 'services' ? '#C8A96E' : '#E2C98A',
                   backgroundColor: openDropdown === 'services' ? 'rgba(200, 169, 110, 0.1)' : 'transparent',
                 }}
-                onClick={() => toggleDropdown('services')}
                 onMouseEnter={(e) => {
                   if (openDropdown !== 'services') {
                     e.currentTarget.style.color = '#C8A96E';
@@ -163,7 +150,6 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = '#E2C98A';
                     }}
-                    onClick={closeDropdownWithDelay}
                   >
                     Intermédiations
                   </Link>
@@ -183,7 +169,6 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = '#E2C98A';
                     }}
-                    onClick={closeDropdownWithDelay}
                   >
                     Commercialisation
                   </Link>
@@ -206,7 +191,6 @@ export default function PublicNavbarClient() {
                   color: openDropdown === 'projects' ? '#C8A96E' : '#E2C98A',
                   backgroundColor: openDropdown === 'projects' ? 'rgba(200, 169, 110, 0.1)' : 'transparent',
                 }}
-                onClick={() => toggleDropdown('projects')}
                 onMouseEnter={(e) => {
                   if (openDropdown !== 'projects') {
                     e.currentTarget.style.color = '#C8A96E';
@@ -254,7 +238,6 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = '#E2C98A';
                     }}
-                    onClick={closeDropdownWithDelay}
                   >
                     Tous les Projets
                   </Link>
@@ -274,7 +257,6 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = '#E2C98A';
                     }}
-                    onClick={closeDropdownWithDelay}
                   >
                     Récents
                   </Link>
@@ -300,7 +282,6 @@ export default function PublicNavbarClient() {
                 e.currentTarget.style.color = '#E2C98A';
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
-              onClick={closeDropdown}
             >
               Blog
             </Link>
@@ -323,7 +304,6 @@ export default function PublicNavbarClient() {
                 e.currentTarget.style.color = '#E2C98A';
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
-              onClick={closeDropdown}
             >
               Consultation
             </Link>
@@ -350,7 +330,6 @@ export default function PublicNavbarClient() {
               e.currentTarget.style.backgroundColor = '#C8A96E';
               e.currentTarget.style.boxShadow = 'none';
             }}
-            onClick={closeDropdown}
           >
             Contactez-nous
           </Link>
