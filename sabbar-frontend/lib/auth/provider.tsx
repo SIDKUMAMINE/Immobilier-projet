@@ -29,6 +29,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       // Sauvegarder les tokens
+      console.log("we are inside the login in provider !!!!");
+      console.log("data received : "+ accessToken);
+      console.log("data received : "+ refreshToken);
+      console.log("data received : "+ user);
       localStorage.setItem('access_token', accessToken);
       localStorage.setItem('refresh_token', refreshToken);
       localStorage.setItem('user', JSON.stringify(user));
