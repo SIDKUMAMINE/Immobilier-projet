@@ -32,6 +32,8 @@ function LoginForm() {
 
       const data = await response.json();
 
+      console.log(data);
+
       if (!response.ok) {
         setError(data.detail || 'Email ou mot de passe incorrect');
         return;
