@@ -21,8 +21,10 @@ export default function PublicNavbarClient() {
     setOpenDropdown(openDropdown === dropdown ? null : dropdown);
   };
 
-  const closeDropdown = () => {
-    setOpenDropdown(null);
+  const closeDropdownWithDelay = () => {
+    setTimeout(() => {
+      setOpenDropdown(null);
+    }, 100);
   };
 
   return (
@@ -161,6 +163,7 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = '#E2C98A';
                     }}
+                    onClick={closeDropdownWithDelay}
                   >
                     Intermédiations
                   </Link>
@@ -180,6 +183,7 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = '#E2C98A';
                     }}
+                    onClick={closeDropdownWithDelay}
                   >
                     Commercialisation
                   </Link>
@@ -250,6 +254,7 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = '#E2C98A';
                     }}
+                    onClick={closeDropdownWithDelay}
                   >
                     Tous les Projets
                   </Link>
@@ -269,6 +274,7 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.color = '#E2C98A';
                     }}
+                    onClick={closeDropdownWithDelay}
                   >
                     Récents
                   </Link>
