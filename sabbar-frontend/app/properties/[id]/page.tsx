@@ -601,19 +601,19 @@ export default function PropertyDetailPage() {
 
               <div className="space-y-3">
                 <a
-                  href="tel:+212561511251"
+                  href="tel:+212605585720"
                   className="w-full flex items-center justify-center gap-3 bg-[#d4af37] hover:bg-[#f4d03f] text-[#0f1a2e] font-bold py-2 px-3 rounded-lg transition text-sm"
                 >
                   <Phone size={18} />
-                  +212 5 61 51 12 51
+                  +212 6 05 58 57 20
                 </a>
 
                 <a
-                  href="mailto:contact@landmark-estate.com"
+                  href="mailto:Landmarkestate3@gmail.com"
                   className="w-full flex items-center justify-center gap-3 border-2 border-[#d4af37] hover:bg-[#d4af37] text-[#d4af37] hover:text-[#0f1a2e] font-bold py-2 px-3 rounded-lg transition text-sm"
                 >
                   <Mail size={18} />
-                  contact@landmark.ma
+                  Landmarkestate3@gmail.com
                 </a>
 
                 <button className="w-full flex items-center justify-center gap-3 border-2 border-[#b0b0b0] hover:border-[#d4af37] text-[#b0b0b0] hover:text-[#d4af37] font-bold py-2 px-3 rounded-lg transition text-sm">
