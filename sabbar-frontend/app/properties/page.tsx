@@ -54,7 +54,7 @@ const transactionTypeMap: { [key: string]: string } = {
   'vacation_rental': 'Location vacances',
   'location vacances': 'Location vacances',
   'vente': 'Vente',
-  'location': 'Location',
+  'rental': 'Location',
   'vacation': 'Location vacances',
   'vacances': 'Location vacances',
   'location-vacances': 'Location vacances',
