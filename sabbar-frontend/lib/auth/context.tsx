@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initAuth();
   }, []);
 
-  const login = async (newAccessToken: string, newRefreshToken: string) => {
+  const login = async (newAccessToken: string, newRefreshToken: string, user: User) => {
     try {
       // Stocker les tokens
       localStorage.setItem('accessToken', newAccessToken);
@@ -73,13 +73,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAccessToken(newAccessToken);
       setRefreshToken(newRefreshToken);
 
-      const userData: User = {
-        id: '1',
-        email: '',
-        full_name: '',
-      };
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
+
+      setUser(user);
+      localStorage.setItem('user', JSON.stringify(user));
 
       // ✅ window.location.href = navigation hard, évite les bugs React Router
       window.location.href = '/dashboard';

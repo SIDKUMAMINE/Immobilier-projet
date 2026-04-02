@@ -53,6 +53,16 @@ class UserResponse(UserBase):
         from_attributes = True
 
 
+class LoggedUser(BaseModel):
+    id: str
+    email: str
+    full_name: str
+    is_active: bool
+    
+    class Config:
+        from_attributes = True
+
+
 class UserInDB(UserResponse):
     """Modèle utilisateur dans la base de données"""
     password_hash: str
@@ -76,7 +86,7 @@ class TokenResponse(BaseModel):
     refresh_token: str
     token_type: str = "bearer"
     expires_in: int  # secondes
-
+    user: LoggedUser
 
 class RefreshTokenRequest(BaseModel):
     """Requête pour rafraîchir l'access token"""

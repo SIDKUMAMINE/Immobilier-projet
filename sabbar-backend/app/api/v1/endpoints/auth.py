@@ -47,55 +47,6 @@ def _save_refresh_token(user_id: str, refresh_token: str, expires_at: datetime):
     }).execute()
 
 
-# ============================================================================
-# REGISTER - Créer un compte
-# ============================================================================
-
-@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
-async def register(user_create: UserCreate):
-    """
-    Créer un nouveau compte utilisateur (agent immobilier)
-    """
-
-    # Vérifier si l'email existe déjà
-    existing_user = await user_crud.get_user_by_email(user_create.email)
-    if existing_user:
-        logger.warning(f"Tentative d'enregistrement avec email existant : {user_create.email}")
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Un utilisateur avec cet email existe déjà"
-        )
-
-    # Créer l'utilisateur
-    new_user = await user_crud.create_user(user_create)
-    if not new_user:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erreur lors de la création du compte"
-        )
-
-    # Générer les tokens
-    access_token, access_expires = create_access_token(new_user.id)
-    refresh_token, refresh_expires = create_refresh_token(new_user.id)
-
-    # Sauvegarder le refresh token
-    try:
-        _save_refresh_token(str(new_user.id), refresh_token, refresh_expires)
-    except Exception as e:
-        logger.error(f"Erreur sauvegarde refresh token : {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erreur lors de la création de la session"
-        )
-
-    logger.info(f"Nouvel utilisateur créé : {new_user.email}")
-
-    return TokenResponse(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        expires_in=30 * 60
-    )
-
 
 # ============================================================================
 # LOGIN - Se connecter
@@ -103,9 +54,7 @@ async def register(user_create: UserCreate):
 
 @router.post("/login", response_model=TokenResponse)
 async def login(user_login: UserLogin):
-    """
-    Se connecter avec email et mot de passe
-    """
+    """Se connecter avec email et mot de passe"""
 
     # Récupérer l'utilisateur
     user = await user_crud.get_user_by_email_with_password(user_login.email)
@@ -139,7 +88,6 @@ async def login(user_login: UserLogin):
     access_token, access_expires = create_access_token(user.id)
     refresh_token, refresh_expires = create_refresh_token(user.id)
 
-    # ✅ FIXED: Supprimer l'ancien token avant d'insérer le nouveau (évite duplicate key)
     try:
         _save_refresh_token(str(user.id), refresh_token, refresh_expires)
     except Exception as e:
@@ -151,10 +99,12 @@ async def login(user_login: UserLogin):
 
     logger.info(f"Connexion réussie : {user.email}")
 
+    # ✅ Return user data along with tokens
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
-        expires_in=30 * 60
+        expires_in=30 * 60,
+        user=UserResponse.from_orm(user)  # ✅ ADD THIS
     )
 
 
