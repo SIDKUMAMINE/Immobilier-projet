@@ -2,15 +2,25 @@
 
 export default function HeroSection() {
   return (
-    <section className="bg-gradient-to-br from-[#0D1F3C] via-[#1a2847] to-[#050D1A] relative overflow-hidden py-12 md:py-20 px-4 md:px-[5%]">
-      {/* Background decoration */}
-      <div className="absolute top-0 right-[-10%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-radial-gradient opacity-[0.08] rounded-full pointer-events-none animate-float" 
+    <section className="relative overflow-hidden py-12 md:py-20 px-4 md:px-[5%] min-h-screen flex items-center">
+      {/* Background Image with Overlay */}
+      <div 
+        className="absolute inset-0 z-0"
         style={{
-          background: 'radial-gradient(circle, rgba(200, 169, 110, 0.08) 0%, transparent 70%)',
-          animation: 'float 20s ease-in-out infinite'
-        }} />
+          backgroundImage: 'url(/images/cities/cdcdc.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center right',
+          backgroundAttachment: 'fixed'
+        }}
+      >
+        {/* Dark Overlay with Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[rgba(13,31,60,0.95)] via-[rgba(13,31,60,0.85)] to-[rgba(13,31,60,0.5)]" />
+        
+        {/* Additional overlay for better text contrast */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[rgba(13,31,60,0.3)] to-[rgba(13,31,60,0.7)]" />
+      </div>
 
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="max-w-6xl mx-auto relative z-10 w-full">
         {/* MOBILE: Column layout | DESKTOP: Row layout */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:gap-12">
           
@@ -106,7 +116,7 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Right - 3D Floating Property Illustration - HIDDEN ON MOBILE */}
+          {/* Right - Optional SVG Illustration (HIDDEN ON MOBILE) - Can be replaced with image if needed */}
           <div className="hidden md:flex md:max-w-[40%] relative z-10 h-[600px] items-center justify-center animate-slideInRight">
             <svg
               viewBox="0 0 500 600"
@@ -268,6 +278,13 @@ export default function HeroSection() {
         @supports (perspective: 1000px) {
           .property-3d {
             perspective: 1000px;
+          }
+        }
+
+        /* Responsive background attachment */
+        @media (max-width: 768px) {
+          section {
+            background-attachment: scroll;
           }
         }
       `}</style>
