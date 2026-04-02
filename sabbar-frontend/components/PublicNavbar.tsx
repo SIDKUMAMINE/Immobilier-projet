@@ -127,12 +127,11 @@ export default function PublicNavbarClient() {
               </button>
               {openDropdown === 'services' && (
                 <div
-                  className="absolute top-16 left-0 rounded-lg shadow-lg py-2 w-48 border z-50"
+                  className="absolute top-full left-0 rounded-lg shadow-lg py-2 w-48 border z-50 mt-0"
                   style={{
                     backgroundColor: '#162D4F',
                     borderColor: 'rgba(200, 169, 110, 0.3)',
                   }}
-                  onMouseLeave={() => setOpenDropdown(null)}
                 >
                   <Link
                     href="/services/intermediations"
@@ -215,12 +214,11 @@ export default function PublicNavbarClient() {
               </button>
               {openDropdown === 'projects' && (
                 <div
-                  className="absolute top-16 left-0 rounded-lg shadow-lg py-2 w-48 border z-50"
+                  className="absolute top-full left-0 rounded-lg shadow-lg py-2 w-48 border z-50 mt-0"
                   style={{
                     backgroundColor: '#162D4F',
                     borderColor: 'rgba(200, 169, 110, 0.3)',
                   }}
-                  onMouseLeave={() => setOpenDropdown(null)}
                 >
                   <Link
                     href="/properties"
