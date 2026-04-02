@@ -100,12 +100,21 @@ async def login(user_login: UserLogin):
     logger.info(f"Connexion réussie : {user.email}")
 
     # ✅ Return user data along with tokens
-    return TokenResponse(
+    data = TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
         expires_in=30 * 60,
-        user=UserResponse.from_orm(user)  # ✅ ADD THIS
+        user=LoggedUser(
+            id=str(user.id),
+            email=user.email,
+            full_name=user.full_name,
+            is_active=user.is_active
+        )  # ✅ ADD THIS
     )
+    logger.info(f"Response data: {response_data.model_dump()}")
+    
+    return response_data
+    
 
 
 # ============================================================================

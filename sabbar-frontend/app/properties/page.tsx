@@ -22,7 +22,7 @@ const staticCities = [
 // Static transaction types
 const staticTransactionTypes = [
   { original: 'sale', label: 'Vente' },
-  { original: 'rent', label: 'Location' },
+  { original: 'location', label: 'Location' },
   { original: 'vacation_rental', label: 'Location vacances' }
 ];
 
@@ -50,8 +50,8 @@ const staticEquipments = [
 // Mapping pour traduire les types de transaction en français
 const transactionTypeMap: { [key: string]: string } = {
   'sale': 'Vente',
-  'rental': 'Location',
-  'vacation rental': 'Location vacances',
+  'location': 'Location',
+  'vacation_rental': 'Location vacances',
   'location vacances': 'Location vacances',
   'vente': 'Vente',
   'location': 'Location',

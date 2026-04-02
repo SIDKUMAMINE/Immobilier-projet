@@ -87,6 +87,9 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
     expires_in: int  # secondes
     user: LoggedUser
+    
+    class Config:
+        from_attributes = True
 
 class RefreshTokenRequest(BaseModel):
     """Requête pour rafraîchir l'access token"""
