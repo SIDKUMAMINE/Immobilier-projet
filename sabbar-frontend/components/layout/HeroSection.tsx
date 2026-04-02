@@ -7,21 +7,22 @@ export default function HeroSection() {
   return (
     <section className="relative overflow-hidden py-12 md:py-20 px-4 md:px-[5%] min-h-screen flex items-center">
       {/* Background Image with Next.js Image for optimization */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
+      <div className="absolute inset-0 z-0">
         <Image
           src={heroBuilding}
           alt="Building Background"
           fill
           priority
-          quality={85}
-          className="object-cover object-center"
+          quality={90}
+          className="object-cover object-right"
+          style={{ objectPosition: 'center right' }}
         />
         
         {/* Dark Overlay with Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[rgba(13,31,60,0.75)] via-[rgba(13,31,60,0.6)] to-[rgba(13,31,60,0.3)]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[rgba(13,31,60,0.95)] via-[rgba(13,31,60,0.85)] to-[rgba(13,31,60,0.5)]" />
         
         {/* Additional overlay for better text contrast */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[rgba(13,31,60,0.2)] to-[rgba(13,31,60,0.4)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[rgba(13,31,60,0.3)] to-[rgba(13,31,60,0.7)]" />
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10 w-full">
@@ -119,6 +120,8 @@ export default function HeroSection() {
               ))}
             </div>
           </div>
+
+
         </div>
       </div>
 
