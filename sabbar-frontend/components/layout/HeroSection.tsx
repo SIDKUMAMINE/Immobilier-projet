@@ -13,13 +13,8 @@ export default function HeroSection() {
           alt="Building Background"
           fill
           priority
-          quality={90}
-          className="object-cover"
-          style={{ 
-            objectPosition: 'center right',
-            width: '100%',
-            height: '100%'
-          }}
+          quality={85}
+          className="object-cover object-center"
         />
         
         {/* Dark Overlay with Gradient */}
