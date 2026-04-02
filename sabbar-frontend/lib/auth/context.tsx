@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (newAccessToken: string, newRefreshToken: string, user: User) => {
     try {
       // Stocker les tokens
-      console.log("we are inside the login in provider !!!!");
+      console.log("we are inside the login in context !!!!");
       console.log("data received : "+ newAccessToken);
       console.log("data received : "+ newRefreshToken);
       console.log("data received : "+ user);
