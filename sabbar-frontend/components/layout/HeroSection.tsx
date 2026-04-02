@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import heroBuilding from '@/public/images/cities/cdcdc.jpeg';
+import heroBuilding from '@/public/images/cities/ter.jpeg';
 
 export default function HeroSection() {
   return (
