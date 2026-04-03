@@ -299,6 +299,8 @@ export default function PropertiesPage() {
     areaMax: '',
     bedrooms: '',
     bathrooms: '',
+    condition: '',
+    equipments: [] as string[],
   });
 
   // Charger les propriétés
@@ -331,6 +333,14 @@ export default function PropertiesPage() {
       if (filters.areaMax && property.area > parseInt(filters.areaMax)) return false;
       if (filters.bedrooms && property.bedrooms !== parseInt(filters.bedrooms)) return false;
       if (filters.bathrooms && property.bathrooms !== parseInt(filters.bathrooms)) return false;
+      if (filters.condition && property.condition !== filters.condition) return false;
+      if (filters.equipments.length > 0) {
+        const propertyEquipments = property.equipments || [];
+        const hasAllEquipments = filters.equipments.every(eq => 
+          propertyEquipments.some(pEq => pEq.toLowerCase() === eq.toLowerCase())
+        );
+        if (!hasAllEquipments) return false;
+      }
       return true;
     });
 
@@ -348,6 +358,8 @@ export default function PropertiesPage() {
       areaMax: '',
       bedrooms: '',
       bathrooms: '',
+      condition: '',
+      equipments: [],
     });
   };
 
@@ -475,7 +487,8 @@ export default function PropertiesPage() {
                 borderColor: SABBAR_COLORS.goldAccent + '30',
               }}
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Première rangée : Prix, Surface, Chambres, Salles de bain */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 pb-4" style={{ borderBottom: `1px solid ${SABBAR_COLORS.goldAccent}20` }}>
                 {/* Prix */}
                 <div>
                   <h4
@@ -622,6 +635,102 @@ export default function PropertiesPage() {
                       fontFamily: "'DM Sans', sans-serif",
                     }}
                   />
+                </div>
+              </div>
+
+              {/* Deuxième rangée : État du bien */}
+              <div className="mb-4 pb-4" style={{ borderBottom: `1px solid ${SABBAR_COLORS.goldAccent}20` }}>
+                <h4
+                  className="text-xs font-bold mb-2 uppercase"
+                  style={{
+                    color: SABBAR_COLORS.goldAccent,
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: '9px',
+                    letterSpacing: '0.5px',
+                  }}
+                >
+                  État du bien
+                </h4>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="condition"
+                      value="new"
+                      checked={filters.condition === 'new'}
+                      onChange={(e) => setFilters({ ...filters, condition: e.target.value })}
+                      className="w-4 h-4"
+                    />
+                    <span
+                      className="text-xs"
+                      style={{
+                        color: SABBAR_COLORS.goldLight,
+                        fontFamily: "'DM Sans', sans-serif",
+                      }}
+                    >
+                      🆕 Neuf
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="condition"
+                      value="used"
+                      checked={filters.condition === 'used'}
+                      onChange={(e) => setFilters({ ...filters, condition: e.target.value })}
+                      className="w-4 h-4"
+                    />
+                    <span
+                      className="text-xs"
+                      style={{
+                        color: SABBAR_COLORS.goldLight,
+                        fontFamily: "'DM Sans', sans-serif",
+                      }}
+                    >
+                      🏠 Deuxième main
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Troisième rangée : Équipements */}
+              <div>
+                <h4
+                  className="text-xs font-bold mb-2 uppercase"
+                  style={{
+                    color: SABBAR_COLORS.goldAccent,
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: '9px',
+                    letterSpacing: '0.5px',
+                  }}
+                >
+                  Équipements
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {['Parking', 'Jardin', 'Piscine', 'Meublé'].map((eq) => (
+                    <label key={eq} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={filters.equipments?.includes(eq) || false}
+                        onChange={() => {
+                          const newEquipments = filters.equipments?.includes(eq)
+                            ? filters.equipments.filter(e => e !== eq)
+                            : [...(filters.equipments || []), eq];
+                          setFilters({ ...filters, equipments: newEquipments });
+                        }}
+                        className="w-4 h-4"
+                      />
+                      <span
+                        className="text-xs"
+                        style={{
+                          color: SABBAR_COLORS.goldLight,
+                          fontFamily: "'DM Sans', sans-serif",
+                        }}
+                      >
+                        {eq}
+                      </span>
+                    </label>
+                  ))}
                 </div>
               </div>
             </div>
