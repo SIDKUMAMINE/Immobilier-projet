@@ -5,6 +5,15 @@ import Link from 'next/link';
 import { ArrowLeft, MapPin, Heart, ArrowRight, ChevronDown } from 'lucide-react';
 import { propertiesApi } from '@/lib/api';
 
+// 🎨 PALETTE SABBAR
+const SABBAR_COLORS = {
+  navyDominant: '#0D1F3C',
+  goldAccent: '#C8A96E',
+  goldLight: '#E2C98A',
+  terracotta: '#B5573A',
+  ivory: '#F9F5EF',
+};
+
 // Static cities list
 const staticCities = [
   'Casablanca',
@@ -28,7 +37,7 @@ const staticTransactionTypes = [
 
 // Static property types
 const staticPropertyTypes = [
-  { original: 'studio', label: 'Studio' },  // ✨ NOUVEAU - Studio ajouté
+  { original: 'studio', label: 'Studio' },
   { original: 'apartment', label: 'Appartement' },
   { original: 'villa', label: 'Villa' },
   { original: 'maison', label: 'Maison' },
@@ -48,15 +57,10 @@ const staticEquipments = [
 ];
 
 const transactionTypeMap: { [key: string]: string } = {
-  // Vente
   'sale': 'Vente',
   'vente': 'Vente',
-  
-  // Location
   'rent': 'Location',
   'location': 'Location',
-  
-  // Location Vacances
   'vacation_rental': 'Location vacances',
   'vacation rental': 'Location vacances',
   'vacation': 'Location vacances',
@@ -69,7 +73,6 @@ const getTransactionTypeLabel = (type: string): string => {
   return transactionTypeMap[type.toLowerCase()] || type;
 };
 
-// Mapping pour traduire les types de propriété en français
 const propertyTypeMap: { [key: string]: string } = {
   'apartment': 'Appartement',
   'villa': 'Villa',
@@ -84,11 +87,148 @@ const propertyTypeMap: { [key: string]: string } = {
   'bureau': 'Bureau',
   'local commercial': 'Local commercial',
   'local-commercial': 'Local commercial',
-  'studio': 'Studio',  // ✨ AJOUTER POUR LA TRADUCTION
+  'studio': 'Studio',
 };
 
 const getPropertyTypeLabel = (type: string): string => {
   return propertyTypeMap[type.toLowerCase()] || type;
+};
+
+// 🎯 COMPOSANT FILTRE SABBAR
+interface FilterSelectProps {
+  label: string;
+  options: Array<{ original?: string; label: string }> | string[];
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+}
+
+const FilterSelect: React.FC<FilterSelectProps> = ({
+  label,
+  options,
+  value,
+  onChange,
+  placeholder = 'Sélectionner une option'
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const optionsArray = Array.isArray(options) && options.length > 0 
+    ? typeof options[0] === 'string' 
+      ? options.map(opt => ({ label: opt, original: opt }))
+      : options
+    : [];
+
+  return (
+    <div className="w-full">
+      <label
+        className="block text-xs font-bold uppercase mb-2"
+        style={{
+          color: SABBAR_COLORS.goldAccent,
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '10px',
+          letterSpacing: '1px',
+          fontWeight: 700,
+        }}
+      >
+        {label}
+      </label>
+
+      <div className="relative">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full px-4 py-3 rounded-lg flex items-center justify-between transition-all duration-200"
+          style={{
+            backgroundColor: isOpen ? SABBAR_COLORS.navyDominant : 'rgba(249, 245, 239, 0.05)',
+            color: value && value !== 'all' ? SABBAR_COLORS.ivory : SABBAR_COLORS.goldLight,
+            border: `2px solid ${SABBAR_COLORS.goldAccent}`,
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '13px',
+            fontWeight: 600,
+          }}
+        >
+          <span className="truncate">
+            {value && value !== 'all' 
+              ? optionsArray.find(opt => opt.original === value)?.label || value
+              : placeholder
+            }
+          </span>
+          <ChevronDown
+            size={18}
+            className="flex-shrink-0 ml-2 transition-transform duration-200"
+            style={{
+              color: SABBAR_COLORS.goldAccent,
+              transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+            }}
+          />
+        </button>
+
+        {isOpen && (
+          <div
+            className="absolute top-full left-0 right-0 mt-1 rounded-lg shadow-xl z-50 overflow-hidden border-2"
+            style={{
+              backgroundColor: SABBAR_COLORS.navyDominant,
+              borderColor: SABBAR_COLORS.goldAccent,
+              boxShadow: `0 10px 30px rgba(200, 169, 110, 0.2)`,
+              maxHeight: '300px',
+              overflowY: 'auto',
+            }}
+          >
+            <button
+              onClick={() => {
+                onChange('all');
+                setIsOpen(false);
+              }}
+              className="w-full px-4 py-2 text-left transition-colors"
+              style={{
+                backgroundColor: value === 'all' ? SABBAR_COLORS.goldAccent + '15' : 'transparent',
+                color: value === 'all' ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.goldLight,
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '13px',
+                fontWeight: 500,
+              }}
+            >
+              {placeholder}
+            </button>
+
+            <div
+              style={{
+                height: '1px',
+                backgroundColor: SABBAR_COLORS.goldAccent + '20',
+              }}
+            />
+
+            {optionsArray.map((option, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  onChange(option.original || option.label);
+                  setIsOpen(false);
+                }}
+                className="w-full px-4 py-2 text-left transition-colors text-sm"
+                style={{
+                  backgroundColor: value === (option.original || option.label) ? SABBAR_COLORS.goldAccent + '15' : 'transparent',
+                  color: value === (option.original || option.label) ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.goldLight,
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px',
+                  fontWeight: value === (option.original || option.label) ? 600 : 500,
+                  borderBottom: `1px solid ${SABBAR_COLORS.goldAccent}10`,
+                }}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+    </div>
+  );
 };
 
 export default function PropertiesPage() {
@@ -138,16 +278,10 @@ export default function PropertiesPage() {
     fetchProperties();
   }, []);
 
-  // Use static cities list
   const cities = staticCities;
-
-  // Use static transaction types list
   const transactionTypes = staticTransactionTypes;
-
-  // Use static property types list
   const propertyTypes = staticPropertyTypes;
 
-  // Extract unique floors from API data
   const floors = useMemo(() => {
     const floorSet = new Set<string>();
     allProperties.forEach(p => {
@@ -161,10 +295,8 @@ export default function PropertiesPage() {
     });
   }, [allProperties]);
 
-  // Use static equipments list instead of extracting from API
   const equipmentsList = staticEquipments;
 
-  // Filter properties based on selected filters
   const filteredProperties = useMemo(() => {
     return allProperties.filter(prop => {
       const matchCity = selectedCity === 'all' || prop.city === selectedCity;
@@ -172,29 +304,22 @@ export default function PropertiesPage() {
       const matchPropertyType = selectedPropertyType === 'all' || prop.property_type === selectedPropertyType;
       const matchFloor = !selectedFloor || String(prop.floor) === selectedFloor;
       const matchElevator = !hasElevator || (prop.elevator === true || prop.has_elevator === true);
-      
-      // Filtre pour "Neuf"
       const matchIsNew = !isNewOnly || (prop.is_new === true);
-      
       const matchEquipments = selectedEquipments.length === 0 || 
         (prop.equipments && Array.isArray(prop.equipments) && 
          selectedEquipments.some(eq => prop.equipments.includes(eq)));
       
-      // Price filter
       const price = prop.price || 0;
       const matchPriceMin = !priceMin || price >= parseInt(priceMin);
       const matchPriceMax = !priceMax || price <= parseInt(priceMax);
       
-      // Area filter
       const area = prop.area || 0;
       const matchAreaMin = !minArea || area >= parseInt(minArea);
       const matchAreaMax = !maxArea || area <= parseInt(maxArea);
       
-      // Bedrooms filter
       const bedrooms = prop.bedrooms || 0;
       const matchBedrooms = !minBedrooms || bedrooms >= parseInt(minBedrooms);
       
-      // Bathrooms filter
       const bathrooms = prop.bathrooms || 0;
       const matchBathrooms = !minBathrooms || bathrooms >= parseInt(minBathrooms);
       
@@ -216,7 +341,6 @@ export default function PropertiesPage() {
   };
 
   const toggleEquipment = (equipment: string) => {
-    // Special handling for "🆕 Neuf"
     if (equipment === '🆕 Neuf') {
       setIsNewOnly(!isNewOnly);
     } else {
@@ -283,256 +407,162 @@ export default function PropertiesPage() {
       </section>
 
       {/* Filters Section */}
-      <section className="py-6 sm:py-8 px-[5%] bg-[#0f1a2e] border-b border-[rgba(212,175,55,0.2)]">
+      <section
+        className="py-6 sm:py-8 px-[5%] border-b"
+        style={{
+          backgroundColor: SABBAR_COLORS.navyDominant,
+          borderColor: SABBAR_COLORS.goldAccent + '30',
+        }}
+      >
         <div className="max-w-[1400px] mx-auto">
+          <h2
+            className="text-lg font-bold mb-6"
+            style={{
+              color: SABBAR_COLORS.goldAccent,
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '16px',
+              fontWeight: 700,
+            }}
+          >
+            🔍 Affiner votre recherche
+          </h2>
+
           {/* Main Filters Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-            {/* City Filter */}
-            <div>
-              <label className="block text-[#d4af37] font-bold text-xs sm:text-sm mb-2">Ville</label>
-              <select
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(125, 116, 63, 0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors hover:border-[rgba(212,175,55,0.3)]"
-              >
-                <option value="all">Sélectionner une ville</option>
-                {cities.map(city => (
-                  <option key={city} value={city}>{city}</option>
-                ))}
-              </select>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <FilterSelect
+              label="Ville"
+              options={cities}
+              value={selectedCity}
+              onChange={setSelectedCity}
+              placeholder="Sélectionner une ville"
+            />
 
-            {/* Transaction Type Filter */}
-            <div>
-              <label className="block text-[#d4af37] font-bold text-xs sm:text-sm mb-2">Type de transaction</label>
-              <select
-                value={selectedTransactionType}
-                onChange={(e) => setSelectedTransactionType(e.target.value)}
-                className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors hover:border-[rgba(212,175,55,0.3)]"
-              >
-                <option value="all">Tous les types</option>
-                {transactionTypes.map(type => (
-                  <option key={type.original} value={type.original}>{type.label}</option>
-                ))}
-              </select>
-            </div>
+            <FilterSelect
+              label="Type de transaction"
+              options={transactionTypes}
+              value={selectedTransactionType}
+              onChange={setSelectedTransactionType}
+              placeholder="Tous les types"
+            />
 
-            {/* Property Type Filter */}
-            <div>
-              <label className="block text-[#d4af37] font-bold text-xs sm:text-sm mb-2">Type de bien</label>
-              <select
-                value={selectedPropertyType}
-                onChange={(e) => setSelectedPropertyType(e.target.value)}
-                className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.2)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors hover:border-[rgba(212,175,55,0.3)]"
-              >
-                <option value="all">Tous les types</option>
-                {propertyTypes.map(type => (
-                  <option key={type.original} value={type.original}>{type.label}</option>
-                ))}
-              </select>
-            </div>
+            <FilterSelect
+              label="Type de bien"
+              options={propertyTypes}
+              value={selectedPropertyType}
+              onChange={setSelectedPropertyType}
+              placeholder="Tous les types"
+            />
+          </div>
 
-            {/* Advanced Criteria Toggle */}
-            <div className="flex items-end">
-              <button
-                onClick={() => setExpandCriteria(!expandCriteria)}
-                className="w-full bg-[rgba(212,175,55,0.2)] hover:bg-[rgba(212,175,55,0.3)] border border-[#d4af37] text-[#d4af37] font-bold px-4 py-3 rounded-lg transition-all inline-flex items-center justify-center gap-2"
-              >
-                Critères supplémentaires {activeFiltersCount > 3 && <span className="bg-[#d4af37] text-[#0f1a2e] px-2 py-0.5 rounded-full text-xs font-bold">{activeFiltersCount - 3}</span>}
-                <ChevronDown size={18} className={`transition-transform ${expandCriteria ? 'rotate-180' : ''}`} />
-              </button>
-            </div>
+          {/* Advanced Criteria Toggle */}
+          <div className="mb-6">
+            <button
+              onClick={() => setExpandCriteria(!expandCriteria)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all"
+              style={{
+                backgroundColor: SABBAR_COLORS.goldAccent + '20',
+                borderColor: SABBAR_COLORS.goldAccent,
+                color: SABBAR_COLORS.goldAccent,
+                fontFamily: "'DM Sans', sans-serif",
+                border: `2px solid ${SABBAR_COLORS.goldAccent}`,
+              }}
+            >
+              Critères supplémentaires {activeFiltersCount > 3 && <span style={{
+                backgroundColor: SABBAR_COLORS.goldAccent,
+                color: SABBAR_COLORS.navyDominant,
+                padding: '2px 8px',
+                borderRadius: '999px',
+                fontSize: '11px',
+                fontWeight: 'bold'
+              }}>{activeFiltersCount - 3}</span>}
+              <ChevronDown size={18} style={{
+                transform: expandCriteria ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 200ms'
+              }} />
+            </button>
           </div>
 
           {/* Advanced Criteria Section */}
           {expandCriteria && (
-            <div className="mb-6 p-6 bg-[rgba(15,26,46,0.8)] border border-[rgba(212,175,55,0.3)] rounded-lg">
-              {/* 1. Caractéristiques */}
-              <div className="mb-8">
-                <h3 className="text-[#d4af37] font-bold text-sm mb-4 flex items-center gap-2">
-                  <span className="bg-[#d4af37] text-[#0f1a2e] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">1</span>
-                  Caractéristiques
-                </h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {/* Floor Filter */}
-                  <div>
-                    <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Étage</label>
-                    <input
-                      type="text"
-                      value={selectedFloor}
-                      onChange={(e) => setSelectedFloor(e.target.value)}
-                      placeholder="Ex: 2"
-                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
-                    />
-                  </div>
-
-                  {/* Elevator Checkbox */}
-                  <div className="flex items-end">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={hasElevator}
-                        onChange={(e) => setHasElevator(e.target.checked)}
-                        className="w-4 h-4 accent-[#d4af37] bg-[#d4af37] border-2 border-[#d4af37] rounded cursor-pointer"
-                      />
-                      <span className="text-[#b0b0b0] font-bold">Ascenseur</span>
-                    </label>
-                  </div>
-
-                  {/* Min Bedrooms */}
-                  <div>
-                    <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Chambres min</label>
-                    <input
-                      type="number"
-                      value={minBedrooms}
-                      onChange={(e) => setMinBedrooms(e.target.value)}
-                      placeholder="Ex: 2"
-                      min="0"
-                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
-                    />
-                  </div>
-
-                  {/* Min Bathrooms */}
-                  <div>
-                    <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Salles bain min</label>
-                    <input
-                      type="number"
-                      value={minBathrooms}
-                      onChange={(e) => setMinBathrooms(e.target.value)}
-                      placeholder="Ex: 1"
-                      min="0"
-                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* 2. Prix */}
-              <div className="mb-8 pt-6 border-t border-[rgba(212,175,55,0.3)]">
-                <h3 className="text-[#d4af37] font-bold text-sm mb-4 flex items-center gap-2">
-                  <span className="bg-[#d4af37] text-[#0f1a2e] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+            <div
+              className="p-6 rounded-lg mb-6 border"
+              style={{
+                backgroundColor: SABBAR_COLORS.navyDominant + '80',
+                borderColor: SABBAR_COLORS.goldAccent + '30',
+              }}
+            >
+              {/* Price Range */}
+              <div className="mb-6">
+                <h3
+                  className="text-sm font-bold mb-3"
+                  style={{
+                    color: SABBAR_COLORS.goldAccent,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                >
                   Prix (MAD)
                 </h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Prix min</label>
-                    <input
-                      type="number"
-                      value={priceMin}
-                      onChange={(e) => setPriceMin(e.target.value)}
-                      placeholder="Ex: 500000"
-                      min="0"
-                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Prix max</label>
-                    <input
-                      type="number"
-                      value={priceMax}
-                      onChange={(e) => setPriceMax(e.target.value)}
-                      placeholder="Ex: 5000000"
-                      min="0"
-                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
-                    />
-                  </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <input
+                    type="number"
+                    value={priceMin}
+                    onChange={(e) => setPriceMin(e.target.value)}
+                    placeholder="Min"
+                    className="px-4 py-2 rounded-lg text-sm"
+                    style={{
+                      backgroundColor: SABBAR_COLORS.navyDominant + '50',
+                      borderColor: SABBAR_COLORS.goldAccent + '30',
+                      color: SABBAR_COLORS.goldLight,
+                      border: `1px solid ${SABBAR_COLORS.goldAccent}30`,
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                  <input
+                    type="number"
+                    value={priceMax}
+                    onChange={(e) => setPriceMax(e.target.value)}
+                    placeholder="Max"
+                    className="px-4 py-2 rounded-lg text-sm"
+                    style={{
+                      backgroundColor: SABBAR_COLORS.navyDominant + '50',
+                      borderColor: SABBAR_COLORS.goldAccent + '30',
+                      color: SABBAR_COLORS.goldLight,
+                      border: `1px solid ${SABBAR_COLORS.goldAccent}30`,
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
                 </div>
               </div>
-
-              {/* 3. Surface */}
-              <div className="mb-8 pt-6 border-t border-[rgba(212,175,55,0.3)]">
-                <h3 className="text-[#d4af37] font-bold text-sm mb-4 flex items-center gap-2">
-                  <span className="bg-[#d4af37] text-[#0f1a2e] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">3</span>
-                  Surface (m²)
-                </h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Surface min</label>
-                    <input
-                      type="number"
-                      value={minArea}
-                      onChange={(e) => setMinArea(e.target.value)}
-                      placeholder="Ex: 50"
-                      min="0"
-                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[#b0b0b0] font-bold text-sm mb-2">Surface max</label>
-                    <input
-                      type="number"
-                      value={maxArea}
-                      onChange={(e) => setMaxArea(e.target.value)}
-                      placeholder="Ex: 500"
-                      min="0"
-                      className="w-full bg-[rgba(26,40,71,0.5)] border border-[rgba(212,175,55,0.3)] text-[#b0b0b0] px-4 py-3 rounded-lg focus:border-[#d4af37] focus:outline-none transition-colors placeholder-[#666]"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* 4. Équipements */}
-              {equipmentsList.length > 0 && (
-                <div className="pt-6 border-t border-[rgba(212,175,55,0.3)]">
-                  <h3 className="text-[#d4af37] font-bold text-sm mb-4 flex items-center gap-2">
-                    <span className="bg-[#d4af37] text-[#0f1a2e] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">4</span>
-                    Équipements
-                  </h3>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-                    {equipmentsList.map(equipment => (
-                      <label key={equipment} className="flex items-center gap-3 cursor-pointer group">
-                        <input
-                          type="checkbox"
-                          checked={equipment === '🆕 Neuf' ? isNewOnly : selectedEquipments.includes(equipment)}
-                          onChange={() => toggleEquipment(equipment)}
-                          className="w-4 h-4 accent-[#d4af37] bg-[#d4af37] border-2 border-[#d4af37] rounded cursor-pointer"
-                        />
-                        <span className="text-[#b0b0b0] text-sm group-hover:text-[#d4af37] transition-colors">{equipment}</span>
-                      </label>
-                    ))}
-                  </div>
-
-                  {(selectedEquipments.length > 0 || isNewOnly) && (
-                    <button
-                      onClick={() => {
-                        setSelectedEquipments([]);
-                        setIsNewOnly(false);
-                      }}
-                      className="text-[#d4af37] text-xs hover:text-[#f4d03f] transition-colors"
-                    >
-                      Effacer la sélection
-                    </button>
-                  )}
-                </div>
-              )}
 
               {/* Reset Button */}
-              <div className="mt-8 pt-6 border-t border-[rgba(212,175,55,0.3)]">
-                <button
-                  onClick={resetFilters}
-                  className="w-full bg-gradient-to-r from-[#d4af37] to-[#f4d03f] hover:shadow-[0_10px_30px_rgba(212,175,55,0.3)] text-[#0f1a2e] font-bold px-4 py-3 rounded-lg transition-all"
-                >
-                  Réinitialiser tous les filtres
-                </button>
-              </div>
+              <button
+                onClick={resetFilters}
+                className="w-full px-4 py-2 rounded-lg font-bold text-sm transition-all"
+                style={{
+                  backgroundColor: SABBAR_COLORS.goldAccent,
+                  color: SABBAR_COLORS.navyDominant,
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              >
+                Réinitialiser tous les filtres
+              </button>
             </div>
           )}
 
           {/* Results Count */}
-          <div className="text-[#b0b0b0]">
+          <div
+            style={{
+              color: SABBAR_COLORS.goldLight,
+              fontFamily: "'DM Sans', sans-serif",
+            }}
+          >
             {loading ? (
               <span className="text-lg">⏳ Chargement des propriétés...</span>
             ) : error ? (
-              <span className="text-lg text-red-400">❌ Erreur: {error}</span>
+              <span className="text-lg" style={{ color: SABBAR_COLORS.terracotta }}>❌ Erreur: {error}</span>
             ) : (
               <span className="text-lg">
-                <span className="text-[#d4af37] font-bold">{filteredProperties.length}</span> propriétés trouvées
+                <span style={{ color: SABBAR_COLORS.goldAccent, fontWeight: 'bold' }}>{filteredProperties.length}</span> propriétés trouvées
               </span>
             )}
           </div>
@@ -544,14 +574,18 @@ export default function PropertiesPage() {
         <div className="max-w-[1400px] mx-auto">
           {loading ? (
             <div className="text-center py-16">
-              <p className="text-[#b0b0b0] text-lg">⏳ Chargement des propriétés...</p>
+              <p style={{ color: SABBAR_COLORS.goldLight }}>⏳ Chargement des propriétés...</p>
             </div>
           ) : error ? (
             <div className="text-center py-16">
-              <p className="text-red-400 text-lg mb-6">❌ Erreur: {error}</p>
+              <p style={{ color: SABBAR_COLORS.terracotta }} className="mb-6">❌ Erreur: {error}</p>
               <button
                 onClick={() => window.location.reload()}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#0f1a2e] font-bold rounded-xl hover:shadow-[0_20px_40px_rgba(212,175,55,0.3)] transition-all"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold transition-all"
+                style={{
+                  backgroundColor: SABBAR_COLORS.goldAccent,
+                  color: SABBAR_COLORS.navyDominant,
+                }}
               >
                 Réessayer
               </button>
@@ -572,13 +606,11 @@ export default function PropertiesPage() {
                         alt={property.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
-                      {/* Badge Neuf - if is_new is true */}
                       {property.is_new && (
                         <div className="absolute top-4 right-4 bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#0f1a2e] px-3 py-1 rounded-full font-bold text-xs">
                           🆕 Neuf
                         </div>
                       )}
-                      {/* Heart Icon - Favoris */}
                       <button
                         onClick={(e) => toggleFavorite(e, property.id)}
                         className={`absolute top-4 left-4 p-2 rounded-full transition-all ${
@@ -668,12 +700,16 @@ export default function PropertiesPage() {
             </div>
           ) : (
             <div className="text-center py-16">
-              <p className="text-[#b0b0b0] text-lg mb-6">
+              <p style={{ color: SABBAR_COLORS.goldLight }} className="mb-6">
                 Aucune propriété ne correspond à vos critères.
               </p>
               <button
                 onClick={resetFilters}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#0f1a2e] font-bold rounded-xl hover:shadow-[0_20px_40px_rgba(212,175,55,0.3)] transition-all"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold transition-all"
+                style={{
+                  backgroundColor: SABBAR_COLORS.goldAccent,
+                  color: SABBAR_COLORS.navyDominant,
+                }}
               >
                 Réinitialiser les filtres
               </button>
@@ -683,7 +719,7 @@ export default function PropertiesPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-[5%] bg-[#0f1a2e] border-t border-[rgba(212,175,55,0.2)]">
+      <section className="py-24 px-[5%] border-t border-[rgba(212,175,55,0.2)]" style={{ backgroundColor: '#0f1a2e' }}>
         <div className="max-w-[1000px] mx-auto text-center">
           <h2 className="text-4xl font-bold text-white mb-6">
             Vous ne trouvez pas votre <span className="text-[#d4af37]">propriété idéale</span>?
