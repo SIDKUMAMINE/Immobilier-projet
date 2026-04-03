@@ -194,7 +194,7 @@ export default function AProposPage() {
                   marginBottom: '20px'
                 }}
               >
-                LANDMARK_ESTATE naît d'une conviction simple : le marché immobilier casablancais mérite mieux. Mieux que des promesses vagues. Mieux que des processus opaques. Mieux que des intermédiaires distants.
+                 Nous sommes votre partenaire de confiance en commercialisation et intermédiation immobilière. Pour les promoteurs et constructeurs, nous prenons en charge l'intégralité de la commercialisation de vos projets, garantissant des ventes 30-40% plus rapides, la préservation de votre marge et image de marque, ainsi que la liberté et le temps pour maximiser votre nombre de projets annuels
               </p>
 
               <p 
@@ -207,7 +207,7 @@ export default function AProposPage() {
                   marginBottom: '20px'
                 }}
               >
-                Depuis notre lancement, nous avons combiné deux forces : expertise commerciale pour les promoteurs, et plateforme accessible pour propriétaires et acheteurs. Cette dualité stratégique crée une synergie unique.
+                Pour les propriétaires et particuliers, nous prenons soin de votre bien, qu'il s'agisse d'un appartement, villa ou local commercial, en le vendant rapidement avec une visibilité maximale sur notre site web et notre base de données d'acheteurs potentiels déjà qualifiés. 
               </p>
 
               <p 
@@ -219,7 +219,7 @@ export default function AProposPage() {
                   lineHeight: '1.8'
                 }}
               >
-                Aujourd'hui, nous transformons des projets en landmarks de marché. Notre Gateway Strategy garantit zéro prospecting waste. Chaque opportunité devient une victoire.
+               Notre expertise, notre réseau solide et notre transparence totale garantissent des résultats mesurables et des délais respectés. 📱 Contactez-nous dès aujourd'hui pour discuter de votre projet immobilier.
               </p>
             </div>
 
