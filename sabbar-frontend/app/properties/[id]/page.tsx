@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Heart, Phone, Mail, Share2, ChevronLeft, ChevronRight, Play, X, Copy } from 'lucide-react';
+import { ArrowLeft, MapPin, Heart, Phone, Mail, Share2, ChevronLeft, ChevronRight, Play, X, Copy, ChevronDown } from 'lucide-react';
 import { propertiesApi } from '@/lib/api';
 
 const transactionTypeMap: { [key: string]: string } = {
@@ -63,8 +63,127 @@ const SHARE_OPTIONS = [
   { id: 'copy', name: 'Copier le lien', icon: '📋', color: SABBAR_COLORS.goldAccent },
 ];
 
+// 🎯 COMPOSANT FILTRE SABBAR
+interface FilterSelectProps {
+  label: string;
+  options: string[];
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+}
+
+const FilterSelect: React.FC<FilterSelectProps> = ({
+  label,
+  options,
+  value,
+  onChange,
+  placeholder = 'Sélectionner une option'
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="w-full">
+      <label
+        className="block text-xs font-bold uppercase mb-3 transition-colors"
+        style={{
+          color: SABBAR_COLORS.goldAccent,
+          fontFamily: "'DM Sans', sans-serif",
+          letterSpacing: '0.5px',
+          fontWeight: 500,
+        }}
+      >
+        {label}
+      </label>
+
+      <div className="relative">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full px-4 py-3 rounded-lg font-bold text-sm flex items-center justify-between transition-all duration-300"
+          style={{
+            backgroundColor: isOpen ? SABBAR_COLORS.navyDominant : 'transparent',
+            color: value && value !== placeholder ? 'white' : SABBAR_COLORS.goldLight,
+            border: `2px solid ${SABBAR_COLORS.goldAccent}`,
+            fontFamily: "'DM Sans', sans-serif",
+          }}
+        >
+          <span className="truncate">
+            {value && value !== placeholder ? value : placeholder}
+          </span>
+          <ChevronDown
+            size={20}
+            className="flex-shrink-0 ml-2 transition-transform duration-300"
+            style={{
+              color: SABBAR_COLORS.goldAccent,
+              transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+            }}
+          />
+        </button>
+
+        {isOpen && (
+          <div
+            className="absolute top-full left-0 right-0 mt-2 rounded-lg shadow-lg z-50 overflow-hidden border-2"
+            style={{
+              backgroundColor: SABBAR_COLORS.ivory,
+              borderColor: SABBAR_COLORS.goldAccent,
+            }}
+          >
+            <button
+              onClick={() => {
+                onChange(placeholder);
+                setIsOpen(false);
+              }}
+              className="w-full px-4 py-3 text-left font-bold text-sm transition-colors"
+              style={{
+                backgroundColor: value === placeholder ? SABBAR_COLORS.navyDominant : 'transparent',
+                color: value === placeholder ? SABBAR_COLORS.goldLight : SABBAR_COLORS.navyDominant,
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+            >
+              {placeholder}
+            </button>
+
+            <div
+              style={{
+                height: '1px',
+                backgroundColor: SABBAR_COLORS.goldAccent + '30',
+              }}
+            />
+
+            {options.map((option, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  onChange(option);
+                  setIsOpen(false);
+                }}
+                className="w-full px-4 py-3 text-left font-bold text-sm transition-colors border-b"
+                style={{
+                  backgroundColor: value === option ? SABBAR_COLORS.navyDominant : 'transparent',
+                  color: value === option ? SABBAR_COLORS.goldLight : SABBAR_COLORS.navyDominant,
+                  borderColor: SABBAR_COLORS.goldAccent + '15',
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+    </div>
+  );
+};
+
 export default function PropertyDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const propertyId = params.id as string;
   const [isFavorite, setIsFavorite] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -76,6 +195,13 @@ export default function PropertyDetailPage() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const touchStartRef = useRef<number>(0);
+
+  // 🎯 ÉTAT DES FILTRES
+  const [filters, setFilters] = useState({
+    city: 'Sélectionner une ville',
+    transactionType: 'Tous les types',
+    propertyType: 'Tous les types',
+  });
 
   // Load favorites from localStorage
   useEffect(() => {
@@ -162,7 +288,6 @@ export default function PropertyDetailPage() {
     localStorage.setItem('sabbar_favorites', JSON.stringify(newFavorites));
   };
 
-  // ✅ Fonction de partage améliorée
   const handleShare = async (platform: string) => {
     const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
     const shareTitle = property.title;
@@ -261,6 +386,37 @@ export default function PropertyDetailPage() {
   const images = property.images && property.images.length > 0 ? property.images : [property.image || '/placeholder.jpg'];
   const videoUrl = property?.video_url || property?.videoUrl || property?.video || property?.video_URL || property?.Video || property?.VIDEO || property?.video_path || property?.videoPath || null;
 
+  // 📊 OPTIONS POUR LES FILTRES
+  const cities = [
+    'Casablanca',
+    'Rabat',
+    'Marrakech',
+    'Fès',
+    'Tanger',
+    'Agadir',
+    'Meknès',
+    'Oujda',
+    'Kénitra',
+    'Tétouan',
+  ];
+
+  const transactionTypes = [
+    'Vente',
+    'Location',
+    'Location vacances',
+  ];
+
+  const propertyTypes = [
+    'Studio',
+    'Appartement',
+    'Villa',
+    'Maison',
+    'Riad',
+    'Terrain',
+    'Bureau',
+    'Local commercial',
+  ];
+
   const handlePrevImage = () => {
     if (images && images.length > 0) {
       setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -337,19 +493,16 @@ export default function PropertyDetailPage() {
   const ShareModal = () => {
     return (
       <>
-        {/* Overlay */}
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"
           onClick={() => setShowShareModal(false)}
           style={{ backdropFilter: 'blur(2px)' }}
         />
 
-        {/* Modal */}
         <div
           className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md mx-4 rounded-2xl shadow-2xl z-50 overflow-hidden"
           style={{ backgroundColor: SABBAR_COLORS.ivory }}
         >
-          {/* Header */}
           <div
             className="px-6 py-4 flex items-center justify-between"
             style={{ backgroundColor: SABBAR_COLORS.navyDominant }}
@@ -366,7 +519,6 @@ export default function PropertyDetailPage() {
             </button>
           </div>
 
-          {/* Link Copy Section */}
           <div className="px-6 py-4 border-b" style={{ borderColor: SABBAR_COLORS.goldAccent + '30' }}>
             <p className="text-xs font-bold uppercase mb-3" style={{ color: SABBAR_COLORS.navyDominant, fontFamily: 'DM Sans', letterSpacing: '0.5px' }}>
               Lien de partage
@@ -397,7 +549,6 @@ export default function PropertyDetailPage() {
             </div>
           </div>
 
-          {/* Share Options */}
           <div className="px-6 py-4">
             <p className="text-xs font-bold uppercase mb-4" style={{ color: SABBAR_COLORS.navyDominant, fontFamily: 'DM Sans', letterSpacing: '0.5px' }}>
               Partager via
@@ -434,7 +585,6 @@ export default function PropertyDetailPage() {
             </div>
           </div>
 
-          {/* Footer */}
           <div
             className="px-6 py-3 text-center text-xs"
             style={{
@@ -461,6 +611,130 @@ export default function PropertyDetailPage() {
           </Link>
         </div>
       </div>
+
+      {/* 🎯 SECTION FILTRES SABBAR */}
+      <section className="py-8 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
+        <div className="max-w-[1400px] mx-auto">
+          <h2
+            className="text-lg font-bold mb-6"
+            style={{
+              color: SABBAR_COLORS.goldAccent,
+              fontFamily: "'DM Sans', sans-serif",
+            }}
+          >
+            🔍 Affiner votre recherche
+          </h2>
+
+          {/* Grille de filtres */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <FilterSelect
+              label="Ville"
+              options={cities}
+              value={filters.city}
+              onChange={(value) => setFilters({ ...filters, city: value })}
+              placeholder="Sélectionner une ville"
+            />
+
+            <FilterSelect
+              label="Type de transaction"
+              options={transactionTypes}
+              value={filters.transactionType}
+              onChange={(value) => setFilters({ ...filters, transactionType: value })}
+              placeholder="Tous les types"
+            />
+
+            <FilterSelect
+              label="Type de bien"
+              options={propertyTypes}
+              value={filters.propertyType}
+              onChange={(value) => setFilters({ ...filters, propertyType: value })}
+              placeholder="Tous les types"
+            />
+          </div>
+
+          {/* Badges de filtres actifs */}
+          <div className="mt-6 flex flex-wrap gap-2">
+            {filters.city !== 'Sélectionner une ville' && (
+              <div
+                className="px-3 py-1 rounded-full text-xs font-bold"
+                style={{
+                  backgroundColor: SABBAR_COLORS.goldAccent + '20',
+                  color: SABBAR_COLORS.goldAccent,
+                  fontFamily: "'DM Sans', sans-serif",
+                  border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                }}
+              >
+                📍 {filters.city}
+                <button
+                  onClick={() => setFilters({ ...filters, city: 'Sélectionner une ville' })}
+                  className="ml-2 font-bold hover:opacity-70 transition"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+            {filters.transactionType !== 'Tous les types' && (
+              <div
+                className="px-3 py-1 rounded-full text-xs font-bold"
+                style={{
+                  backgroundColor: SABBAR_COLORS.goldAccent + '20',
+                  color: SABBAR_COLORS.goldAccent,
+                  fontFamily: "'DM Sans', sans-serif",
+                  border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                }}
+              >
+                🔄 {filters.transactionType}
+                <button
+                  onClick={() => setFilters({ ...filters, transactionType: 'Tous les types' })}
+                  className="ml-2 font-bold hover:opacity-70 transition"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+            {filters.propertyType !== 'Tous les types' && (
+              <div
+                className="px-3 py-1 rounded-full text-xs font-bold"
+                style={{
+                  backgroundColor: SABBAR_COLORS.goldAccent + '20',
+                  color: SABBAR_COLORS.goldAccent,
+                  fontFamily: "'DM Sans', sans-serif",
+                  border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                }}
+              >
+                🏠 {filters.propertyType}
+                <button
+                  onClick={() => setFilters({ ...filters, propertyType: 'Tous les types' })}
+                  className="ml-2 font-bold hover:opacity-70 transition"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Bouton pour retourner aux propriétés filtrées */}
+          <div className="mt-6">
+            <button
+              onClick={() => {
+                const params = new URLSearchParams();
+                if (filters.city !== 'Sélectionner une ville') params.append('city', filters.city);
+                if (filters.transactionType !== 'Tous les types') params.append('type', filters.transactionType);
+                if (filters.propertyType !== 'Tous les types') params.append('property', filters.propertyType);
+                router.push(`/properties?${params.toString()}`);
+              }}
+              className="px-6 py-2 rounded-lg font-bold text-sm transition hover:opacity-80"
+              style={{
+                backgroundColor: SABBAR_COLORS.goldAccent,
+                color: SABBAR_COLORS.navyDominant,
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+            >
+              ✓ Appliquer les filtres
+            </button>
+          </div>
+        </div>
+      </section>
 
       {/* Image Gallery with Swipe */}
       <section className="py-12 px-[5%]">
