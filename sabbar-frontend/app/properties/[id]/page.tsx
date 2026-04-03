@@ -84,13 +84,13 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
   return (
     <div className="w-full">
       <label
-        className="block text-xs font-bold uppercase mb-3 transition-colors"
+        className="block text-xs font-bold uppercase mb-2"
         style={{
           color: SABBAR_COLORS.goldAccent,
           fontFamily: "'DM Sans', sans-serif",
-          fontSize: '11px',
-          letterSpacing: '0.5px',
-          fontWeight: 500,
+          fontSize: '10px',
+          letterSpacing: '1px',
+          fontWeight: 700,
         }}
       >
         {label}
@@ -99,13 +99,13 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
       <div className="relative">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full px-4 py-3 rounded-lg font-bold text-sm flex items-center justify-between transition-all duration-300 hover:bg-opacity-90"
+          className="w-full px-4 py-3 rounded-lg flex items-center justify-between transition-all duration-200"
           style={{
-            backgroundColor: isOpen ? SABBAR_COLORS.navyDominant + 'E6' : SABBAR_COLORS.navyDominant + '4D',
+            backgroundColor: isOpen ? SABBAR_COLORS.navyDominant : 'rgba(249, 245, 239, 0.05)',
             color: value && value !== placeholder ? SABBAR_COLORS.ivory : SABBAR_COLORS.goldLight,
             border: `2px solid ${SABBAR_COLORS.goldAccent}`,
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: '14px',
+            fontSize: '13px',
             fontWeight: 600,
           }}
         >
@@ -113,8 +113,8 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
             {value && value !== placeholder ? value : placeholder}
           </span>
           <ChevronDown
-            size={20}
-            className="flex-shrink-0 ml-2 transition-transform duration-300"
+            size={18}
+            className="flex-shrink-0 ml-2 transition-transform duration-200"
             style={{
               color: SABBAR_COLORS.goldAccent,
               transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
@@ -124,11 +124,13 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
 
         {isOpen && (
           <div
-            className="absolute top-full left-0 right-0 mt-2 rounded-xl shadow-2xl z-50 overflow-hidden border-2"
+            className="absolute top-full left-0 right-0 mt-1 rounded-lg shadow-xl z-50 overflow-hidden border-2"
             style={{
               backgroundColor: SABBAR_COLORS.navyDominant,
               borderColor: SABBAR_COLORS.goldAccent,
-              boxShadow: `0 15px 40px ${SABBAR_COLORS.goldAccent}30`,
+              boxShadow: `0 10px 30px rgba(200, 169, 110, 0.2)`,
+              maxHeight: '300px',
+              overflowY: 'auto',
             }}
           >
             <button
@@ -136,12 +138,13 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
                 onChange(placeholder);
                 setIsOpen(false);
               }}
-              className="w-full px-4 py-3 text-left font-bold text-sm transition-colors"
+              className="w-full px-4 py-2 text-left transition-colors"
               style={{
-                backgroundColor: value === placeholder ? SABBAR_COLORS.goldAccent + '25' : 'transparent',
+                backgroundColor: value === placeholder ? SABBAR_COLORS.goldAccent + '15' : 'transparent',
                 color: value === placeholder ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.goldLight,
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px',
+                fontSize: '13px',
+                fontWeight: 500,
               }}
             >
               {placeholder}
@@ -150,7 +153,7 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
             <div
               style={{
                 height: '1px',
-                backgroundColor: SABBAR_COLORS.goldAccent + '25',
+                backgroundColor: SABBAR_COLORS.goldAccent + '20',
               }}
             />
 
@@ -161,13 +164,14 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
                   onChange(option);
                   setIsOpen(false);
                 }}
-                className="w-full px-4 py-3 text-left font-bold text-sm transition-all hover:bg-opacity-70"
+                className="w-full px-4 py-2 text-left transition-colors text-sm"
                 style={{
-                  backgroundColor: value === option ? SABBAR_COLORS.goldAccent + '25' : 'transparent',
+                  backgroundColor: value === option ? SABBAR_COLORS.goldAccent + '15' : 'transparent',
                   color: value === option ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.goldLight,
-                  borderBottom: `1px solid ${SABBAR_COLORS.goldAccent}15`,
                   fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '14px',
+                  fontSize: '13px',
+                  fontWeight: value === option ? 600 : 500,
+                  borderBottom: `1px solid ${SABBAR_COLORS.goldAccent}10`,
                 }}
               >
                 {option}
