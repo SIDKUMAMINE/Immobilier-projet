@@ -3,19 +3,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Heart, Phone, Mail, Share2, ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { ArrowLeft, MapPin, Heart, Phone, Mail, Share2, ChevronLeft, ChevronRight, Play, X, Copy } from 'lucide-react';
 import { propertiesApi } from '@/lib/api';
 
 const transactionTypeMap: { [key: string]: string } = {
-  // Vente
   'sale': 'Vente',
   'vente': 'Vente',
-  
-  // Location
   'rent': 'Location',
   'location': 'Location',
-  
-  // Location Vacances
   'vacation_rental': 'Location vacances',
   'vacation rental': 'Location vacances',
   'vacation': 'Location vacances',
@@ -48,6 +43,26 @@ const getPropertyTypeLabel = (type: string): string => {
   return propertyTypeMap[type.toLowerCase()] || type;
 };
 
+// 🎨 PALETTE SABBAR
+const SABBAR_COLORS = {
+  navyDominant: '#0D1F3C',
+  goldAccent: '#C8A96E',
+  goldLight: '#E2C98A',
+  terracotta: '#B5573A',
+  ivory: '#F9F5EF',
+};
+
+// 📱 Options de partage
+const SHARE_OPTIONS = [
+  { id: 'whatsapp', name: 'WhatsApp', icon: '💬', color: '#25D366' },
+  { id: 'email', name: 'Email', icon: '📧', color: '#EA4335' },
+  { id: 'facebook', name: 'Facebook', icon: '👍', color: '#1877F2' },
+  { id: 'twitter', name: 'Twitter', icon: '𝕏', color: '#000000' },
+  { id: 'linkedin', name: 'LinkedIn', icon: '💼', color: '#0A66C2' },
+  { id: 'telegram', name: 'Telegram', icon: '✈️', color: '#0088cc' },
+  { id: 'copy', name: 'Copier le lien', icon: '📋', color: SABBAR_COLORS.goldAccent },
+];
+
 export default function PropertyDetailPage() {
   const params = useParams();
   const propertyId = params.id as string;
@@ -58,6 +73,8 @@ export default function PropertyDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<(number | string)[]>([]);
   const [shareSuccess, setShareSuccess] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const touchStartRef = useRef<number>(0);
 
   // Load favorites from localStorage
@@ -82,15 +99,10 @@ export default function PropertyDetailPage() {
         });
         
         console.log('✅ Properties loaded:', response);
-        console.log('📊 Total properties:', Array.isArray(response) ? response.length : 0);
-        
         const foundProperty = response?.find((p: any) => String(p.id) === String(propertyId));
         
         if (foundProperty) {
           console.log('🏠 Property found:', foundProperty);
-          console.log('🎬 Video URL (video_url):', foundProperty.video_url);
-          console.log('🎬 Video URL (videoUrl):', foundProperty.videoUrl);
-          console.log('🎬 All keys in property:', Object.keys(foundProperty));
           setProperty(foundProperty);
         } else {
           setError('Propriété non trouvée');
@@ -109,61 +121,35 @@ export default function PropertyDetailPage() {
     fetchProperty();
   }, [propertyId]);
 
-  // Helper function to convert video URL to embed format
   const getEmbedUrl = (videoUrl: string): string | null => {
     if (!videoUrl) return null;
-    
-    // YouTube watch URL format
     if (videoUrl.includes('youtube.com/watch?v=')) {
       const videoId = videoUrl.split('v=')[1]?.split('&')[0];
       return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
     }
-    
-    // YouTube youtu.be short format
     if (videoUrl.includes('youtu.be/')) {
       const videoId = videoUrl.split('youtu.be/')[1]?.split('?')[0];
       return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
     }
-    
-    // Already embed format
     if (videoUrl.includes('youtube.com/embed/')) {
       return videoUrl;
     }
-    
-    // Vimeo format
     if (videoUrl.includes('vimeo.com/')) {
       const videoId = videoUrl.split('vimeo.com/')[1]?.split('?')[0];
       return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
     }
-    
     return null;
   };
 
-  // Helper function to determine if URL is a direct video file (including Supabase)
   const isDirectVideoFile = (videoUrl: string): boolean => {
-    if (!videoUrl) {
-      console.log('❌ isDirectVideoFile: videoUrl est vide');
-      return false;
-    }
-    
-    console.log('🎬 Checking video URL:', videoUrl);
-    
-    // Check for direct video file extensions (this should catch .mp4)
+    if (!videoUrl) return false;
     const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.flv', '.m4v', '.3gp'];
     for (const ext of videoExtensions) {
-      if (videoUrl.toLowerCase().includes(ext)) {
-        console.log(`✅ Detected video extension: ${ext}`);
-        return true;
-      }
+      if (videoUrl.toLowerCase().includes(ext)) return true;
     }
-    
-    // Supabase Storage URLs - these are direct video files
     if (videoUrl.includes('supabase.co') && (videoUrl.includes('/storage/') || videoUrl.includes('/object/'))) {
-      console.log('✅ Detected Supabase Storage URL');
       return true;
     }
-    
-    console.log('❌ Not detected as direct video file');
     return false;
   };
 
@@ -171,60 +157,58 @@ export default function PropertyDetailPage() {
     const newFavorites = favorites.includes(parseInt(propertyId))
       ? favorites.filter(id => id !== parseInt(propertyId))
       : [...favorites, parseInt(propertyId)];
-    
     setFavorites(newFavorites);
     setIsFavorite(!isFavorite);
     localStorage.setItem('sabbar_favorites', JSON.stringify(newFavorites));
   };
 
-  // ✅ NOUVELLE FONCTION: Gestion du partage
-  const handleShare = async () => {
+  // ✅ Fonction de partage améliorée
+  const handleShare = async (platform: string) => {
     const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
     const shareTitle = property.title;
     const shareText = `Découvrez cette propriété: ${property.title} - ${property.price.toLocaleString('fr-FR')} MAD`;
 
-    // Vérifier si Web Share API est disponible (Android, iOS, certains navigateurs)
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: shareTitle,
-          text: shareText,
-          url: shareUrl,
-        });
-        console.log('✅ Contenu partagé avec succès');
-        setShareSuccess(true);
-        setTimeout(() => setShareSuccess(false), 3000);
-      } catch (error) {
-        if ((error as Error).name !== 'AbortError') {
-          console.error('❌ Erreur lors du partage:', error);
-          // Fallback en cas d'erreur
-          copyToClipboard(shareUrl);
-        }
-      }
-    } else {
-      // Fallback pour les navigateurs qui ne supportent pas Web Share API
-      copyToClipboard(shareUrl);
+    switch (platform) {
+      case 'whatsapp':
+        window.open(`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`);
+        break;
+      case 'email':
+        window.open(`mailto:?subject=${encodeURIComponent(shareTitle)}&body=${encodeURIComponent(shareText + '\n' + shareUrl)}`);
+        break;
+      case 'facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`);
+        break;
+      case 'twitter':
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`);
+        break;
+      case 'linkedin':
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`);
+        break;
+      case 'telegram':
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`);
+        break;
+      case 'copy':
+        copyToClipboard(shareUrl);
+        break;
+      default:
+        break;
     }
   };
 
-  // ✅ Fonction utilitaire pour copier dans le presse-papiers
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      setShareSuccess(true);
-      console.log('✅ Lien copié dans le presse-papiers');
-      setTimeout(() => setShareSuccess(false), 3000);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
     } catch (error) {
-      console.error('❌ Erreur lors de la copie:', error);
-      // Fallback pour les anciens navigateurs
       const textArea = document.createElement('textarea');
       textArea.value = text;
       document.body.appendChild(textArea);
       textArea.select();
       try {
         document.execCommand('copy');
-        setShareSuccess(true);
-        setTimeout(() => setShareSuccess(false), 3000);
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2000);
       } catch (err) {
         console.error('❌ Impossible de copier le lien:', err);
       }
@@ -274,39 +258,9 @@ export default function PropertyDetailPage() {
     );
   }
 
-  // ✅ Définir les images et vidéo EN HAUT avant le return JSX
   const images = property.images && property.images.length > 0 ? property.images : [property.image || '/placeholder.jpg'];
+  const videoUrl = property?.video_url || property?.videoUrl || property?.video || property?.video_URL || property?.Video || property?.VIDEO || property?.video_path || property?.videoPath || null;
 
-  // ✅ IMPORTANT: Chercher la vidéo dans TOUS les champs possibles
-  const videoUrl = property?.video_url 
-    || property?.videoUrl 
-    || property?.video 
-    || property?.video_URL
-    || property?.Video
-    || property?.VIDEO
-    || property?.video_path
-    || property?.videoPath
-    || null;
-
-  console.log('🎯 FINAL videoUrl extracted:', videoUrl);
-
-  // ✅ Extraire et afficher tous les champs liés à la vidéo
-  if (!videoUrl) {
-    console.warn('⚠️ VIDEO URL NOT FOUND. Checking all property keys...');
-    const allKeys = Object.keys(property);
-    const videoRelatedKeys = allKeys.filter(key => 
-      key.toLowerCase().includes('video') || 
-      key.toLowerCase().includes('url') ||
-      key.toLowerCase().includes('path') ||
-      key.toLowerCase().includes('media')
-    );
-    console.log('🔍 Video-related keys found:', videoRelatedKeys);
-    videoRelatedKeys.forEach(key => {
-      console.log(`  ${key}:`, property[key]);
-    });
-  }
-
-  // Image navigation handlers
   const handlePrevImage = () => {
     if (images && images.length > 0) {
       setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -319,7 +273,6 @@ export default function PropertyDetailPage() {
     }
   };
 
-  // Touch handlers for swipe
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = e.targetTouches[0].clientX;
   };
@@ -327,7 +280,6 @@ export default function PropertyDetailPage() {
   const handleTouchEnd = (e: React.TouchEvent) => {
     const touchEndValue = e.changedTouches[0].clientX;
     const distance = touchStartRef.current - touchEndValue;
-
     if (Math.abs(distance) > 50) {
       if (distance > 0) {
         handleNextImage();
@@ -337,12 +289,8 @@ export default function PropertyDetailPage() {
     }
   };
 
-  // ✅ Composant VideoSection - logique de rendu vidéo
   const VideoSection = () => {
-    console.log('🎬 VideoSection render - videoUrl:', videoUrl);
-
     if (!videoUrl) {
-      console.log('ℹ️ Aucune vidéo trouvée');
       return (
         <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
           <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
@@ -354,25 +302,10 @@ export default function PropertyDetailPage() {
       );
     }
 
-    // ✅ Vérifier les formats directs EN PREMIER
     if (isDirectVideoFile(videoUrl)) {
-      console.log('✅ Rendering direct video (MP4, WebM, etc.)');
       return (
         <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
-          <video
-            width="100%"
-            height="100%"
-            controls
-            controlsList="nodownload"
-            className="w-full h-full"
-            style={{ display: 'block' }}
-            onError={(e) => {
-              console.error('❌ Video playback error:', e);
-            }}
-            onLoadedMetadata={() => {
-              console.log('✅ Video metadata loaded');
-            }}
-          >
+          <video width="100%" height="100%" controls controlsList="nodownload" className="w-full h-full" style={{ display: 'block' }}>
             <source src={videoUrl} type="video/mp4" />
             <source src={videoUrl} type="video/webm" />
             Votre navigateur ne supporte pas le lecteur vidéo HTML5.
@@ -381,41 +314,139 @@ export default function PropertyDetailPage() {
       );
     }
 
-    // ✅ Vérifier YouTube/Vimeo après
     const embedUrl = getEmbedUrl(videoUrl);
     if (embedUrl) {
-      console.log('✅ Rendering embedded video (YouTube/Vimeo)');
       return (
         <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
-          <iframe
-            width="100%"
-            height="100%"
-            src={embedUrl}
-            title="Property Video"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            style={{ display: 'block' }}
-          />
+          <iframe width="100%" height="100%" src={embedUrl} title="Property Video" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ display: 'block' }} />
         </div>
       );
     }
 
-    // ✅ Format non supporté
-    console.log('❌ Unsupported video format:', videoUrl);
     return (
       <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
         <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
           <Play size={48} className="text-[#d4af37]" />
         </div>
         <p className="text-[#b0b0b0] text-lg font-semibold">Format vidéo non supporté</p>
-        <p className="text-[#666] text-sm mt-2 break-all max-w-xs">
-          URL: {videoUrl.substring(0, 80)}...
-        </p>
-        <p className="text-[#666] text-xs mt-1">
-          Formats supportés: MP4, WebM, YouTube, Vimeo, Supabase
-        </p>
       </div>
+    );
+  };
+
+  // 🎨 MODAL DE PARTAGE SABBAR
+  const ShareModal = () => {
+    return (
+      <>
+        {/* Overlay */}
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"
+          onClick={() => setShowShareModal(false)}
+          style={{ backdropFilter: 'blur(2px)' }}
+        />
+
+        {/* Modal */}
+        <div
+          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md mx-4 rounded-2xl shadow-2xl z-50 overflow-hidden"
+          style={{ backgroundColor: SABBAR_COLORS.ivory }}
+        >
+          {/* Header */}
+          <div
+            className="px-6 py-4 flex items-center justify-between"
+            style={{ backgroundColor: SABBAR_COLORS.navyDominant }}
+          >
+            <h2 className="text-xl font-light" style={{ color: SABBAR_COLORS.goldLight, fontFamily: 'Cormorant Garamond' }}>
+              Partager cette propriété
+            </h2>
+            <button
+              onClick={() => setShowShareModal(false)}
+              className="p-1 hover:opacity-80 transition"
+              style={{ color: SABBAR_COLORS.goldLight }}
+            >
+              <X size={24} />
+            </button>
+          </div>
+
+          {/* Link Copy Section */}
+          <div className="px-6 py-4 border-b" style={{ borderColor: SABBAR_COLORS.goldAccent + '30' }}>
+            <p className="text-xs font-bold uppercase mb-3" style={{ color: SABBAR_COLORS.navyDominant, fontFamily: 'DM Sans', letterSpacing: '0.5px' }}>
+              Lien de partage
+            </p>
+            <div className="flex gap-2">
+              <div
+                className="flex-1 px-3 py-2 rounded-lg text-xs truncate"
+                style={{
+                  backgroundColor: SABBAR_COLORS.goldAccent + '15',
+                  color: SABBAR_COLORS.navyDominant,
+                  fontFamily: 'DM Sans',
+                }}
+              >
+                {typeof window !== 'undefined' ? window.location.href.substring(0, 40) + '...' : 'URL'}
+              </div>
+              <button
+                onClick={() => handleShare('copy')}
+                className="px-3 py-2 rounded-lg font-bold transition hover:opacity-80"
+                style={{
+                  backgroundColor: copiedLink ? '#10B981' : SABBAR_COLORS.goldAccent,
+                  color: copiedLink ? 'white' : SABBAR_COLORS.navyDominant,
+                  fontFamily: 'DM Sans',
+                  fontSize: '13px',
+                }}
+              >
+                {copiedLink ? '✓ Copié' : 'Copier'}
+              </button>
+            </div>
+          </div>
+
+          {/* Share Options */}
+          <div className="px-6 py-4">
+            <p className="text-xs font-bold uppercase mb-4" style={{ color: SABBAR_COLORS.navyDominant, fontFamily: 'DM Sans', letterSpacing: '0.5px' }}>
+              Partager via
+            </p>
+            <div className="grid grid-cols-4 gap-3">
+              {SHARE_OPTIONS.map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => {
+                    handleShare(option.id);
+                    if (option.id !== 'copy') {
+                      setTimeout(() => setShowShareModal(false), 300);
+                    }
+                  }}
+                  className="flex flex-col items-center gap-2 p-3 rounded-xl transition hover:scale-110"
+                  style={{
+                    backgroundColor: option.id === 'copy' ? (copiedLink ? '#10B981' : SABBAR_COLORS.goldAccent + '20') : 'rgba(13, 31, 60, 0.05)',
+                    border: `1px solid ${option.color}30`,
+                  }}
+                  title={option.name}
+                >
+                  <span className="text-2xl">{option.icon}</span>
+                  <span
+                    className="text-xs font-bold text-center leading-tight"
+                    style={{
+                      color: option.id === 'copy' ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.navyDominant,
+                      fontFamily: 'DM Sans',
+                    }}
+                  >
+                    {option.name.split(' ')[0]}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div
+            className="px-6 py-3 text-center text-xs"
+            style={{
+              backgroundColor: SABBAR_COLORS.goldAccent + '10',
+              color: SABBAR_COLORS.navyDominant,
+              fontFamily: 'DM Sans',
+            }}
+          >
+            Partagez cette propriété avec vos amis et famille
+          </div>
+        </div>
+      </>
     );
   };
 
@@ -439,31 +470,19 @@ export default function PropertyDetailPage() {
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            {/* Main Image */}
-            <img
-              src={images[currentImageIndex]}
-              alt={property.title}
-              className="w-full h-full object-cover transition-opacity duration-300"
-            />
+            <img src={images[currentImageIndex]} alt={property.title} className="w-full h-full object-cover transition-opacity duration-300" />
 
-            {/* Favorite Button */}
             <button
               onClick={toggleFavorite}
-              className={`absolute top-4 left-4 p-3 rounded-full transition-all z-10 ${
-                isFavorite
-                  ? 'bg-[#d4af37] text-[#0f1a2e]'
-                  : 'bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white'
-              }`}
+              className={`absolute top-4 left-4 p-3 rounded-full transition-all z-10 ${isFavorite ? 'bg-[#d4af37] text-[#0f1a2e]' : 'bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white'}`}
             >
               <Heart size={24} fill={isFavorite ? 'currentColor' : 'none'} />
             </button>
 
-            {/* Image Counter */}
             <div className="absolute bottom-4 right-4 bg-[rgba(0,0,0,0.7)] text-white px-4 py-2 rounded-lg text-sm font-bold">
               {currentImageIndex + 1} / {images.length}
             </div>
 
-            {/* Left Arrow */}
             {images.length > 1 && (
               <button
                 onClick={handlePrevImage}
@@ -473,7 +492,6 @@ export default function PropertyDetailPage() {
               </button>
             )}
 
-            {/* Right Arrow */}
             {images.length > 1 && (
               <button
                 onClick={handleNextImage}
@@ -483,24 +501,18 @@ export default function PropertyDetailPage() {
               </button>
             )}
 
-            {/* Swipe Hint */}
             <div className="absolute bottom-4 left-4 bg-[rgba(0,0,0,0.7)] text-white px-3 py-1 rounded-lg text-xs font-semibold">
               👉 Glissez pour naviguer
             </div>
           </div>
 
-          {/* Thumbnail Images */}
           {images.length > 1 && (
             <div className="flex gap-2 overflow-x-auto pb-4">
               {images.map((img: string, index: number) => (
                 <button
                   key={index}
                   onClick={() => setCurrentImageIndex(index)}
-                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                    currentImageIndex === index
-                      ? 'border-[#d4af37]'
-                      : 'border-[rgba(212,175,55,0.2)] hover:border-[#d4af37]'
-                  }`}
+                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${currentImageIndex === index ? 'border-[#d4af37]' : 'border-[rgba(212,175,55,0.2)] hover:border-[#d4af37]'}`}
                 >
                   <img src={img} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
                 </button>
@@ -536,71 +548,52 @@ export default function PropertyDetailPage() {
             <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
               <h2 className="text-2xl font-bold text-white mb-6">📋 Caractéristiques</h2>
               <div className="space-y-4">
-                {/* Transaction Type */}
                 <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
                   <span className="text-[#b0b0b0]">Type de transaction</span>
                   <span className="text-white font-bold">{getTransactionTypeLabel(property.transaction_type)}</span>
                 </div>
-
-                {/* Property Type */}
                 <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
                   <span className="text-[#b0b0b0]">Type de bien</span>
                   <span className="text-white font-bold">{getPropertyTypeLabel(property.property_type)}</span>
                 </div>
-
-                {/* City */}
                 <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
                   <span className="text-[#b0b0b0]">Ville</span>
                   <span className="text-white font-bold">{property.city}</span>
                 </div>
-
-                {/* District/Quarter */}
                 <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
                   <span className="text-[#b0b0b0]">Quartier</span>
                   <span className="text-white font-bold">{property.quarter || property.district || 'N/A'}</span>
                 </div>
-
-                {/* Floor */}
                 {property.floor && (
                   <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
                     <span className="text-[#b0b0b0]">Étage</span>
                     <span className="text-white font-bold">{property.floor}</span>
                   </div>
                 )}
-
-                {/* Elevator */}
                 {property.elevator || property.has_elevator ? (
                   <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
                     <span className="text-[#b0b0b0]">Ascenseur</span>
                     <span className="text-[#d4af37] font-bold">✓ Oui</span>
                   </div>
                 ) : null}
-
-                {/* Bedrooms */}
                 {property.bedrooms && (
                   <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
                     <span className="text-[#b0b0b0]">Chambres</span>
                     <span className="text-white font-bold">{property.bedrooms}</span>
                   </div>
                 )}
-
-                {/* Bathrooms */}
                 {property.bathrooms && (
                   <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
                     <span className="text-[#b0b0b0]">Salles de bain</span>
                     <span className="text-white font-bold">{property.bathrooms}</span>
                   </div>
                 )}
-
-                {/* Area */}
                 {property.area && (
                   <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
                     <span className="text-[#b0b0b0]">Surface</span>
                     <span className="text-white font-bold">{property.area} m²</span>
                   </div>
                 )}
-
-                {/* Equipment */}
                 {property.equipments && property.equipments.length > 0 && (
                   <div className="pb-4">
                     <span className="text-[#b0b0b0] block mb-3">Équipements</span>
@@ -613,16 +606,12 @@ export default function PropertyDetailPage() {
                     </div>
                   </div>
                 )}
-
-                {/* Status */}
                 {property.status && (
                   <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
                     <span className="text-[#b0b0b0]">Statut</span>
                     <span className="text-white font-bold">{property.status}</span>
                   </div>
                 )}
-
-                {/* Creation Date */}
                 <div className="flex justify-between items-center">
                   <span className="text-[#b0b0b0]">Date de création</span>
                   <span className="text-white font-bold">{new Date(property.createdAt || property.created_at).toLocaleDateString('fr-FR')}</span>
@@ -639,22 +628,16 @@ export default function PropertyDetailPage() {
 
           {/* Right Column - Price and Contact */}
           <div className="lg:col-span-1">
-            {/* Price Card */}
             <div className="bg-gradient-to-br from-[#d4af37] to-[#f4d03f] rounded-xl p-6 mb-6 sticky top-8">
               <p className="text-[#0f1a2e] font-bold text-xs mb-1">PRIX</p>
               <div className="text-2xl font-bold text-[#0f1a2e] mb-1 break-words">
-                {property.price.toLocaleString('fr-FR', { 
-                  minimumFractionDigits: 0, 
-                  maximumFractionDigits: 0 
-                })}
+                {property.price.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </div>
               <p className="text-[#0f1a2e] font-semibold text-sm">MAD</p>
             </div>
 
-            {/* Contact Card */}
             <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-6">
               <h3 className="text-xl font-bold text-white mb-4">📞 Nous contacter</h3>
-
               <div className="space-y-3">
                 <a
                   href="tel:+212605585720"
@@ -663,7 +646,6 @@ export default function PropertyDetailPage() {
                   <Phone size={18} />
                   +212 6 05 58 57 20
                 </a>
-
                 <a
                   href="mailto:Landmarkestate3@gmail.com"
                   className="w-full flex items-center justify-center gap-3 border-2 border-[#d4af37] hover:bg-[#d4af37] text-[#d4af37] hover:text-[#0f1a2e] font-bold py-2 px-3 rounded-lg transition text-sm"
@@ -671,24 +653,21 @@ export default function PropertyDetailPage() {
                   <Mail size={18} />
                   Landmarkestate3@gmail.com
                 </a>
-
-                {/* ✅ BOUTON PARTAGER AMÉLIORÉ */}
                 <button
-                  onClick={handleShare}
-                  className={`w-full flex items-center justify-center gap-3 border-2 font-bold py-2 px-3 rounded-lg transition text-sm ${
-                    shareSuccess
-                      ? 'bg-green-600 border-green-600 text-white'
-                      : 'border-[#b0b0b0] hover:border-[#d4af37] text-[#b0b0b0] hover:text-[#d4af37]'
-                  }`}
+                  onClick={() => setShowShareModal(true)}
+                  className="w-full flex items-center justify-center gap-3 border-2 border-[#b0b0b0] hover:border-[#d4af37] text-[#b0b0b0] hover:text-[#d4af37] font-bold py-2 px-3 rounded-lg transition text-sm"
                 >
                   <Share2 size={18} />
-                  {shareSuccess ? '✅ Copié!' : 'Partager'}
+                  Partager
                 </button>
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Share Modal */}
+      {showShareModal && <ShareModal />}
     </main>
   );
 }
