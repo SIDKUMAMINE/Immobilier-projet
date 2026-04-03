@@ -57,7 +57,6 @@ export default function PropertyDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<(number | string)[]>([]);
-  const [shareSuccess, setShareSuccess] = useState(false);
   const touchStartRef = useRef<number>(0);
 
   // Load favorites from localStorage
@@ -175,61 +174,6 @@ export default function PropertyDetailPage() {
     setFavorites(newFavorites);
     setIsFavorite(!isFavorite);
     localStorage.setItem('sabbar_favorites', JSON.stringify(newFavorites));
-  };
-
-  // ✅ NOUVELLE FONCTION: Gestion du partage
-  const handleShare = async () => {
-    const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
-    const shareTitle = property.title;
-    const shareText = `Découvrez cette propriété: ${property.title} - ${property.price.toLocaleString('fr-FR')} MAD`;
-
-    // Vérifier si Web Share API est disponible (Android, iOS, certains navigateurs)
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: shareTitle,
-          text: shareText,
-          url: shareUrl,
-        });
-        console.log('✅ Contenu partagé avec succès');
-        setShareSuccess(true);
-        setTimeout(() => setShareSuccess(false), 3000);
-      } catch (error) {
-        if ((error as Error).name !== 'AbortError') {
-          console.error('❌ Erreur lors du partage:', error);
-          // Fallback en cas d'erreur
-          copyToClipboard(shareUrl);
-        }
-      }
-    } else {
-      // Fallback pour les navigateurs qui ne supportent pas Web Share API
-      copyToClipboard(shareUrl);
-    }
-  };
-
-  // ✅ Fonction utilitaire pour copier dans le presse-papiers
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setShareSuccess(true);
-      console.log('✅ Lien copié dans le presse-papiers');
-      setTimeout(() => setShareSuccess(false), 3000);
-    } catch (error) {
-      console.error('❌ Erreur lors de la copie:', error);
-      // Fallback pour les anciens navigateurs
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      document.body.appendChild(textArea);
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        setShareSuccess(true);
-        setTimeout(() => setShareSuccess(false), 3000);
-      } catch (err) {
-        console.error('❌ Impossible de copier le lien:', err);
-      }
-      document.body.removeChild(textArea);
-    }
   };
 
   if (loading) {
@@ -672,17 +616,9 @@ export default function PropertyDetailPage() {
                   Landmarkestate3@gmail.com
                 </a>
 
-                {/* ✅ BOUTON PARTAGER AMÉLIORÉ */}
-                <button
-                  onClick={handleShare}
-                  className={`w-full flex items-center justify-center gap-3 border-2 font-bold py-2 px-3 rounded-lg transition text-sm ${
-                    shareSuccess
-                      ? 'bg-green-600 border-green-600 text-white'
-                      : 'border-[#b0b0b0] hover:border-[#d4af37] text-[#b0b0b0] hover:text-[#d4af37]'
-                  }`}
-                >
+                <button className="w-full flex items-center justify-center gap-3 border-2 border-[#b0b0b0] hover:border-[#d4af37] text-[#b0b0b0] hover:text-[#d4af37] font-bold py-2 px-3 rounded-lg transition text-sm">
                   <Share2 size={18} />
-                  {shareSuccess ? '✅ Copié!' : 'Partager'}
+                  Partager
                 </button>
               </div>
             </div>
