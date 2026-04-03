@@ -321,32 +321,51 @@ export default function PropertiesPage() {
     fetchProperties();
   }, []);
 
-  // Appliquer les filtres
-  useEffect(() => {
-    const filtered = properties.filter(property => {
-      if (filters.city && property.city !== filters.city) return false;
-      if (filters.transactionType && property.transaction_type !== filters.transactionType) return false;
-      if (filters.propertyType && property.property_type !== filters.propertyType) return false;
-      if (filters.priceMin && property.price < parseInt(filters.priceMin)) return false;
-      if (filters.priceMax && property.price > parseInt(filters.priceMax)) return false;
-      if (filters.areaMin && property.area < parseInt(filters.areaMin)) return false;
-      if (filters.areaMax && property.area > parseInt(filters.areaMax)) return false;
-      if (filters.bedrooms && property.bedrooms !== parseInt(filters.bedrooms)) return false;
-      if (filters.bathrooms && property.bathrooms !== parseInt(filters.bathrooms)) return false;
-      if (filters.condition && property.condition !== filters.condition) return false;
-      if (filters.equipments.length > 0) {
-        const propertyEquipments = property.equipments || [];
-        const hasAllEquipments = filters.equipments.every(eq => 
-          propertyEquipments.some(pEq => pEq.toLowerCase() === eq.toLowerCase())
-        );
-        if (!hasAllEquipments) return false;
-      }
-      return true;
-    });
+// Appliquer les filtres
+useEffect(() => {
+  const filtered = properties.filter(property => {
+    if (filters.city && property.city !== filters.city) return false;
+    if (filters.transactionType && property.transaction_type !== filters.transactionType) return false;
+    if (filters.propertyType && property.property_type !== filters.propertyType) return false;
 
-    setFilteredProperties(filtered);
-  }, [filters, properties]);
+    if (filters.priceMin && property.price < parseInt(filters.priceMin)) return false;
+    if (filters.priceMax && property.price > parseInt(filters.priceMax)) return false;
 
+    if (filters.areaMin && property.area && property.area < parseInt(filters.areaMin)) return false;
+    if (filters.areaMax && property.area && property.area > parseInt(filters.areaMax)) return false;
+
+    if (filters.bedrooms && property.bedrooms !== parseInt(filters.bedrooms)) return false;
+    if (filters.bathrooms && property.bathrooms !== parseInt(filters.bathrooms)) return false;
+
+    // ✅ FIX condition (case insensitive)
+    if (
+      filters.condition &&
+      property.condition?.toLowerCase() !== filters.condition.toLowerCase()
+    ) return false;
+
+    // ✅ FIX équipements (support string OU objet {name})
+    if (filters.equipments.length > 0) {
+      const propertyEquipments = property.equipments || [];
+
+      const hasAllEquipments = filters.equipments.every(eq =>
+        propertyEquipments.some(pEq => {
+          const value =
+            typeof pEq === 'string'
+              ? pEq
+              : pEq?.name; // support backend objet
+
+          return value?.toLowerCase() === eq.toLowerCase();
+        })
+      );
+
+      if (!hasAllEquipments) return false;
+    }
+
+    return true;
+  });
+
+  setFilteredProperties(filtered);
+}, [filters, properties]);
   const handleResetFilters = () => {
     setFilters({
       city: '',
