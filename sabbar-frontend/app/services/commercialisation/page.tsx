@@ -684,7 +684,7 @@ export default function CommercializationPage() {
               }}
             >
               <Phone size={18} />
-              +212 6 05 58 57 20
+             +212 6 05 58 57 20
             </a>
           </div>
         </div>
