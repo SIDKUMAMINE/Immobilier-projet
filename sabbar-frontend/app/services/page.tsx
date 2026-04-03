@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Phone } from 'lucide-react';
 
 export default function ServicesPage() {
   const services = [
@@ -145,7 +145,7 @@ export default function ServicesPage() {
               }}
             >
               <Phone size={18} />
-             +212 6 05 58 57 20
+              +212 6 05 58 57 20
             </a>
           </div>
         </div>
