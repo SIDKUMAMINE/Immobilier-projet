@@ -94,7 +94,7 @@ const getPropertyTypeLabel = (type: string): string => {
   return propertyTypeMap[type.toLowerCase()] || type;
 };
 
-// 🎯 COMPOSANT FILTRE SABBAR
+// 🎯 COMPOSANT FILTRE SABBAR - CORRIGÉ
 interface FilterSelectProps {
   label: string;
   options: Array<{ original?: string; label: string }> | string[];
@@ -112,11 +112,26 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const optionsArray = Array.isArray(options) && options.length > 0 
-    ? typeof options[0] === 'string' 
-      ? options.map(opt => ({ label: opt, original: opt }))
-      : options
-    : [];
+  const optionsArray: Array<{ original: string; label: string }> = useMemo(() => {
+    if (!Array.isArray(options) || options.length === 0) return [];
+    
+    if (typeof options[0] === 'string') {
+      return (options as string[]).map(opt => ({ label: opt, original: opt }));
+    }
+    
+    return (options as Array<{ original?: string; label: string }>).map(opt => ({
+      label: opt.label,
+      original: opt.original || opt.label
+    }));
+  }, [options]);
+
+  const getDisplayLabel = (): string => {
+    if (!value || value === 'all') {
+      return placeholder;
+    }
+    const found = optionsArray.find(opt => opt.original === value);
+    return found ? found.label : value;
+  };
 
   return (
     <div className="w-full">
@@ -147,10 +162,7 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
           }}
         >
           <span className="truncate">
-            {value && value !== 'all' 
-              ? optionsArray.find(opt => opt.original === value)?.label || value
-              : placeholder
-            }
+            {getDisplayLabel()}
           </span>
           <ChevronDown
             size={18}
@@ -201,16 +213,16 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
               <button
                 key={index}
                 onClick={() => {
-                  onChange(option.original || option.label);
+                  onChange(option.original);
                   setIsOpen(false);
                 }}
                 className="w-full px-4 py-2 text-left transition-colors text-sm"
                 style={{
-                  backgroundColor: value === (option.original || option.label) ? SABBAR_COLORS.goldAccent + '15' : 'transparent',
-                  color: value === (option.original || option.label) ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.goldLight,
+                  backgroundColor: value === option.original ? SABBAR_COLORS.goldAccent + '15' : 'transparent',
+                  color: value === option.original ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.goldLight,
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: '13px',
-                  fontWeight: value === (option.original || option.label) ? 600 : 500,
+                  fontWeight: value === option.original ? 600 : 500,
                   borderBottom: `1px solid ${SABBAR_COLORS.goldAccent}10`,
                 }}
               >
