@@ -125,7 +125,7 @@ export default function ServicesPage() {
             </Link>
             <a
               href="tel:+212605585720"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold transition-all duration-300"
+              className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold transition-all duration-300 whitespace-nowrap"
               style={{
                 border: '2px solid #C8A96E',
                 color: '#C8A96E',
@@ -145,7 +145,7 @@ export default function ServicesPage() {
               }}
             >
               <Phone size={18} />
-              +212 6 05 58 57 20
+              <span>+212 6 05 58 57 20</span>
             </a>
           </div>
         </div>
