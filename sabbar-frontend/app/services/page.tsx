@@ -75,26 +75,77 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* CTA Final */}
-      <section className="py-24 px-4 bg-gradient-to-r from-amber-900/20 via-black to-black border-t border-amber-600">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <h2 className="text-4xl md:text-5xl font-bold text-white">
-            Prêt à commencer ?
+       {/* CTA Final */}
+      <section className="py-24 px-[5%]">
+        <div className="max-w-[1000px] mx-auto text-center">
+          <h2 
+            className="mb-6"
+            style={{
+              fontSize: '48px',
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontWeight: 300,
+              color: '#F9F5EF'
+            }}
+          >
+            Prêt à Transformer <span style={{ color: '#C8A96E' }}>Votre Projet</span>?
           </h2>
-          <p className="text-xl text-gray-400">
-            Contactez-nous dès aujourd'hui pour une consultation gratuite et découvrez comment nous pouvons vous aider.
+          <p 
+            className="mb-8"
+            style={{
+              color: '#8A9BB0',
+              fontSize: '16px',
+              fontFamily: "'DM Sans', system-ui, sans-serif",
+              fontWeight: 400,
+              lineHeight: '1.7'
+            }}
+          >
+            Contactez-nous pour une consultation gratuite et découvrez comment notre stratégie peut transformer votre projet en succès de marché.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
-            <Link href="/contact">
-              <button className="px-8 py-4 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-105">
-                Nous contacter
-              </button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold transition-all duration-300"
+              style={{
+                background: 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)',
+                color: '#0D1F3C',
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontWeight: 500
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 20px 40px rgba(200, 169, 110, 0.3)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              Demander une Consultation <ArrowRight size={18} />
             </Link>
-            <a href="tel:+212605585720">
-              <button className="px-8 py-4 border-2 border-amber-600 text-amber-500 hover:text-amber-400 font-bold rounded-lg transition-all duration-300">
-               +212 6 05 58 57 20
-              </button>
+            <a
+              href="tel:+212605585720"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold transition-all duration-300"
+              style={{
+                border: '2px solid #C8A96E',
+                color: '#C8A96E',
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontWeight: 500,
+                background: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#C8A96E';
+                e.currentTarget.style.color = '#0D1F3C';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#C8A96E';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <Phone size={18} />
+             +212 6 05 58 57 20
             </a>
           </div>
         </div>
