@@ -19,10 +19,7 @@ export default function FAQSection() {
       question: 'Quelles garanties offrez-vous?',
       answer: 'Partenariat exclusif contractuel. Engagement long-terme avec objectifs clairs. Transparence totale avec accès données temps réel. Taux de satisfaction de 95%. Résultats mesurables documentés mensuellement.'
     },
-    {
-      question: 'Quelle est votre valeur ajoutée unique?',
-      answer: 'Notre Gateway Strategy assure zéro prospecting waste : si commercialisation est rejetée, nous proposons intermédiaton. 100% taux de conversion. Combinaison unique de force B2B (promoteurs) et B2C (propriétaires).'
-    },
+  
     {
       question: 'Combien de promoteurs faites-vous confiance?',
       answer: 'Plus de 50 promoteurs en portefeuille actif. Chiffre d\'affaires Year 1 : MAD 11.25M. 25-30 transactions mensuelles. Partenaires de confiance du marché casablancais.'
