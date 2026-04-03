@@ -91,7 +91,7 @@ export default function ServicesPage() {
                 Nous contacter
               </button>
             </Link>
-            <a href="tel:0605585720">
+            <a href="tel+212605585720">
               <button className="px-8 py-4 border-2 border-amber-600 text-amber-500 hover:text-amber-400 font-bold rounded-lg transition-all duration-300">
                 +212 5 61 51 12 51
               </button>
