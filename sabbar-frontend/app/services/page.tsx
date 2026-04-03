@@ -72,6 +72,54 @@ export default function ServicesPage() {
               </div>
             ))}
           </div>
+
+          {/* CTA Buttons Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold transition-all duration-300"
+              style={{
+                background: 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)',
+                color: '#0D1F3C',
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontWeight: 500
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 20px 40px rgba(200, 169, 110, 0.3)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              Demander une Consultation <ArrowRight size={18} />
+            </Link>
+            <a
+              href="tel:+212605585720"
+              className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold transition-all duration-300"
+              style={{
+                border: '2px solid #C8A96E',
+                color: '#C8A96E',
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontWeight: 500,
+                background: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#C8A96E';
+                e.currentTarget.style.color = '#0D1F3C';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#C8A96E';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <Phone size={20} />
+              +212 6 05 58 57 20
+            </a>
+          </div>
         </div>
       </section>
 
@@ -101,53 +149,6 @@ export default function ServicesPage() {
           >
             Contactez-nous pour une consultation gratuite et découvrez comment notre stratégie peut transformer votre projet en succès de marché.
           </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/contact"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold transition-all duration-300"
-              style={{
-                background: 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)',
-                color: '#0D1F3C',
-                fontFamily: "'DM Sans', system-ui, sans-serif",
-                fontWeight: 500
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 20px 40px rgba(200, 169, 110, 0.3)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              Demander une Consultation <ArrowRight size={18} />
-            </Link>
-            <a
-              href="tel:+212605585720"
-              className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold transition-all duration-300 whitespace-nowrap"
-              style={{
-                border: '2px solid #C8A96E',
-                color: '#C8A96E',
-                fontFamily: "'DM Sans', system-ui, sans-serif",
-                fontWeight: 500,
-                background: 'transparent'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#C8A96E';
-                e.currentTarget.style.color = '#0D1F3C';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.color = '#C8A96E';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              <Phone size={18} />
-              <span>+212 6 05 58 57 20</span>
-            </a>
-          </div>
         </div>
       </section>
     </main>

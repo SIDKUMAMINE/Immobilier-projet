@@ -63,7 +63,7 @@ const SHARE_OPTIONS = [
   { id: 'copy', name: 'Copier le lien', icon: '📋', color: SABBAR_COLORS.goldAccent },
 ];
 
-// 🎯 COMPOSANT FILTRE SABBAR
+// 🎯 COMPOSANT FILTRE SABBAR - RÉSTYLISÉ
 interface FilterSelectProps {
   label: string;
   options: string[];
@@ -88,6 +88,7 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
         style={{
           color: SABBAR_COLORS.goldAccent,
           fontFamily: "'DM Sans', sans-serif",
+          fontSize: '11px',
           letterSpacing: '0.5px',
           fontWeight: 500,
         }}
@@ -98,12 +99,14 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
       <div className="relative">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full px-4 py-3 rounded-lg font-bold text-sm flex items-center justify-between transition-all duration-300"
+          className="w-full px-4 py-3 rounded-lg font-bold text-sm flex items-center justify-between transition-all duration-300 hover:bg-opacity-90"
           style={{
-            backgroundColor: isOpen ? SABBAR_COLORS.navyDominant : 'transparent',
-            color: value && value !== placeholder ? 'white' : SABBAR_COLORS.goldLight,
+            backgroundColor: isOpen ? SABBAR_COLORS.navyDominant + 'E6' : SABBAR_COLORS.navyDominant + '4D',
+            color: value && value !== placeholder ? SABBAR_COLORS.ivory : SABBAR_COLORS.goldLight,
             border: `2px solid ${SABBAR_COLORS.goldAccent}`,
             fontFamily: "'DM Sans', sans-serif",
+            fontSize: '14px',
+            fontWeight: 600,
           }}
         >
           <span className="truncate">
@@ -121,10 +124,11 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
 
         {isOpen && (
           <div
-            className="absolute top-full left-0 right-0 mt-2 rounded-lg shadow-lg z-50 overflow-hidden border-2"
+            className="absolute top-full left-0 right-0 mt-2 rounded-xl shadow-2xl z-50 overflow-hidden border-2"
             style={{
-              backgroundColor: SABBAR_COLORS.ivory,
+              backgroundColor: SABBAR_COLORS.navyDominant,
               borderColor: SABBAR_COLORS.goldAccent,
+              boxShadow: `0 15px 40px ${SABBAR_COLORS.goldAccent}30`,
             }}
           >
             <button
@@ -134,9 +138,10 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
               }}
               className="w-full px-4 py-3 text-left font-bold text-sm transition-colors"
               style={{
-                backgroundColor: value === placeholder ? SABBAR_COLORS.navyDominant : 'transparent',
-                color: value === placeholder ? SABBAR_COLORS.goldLight : SABBAR_COLORS.navyDominant,
+                backgroundColor: value === placeholder ? SABBAR_COLORS.goldAccent + '25' : 'transparent',
+                color: value === placeholder ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.goldLight,
                 fontFamily: "'DM Sans', sans-serif",
+                fontSize: '14px',
               }}
             >
               {placeholder}
@@ -145,7 +150,7 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
             <div
               style={{
                 height: '1px',
-                backgroundColor: SABBAR_COLORS.goldAccent + '30',
+                backgroundColor: SABBAR_COLORS.goldAccent + '25',
               }}
             />
 
@@ -156,12 +161,13 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
                   onChange(option);
                   setIsOpen(false);
                 }}
-                className="w-full px-4 py-3 text-left font-bold text-sm transition-colors border-b"
+                className="w-full px-4 py-3 text-left font-bold text-sm transition-all hover:bg-opacity-70"
                 style={{
-                  backgroundColor: value === option ? SABBAR_COLORS.navyDominant : 'transparent',
-                  color: value === option ? SABBAR_COLORS.goldLight : SABBAR_COLORS.navyDominant,
-                  borderColor: SABBAR_COLORS.goldAccent + '15',
+                  backgroundColor: value === option ? SABBAR_COLORS.goldAccent + '25' : 'transparent',
+                  color: value === option ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.goldLight,
+                  borderBottom: `1px solid ${SABBAR_COLORS.goldAccent}15`,
                   fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '14px',
                 }}
               >
                 {option}
@@ -724,7 +730,7 @@ export default function PropertyDetailPage() {
         </div>
       </div>
 
-      {/* 🎯 SECTION FILTRES SABBAR */}
+      {/* 🎯 SECTION FILTRES SABBAR - RÉSTYLISÉE */}
       <section
         className="py-8 px-[5%] border-b"
         style={{
@@ -738,13 +744,15 @@ export default function PropertyDetailPage() {
             style={{
               color: SABBAR_COLORS.goldAccent,
               fontFamily: "'DM Sans', sans-serif",
+              fontSize: '16px',
+              fontWeight: 700,
             }}
           >
             🔍 Affiner votre recherche
           </h2>
 
-          {/* Grille de filtres */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Grille de filtres - Redesigned */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
             <FilterSelect
               label="Ville"
               options={cities}
@@ -771,12 +779,12 @@ export default function PropertyDetailPage() {
           </div>
 
           {/* Badges de filtres actifs */}
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mb-6">
             {filters.city !== 'Sélectionner une ville' && (
               <div
-                className="px-3 py-1 rounded-full text-xs font-bold"
+                className="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-2"
                 style={{
-                  backgroundColor: SABBAR_COLORS.goldAccent + '20',
+                  backgroundColor: SABBAR_COLORS.goldAccent + '25',
                   color: SABBAR_COLORS.goldAccent,
                   fontFamily: "'DM Sans', sans-serif",
                   border: `1px solid ${SABBAR_COLORS.goldAccent}`,
@@ -785,7 +793,7 @@ export default function PropertyDetailPage() {
                 📍 {filters.city}
                 <button
                   onClick={() => setFilters({ ...filters, city: 'Sélectionner une ville' })}
-                  className="ml-2 font-bold hover:opacity-70 transition"
+                  className="font-bold hover:opacity-70 transition"
                 >
                   ✕
                 </button>
@@ -793,9 +801,9 @@ export default function PropertyDetailPage() {
             )}
             {filters.transactionType !== 'Tous les types' && (
               <div
-                className="px-3 py-1 rounded-full text-xs font-bold"
+                className="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-2"
                 style={{
-                  backgroundColor: SABBAR_COLORS.goldAccent + '20',
+                  backgroundColor: SABBAR_COLORS.goldAccent + '25',
                   color: SABBAR_COLORS.goldAccent,
                   fontFamily: "'DM Sans', sans-serif",
                   border: `1px solid ${SABBAR_COLORS.goldAccent}`,
@@ -804,7 +812,7 @@ export default function PropertyDetailPage() {
                 🔄 {filters.transactionType}
                 <button
                   onClick={() => setFilters({ ...filters, transactionType: 'Tous les types' })}
-                  className="ml-2 font-bold hover:opacity-70 transition"
+                  className="font-bold hover:opacity-70 transition"
                 >
                   ✕
                 </button>
@@ -812,9 +820,9 @@ export default function PropertyDetailPage() {
             )}
             {filters.propertyType !== 'Tous les types' && (
               <div
-                className="px-3 py-1 rounded-full text-xs font-bold"
+                className="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-2"
                 style={{
-                  backgroundColor: SABBAR_COLORS.goldAccent + '20',
+                  backgroundColor: SABBAR_COLORS.goldAccent + '25',
                   color: SABBAR_COLORS.goldAccent,
                   fontFamily: "'DM Sans', sans-serif",
                   border: `1px solid ${SABBAR_COLORS.goldAccent}`,
@@ -823,7 +831,7 @@ export default function PropertyDetailPage() {
                 🏠 {filters.propertyType}
                 <button
                   onClick={() => setFilters({ ...filters, propertyType: 'Tous les types' })}
-                  className="ml-2 font-bold hover:opacity-70 transition"
+                  className="font-bold hover:opacity-70 transition"
                 >
                   ✕
                 </button>
@@ -832,7 +840,7 @@ export default function PropertyDetailPage() {
           </div>
 
           {/* Bouton pour retourner aux propriétés filtrées */}
-          <div className="mt-6">
+          <div>
             <button
               onClick={() => {
                 const params = new URLSearchParams();
@@ -841,11 +849,12 @@ export default function PropertyDetailPage() {
                 if (filters.propertyType !== 'Tous les types') params.append('property', filters.propertyType);
                 router.push(`/properties?${params.toString()}`);
               }}
-              className="px-6 py-2 rounded-lg font-bold text-sm transition hover:opacity-80"
+              className="px-6 py-2 rounded-lg font-bold text-sm transition hover:opacity-90"
               style={{
                 backgroundColor: SABBAR_COLORS.goldAccent,
                 color: SABBAR_COLORS.navyDominant,
                 fontFamily: "'DM Sans', sans-serif",
+                fontWeight: 700,
               }}
             >
               ✓ Appliquer les filtres
