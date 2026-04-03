@@ -734,6 +734,329 @@ export default function PropertyDetailPage() {
         </div>
       </div>
 
+      {/* 🎯 SECTION FILTRES SABBAR */}
+      <section
+        className="py-8 px-[5%] border-b"
+        style={{
+          backgroundColor: SABBAR_COLORS.navyDominant,
+          borderColor: SABBAR_COLORS.goldAccent + '30',
+        }}
+      >
+        <div className="max-w-[1400px] mx-auto">
+          <h2
+            className="text-lg font-bold mb-6"
+            style={{
+              color: SABBAR_COLORS.goldAccent,
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '16px',
+              fontWeight: 700,
+            }}
+          >
+            🔍 Affiner votre recherche
+          </h2>
+
+          {/* Grille de filtres */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <FilterSelect
+              label="Ville"
+              options={cities}
+              value={filters.city}
+              onChange={(value) => setFilters({ ...filters, city: value })}
+              placeholder="Sélectionner une ville"
+            />
+
+            <FilterSelect
+              label="Type de transaction"
+              options={transactionTypes}
+              value={filters.transactionType}
+              onChange={(value) => setFilters({ ...filters, transactionType: value })}
+              placeholder="Tous les types"
+            />
+
+            <FilterSelect
+              label="Type de bien"
+              options={propertyTypes}
+              value={filters.propertyType}
+              onChange={(value) => setFilters({ ...filters, propertyType: value })}
+              placeholder="Tous les types"
+            />
+          </div>
+
+          {/* Critères supplémentaires */}
+          <div
+            className="p-6 rounded-lg border"
+            style={{
+              backgroundColor: SABBAR_COLORS.navyDominant + '80',
+              borderColor: SABBAR_COLORS.goldAccent + '30',
+            }}
+          >
+            <h3
+              className="text-base font-bold mb-6 flex items-center gap-2"
+              style={{
+                color: SABBAR_COLORS.goldAccent,
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+            >
+              <span style={{
+                backgroundColor: SABBAR_COLORS.goldAccent,
+                color: SABBAR_COLORS.navyDominant,
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px',
+                fontWeight: 'bold'
+              }}>3</span>
+              Critères supplémentaires
+            </h3>
+
+            {/* État du bien */}
+            <div className="mb-8">
+              <h4
+                className="text-sm font-bold mb-4"
+                style={{
+                  color: SABBAR_COLORS.goldAccent,
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              >
+                État du bien
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="condition" defaultChecked className="w-5 h-5" />
+                  <span style={{ color: SABBAR_COLORS.goldLight, fontFamily: "'DM Sans', sans-serif" }}>
+                    🆕 Neuf
+                  </span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="condition" className="w-5 h-5" />
+                  <span style={{ color: SABBAR_COLORS.goldLight, fontFamily: "'DM Sans', sans-serif" }}>
+                    🏠 Deuxième main
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            {/* Caractéristiques */}
+            <div className="mb-8">
+              <h4
+                className="text-sm font-bold mb-4"
+                style={{
+                  color: SABBAR_COLORS.goldAccent,
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              >
+                Caractéristiques
+              </h4>
+              
+              {/* Étage */}
+              <div className="mb-6">
+                <label
+                  className="block text-xs font-bold uppercase mb-2"
+                  style={{
+                    color: SABBAR_COLORS.goldAccent,
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: '10px',
+                    letterSpacing: '1px',
+                  }}
+                >
+                  Étage
+                </label>
+                <input
+                  type="number"
+                  placeholder="Ex: 2"
+                  className="w-full px-4 py-3 rounded-lg text-sm"
+                  style={{
+                    backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                    borderColor: SABBAR_COLORS.goldAccent,
+                    color: SABBAR_COLORS.goldLight,
+                    border: `2px solid ${SABBAR_COLORS.goldAccent}`,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                />
+              </div>
+
+              {/* Ascenseur */}
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" className="w-5 h-5" />
+                <span style={{ color: SABBAR_COLORS.goldLight, fontFamily: "'DM Sans', sans-serif" }}>
+                  Ascenseur
+                </span>
+              </label>
+            </div>
+
+            {/* Équipements */}
+            <div className="mb-8">
+              <h4
+                className="text-sm font-bold mb-4"
+                style={{
+                  color: SABBAR_COLORS.goldAccent,
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              >
+                Équipements
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" className="w-5 h-5" />
+                  <span style={{ color: SABBAR_COLORS.goldLight, fontFamily: "'DM Sans', sans-serif" }}>
+                    Parking
+                  </span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" className="w-5 h-5" />
+                  <span style={{ color: SABBAR_COLORS.goldLight, fontFamily: "'DM Sans', sans-serif" }}>
+                    Jardin
+                  </span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" className="w-5 h-5" />
+                  <span style={{ color: SABBAR_COLORS.goldLight, fontFamily: "'DM Sans', sans-serif" }}>
+                    Piscine
+                  </span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" className="w-5 h-5" />
+                  <span style={{ color: SABBAR_COLORS.goldLight, fontFamily: "'DM Sans', sans-serif" }}>
+                    Meublé
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            {/* Prix */}
+            <div className="mb-8">
+              <h4
+                className="text-sm font-bold mb-4"
+                style={{
+                  color: SABBAR_COLORS.goldAccent,
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              >
+                Prix (MAD)
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <input
+                  type="number"
+                  placeholder="Min"
+                  className="px-4 py-3 rounded-lg text-sm"
+                  style={{
+                    backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                    borderColor: SABBAR_COLORS.goldAccent,
+                    color: SABBAR_COLORS.goldLight,
+                    border: `2px solid ${SABBAR_COLORS.goldAccent}`,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                />
+                <input
+                  type="number"
+                  placeholder="Max"
+                  className="px-4 py-3 rounded-lg text-sm"
+                  style={{
+                    backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                    borderColor: SABBAR_COLORS.goldAccent,
+                    color: SABBAR_COLORS.goldLight,
+                    border: `2px solid ${SABBAR_COLORS.goldAccent}`,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Surface */}
+            <div className="mb-8">
+              <h4
+                className="text-sm font-bold mb-4"
+                style={{
+                  color: SABBAR_COLORS.goldAccent,
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              >
+                Surface (m²)
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <input
+                  type="number"
+                  placeholder="Min"
+                  className="px-4 py-3 rounded-lg text-sm"
+                  style={{
+                    backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                    borderColor: SABBAR_COLORS.goldAccent,
+                    color: SABBAR_COLORS.goldLight,
+                    border: `2px solid ${SABBAR_COLORS.goldAccent}`,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                />
+                <input
+                  type="number"
+                  placeholder="Max"
+                  className="px-4 py-3 rounded-lg text-sm"
+                  style={{
+                    backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                    borderColor: SABBAR_COLORS.goldAccent,
+                    color: SABBAR_COLORS.goldLight,
+                    border: `2px solid ${SABBAR_COLORS.goldAccent}`,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Chambres et Salles de bain */}
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <h4
+                  className="text-sm font-bold mb-4"
+                  style={{
+                    color: SABBAR_COLORS.goldAccent,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                >
+                  Nombre de chambres
+                </h4>
+                <input
+                  type="number"
+                  placeholder="Ex: 1"
+                  className="w-full px-4 py-3 rounded-lg text-sm"
+                  style={{
+                    backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                    borderColor: SABBAR_COLORS.goldAccent,
+                    color: SABBAR_COLORS.goldLight,
+                    border: `2px solid ${SABBAR_COLORS.goldAccent}`,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                />
+              </div>
+              <div>
+                <h4
+                  className="text-sm font-bold mb-4"
+                  style={{
+                    color: SABBAR_COLORS.goldAccent,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                >
+                  Salles de bain
+                </h4>
+                <input
+                  type="number"
+                  placeholder="Ex: 1"
+                  className="w-full px-4 py-3 rounded-lg text-sm"
+                  style={{
+                    backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                    borderColor: SABBAR_COLORS.goldAccent,
+                    color: SABBAR_COLORS.goldLight,
+                    border: `2px solid ${SABBAR_COLORS.goldAccent}`,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
 
 
       {/* Image Gallery with Swipe */}
