@@ -218,10 +218,10 @@ export default function PropertyDetailPage() {
 
   if (loading) {
     return (
-      <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
-        <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
+      <main className="bg-gradient-to-b from-[#f9f5ef] to-[#f5f1eb] min-h-screen">
+        <div className="bg-[#F9F5EF] py-4 px-[5%] border-b border-[rgba(200,169,110,0.2)]">
           <div className="max-w-[1400px] mx-auto">
-            <Link href="/properties" className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#f4d03f] transition-colors">
+            <Link href="/properties" className="inline-flex items-center gap-2 text-[#C8A96E] hover:text-[#0D1F3C] transition-colors" style={{ fontFamily: 'DM Sans', fontWeight: 500 }}>
               <ArrowLeft size={20} />
               <span>Retour aux propriétés</span>
             </Link>
@@ -229,7 +229,7 @@ export default function PropertyDetailPage() {
         </div>
         <div className="py-12 px-[5%]">
           <div className="max-w-[1400px] mx-auto">
-            <p className="text-[#b0b0b0] text-lg">⏳ Chargement de la propriété...</p>
+            <p className="text-[#0D1F3C] text-lg" style={{ fontFamily: 'DM Sans' }}>⏳ Chargement de la propriété...</p>
           </div>
         </div>
       </main>
@@ -238,10 +238,10 @@ export default function PropertyDetailPage() {
 
   if (error || !property) {
     return (
-      <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
-        <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
+      <main className="bg-gradient-to-b from-[#f9f5ef] to-[#f5f1eb] min-h-screen">
+        <div className="bg-[#F9F5EF] py-4 px-[5%] border-b border-[rgba(200,169,110,0.2)]">
           <div className="max-w-[1400px] mx-auto">
-            <Link href="/properties" className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#f4d03f] transition-colors">
+            <Link href="/properties" className="inline-flex items-center gap-2 text-[#C8A96E] hover:text-[#0D1F3C] transition-colors" style={{ fontFamily: 'DM Sans', fontWeight: 500 }}>
               <ArrowLeft size={20} />
               <span>Retour aux propriétés</span>
             </Link>
@@ -249,7 +249,7 @@ export default function PropertyDetailPage() {
         </div>
         <div className="py-12 px-[5%]">
           <div className="max-w-[1400px] mx-auto">
-            <div className="bg-[rgba(220,38,38,0.1)] border border-[rgba(220,38,38,0.3)] text-[#fca5a5] px-6 py-4 rounded-lg">
+            <div className="bg-[rgba(181,87,58,0.1)] border border-[rgba(181,87,58,0.3)] text-[#B5573A] px-6 py-4 rounded-lg" style={{ fontFamily: 'DM Sans' }}>
               ❌ {error || 'Propriété non trouvée'}
             </div>
           </div>
@@ -292,12 +292,12 @@ export default function PropertyDetailPage() {
   const VideoSection = () => {
     if (!videoUrl) {
       return (
-        <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
-          <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
-            <Play size={48} className="text-[#d4af37]" />
+        <div className="bg-[rgba(13,31,60,0.1)] border-2 border-dashed border-[rgba(200,169,110,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
+          <div className="bg-[rgba(200,169,110,0.2)] p-4 rounded-full mb-4">
+            <Play size={48} className="text-[#C8A96E]" />
           </div>
-          <p className="text-[#b0b0b0] text-lg font-semibold">Aucune vidéo disponible</p>
-          <p className="text-[#666] text-sm mt-2">Les vidéos seront disponibles prochainement</p>
+          <p className="text-[#0D1F3C] text-lg font-semibold" style={{ fontFamily: 'Cormorant Garamond', fontWeight: 300 }}>Aucune vidéo disponible</p>
+          <p className="text-[#999] text-sm mt-2" style={{ fontFamily: 'DM Sans' }}>Les vidéos seront disponibles prochainement</p>
         </div>
       );
     }
@@ -324,11 +324,11 @@ export default function PropertyDetailPage() {
     }
 
     return (
-      <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
-        <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
-          <Play size={48} className="text-[#d4af37]" />
+      <div className="bg-[rgba(13,31,60,0.1)] border-2 border-dashed border-[rgba(200,169,110,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
+        <div className="bg-[rgba(200,169,110,0.2)] p-4 rounded-full mb-4">
+          <Play size={48} className="text-[#C8A96E]" />
         </div>
-        <p className="text-[#b0b0b0] text-lg font-semibold">Format vidéo non supporté</p>
+        <p className="text-[#0D1F3C] text-lg font-semibold" style={{ fontFamily: 'Cormorant Garamond', fontWeight: 300 }}>Format vidéo non supporté</p>
       </div>
     );
   };
@@ -354,7 +354,7 @@ export default function PropertyDetailPage() {
             className="px-6 py-4 flex items-center justify-between"
             style={{ backgroundColor: SABBAR_COLORS.navyDominant }}
           >
-            <h2 className="text-xl font-light" style={{ color: SABBAR_COLORS.goldLight, fontFamily: 'Cormorant Garamond' }}>
+            <h2 className="text-xl font-light" style={{ color: SABBAR_COLORS.goldLight, fontFamily: 'Cormorant Garamond', fontWeight: 300 }}>
               Partager cette propriété
             </h2>
             <button
@@ -390,6 +390,7 @@ export default function PropertyDetailPage() {
                   color: copiedLink ? 'white' : SABBAR_COLORS.navyDominant,
                   fontFamily: 'DM Sans',
                   fontSize: '13px',
+                  fontWeight: 500,
                 }}
               >
                 {copiedLink ? '✓ Copié' : 'Copier'}
@@ -425,6 +426,7 @@ export default function PropertyDetailPage() {
                     style={{
                       color: option.id === 'copy' ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.navyDominant,
                       fontFamily: 'DM Sans',
+                      fontWeight: 500,
                     }}
                   >
                     {option.name.split(' ')[0]}
@@ -441,6 +443,7 @@ export default function PropertyDetailPage() {
               backgroundColor: SABBAR_COLORS.goldAccent + '10',
               color: SABBAR_COLORS.navyDominant,
               fontFamily: 'DM Sans',
+              fontWeight: 400,
             }}
           >
             Partagez cette propriété avec vos amis et famille
@@ -451,11 +454,11 @@ export default function PropertyDetailPage() {
   };
 
   return (
-    <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
+    <main className="bg-gradient-to-b from-[#f9f5ef] to-[#f5f1eb] min-h-screen">
       {/* Back Button */}
-      <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
+      <div className="bg-[#F9F5EF] py-4 px-[5%] border-b border-[rgba(200,169,110,0.2)]">
         <div className="max-w-[1400px] mx-auto">
-          <Link href="/properties" className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#f4d03f] transition-colors">
+          <Link href="/properties" className="inline-flex items-center gap-2 text-[#C8A96E] hover:text-[#0D1F3C] transition-colors" style={{ fontFamily: 'DM Sans', fontWeight: 500 }}>
             <ArrowLeft size={20} />
             <span>Retour aux propriétés</span>
           </Link>
@@ -466,7 +469,7 @@ export default function PropertyDetailPage() {
       <section className="py-12 px-[5%]">
         <div className="max-w-[1400px] mx-auto">
           <div 
-            className="relative bg-[#0f1a2e] rounded-2xl overflow-hidden h-96 sm:h-[500px] md:h-[600px] flex items-center justify-center group mb-8 cursor-grab active:cursor-grabbing"
+            className="relative bg-[#E2C98A] rounded-2xl overflow-hidden h-96 sm:h-[500px] md:h-[600px] flex items-center justify-center group mb-8 cursor-grab active:cursor-grabbing"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
@@ -474,7 +477,7 @@ export default function PropertyDetailPage() {
 
             <button
               onClick={toggleFavorite}
-              className={`absolute top-4 left-4 p-3 rounded-full transition-all z-10 ${isFavorite ? 'bg-[#d4af37] text-[#0f1a2e]' : 'bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white'}`}
+              className={`absolute top-4 left-4 p-3 rounded-full transition-all z-10 ${isFavorite ? 'bg-[#C8A96E] text-[#F9F5EF]' : 'bg-[rgba(0,0,0,0.6)] hover:bg-[#C8A96E] text-white'}`}
             >
               <Heart size={24} fill={isFavorite ? 'currentColor' : 'none'} />
             </button>
@@ -486,7 +489,7 @@ export default function PropertyDetailPage() {
             {images.length > 1 && (
               <button
                 onClick={handlePrevImage}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white hover:text-[#0f1a2e] p-3 rounded-full transition-all z-10 hidden group-hover:block"
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-[rgba(0,0,0,0.6)] hover:bg-[#C8A96E] text-white hover:text-[#F9F5EF] p-3 rounded-full transition-all z-10 hidden group-hover:block"
               >
                 <ChevronLeft size={24} />
               </button>
@@ -495,7 +498,7 @@ export default function PropertyDetailPage() {
             {images.length > 1 && (
               <button
                 onClick={handleNextImage}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white hover:text-[#0f1a2e] p-3 rounded-full transition-all z-10 hidden group-hover:block"
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-[rgba(0,0,0,0.6)] hover:bg-[#C8A96E] text-white hover:text-[#F9F5EF] p-3 rounded-full transition-all z-10 hidden group-hover:block"
               >
                 <ChevronRight size={24} />
               </button>
@@ -512,7 +515,7 @@ export default function PropertyDetailPage() {
                 <button
                   key={index}
                   onClick={() => setCurrentImageIndex(index)}
-                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${currentImageIndex === index ? 'border-[#d4af37]' : 'border-[rgba(212,175,55,0.2)] hover:border-[#d4af37]'}`}
+                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${currentImageIndex === index ? 'border-[#C8A96E]' : 'border-[rgba(200,169,110,0.2)] hover:border-[#C8A96E]'}`}
                 >
                   <img src={img} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
                 </button>
@@ -529,8 +532,8 @@ export default function PropertyDetailPage() {
           <div className="lg:col-span-2">
             {/* Title and Location */}
             <div className="mb-8">
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{property.title}</h1>
-              <div className="flex items-center gap-2 text-[#d4af37] text-lg mb-4">
+              <h1 className="text-4xl md:text-5xl font-light text-[#0D1F3C] mb-4" style={{ fontFamily: 'Cormorant Garamond', fontWeight: 300 }}>{property.title}</h1>
+              <div className="flex items-center gap-2 text-[#C8A96E] text-lg mb-4" style={{ fontFamily: 'DM Sans', fontWeight: 500 }}>
                 <MapPin size={24} />
                 <span>{property.city} - {property.quarter || property.district}</span>
               </div>
@@ -538,68 +541,68 @@ export default function PropertyDetailPage() {
 
             {/* Description */}
             {property.description && (
-              <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
-                <h2 className="text-2xl font-bold text-white mb-6">📝 Description</h2>
-                <p className="text-[#b0b0b0] leading-relaxed">{property.description}</p>
+              <div className="bg-[rgba(200,169,110,0.1)] border border-[rgba(200,169,110,0.3)] rounded-2xl p-8 mb-8">
+                <h2 className="text-2xl font-light text-[#0D1F3C] mb-6" style={{ fontFamily: 'Cormorant Garamond', fontWeight: 300 }}>📝 Description</h2>
+                <p className="text-[#0D1F3C] leading-relaxed" style={{ fontFamily: 'DM Sans', fontWeight: 400 }}>{property.description}</p>
               </div>
             )}
 
             {/* Characteristics Section */}
-            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
-              <h2 className="text-2xl font-bold text-white mb-6">📋 Caractéristiques</h2>
+            <div className="bg-[rgba(200,169,110,0.1)] border border-[rgba(200,169,110,0.3)] rounded-2xl p-8 mb-8">
+              <h2 className="text-2xl font-light text-[#0D1F3C] mb-6" style={{ fontFamily: 'Cormorant Garamond', fontWeight: 300 }}>📋 Caractéristiques</h2>
               <div className="space-y-4">
-                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                  <span className="text-[#b0b0b0]">Type de transaction</span>
-                  <span className="text-white font-bold">{getTransactionTypeLabel(property.transaction_type)}</span>
+                <div className="flex justify-between items-center pb-4 border-b border-[rgba(200,169,110,0.2)]">
+                  <span className="text-[#0D1F3C]" style={{ fontFamily: 'DM Sans', fontWeight: 400 }}>Type de transaction</span>
+                  <span className="text-[#0D1F3C] font-bold" style={{ fontFamily: 'DM Sans', fontWeight: 600 }}>{getTransactionTypeLabel(property.transaction_type)}</span>
                 </div>
-                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                  <span className="text-[#b0b0b0]">Type de bien</span>
-                  <span className="text-white font-bold">{getPropertyTypeLabel(property.property_type)}</span>
+                <div className="flex justify-between items-center pb-4 border-b border-[rgba(200,169,110,0.2)]">
+                  <span className="text-[#0D1F3C]" style={{ fontFamily: 'DM Sans', fontWeight: 400 }}>Type de bien</span>
+                  <span className="text-[#0D1F3C] font-bold" style={{ fontFamily: 'DM Sans', fontWeight: 600 }}>{getPropertyTypeLabel(property.property_type)}</span>
                 </div>
-                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                  <span className="text-[#b0b0b0]">Ville</span>
-                  <span className="text-white font-bold">{property.city}</span>
+                <div className="flex justify-between items-center pb-4 border-b border-[rgba(200,169,110,0.2)]">
+                  <span className="text-[#0D1F3C]" style={{ fontFamily: 'DM Sans', fontWeight: 400 }}>Ville</span>
+                  <span className="text-[#0D1F3C] font-bold" style={{ fontFamily: 'DM Sans', fontWeight: 600 }}>{property.city}</span>
                 </div>
-                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                  <span className="text-[#b0b0b0]">Quartier</span>
-                  <span className="text-white font-bold">{property.quarter || property.district || 'N/A'}</span>
+                <div className="flex justify-between items-center pb-4 border-b border-[rgba(200,169,110,0.2)]">
+                  <span className="text-[#0D1F3C]" style={{ fontFamily: 'DM Sans', fontWeight: 400 }}>Quartier</span>
+                  <span className="text-[#0D1F3C] font-bold" style={{ fontFamily: 'DM Sans', fontWeight: 600 }}>{property.quarter || property.district || 'N/A'}</span>
                 </div>
                 {property.floor && (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Étage</span>
-                    <span className="text-white font-bold">{property.floor}</span>
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(200,169,110,0.2)]">
+                    <span className="text-[#0D1F3C]" style={{ fontFamily: 'DM Sans', fontWeight: 400 }}>Étage</span>
+                    <span className="text-[#0D1F3C] font-bold" style={{ fontFamily: 'DM Sans', fontWeight: 600 }}>{property.floor}</span>
                   </div>
                 )}
                 {property.elevator || property.has_elevator ? (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Ascenseur</span>
-                    <span className="text-[#d4af37] font-bold">✓ Oui</span>
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(200,169,110,0.2)]">
+                    <span className="text-[#0D1F3C]" style={{ fontFamily: 'DM Sans', fontWeight: 400 }}>Ascenseur</span>
+                    <span className="text-[#C8A96E] font-bold" style={{ fontFamily: 'DM Sans', fontWeight: 600 }}>✓ Oui</span>
                   </div>
                 ) : null}
                 {property.bedrooms && (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Chambres</span>
-                    <span className="text-white font-bold">{property.bedrooms}</span>
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(200,169,110,0.2)]">
+                    <span className="text-[#0D1F3C]" style={{ fontFamily: 'DM Sans', fontWeight: 400 }}>Chambres</span>
+                    <span className="text-[#0D1F3C] font-bold" style={{ fontFamily: 'DM Sans', fontWeight: 600 }}>{property.bedrooms}</span>
                   </div>
                 )}
                 {property.bathrooms && (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Salles de bain</span>
-                    <span className="text-white font-bold">{property.bathrooms}</span>
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(200,169,110,0.2)]">
+                    <span className="text-[#0D1F3C]" style={{ fontFamily: 'DM Sans', fontWeight: 400 }}>Salles de bain</span>
+                    <span className="text-[#0D1F3C] font-bold" style={{ fontFamily: 'DM Sans', fontWeight: 600 }}>{property.bathrooms}</span>
                   </div>
                 )}
                 {property.area && (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Surface</span>
-                    <span className="text-white font-bold">{property.area} m²</span>
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(200,169,110,0.2)]">
+                    <span className="text-[#0D1F3C]" style={{ fontFamily: 'DM Sans', fontWeight: 400 }}>Surface</span>
+                    <span className="text-[#0D1F3C] font-bold" style={{ fontFamily: 'DM Sans', fontWeight: 600 }}>{property.area} m²</span>
                   </div>
                 )}
                 {property.equipments && property.equipments.length > 0 && (
                   <div className="pb-4">
-                    <span className="text-[#b0b0b0] block mb-3">Équipements</span>
+                    <span className="text-[#0D1F3C] block mb-3" style={{ fontFamily: 'DM Sans', fontWeight: 400 }}>Équipements</span>
                     <div className="flex flex-wrap gap-2">
                       {property.equipments.map((equipment: string, index: number) => (
-                        <span key={index} className="bg-[rgba(212,175,55,0.2)] text-[#d4af37] px-3 py-1 rounded-full text-sm font-bold border border-[rgba(212,175,55,0.3)]">
+                        <span key={index} className="bg-[rgba(200,169,110,0.2)] text-[#C8A96E] px-3 py-1 rounded-full text-sm font-bold border border-[rgba(200,169,110,0.4)]" style={{ fontFamily: 'DM Sans', fontWeight: 600 }}>
                           {equipment}
                         </span>
                       ))}
@@ -607,55 +610,58 @@ export default function PropertyDetailPage() {
                   </div>
                 )}
                 {property.status && (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Statut</span>
-                    <span className="text-white font-bold">{property.status}</span>
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(200,169,110,0.2)]">
+                    <span className="text-[#0D1F3C]" style={{ fontFamily: 'DM Sans', fontWeight: 400 }}>Statut</span>
+                    <span className="text-[#0D1F3C] font-bold" style={{ fontFamily: 'DM Sans', fontWeight: 600 }}>{property.status}</span>
                   </div>
                 )}
                 <div className="flex justify-between items-center">
-                  <span className="text-[#b0b0b0]">Date de création</span>
-                  <span className="text-white font-bold">{new Date(property.createdAt || property.created_at).toLocaleDateString('fr-FR')}</span>
+                  <span className="text-[#0D1F3C]" style={{ fontFamily: 'DM Sans', fontWeight: 400 }}>Date de création</span>
+                  <span className="text-[#0D1F3C] font-bold" style={{ fontFamily: 'DM Sans', fontWeight: 600 }}>{new Date(property.createdAt || property.created_at).toLocaleDateString('fr-FR')}</span>
                 </div>
               </div>
             </div>
 
             {/* Video Section */}
-            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
-              <h2 className="text-2xl font-bold text-white mb-6">🎬 Vidéo de la propriété</h2>
+            <div className="bg-[rgba(200,169,110,0.1)] border border-[rgba(200,169,110,0.3)] rounded-2xl p-8 mb-8">
+              <h2 className="text-2xl font-light text-[#0D1F3C] mb-6" style={{ fontFamily: 'Cormorant Garamond', fontWeight: 300 }}>🎬 Vidéo de la propriété</h2>
               <VideoSection />
             </div>
           </div>
 
           {/* Right Column - Price and Contact */}
           <div className="lg:col-span-1">
-            <div className="bg-gradient-to-br from-[#d4af37] to-[#f4d03f] rounded-xl p-6 mb-6 sticky top-8">
-              <p className="text-[#0f1a2e] font-bold text-xs mb-1">PRIX</p>
-              <div className="text-2xl font-bold text-[#0f1a2e] mb-1 break-words">
+            <div className="bg-gradient-to-br from-[#C8A96E] to-[#E2C98A] rounded-xl p-6 mb-6 sticky top-8">
+              <p className="text-[#0D1F3C] font-bold text-xs mb-1" style={{ fontFamily: 'DM Sans', letterSpacing: '0.5px' }}>PRIX</p>
+              <div className="text-2xl font-bold text-[#0D1F3C] mb-1 break-words" style={{ fontFamily: 'Cormorant Garamond', fontWeight: 300 }}>
                 {property.price.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </div>
-              <p className="text-[#0f1a2e] font-semibold text-sm">MAD</p>
+              <p className="text-[#0D1F3C] font-semibold text-sm" style={{ fontFamily: 'DM Sans', fontWeight: 600 }}>MAD</p>
             </div>
 
-            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-6">
-              <h3 className="text-xl font-bold text-white mb-4">📞 Nous contacter</h3>
+            <div className="bg-[rgba(200,169,110,0.1)] border border-[rgba(200,169,110,0.3)] rounded-2xl p-6">
+              <h3 className="text-xl font-light text-[#0D1F3C] mb-4" style={{ fontFamily: 'Cormorant Garamond', fontWeight: 300 }}>📞 Nous contacter</h3>
               <div className="space-y-3">
                 <a
                   href="tel:+212605585720"
-                  className="w-full flex items-center justify-center gap-3 bg-[#d4af37] hover:bg-[#f4d03f] text-[#0f1a2e] font-bold py-2 px-3 rounded-lg transition text-sm"
+                  className="w-full flex items-center justify-center gap-3 bg-[#C8A96E] hover:bg-[#E2C98A] text-[#0D1F3C] font-bold py-2 px-3 rounded-lg transition text-sm"
+                  style={{ fontFamily: 'DM Sans', fontWeight: 600 }}
                 >
                   <Phone size={18} />
                   +212 6 05 58 57 20
                 </a>
                 <a
                   href="mailto:Landmarkestate3@gmail.com"
-                  className="w-full flex items-center justify-center gap-3 border-2 border-[#d4af37] hover:bg-[#d4af37] text-[#d4af37] hover:text-[#0f1a2e] font-bold py-2 px-3 rounded-lg transition text-sm"
+                  className="w-full flex items-center justify-center gap-3 border-2 border-[#C8A96E] hover:bg-[#C8A96E] text-[#C8A96E] hover:text-[#0D1F3C] font-bold py-2 px-3 rounded-lg transition text-sm"
+                  style={{ fontFamily: 'DM Sans', fontWeight: 600 }}
                 >
                   <Mail size={18} />
                   Landmarkestate3@gmail.com
                 </a>
                 <button
                   onClick={() => setShowShareModal(true)}
-                  className="w-full flex items-center justify-center gap-3 border-2 border-[#b0b0b0] hover:border-[#d4af37] text-[#b0b0b0] hover:text-[#d4af37] font-bold py-2 px-3 rounded-lg transition text-sm"
+                  className="w-full flex items-center justify-center gap-3 border-2 border-[#0D1F3C] hover:border-[#C8A96E] text-[#0D1F3C] hover:text-[#C8A96E] font-bold py-2 px-3 rounded-lg transition text-sm"
+                  style={{ fontFamily: 'DM Sans', fontWeight: 600 }}
                 >
                   <Share2 size={18} />
                   Partager
