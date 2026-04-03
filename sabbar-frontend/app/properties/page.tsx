@@ -487,8 +487,8 @@ export default function PropertiesPage() {
                 borderColor: SABBAR_COLORS.goldAccent + '30',
               }}
             >
-              {/* Première rangée : Prix, Surface, Chambres, Salles de bain */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 pb-4" style={{ borderBottom: `1px solid ${SABBAR_COLORS.goldAccent}20` }}>
+              {/* Grille : Prix, Surface, Chambres, Salles de bain, État du bien (1ère partie), Équipements (1ère partie) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 {/* Prix */}
                 <div>
                   <h4
@@ -636,89 +636,29 @@ export default function PropertiesPage() {
                     }}
                   />
                 </div>
-              </div>
 
-              {/* Deuxième rangée : État du bien */}
-              <div className="mb-4 pb-4" style={{ borderBottom: `1px solid ${SABBAR_COLORS.goldAccent}20` }}>
-                <h4
-                  className="text-xs font-bold mb-2 uppercase"
-                  style={{
-                    color: SABBAR_COLORS.goldAccent,
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: '9px',
-                    letterSpacing: '0.5px',
-                  }}
-                >
-                  État du bien
-                </h4>
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="condition"
-                      value="new"
-                      checked={filters.condition === 'new'}
-                      onChange={(e) => setFilters({ ...filters, condition: e.target.value })}
-                      className="w-4 h-4"
-                    />
-                    <span
-                      className="text-xs"
-                      style={{
-                        color: SABBAR_COLORS.goldLight,
-                        fontFamily: "'DM Sans', sans-serif",
-                      }}
-                    >
-                      🆕 Neuf
-                    </span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="condition"
-                      value="used"
-                      checked={filters.condition === 'used'}
-                      onChange={(e) => setFilters({ ...filters, condition: e.target.value })}
-                      className="w-4 h-4"
-                    />
-                    <span
-                      className="text-xs"
-                      style={{
-                        color: SABBAR_COLORS.goldLight,
-                        fontFamily: "'DM Sans', sans-serif",
-                      }}
-                    >
-                      🏠 Deuxième main
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Troisième rangée : Équipements */}
-              <div>
-                <h4
-                  className="text-xs font-bold mb-2 uppercase"
-                  style={{
-                    color: SABBAR_COLORS.goldAccent,
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: '9px',
-                    letterSpacing: '0.5px',
-                  }}
-                >
-                  Équipements
-                </h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {['Parking', 'Jardin', 'Piscine', 'Meublé'].map((eq) => (
-                    <label key={eq} className="flex items-center gap-2 cursor-pointer">
+                {/* État du bien */}
+                <div>
+                  <h4
+                    className="text-xs font-bold mb-2 uppercase"
+                    style={{
+                      color: SABBAR_COLORS.goldAccent,
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: '9px',
+                      letterSpacing: '0.5px',
+                    }}
+                  >
+                    État du bien
+                  </h4>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
                       <input
-                        type="checkbox"
-                        checked={filters.equipments?.includes(eq) || false}
-                        onChange={() => {
-                          const newEquipments = filters.equipments?.includes(eq)
-                            ? filters.equipments.filter(e => e !== eq)
-                            : [...(filters.equipments || []), eq];
-                          setFilters({ ...filters, equipments: newEquipments });
-                        }}
-                        className="w-4 h-4"
+                        type="radio"
+                        name="condition"
+                        value="new"
+                        checked={filters.condition === 'new'}
+                        onChange={(e) => setFilters({ ...filters, condition: e.target.value })}
+                        className="w-3 h-3"
                       />
                       <span
                         className="text-xs"
@@ -727,10 +667,70 @@ export default function PropertiesPage() {
                           fontFamily: "'DM Sans', sans-serif",
                         }}
                       >
-                        {eq}
+                        🆕 Neuf
                       </span>
                     </label>
-                  ))}
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="condition"
+                        value="used"
+                        checked={filters.condition === 'used'}
+                        onChange={(e) => setFilters({ ...filters, condition: e.target.value })}
+                        className="w-3 h-3"
+                      />
+                      <span
+                        className="text-xs"
+                        style={{
+                          color: SABBAR_COLORS.goldLight,
+                          fontFamily: "'DM Sans', sans-serif",
+                        }}
+                      >
+                        🏠 Ancien
+                      </span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Équipements */}
+                <div>
+                  <h4
+                    className="text-xs font-bold mb-2 uppercase"
+                    style={{
+                      color: SABBAR_COLORS.goldAccent,
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: '9px',
+                      letterSpacing: '0.5px',
+                    }}
+                  >
+                    Équipements
+                  </h4>
+                  <div className="space-y-2">
+                    {['Parking', 'Jardin', 'Piscine', 'Meublé'].map((eq) => (
+                      <label key={eq} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={filters.equipments?.includes(eq) || false}
+                          onChange={() => {
+                            const newEquipments = filters.equipments?.includes(eq)
+                              ? filters.equipments.filter(e => e !== eq)
+                              : [...(filters.equipments || []), eq];
+                            setFilters({ ...filters, equipments: newEquipments });
+                          }}
+                          className="w-3 h-3"
+                        />
+                        <span
+                          className="text-xs"
+                          style={{
+                            color: SABBAR_COLORS.goldLight,
+                            fontFamily: "'DM Sans', sans-serif",
+                          }}
+                        >
+                          {eq}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
