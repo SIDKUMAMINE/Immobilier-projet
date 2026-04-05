@@ -157,7 +157,7 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
   );
 };
 
-// 🏠 CARTE PROPRIÉTÉ
+// 🏠 CARTE PROPRIÉTÉ - FIX NAVIGATION
 interface PropertyCardProps {
   property: any;
 }
@@ -171,7 +171,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
     setIsFavorite(favs.includes(property.id));
   }, [property.id]);
 
-  const toggleFavorite = () => {
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     const savedFavorites = localStorage.getItem('sabbar_favorites');
     const favs = savedFavorites ? JSON.parse(savedFavorites) : [];
     const newFavs = favs.includes(property.id) ? favs.filter((id: number) => id !== property.id) : [...favs, property.id];
@@ -181,8 +184,11 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
   const image = property.images?.[0] || property.image || '/placeholder.jpg';
 
+  // ✅ FIX: Utiliser le chemin correct pour la navigation
+  const propertyUrl = `/properties/${property.id}`;
+
   return (
-    <Link href={`/properties/${property.id}`}>
+    <Link href={propertyUrl} className="block">
       <div
         className="group rounded-lg overflow-hidden border-2 transition-all duration-300 hover:border-opacity-100 cursor-pointer h-full flex flex-col"
         style={{
@@ -211,10 +217,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
           {/* Bouton Favoris */}
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              toggleFavorite();
-            }}
+            onClick={toggleFavorite}
             className="absolute top-3 left-3 p-2 rounded-full transition-all"
             style={{
               backgroundColor: isFavorite ? SABBAR_COLORS.goldAccent : 'rgba(0, 0, 0, 0.6)',
@@ -403,7 +406,7 @@ export default function PropertiesPage() {
         </div>
       </section>
 
-      {/* 🎯 SECTION FILTRES - EN UNE SEULE LIGNE */}
+      {/* 🎯 SECTION FILTRES - ORDRE RÉORGANISÉ */}
       <section
         className="py-4 px-[5%] border-b overflow-x-auto"
         style={{
@@ -427,10 +430,10 @@ export default function PropertiesPage() {
             </h2>
           </div>
 
-          {/* Grille de filtres - STRUCTURE HORIZONTALE */}
-          <div className="flex flex-wrap gap-3 items-end">
+          {/* LIGNE 1: Prix, Surface, Chambres, Salles de bain, État, Équipements, Ville */}
+          <div className="flex flex-wrap gap-3 items-end mb-3">
             {/* Prix - 2 champs Min/Max */}
-            <div className="flex-1 min-w-[200px]">
+            <div className="flex-1 min-w-[160px]">
               <label
                 className="block text-[10px] font-bold uppercase mb-1.5"
                 style={{
@@ -474,7 +477,7 @@ export default function PropertiesPage() {
             </div>
 
             {/* Surface - 2 champs Min/Max */}
-            <div className="flex-1 min-w-[200px]">
+            <div className="flex-1 min-w-[160px]">
               <label
                 className="block text-[10px] font-bold uppercase mb-1.5"
                 style={{
@@ -518,7 +521,7 @@ export default function PropertiesPage() {
             </div>
 
             {/* Chambres - Une seule case */}
-            <div className="flex-1 min-w-[100px]">
+            <div className="flex-1 min-w-[90px]">
               <label
                 className="block text-[10px] font-bold uppercase mb-1.5"
                 style={{
@@ -546,7 +549,7 @@ export default function PropertiesPage() {
             </div>
 
             {/* Salles de bain - Une seule case */}
-            <div className="flex-1 min-w-[100px]">
+            <div className="flex-1 min-w-[90px]">
               <label
                 className="block text-[10px] font-bold uppercase mb-1.5"
                 style={{
@@ -574,7 +577,7 @@ export default function PropertiesPage() {
             </div>
 
             {/* État du bien - Checkbox "Neuf" seulement */}
-            <div className="flex-1 min-w-[100px]">
+            <div className="flex-1 min-w-[90px]">
               <label
                 className="block text-[10px] font-bold uppercase mb-1.5"
                 style={{
@@ -585,7 +588,7 @@ export default function PropertiesPage() {
               >
                 État du bien
               </label>
-              <label className="flex items-center gap-2 cursor-pointer px-2.5 py-1.5 border rounded"
+              <label className="flex items-center gap-2 cursor-pointer px-2.5 py-1.5 border rounded h-9"
                 style={{
                   backgroundColor: 'rgba(249, 245, 239, 0.05)',
                   borderColor: SABBAR_COLORS.goldAccent,
@@ -599,7 +602,7 @@ export default function PropertiesPage() {
                   className="w-3.5 h-3.5 cursor-pointer"
                 />
                 <span
-                  className="text-xs whitespace-nowrap"
+                  className="text-[11px] whitespace-nowrap"
                   style={{
                     color: SABBAR_COLORS.goldLight,
                     fontFamily: "'DM Sans', sans-serif",
@@ -611,7 +614,7 @@ export default function PropertiesPage() {
             </div>
 
             {/* Équipements - Checkboxes horizontales */}
-            <div className="flex-1 min-w-[300px]">
+            <div className="flex-1 min-w-[240px]">
               <label
                 className="block text-[10px] font-bold uppercase mb-1.5"
                 style={{
@@ -622,11 +625,11 @@ export default function PropertiesPage() {
               >
                 Équipements
               </label>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {['Parking', 'Jardin', 'Piscine', 'Meublé'].map((eq) => (
                   <label
                     key={eq}
-                    className="flex items-center gap-1.5 cursor-pointer px-2 py-1.5 border rounded text-[11px]"
+                    className="flex items-center gap-1 cursor-pointer px-2 py-1.5 border rounded text-[10px] whitespace-nowrap"
                     style={{
                       backgroundColor: filters.equipments.includes(eq)
                         ? SABBAR_COLORS.goldAccent + '25'
@@ -646,7 +649,7 @@ export default function PropertiesPage() {
                           : [...(filters.equipments || []), eq];
                         setFilters({ ...filters, equipments: newEquipments });
                       }}
-                      className="w-3.5 h-3.5 cursor-pointer"
+                      className="w-3 h-3 cursor-pointer"
                     />
                     <span
                       style={{
@@ -661,7 +664,7 @@ export default function PropertiesPage() {
               </div>
             </div>
 
-            {/* Sélecteurs principaux - Ville, Type de transaction, Type de bien */}
+            {/* Ville */}
             <FilterSelect
               label="Ville"
               options={staticCities.map(city => ({ original: city, label: city }))}
@@ -669,7 +672,11 @@ export default function PropertiesPage() {
               onChange={(value) => setFilters({ ...filters, city: value })}
               placeholder="Toutes"
             />
+          </div>
 
+          {/* LIGNE 2: Type de transaction, Type de bien, Réinitialiser */}
+          <div className="flex flex-wrap gap-3 items-end">
+            {/* Type de transaction */}
             <FilterSelect
               label="Type de transaction"
               options={staticTransactionTypes}
@@ -678,6 +685,7 @@ export default function PropertiesPage() {
               placeholder="Tous"
             />
 
+            {/* Type de bien */}
             <FilterSelect
               label="Type de bien"
               options={staticPropertyTypes}
@@ -689,7 +697,7 @@ export default function PropertiesPage() {
             {/* Bouton Réinitialiser */}
             <button
               onClick={handleResetFilters}
-              className="px-3 py-1.5 rounded text-xs font-bold transition-all whitespace-nowrap"
+              className="px-4 py-1.5 rounded text-xs font-bold transition-all whitespace-nowrap h-9"
               style={{
                 backgroundColor: SABBAR_COLORS.goldAccent,
                 color: SABBAR_COLORS.navyDominant,
