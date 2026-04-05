@@ -321,51 +321,52 @@ export default function PropertiesPage() {
     fetchProperties();
   }, []);
 
-// Appliquer les filtres
-useEffect(() => {
-  const filtered = properties.filter(property => {
-    if (filters.city && property.city !== filters.city) return false;
-    if (filters.transactionType && property.transaction_type !== filters.transactionType) return false;
-    if (filters.propertyType && property.property_type !== filters.propertyType) return false;
+  // Appliquer les filtres
+  useEffect(() => {
+    const filtered = properties.filter(property => {
+      if (filters.city && property.city !== filters.city) return false;
+      if (filters.transactionType && property.transaction_type !== filters.transactionType) return false;
+      if (filters.propertyType && property.property_type !== filters.propertyType) return false;
 
-    if (filters.priceMin && property.price < parseInt(filters.priceMin)) return false;
-    if (filters.priceMax && property.price > parseInt(filters.priceMax)) return false;
+      if (filters.priceMin && property.price < parseInt(filters.priceMin)) return false;
+      if (filters.priceMax && property.price > parseInt(filters.priceMax)) return false;
 
-    if (filters.areaMin && property.area && property.area < parseInt(filters.areaMin)) return false;
-    if (filters.areaMax && property.area && property.area > parseInt(filters.areaMax)) return false;
+      if (filters.areaMin && property.area && property.area < parseInt(filters.areaMin)) return false;
+      if (filters.areaMax && property.area && property.area > parseInt(filters.areaMax)) return false;
 
-    if (filters.bedrooms && property.bedrooms !== parseInt(filters.bedrooms)) return false;
-    if (filters.bathrooms && property.bathrooms !== parseInt(filters.bathrooms)) return false;
+      if (filters.bedrooms && property.bedrooms !== parseInt(filters.bedrooms)) return false;
+      if (filters.bathrooms && property.bathrooms !== parseInt(filters.bathrooms)) return false;
 
-    // ✅ FIX condition (case insensitive)
-    if (
-      filters.condition &&
-      property.condition?.toLowerCase() !== filters.condition.toLowerCase()
-    ) return false;
+      // ✅ FIX condition (case insensitive)
+      if (
+        filters.condition &&
+        property.condition?.toLowerCase() !== filters.condition.toLowerCase()
+      ) return false;
 
-    // ✅ FIX équipements (support string OU objet {name})
-    if (filters.equipments.length > 0) {
-      const propertyEquipments = property.equipments || [];
+      // ✅ FIX équipements (support string OU objet {name})
+      if (filters.equipments.length > 0) {
+        const propertyEquipments = property.equipments || [];
 
-      const hasAllEquipments = filters.equipments.every(eq =>
-        propertyEquipments.some(pEq => {
-          const value =
-            typeof pEq === 'string'
-              ? pEq
-              : pEq?.name; // support backend objet
+        const hasAllEquipments = filters.equipments.every(eq =>
+          propertyEquipments.some(pEq => {
+            const value =
+              typeof pEq === 'string'
+                ? pEq
+                : pEq?.name; // support backend objet
 
-          return value?.toLowerCase() === eq.toLowerCase();
-        })
-      );
+            return value?.toLowerCase() === eq.toLowerCase();
+          })
+        );
 
-      if (!hasAllEquipments) return false;
-    }
+        if (!hasAllEquipments) return false;
+      }
 
-    return true;
-  });
+      return true;
+    });
 
-  setFilteredProperties(filtered);
-}, [filters, properties]);
+    setFilteredProperties(filtered);
+  }, [filters, properties]);
+
   const handleResetFilters = () => {
     setFilters({
       city: '',
@@ -497,7 +498,7 @@ useEffect(() => {
             </button>
           </div>
 
-          {/* Critères supplémentaires collapsible - COMPACT */}
+          {/* Critères supplémentaires collapsible - RESTRUCTURÉ */}
           {expandCriteria && (
             <div
               className="p-4 rounded-lg border mt-3 transition-all"
@@ -506,42 +507,122 @@ useEffect(() => {
                 borderColor: SABBAR_COLORS.goldAccent + '30',
               }}
             >
-              {/* Grille : Prix, Surface, Chambres, Salles de bain, État du bien (1ère partie), Équipements (1ère partie) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                {/* Prix */}
-                <div>
-                  <h4
-                    className="text-xs font-bold mb-2 uppercase"
-                    style={{
-                      color: SABBAR_COLORS.goldAccent,
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: '9px',
-                      letterSpacing: '0.5px',
-                    }}
-                  >
-                    Prix (MAD)
-                  </h4>
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      placeholder="Min"
-                      value={filters.priceMin}
-                      onChange={(e) => setFilters({ ...filters, priceMin: e.target.value })}
-                      className="flex-1 px-3 py-2 rounded text-xs"
+              {/* Grille restructurée */}
+              <div className="space-y-4">
+                {/* Row 1: Prix et Surface */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Prix */}
+                  <div>
+                    <h4
+                      className="text-xs font-bold mb-2 uppercase"
                       style={{
-                        backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                        borderColor: SABBAR_COLORS.goldAccent,
-                        color: SABBAR_COLORS.goldLight,
-                        border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                        color: SABBAR_COLORS.goldAccent,
                         fontFamily: "'DM Sans', sans-serif",
+                        fontSize: '9px',
+                        letterSpacing: '0.5px',
                       }}
-                    />
+                    >
+                      Prix (MAD)
+                    </h4>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        placeholder="Min"
+                        value={filters.priceMin}
+                        onChange={(e) => setFilters({ ...filters, priceMin: e.target.value })}
+                        className="flex-1 px-3 py-2 rounded text-xs"
+                        style={{
+                          backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                          borderColor: SABBAR_COLORS.goldAccent,
+                          color: SABBAR_COLORS.goldLight,
+                          border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                          fontFamily: "'DM Sans', sans-serif",
+                        }}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Max"
+                        value={filters.priceMax}
+                        onChange={(e) => setFilters({ ...filters, priceMax: e.target.value })}
+                        className="flex-1 px-3 py-2 rounded text-xs"
+                        style={{
+                          backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                          borderColor: SABBAR_COLORS.goldAccent,
+                          color: SABBAR_COLORS.goldLight,
+                          border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                          fontFamily: "'DM Sans', sans-serif",
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Surface */}
+                  <div>
+                    <h4
+                      className="text-xs font-bold mb-2 uppercase"
+                      style={{
+                        color: SABBAR_COLORS.goldAccent,
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: '9px',
+                        letterSpacing: '0.5px',
+                      }}
+                    >
+                      Surface (m²)
+                    </h4>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        placeholder="Min"
+                        value={filters.areaMin}
+                        onChange={(e) => setFilters({ ...filters, areaMin: e.target.value })}
+                        className="flex-1 px-3 py-2 rounded text-xs"
+                        style={{
+                          backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                          borderColor: SABBAR_COLORS.goldAccent,
+                          color: SABBAR_COLORS.goldLight,
+                          border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                          fontFamily: "'DM Sans', sans-serif",
+                        }}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Max"
+                        value={filters.areaMax}
+                        onChange={(e) => setFilters({ ...filters, areaMax: e.target.value })}
+                        className="flex-1 px-3 py-2 rounded text-xs"
+                        style={{
+                          backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                          borderColor: SABBAR_COLORS.goldAccent,
+                          color: SABBAR_COLORS.goldLight,
+                          border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                          fontFamily: "'DM Sans', sans-serif",
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 2: Chambres, Salles de bain, État du bien */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Chambres */}
+                  <div>
+                    <h4
+                      className="text-xs font-bold mb-2 uppercase"
+                      style={{
+                        color: SABBAR_COLORS.goldAccent,
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: '9px',
+                        letterSpacing: '0.5px',
+                      }}
+                    >
+                      Chambres
+                    </h4>
                     <input
                       type="number"
-                      placeholder="Max"
-                      value={filters.priceMax}
-                      onChange={(e) => setFilters({ ...filters, priceMax: e.target.value })}
-                      className="flex-1 px-3 py-2 rounded text-xs"
+                      placeholder="Ex: 2"
+                      value={filters.bedrooms}
+                      onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
+                      className="w-full px-3 py-2 rounded text-xs"
                       style={{
                         backgroundColor: 'rgba(249, 245, 239, 0.05)',
                         borderColor: SABBAR_COLORS.goldAccent,
@@ -551,42 +632,26 @@ useEffect(() => {
                       }}
                     />
                   </div>
-                </div>
 
-                {/* Surface */}
-                <div>
-                  <h4
-                    className="text-xs font-bold mb-2 uppercase"
-                    style={{
-                      color: SABBAR_COLORS.goldAccent,
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: '9px',
-                      letterSpacing: '0.5px',
-                    }}
-                  >
-                    Surface (m²)
-                  </h4>
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      placeholder="Min"
-                      value={filters.areaMin}
-                      onChange={(e) => setFilters({ ...filters, areaMin: e.target.value })}
-                      className="flex-1 px-3 py-2 rounded text-xs"
+                  {/* Salles de bain */}
+                  <div>
+                    <h4
+                      className="text-xs font-bold mb-2 uppercase"
                       style={{
-                        backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                        borderColor: SABBAR_COLORS.goldAccent,
-                        color: SABBAR_COLORS.goldLight,
-                        border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                        color: SABBAR_COLORS.goldAccent,
                         fontFamily: "'DM Sans', sans-serif",
+                        fontSize: '9px',
+                        letterSpacing: '0.5px',
                       }}
-                    />
+                    >
+                      Salles de bain
+                    </h4>
                     <input
                       type="number"
-                      placeholder="Max"
-                      value={filters.areaMax}
-                      onChange={(e) => setFilters({ ...filters, areaMax: e.target.value })}
-                      className="flex-1 px-3 py-2 rounded text-xs"
+                      placeholder="Ex: 1"
+                      value={filters.bathrooms}
+                      onChange={(e) => setFilters({ ...filters, bathrooms: e.target.value })}
+                      className="w-full px-3 py-2 rounded text-xs"
                       style={{
                         backgroundColor: 'rgba(249, 245, 239, 0.05)',
                         borderColor: SABBAR_COLORS.goldAccent,
@@ -596,88 +661,26 @@ useEffect(() => {
                       }}
                     />
                   </div>
-                </div>
 
-                {/* Chambres */}
-                <div>
-                  <h4
-                    className="text-xs font-bold mb-2 uppercase"
-                    style={{
-                      color: SABBAR_COLORS.goldAccent,
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: '9px',
-                      letterSpacing: '0.5px',
-                    }}
-                  >
-                    Chambres
-                  </h4>
-                  <input
-                    type="number"
-                    placeholder="Ex: 2"
-                    value={filters.bedrooms}
-                    onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
-                    className="w-full px-3 py-2 rounded text-xs"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      borderColor: SABBAR_COLORS.goldAccent,
-                      color: SABBAR_COLORS.goldLight,
-                      border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                </div>
-
-                {/* Salles de bain */}
-                <div>
-                  <h4
-                    className="text-xs font-bold mb-2 uppercase"
-                    style={{
-                      color: SABBAR_COLORS.goldAccent,
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: '9px',
-                      letterSpacing: '0.5px',
-                    }}
-                  >
-                    Salles de bain
-                  </h4>
-                  <input
-                    type="number"
-                    placeholder="Ex: 1"
-                    value={filters.bathrooms}
-                    onChange={(e) => setFilters({ ...filters, bathrooms: e.target.value })}
-                    className="w-full px-3 py-2 rounded text-xs"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      borderColor: SABBAR_COLORS.goldAccent,
-                      color: SABBAR_COLORS.goldLight,
-                      border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                </div>
-
-                {/* État du bien */}
-                <div>
-                  <h4
-                    className="text-xs font-bold mb-2 uppercase"
-                    style={{
-                      color: SABBAR_COLORS.goldAccent,
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: '9px',
-                      letterSpacing: '0.5px',
-                    }}
-                  >
-                    État du bien
-                  </h4>
-                  <div className="space-y-2">
+                  {/* État du bien - Seulement Neuf */}
+                  <div>
+                    <h4
+                      className="text-xs font-bold mb-2 uppercase"
+                      style={{
+                        color: SABBAR_COLORS.goldAccent,
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: '9px',
+                        letterSpacing: '0.5px',
+                      }}
+                    >
+                      État du bien
+                    </h4>
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
-                        type="radio"
-                        name="condition"
-                        value="new"
+                        type="checkbox"
                         checked={filters.condition === 'new'}
-                        onChange={(e) => setFilters({ ...filters, condition: e.target.value })}
-                        className="w-3 h-3"
+                        onChange={(e) => setFilters({ ...filters, condition: e.target.checked ? 'new' : '' })}
+                        className="w-4 h-4"
                       />
                       <span
                         className="text-xs"
@@ -689,29 +692,10 @@ useEffect(() => {
                         🆕 Neuf
                       </span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="condition"
-                        value="used"
-                        checked={filters.condition === 'used'}
-                        onChange={(e) => setFilters({ ...filters, condition: e.target.value })}
-                        className="w-3 h-3"
-                      />
-                      <span
-                        className="text-xs"
-                        style={{
-                          color: SABBAR_COLORS.goldLight,
-                          fontFamily: "'DM Sans', sans-serif",
-                        }}
-                      >
-                        🏠 Ancien
-                      </span>
-                    </label>
                   </div>
                 </div>
 
-                {/* Équipements */}
+                {/* Row 3: Équipements */}
                 <div>
                   <h4
                     className="text-xs font-bold mb-2 uppercase"
@@ -724,7 +708,7 @@ useEffect(() => {
                   >
                     Équipements
                   </h4>
-                  <div className="space-y-2">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {['Parking', 'Jardin', 'Piscine', 'Meublé'].map((eq) => (
                       <label key={eq} className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -736,7 +720,7 @@ useEffect(() => {
                               : [...(filters.equipments || []), eq];
                             setFilters({ ...filters, equipments: newEquipments });
                           }}
-                          className="w-3 h-3"
+                          className="w-4 h-4"
                         />
                         <span
                           className="text-xs"
