@@ -295,7 +295,7 @@ export default function PropertiesPage() {
     areaMax: '',
     bedrooms: '',
     bathrooms: '',
-    condition: '',
+    condition: false, // ← BOOLÉEN pour is_new
     has_parking: false,
     has_garden: false,
     has_pool: false,
@@ -391,13 +391,9 @@ export default function PropertiesPage() {
         }
       }
 
-      // ✅ CONDITION (Neuf)
-      if (filters.condition) {
-        const propertyCondition = property.condition?.toLowerCase() || '';
-        const filterCondition = filters.condition.toLowerCase();
-        if (propertyCondition !== filterCondition) {
-          return false;
-        }
+      // ✅ CONDITION (Neuf) - UTILISER is_new BOOLÉEN
+      if (filters.condition && !property.is_new) {
+        return false;
       }
 
       // ✅ ÉQUIPEMENTS - CORRECTIFS AVEC LES BONS NOMS DE CHAMPS
@@ -440,7 +436,7 @@ export default function PropertiesPage() {
       areaMax: '',
       bedrooms: '',
       bathrooms: '',
-      condition: '',
+      condition: false,
       has_parking: false,
       has_garden: false,
       has_pool: false,
@@ -782,16 +778,16 @@ export default function PropertiesPage() {
                   <label
                     className="flex items-center gap-2 cursor-pointer px-3 py-2 border rounded"
                     style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      backgroundColor: filters.condition ? SABBAR_COLORS.goldAccent + '20' : 'rgba(249, 245, 239, 0.05)',
                       border: `1px solid ${SABBAR_COLORS.goldAccent}`,
                     }}
                   >
                     <input
                       type="checkbox"
-                      checked={filters.condition === 'new'}
+                      checked={filters.condition}
                       onChange={(e) => {
-                        const newValue = e.target.checked ? 'new' : '';
-                        console.log('✅ Condition changée:', newValue);
+                        const newValue = e.target.checked;
+                        console.log('✅ État du bien (Neuf) changé:', newValue);
                         setFilters({ ...filters, condition: newValue });
                       }}
                       className="w-4 h-4 cursor-pointer"
