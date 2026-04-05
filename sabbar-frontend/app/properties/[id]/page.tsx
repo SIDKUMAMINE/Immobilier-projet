@@ -524,22 +524,22 @@ export default function PropertyDetailPage() {
               </div>
             </div>
 
-            {/* Description - 🎯 MODIFIÉ POUR AFFICHER EN TIRETS */}
+            {/* Description - Affichage élégant */}
             {property.description && (
               <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
                 <h2 className="text-2xl font-bold text-white mb-6">📝 Description</h2>
-                <ul className="space-y-3">
+                <div className="space-y-4">
                   {property.description
-                    .split(/[-•*\n]|[.!?](?=\s)|,\s+(?=[A-Z])/) // Diviser par tirets, puces, sauts de ligne, ou points
+                    .split(/[-•\*]\s+/) // Diviser par tirets ou puces
                     .map((item: string) => item.trim())
-                    .filter((item: string) => item.length > 0 && item.length > 5) // Filtrer les éléments trop courts
+                    .filter((item: string) => item.length > 0)
                     .map((item: string, index: number) => (
-                      <li key={index} className="flex items-start gap-3 group hover:bg-[rgba(212,175,55,0.05)] p-2 rounded-lg transition-colors">
-                        <span className="text-[#d4af37] font-bold text-lg flex-shrink-0 mt-0.5">✦</span>
-                        <span className="text-[#b0b0b0] leading-relaxed text-sm sm:text-base">{item}</span>
-                      </li>
+                      <div key={index} className="flex items-start gap-4 pb-4 border-b border-[rgba(212,175,55,0.1)] last:border-b-0">
+                        <div className="flex-shrink-0 w-2 h-2 rounded-full bg-[#d4af37] mt-2"></div>
+                        <p className="text-[#b0b0b0] leading-relaxed flex-1">{item}</p>
+                      </div>
                     ))}
-                </ul>
+                </div>
               </div>
             )}
 
