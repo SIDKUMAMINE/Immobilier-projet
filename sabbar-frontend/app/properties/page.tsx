@@ -34,7 +34,7 @@ const staticPropertyTypes = [
   { original: 'local-commercial', label: 'Local commercial' },
 ];
 
-// 🎯 COMPOSANT FILTRE
+// 🎯 COMPOSANT FILTRE SELECT
 interface FilterSelectProps {
   label: string;
   options: Array<{ original: string; label: string }>;
@@ -48,7 +48,7 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
   options,
   value,
   onChange,
-  placeholder = 'Sélectionner une option',
+  placeholder = 'Sélectionner',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -64,15 +64,13 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
   };
 
   return (
-    <div className="w-full">
+    <div className="flex-1 min-w-[140px]">
       <label
-        className="block text-xs font-bold uppercase mb-2"
+        className="block text-[10px] font-bold uppercase mb-1.5"
         style={{
           color: SABBAR_COLORS.goldAccent,
           fontFamily: "'DM Sans', sans-serif",
-          fontSize: '10px',
-          letterSpacing: '1px',
-          fontWeight: 700,
+          letterSpacing: '0.5px',
         }}
       >
         {label}
@@ -81,20 +79,19 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
       <div className="relative">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full px-3 py-2 rounded-lg flex items-center justify-between transition-all duration-200 text-sm"
+          className="w-full px-2.5 py-1.5 rounded flex items-center justify-between transition-all duration-200 text-xs"
           style={{
             backgroundColor: isOpen ? SABBAR_COLORS.navyDominant : 'rgba(249, 245, 239, 0.05)',
             color: value && value !== placeholder ? SABBAR_COLORS.ivory : SABBAR_COLORS.goldLight,
-            border: `2px solid ${SABBAR_COLORS.goldAccent}`,
+            border: `1px solid ${SABBAR_COLORS.goldAccent}`,
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px',
-            fontWeight: 600,
+            fontWeight: 500,
           }}
         >
-          <span className="truncate">{getDisplayLabel()}</span>
+          <span className="truncate text-[11px]">{getDisplayLabel()}</span>
           <ChevronDown
-            size={16}
-            className="flex-shrink-0 ml-2 transition-transform duration-200"
+            size={14}
+            className="flex-shrink-0 ml-1 transition-transform duration-200"
             style={{
               color: SABBAR_COLORS.goldAccent,
               transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
@@ -104,12 +101,12 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
 
         {isOpen && (
           <div
-            className="absolute top-full left-0 right-0 mt-1 rounded-lg shadow-xl z-50 overflow-hidden border-2"
+            className="absolute top-full left-0 right-0 mt-1 rounded shadow-lg z-50 overflow-hidden border"
             style={{
               backgroundColor: SABBAR_COLORS.navyDominant,
               borderColor: SABBAR_COLORS.goldAccent,
-              boxShadow: `0 10px 30px rgba(200, 169, 110, 0.2)`,
-              maxHeight: '250px',
+              boxShadow: `0 4px 12px rgba(200, 169, 110, 0.15)`,
+              maxHeight: '200px',
               overflowY: 'auto',
             }}
           >
@@ -118,18 +115,18 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
                 onChange('');
                 setIsOpen(false);
               }}
-              className="w-full px-3 py-2 text-left transition-colors text-sm"
+              className="w-full px-2.5 py-1.5 text-left transition-colors text-[11px]"
               style={{
-                backgroundColor: !value ? SABBAR_COLORS.goldAccent + '15' : 'transparent',
+                backgroundColor: !value ? SABBAR_COLORS.goldAccent + '20' : 'transparent',
                 color: !value ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.goldLight,
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: '12px',
+                fontSize: '11px',
               }}
             >
               {placeholder}
             </button>
 
-            <div style={{ height: '1px', backgroundColor: SABBAR_COLORS.goldAccent + '20' }} />
+            <div style={{ height: '0.5px', backgroundColor: SABBAR_COLORS.goldAccent + '15' }} />
 
             {optionsArray.map((option, index) => (
               <button
@@ -138,14 +135,14 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
                   onChange(option.original);
                   setIsOpen(false);
                 }}
-                className="w-full px-3 py-2 text-left transition-colors text-sm"
+                className="w-full px-2.5 py-1.5 text-left transition-colors text-[11px]"
                 style={{
-                  backgroundColor: value === option.original ? SABBAR_COLORS.goldAccent + '15' : 'transparent',
+                  backgroundColor: value === option.original ? SABBAR_COLORS.goldAccent + '20' : 'transparent',
                   color: value === option.original ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.goldLight,
                   fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '12px',
+                  fontSize: '11px',
                   fontWeight: value === option.original ? 600 : 500,
-                  borderBottom: `1px solid ${SABBAR_COLORS.goldAccent}10`,
+                  borderBottom: `0.5px solid ${SABBAR_COLORS.goldAccent}08`,
                 }}
               >
                 {option.label}
@@ -287,7 +284,6 @@ export default function PropertiesPage() {
   const [properties, setProperties] = useState<any[]>([]);
   const [filteredProperties, setFilteredProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandCriteria, setExpandCriteria] = useState(false);
 
   const [filters, setFilters] = useState({
     city: '',
@@ -337,13 +333,11 @@ export default function PropertiesPage() {
       if (filters.bedrooms && property.bedrooms !== parseInt(filters.bedrooms)) return false;
       if (filters.bathrooms && property.bathrooms !== parseInt(filters.bathrooms)) return false;
 
-      // ✅ FIX condition (case insensitive)
       if (
         filters.condition &&
         property.condition?.toLowerCase() !== filters.condition.toLowerCase()
       ) return false;
 
-      // ✅ FIX équipements (support string OU objet {name})
       if (filters.equipments.length > 0) {
         const propertyEquipments = property.equipments || [];
 
@@ -352,7 +346,7 @@ export default function PropertiesPage() {
             const value =
               typeof pEq === 'string'
                 ? pEq
-                : pEq?.name; // support backend objet
+                : pEq?.name;
 
             return value?.toLowerCase() === eq.toLowerCase();
           })
@@ -409,23 +403,23 @@ export default function PropertiesPage() {
         </div>
       </section>
 
-      {/* 🎯 SECTION FILTRES COMPACT */}
+      {/* 🎯 SECTION FILTRES - EN UNE SEULE LIGNE */}
       <section
-        className="py-4 px-[5%] border-b"
+        className="py-4 px-[5%] border-b overflow-x-auto"
         style={{
           backgroundColor: SABBAR_COLORS.navyDominant,
           borderColor: SABBAR_COLORS.goldAccent + '30',
         }}
       >
         <div className="max-w-[1400px] mx-auto">
-          <div className="flex items-center gap-3 mb-4">
-            <span style={{ fontSize: '20px' }}>🔍</span>
+          <div className="flex items-center gap-3 mb-3">
+            <span style={{ fontSize: '18px' }}>🔍</span>
             <h2
-              className="text-base font-bold"
+              className="text-sm font-bold whitespace-nowrap"
               style={{
                 color: SABBAR_COLORS.goldAccent,
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: 700,
               }}
             >
@@ -433,14 +427,247 @@ export default function PropertiesPage() {
             </h2>
           </div>
 
-          {/* Grille de filtres compacte */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-3">
+          {/* Grille de filtres - STRUCTURE HORIZONTALE */}
+          <div className="flex flex-wrap gap-3 items-end">
+            {/* Prix - 2 champs Min/Max */}
+            <div className="flex-1 min-w-[200px]">
+              <label
+                className="block text-[10px] font-bold uppercase mb-1.5"
+                style={{
+                  color: SABBAR_COLORS.goldAccent,
+                  fontFamily: "'DM Sans', sans-serif",
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Prix (MAD)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={filters.priceMin}
+                  onChange={(e) => setFilters({ ...filters, priceMin: e.target.value })}
+                  className="flex-1 px-2.5 py-1.5 rounded text-xs"
+                  style={{
+                    backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                    borderColor: SABBAR_COLORS.goldAccent,
+                    color: SABBAR_COLORS.goldLight,
+                    border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                />
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={filters.priceMax}
+                  onChange={(e) => setFilters({ ...filters, priceMax: e.target.value })}
+                  className="flex-1 px-2.5 py-1.5 rounded text-xs"
+                  style={{
+                    backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                    borderColor: SABBAR_COLORS.goldAccent,
+                    color: SABBAR_COLORS.goldLight,
+                    border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Surface - 2 champs Min/Max */}
+            <div className="flex-1 min-w-[200px]">
+              <label
+                className="block text-[10px] font-bold uppercase mb-1.5"
+                style={{
+                  color: SABBAR_COLORS.goldAccent,
+                  fontFamily: "'DM Sans', sans-serif",
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Surface (m²)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={filters.areaMin}
+                  onChange={(e) => setFilters({ ...filters, areaMin: e.target.value })}
+                  className="flex-1 px-2.5 py-1.5 rounded text-xs"
+                  style={{
+                    backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                    borderColor: SABBAR_COLORS.goldAccent,
+                    color: SABBAR_COLORS.goldLight,
+                    border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                />
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={filters.areaMax}
+                  onChange={(e) => setFilters({ ...filters, areaMax: e.target.value })}
+                  className="flex-1 px-2.5 py-1.5 rounded text-xs"
+                  style={{
+                    backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                    borderColor: SABBAR_COLORS.goldAccent,
+                    color: SABBAR_COLORS.goldLight,
+                    border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Chambres - Une seule case */}
+            <div className="flex-1 min-w-[100px]">
+              <label
+                className="block text-[10px] font-bold uppercase mb-1.5"
+                style={{
+                  color: SABBAR_COLORS.goldAccent,
+                  fontFamily: "'DM Sans', sans-serif",
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Chambres
+              </label>
+              <input
+                type="number"
+                placeholder="Ex: 2"
+                value={filters.bedrooms}
+                onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
+                className="w-full px-2.5 py-1.5 rounded text-xs"
+                style={{
+                  backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                  borderColor: SABBAR_COLORS.goldAccent,
+                  color: SABBAR_COLORS.goldLight,
+                  border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              />
+            </div>
+
+            {/* Salles de bain - Une seule case */}
+            <div className="flex-1 min-w-[100px]">
+              <label
+                className="block text-[10px] font-bold uppercase mb-1.5"
+                style={{
+                  color: SABBAR_COLORS.goldAccent,
+                  fontFamily: "'DM Sans', sans-serif",
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Salles de bain
+              </label>
+              <input
+                type="number"
+                placeholder="Ex: 1"
+                value={filters.bathrooms}
+                onChange={(e) => setFilters({ ...filters, bathrooms: e.target.value })}
+                className="w-full px-2.5 py-1.5 rounded text-xs"
+                style={{
+                  backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                  borderColor: SABBAR_COLORS.goldAccent,
+                  color: SABBAR_COLORS.goldLight,
+                  border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              />
+            </div>
+
+            {/* État du bien - Checkbox "Neuf" seulement */}
+            <div className="flex-1 min-w-[100px]">
+              <label
+                className="block text-[10px] font-bold uppercase mb-1.5"
+                style={{
+                  color: SABBAR_COLORS.goldAccent,
+                  fontFamily: "'DM Sans', sans-serif",
+                  letterSpacing: '0.5px',
+                }}
+              >
+                État du bien
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer px-2.5 py-1.5 border rounded"
+                style={{
+                  backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                  borderColor: SABBAR_COLORS.goldAccent,
+                  border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={filters.condition === 'new'}
+                  onChange={(e) => setFilters({ ...filters, condition: e.target.checked ? 'new' : '' })}
+                  className="w-3.5 h-3.5 cursor-pointer"
+                />
+                <span
+                  className="text-xs whitespace-nowrap"
+                  style={{
+                    color: SABBAR_COLORS.goldLight,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                >
+                  🆕 Neuf
+                </span>
+              </label>
+            </div>
+
+            {/* Équipements - Checkboxes horizontales */}
+            <div className="flex-1 min-w-[300px]">
+              <label
+                className="block text-[10px] font-bold uppercase mb-1.5"
+                style={{
+                  color: SABBAR_COLORS.goldAccent,
+                  fontFamily: "'DM Sans', sans-serif",
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Équipements
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {['Parking', 'Jardin', 'Piscine', 'Meublé'].map((eq) => (
+                  <label
+                    key={eq}
+                    className="flex items-center gap-1.5 cursor-pointer px-2 py-1.5 border rounded text-[11px]"
+                    style={{
+                      backgroundColor: filters.equipments.includes(eq)
+                        ? SABBAR_COLORS.goldAccent + '25'
+                        : 'rgba(249, 245, 239, 0.05)',
+                      borderColor: filters.equipments.includes(eq)
+                        ? SABBAR_COLORS.goldAccent
+                        : SABBAR_COLORS.goldAccent + '50',
+                      border: `1px solid`,
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={filters.equipments?.includes(eq) || false}
+                      onChange={() => {
+                        const newEquipments = filters.equipments?.includes(eq)
+                          ? filters.equipments.filter(e => e !== eq)
+                          : [...(filters.equipments || []), eq];
+                        setFilters({ ...filters, equipments: newEquipments });
+                      }}
+                      className="w-3.5 h-3.5 cursor-pointer"
+                    />
+                    <span
+                      style={{
+                        color: SABBAR_COLORS.goldLight,
+                        fontFamily: "'DM Sans', sans-serif",
+                      }}
+                    >
+                      {eq}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Sélecteurs principaux - Ville, Type de transaction, Type de bien */}
             <FilterSelect
               label="Ville"
               options={staticCities.map(city => ({ original: city, label: city }))}
               value={filters.city}
               onChange={(value) => setFilters({ ...filters, city: value })}
-              placeholder="Sélectionner une ville"
+              placeholder="Toutes"
             />
 
             <FilterSelect
@@ -448,7 +675,7 @@ export default function PropertiesPage() {
               options={staticTransactionTypes}
               value={filters.transactionType}
               onChange={(value) => setFilters({ ...filters, transactionType: value })}
-              placeholder="Tous les types"
+              placeholder="Tous"
             />
 
             <FilterSelect
@@ -456,288 +683,23 @@ export default function PropertiesPage() {
               options={staticPropertyTypes}
               value={filters.propertyType}
               onChange={(value) => setFilters({ ...filters, propertyType: value })}
-              placeholder="Tous les types"
+              placeholder="Tous"
             />
-          </div>
 
-          {/* Row avec Critères supplémentaires et Réinitialiser */}
-          <div className="flex flex-col sm:flex-row gap-3 items-center">
-            <button
-              onClick={() => setExpandCriteria(!expandCriteria)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg font-bold text-sm transition-all whitespace-nowrap"
-              style={{
-                backgroundColor: expandCriteria ? SABBAR_COLORS.goldAccent + '30' : SABBAR_COLORS.goldAccent + '15',
-                borderColor: SABBAR_COLORS.goldAccent,
-                color: SABBAR_COLORS.goldAccent,
-                fontFamily: "'DM Sans', sans-serif",
-                border: `2px solid ${SABBAR_COLORS.goldAccent}`,
-                fontSize: '12px',
-              }}
-            >
-              Critères supplémentaires
-              <ChevronDown
-                size={16}
-                style={{
-                  transform: expandCriteria ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transition: 'transform 200ms',
-                }}
-              />
-            </button>
-
+            {/* Bouton Réinitialiser */}
             <button
               onClick={handleResetFilters}
-              className="flex-1 sm:flex-none px-4 py-2 rounded-lg font-bold text-sm transition-all"
+              className="px-3 py-1.5 rounded text-xs font-bold transition-all whitespace-nowrap"
               style={{
                 backgroundColor: SABBAR_COLORS.goldAccent,
                 color: SABBAR_COLORS.navyDominant,
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: '12px',
+                fontSize: '11px',
               }}
             >
-              Réinitialiser tous les filtres
+              Réinitialiser
             </button>
           </div>
-
-          {/* Critères supplémentaires collapsible - RESTRUCTURÉ */}
-          {expandCriteria && (
-            <div
-              className="p-4 rounded-lg border mt-3 transition-all"
-              style={{
-                backgroundColor: SABBAR_COLORS.navyDominant + '80',
-                borderColor: SABBAR_COLORS.goldAccent + '30',
-              }}
-            >
-              {/* Grille restructurée */}
-              <div className="space-y-4">
-                {/* Row 1: Prix et Surface */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Prix */}
-                  <div>
-                    <h4
-                      className="text-xs font-bold mb-2 uppercase"
-                      style={{
-                        color: SABBAR_COLORS.goldAccent,
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: '9px',
-                        letterSpacing: '0.5px',
-                      }}
-                    >
-                      Prix (MAD)
-                    </h4>
-                    <div className="flex gap-2">
-                      <input
-                        type="number"
-                        placeholder="Min"
-                        value={filters.priceMin}
-                        onChange={(e) => setFilters({ ...filters, priceMin: e.target.value })}
-                        className="flex-1 px-3 py-2 rounded text-xs"
-                        style={{
-                          backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                          borderColor: SABBAR_COLORS.goldAccent,
-                          color: SABBAR_COLORS.goldLight,
-                          border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                          fontFamily: "'DM Sans', sans-serif",
-                        }}
-                      />
-                      <input
-                        type="number"
-                        placeholder="Max"
-                        value={filters.priceMax}
-                        onChange={(e) => setFilters({ ...filters, priceMax: e.target.value })}
-                        className="flex-1 px-3 py-2 rounded text-xs"
-                        style={{
-                          backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                          borderColor: SABBAR_COLORS.goldAccent,
-                          color: SABBAR_COLORS.goldLight,
-                          border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                          fontFamily: "'DM Sans', sans-serif",
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Surface */}
-                  <div>
-                    <h4
-                      className="text-xs font-bold mb-2 uppercase"
-                      style={{
-                        color: SABBAR_COLORS.goldAccent,
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: '9px',
-                        letterSpacing: '0.5px',
-                      }}
-                    >
-                      Surface (m²)
-                    </h4>
-                    <div className="flex gap-2">
-                      <input
-                        type="number"
-                        placeholder="Min"
-                        value={filters.areaMin}
-                        onChange={(e) => setFilters({ ...filters, areaMin: e.target.value })}
-                        className="flex-1 px-3 py-2 rounded text-xs"
-                        style={{
-                          backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                          borderColor: SABBAR_COLORS.goldAccent,
-                          color: SABBAR_COLORS.goldLight,
-                          border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                          fontFamily: "'DM Sans', sans-serif",
-                        }}
-                      />
-                      <input
-                        type="number"
-                        placeholder="Max"
-                        value={filters.areaMax}
-                        onChange={(e) => setFilters({ ...filters, areaMax: e.target.value })}
-                        className="flex-1 px-3 py-2 rounded text-xs"
-                        style={{
-                          backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                          borderColor: SABBAR_COLORS.goldAccent,
-                          color: SABBAR_COLORS.goldLight,
-                          border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                          fontFamily: "'DM Sans', sans-serif",
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Row 2: Chambres, Salles de bain, État du bien */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Chambres */}
-                  <div>
-                    <h4
-                      className="text-xs font-bold mb-2 uppercase"
-                      style={{
-                        color: SABBAR_COLORS.goldAccent,
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: '9px',
-                        letterSpacing: '0.5px',
-                      }}
-                    >
-                      Chambres
-                    </h4>
-                    <input
-                      type="number"
-                      placeholder="Ex: 2"
-                      value={filters.bedrooms}
-                      onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
-                      className="w-full px-3 py-2 rounded text-xs"
-                      style={{
-                        backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                        borderColor: SABBAR_COLORS.goldAccent,
-                        color: SABBAR_COLORS.goldLight,
-                        border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                        fontFamily: "'DM Sans', sans-serif",
-                      }}
-                    />
-                  </div>
-
-                  {/* Salles de bain */}
-                  <div>
-                    <h4
-                      className="text-xs font-bold mb-2 uppercase"
-                      style={{
-                        color: SABBAR_COLORS.goldAccent,
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: '9px',
-                        letterSpacing: '0.5px',
-                      }}
-                    >
-                      Salles de bain
-                    </h4>
-                    <input
-                      type="number"
-                      placeholder="Ex: 1"
-                      value={filters.bathrooms}
-                      onChange={(e) => setFilters({ ...filters, bathrooms: e.target.value })}
-                      className="w-full px-3 py-2 rounded text-xs"
-                      style={{
-                        backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                        borderColor: SABBAR_COLORS.goldAccent,
-                        color: SABBAR_COLORS.goldLight,
-                        border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                        fontFamily: "'DM Sans', sans-serif",
-                      }}
-                    />
-                  </div>
-
-                  {/* État du bien - Seulement Neuf */}
-                  <div>
-                    <h4
-                      className="text-xs font-bold mb-2 uppercase"
-                      style={{
-                        color: SABBAR_COLORS.goldAccent,
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: '9px',
-                        letterSpacing: '0.5px',
-                      }}
-                    >
-                      État du bien
-                    </h4>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={filters.condition === 'new'}
-                        onChange={(e) => setFilters({ ...filters, condition: e.target.checked ? 'new' : '' })}
-                        className="w-4 h-4"
-                      />
-                      <span
-                        className="text-xs"
-                        style={{
-                          color: SABBAR_COLORS.goldLight,
-                          fontFamily: "'DM Sans', sans-serif",
-                        }}
-                      >
-                        🆕 Neuf
-                      </span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Row 3: Équipements */}
-                <div>
-                  <h4
-                    className="text-xs font-bold mb-2 uppercase"
-                    style={{
-                      color: SABBAR_COLORS.goldAccent,
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: '9px',
-                      letterSpacing: '0.5px',
-                    }}
-                  >
-                    Équipements
-                  </h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {['Parking', 'Jardin', 'Piscine', 'Meublé'].map((eq) => (
-                      <label key={eq} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={filters.equipments?.includes(eq) || false}
-                          onChange={() => {
-                            const newEquipments = filters.equipments?.includes(eq)
-                              ? filters.equipments.filter(e => e !== eq)
-                              : [...(filters.equipments || []), eq];
-                            setFilters({ ...filters, equipments: newEquipments });
-                          }}
-                          className="w-4 h-4"
-                        />
-                        <span
-                          className="text-xs"
-                          style={{
-                            color: SABBAR_COLORS.goldLight,
-                            fontFamily: "'DM Sans', sans-serif",
-                          }}
-                        >
-                          {eq}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </section>
 

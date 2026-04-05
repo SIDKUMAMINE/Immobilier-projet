@@ -1,742 +1,692 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { Heart, MapPin, ChevronDown } from 'lucide-react';
+import { ArrowLeft, MapPin, Heart, Phone, Mail, Share2, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { propertiesApi } from '@/lib/api';
 
-// 🎨 PALETTE SABBAR
-const SABBAR_COLORS = {
-  navyDominant: '#0D1F3C',
-  goldAccent: '#C8A96E',
-  goldLight: '#E2C98A',
-  terracotta: '#B5573A',
-  ivory: '#F9F5EF',
+const transactionTypeMap: { [key: string]: string } = {
+  // Vente
+  'sale': 'Vente',
+  'vente': 'Vente',
+  
+  // Location
+  'rent': 'Location',
+  'location': 'Location',
+  
+  // Location Vacances
+  'vacation_rental': 'Location vacances',
+  'vacation rental': 'Location vacances',
+  'vacation': 'Location vacances',
+  'location vacances': 'Location vacances',
+  'location-vacances': 'Location vacances',
+  'vacances': 'Location vacances',
 };
 
-// 📋 DATA STATIQUE
-const staticCities = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kénitra', 'Tétouan'];
-
-const staticTransactionTypes = [
-  { original: 'sale', label: 'Vente' },
-  { original: 'rent', label: 'Location' },
-  { original: 'vacation_rental', label: 'Location vacances' },
-];
-
-const staticPropertyTypes = [
-  { original: 'studio', label: 'Studio' },
-  { original: 'apartment', label: 'Appartement' },
-  { original: 'villa', label: 'Villa' },
-  { original: 'maison', label: 'Maison' },
-  { original: 'riad', label: 'Riad' },
-  { original: 'terrain', label: 'Terrain' },
-  { original: 'bureau', label: 'Bureau' },
-  { original: 'local-commercial', label: 'Local commercial' },
-];
-
-// 🎯 COMPOSANT FILTRE SELECT
-interface FilterSelectProps {
-  label: string;
-  options: Array<{ original: string; label: string }>;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-}
-
-const FilterSelect: React.FC<FilterSelectProps> = ({
-  label,
-  options,
-  value,
-  onChange,
-  placeholder = 'Sélectionner',
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const optionsArray = options.map(opt => ({
-    label: typeof opt === 'string' ? opt : opt.label,
-    original: typeof opt === 'string' ? opt : opt.original,
-  }));
-
-  const getDisplayLabel = () => {
-    if (!value || value === placeholder) return placeholder;
-    const found = optionsArray.find(opt => opt.original === value);
-    return found ? found.label : value;
-  };
-
-  return (
-    <div className="flex-1 min-w-[140px]">
-      <label
-        className="block text-[10px] font-bold uppercase mb-1.5"
-        style={{
-          color: SABBAR_COLORS.goldAccent,
-          fontFamily: "'DM Sans', sans-serif",
-          letterSpacing: '0.5px',
-        }}
-      >
-        {label}
-      </label>
-
-      <div className="relative">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="w-full px-2.5 py-1.5 rounded flex items-center justify-between transition-all duration-200 text-xs"
-          style={{
-            backgroundColor: isOpen ? SABBAR_COLORS.navyDominant : 'rgba(249, 245, 239, 0.05)',
-            color: value && value !== placeholder ? SABBAR_COLORS.ivory : SABBAR_COLORS.goldLight,
-            border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-            fontFamily: "'DM Sans', sans-serif",
-            fontWeight: 500,
-          }}
-        >
-          <span className="truncate text-[11px]">{getDisplayLabel()}</span>
-          <ChevronDown
-            size={14}
-            className="flex-shrink-0 ml-1 transition-transform duration-200"
-            style={{
-              color: SABBAR_COLORS.goldAccent,
-              transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-            }}
-          />
-        </button>
-
-        {isOpen && (
-          <div
-            className="absolute top-full left-0 right-0 mt-1 rounded shadow-lg z-50 overflow-hidden border"
-            style={{
-              backgroundColor: SABBAR_COLORS.navyDominant,
-              borderColor: SABBAR_COLORS.goldAccent,
-              boxShadow: `0 4px 12px rgba(200, 169, 110, 0.15)`,
-              maxHeight: '200px',
-              overflowY: 'auto',
-            }}
-          >
-            <button
-              onClick={() => {
-                onChange('');
-                setIsOpen(false);
-              }}
-              className="w-full px-2.5 py-1.5 text-left transition-colors text-[11px]"
-              style={{
-                backgroundColor: !value ? SABBAR_COLORS.goldAccent + '20' : 'transparent',
-                color: !value ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.goldLight,
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '11px',
-              }}
-            >
-              {placeholder}
-            </button>
-
-            <div style={{ height: '0.5px', backgroundColor: SABBAR_COLORS.goldAccent + '15' }} />
-
-            {optionsArray.map((option, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  onChange(option.original);
-                  setIsOpen(false);
-                }}
-                className="w-full px-2.5 py-1.5 text-left transition-colors text-[11px]"
-                style={{
-                  backgroundColor: value === option.original ? SABBAR_COLORS.goldAccent + '20' : 'transparent',
-                  color: value === option.original ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.goldLight,
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '11px',
-                  fontWeight: value === option.original ? 600 : 500,
-                  borderBottom: `0.5px solid ${SABBAR_COLORS.goldAccent}08`,
-                }}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {isOpen && <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />}
-    </div>
-  );
+const propertyTypeMap: { [key: string]: string } = {
+  'apartment': 'Appartement',
+  'villa': 'Villa',
+  'house': 'Maison',
+  'riad': 'Riad',
+  'land': 'Terrain',
+  'office': 'Bureau',
+  'commercial': 'Local commercial',
+  'apartement': 'Appartement',
+  'maison': 'Maison',
+  'terrain': 'Terrain',
+  'bureau': 'Bureau',
+  'local commercial': 'Local commercial',
+  'local-commercial': 'Local commercial',
 };
 
-// 🏠 CARTE PROPRIÉTÉ
-interface PropertyCardProps {
-  property: any;
-}
+const getTransactionTypeLabel = (type: string): string => {
+  return transactionTypeMap[type.toLowerCase()] || type;
+};
 
-const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
+const getPropertyTypeLabel = (type: string): string => {
+  return propertyTypeMap[type.toLowerCase()] || type;
+};
+
+export default function PropertyDetailPage() {
+  const params = useParams();
+  const propertyId = params.id as string;
   const [isFavorite, setIsFavorite] = useState(false);
-
-  useEffect(() => {
-    const savedFavorites = localStorage.getItem('sabbar_favorites');
-    const favs = savedFavorites ? JSON.parse(savedFavorites) : [];
-    setIsFavorite(favs.includes(property.id));
-  }, [property.id]);
-
-  const toggleFavorite = () => {
-    const savedFavorites = localStorage.getItem('sabbar_favorites');
-    const favs = savedFavorites ? JSON.parse(savedFavorites) : [];
-    const newFavs = favs.includes(property.id) ? favs.filter((id: number) => id !== property.id) : [...favs, property.id];
-    localStorage.setItem('sabbar_favorites', JSON.stringify(newFavs));
-    setIsFavorite(!isFavorite);
-  };
-
-  const image = property.images?.[0] || property.image || '/placeholder.jpg';
-
-  return (
-    <Link href={`/properties/${property.id}`}>
-      <div
-        className="group rounded-lg overflow-hidden border-2 transition-all duration-300 hover:border-opacity-100 cursor-pointer h-full flex flex-col"
-        style={{
-          backgroundColor: SABBAR_COLORS.navyDominant + '50',
-          borderColor: SABBAR_COLORS.goldAccent + '30',
-        }}
-      >
-        {/* Image */}
-        <div className="relative overflow-hidden h-48 bg-gray-800">
-          <img
-            src={image}
-            alt={property.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-          />
-
-          {/* Badge Prix */}
-          <div
-            className="absolute top-3 right-3 px-3 py-1 rounded-lg text-sm font-bold text-white"
-            style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-              fontFamily: "'DM Sans', sans-serif",
-            }}
-          >
-            {property.price.toLocaleString('fr-FR')} MAD
-          </div>
-
-          {/* Bouton Favoris */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              toggleFavorite();
-            }}
-            className="absolute top-3 left-3 p-2 rounded-full transition-all"
-            style={{
-              backgroundColor: isFavorite ? SABBAR_COLORS.goldAccent : 'rgba(0, 0, 0, 0.6)',
-              color: isFavorite ? SABBAR_COLORS.navyDominant : 'white',
-            }}
-          >
-            <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />
-          </button>
-        </div>
-
-        {/* Contenu */}
-        <div className="p-4 flex-1 flex flex-col">
-          <h3
-            className="text-sm font-bold mb-2 line-clamp-2"
-            style={{
-              color: SABBAR_COLORS.ivory,
-              fontFamily: "'DM Sans', sans-serif",
-            }}
-          >
-            {property.title}
-          </h3>
-
-          <div className="flex items-center gap-1 mb-3">
-            <MapPin size={14} style={{ color: SABBAR_COLORS.goldAccent }} />
-            <span
-              className="text-xs"
-              style={{
-                color: SABBAR_COLORS.goldLight,
-                fontFamily: "'DM Sans', sans-serif",
-              }}
-            >
-              {property.city}
-            </span>
-          </div>
-
-          {/* Infos */}
-          <div className="flex gap-3 text-xs flex-wrap">
-            {property.bedrooms && (
-              <span
-                style={{
-                  color: SABBAR_COLORS.goldLight,
-                  fontFamily: "'DM Sans', sans-serif",
-                }}
-              >
-                🛏️ {property.bedrooms}
-              </span>
-            )}
-            {property.area && (
-              <span
-                style={{
-                  color: SABBAR_COLORS.goldLight,
-                  fontFamily: "'DM Sans', sans-serif",
-                }}
-              >
-                📐 {property.area}m²
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-};
-
-// 📄 PAGE PRINCIPALE
-export default function PropertiesPage() {
-  const [properties, setProperties] = useState<any[]>([]);
-  const [filteredProperties, setFilteredProperties] = useState<any[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [favorites, setFavorites] = useState<(number | string)[]>([]);
+  const [shareSuccess, setShareSuccess] = useState(false);
+  const touchStartRef = useRef<number>(0);
 
-  const [filters, setFilters] = useState({
-    city: '',
-    transactionType: '',
-    propertyType: '',
-    priceMin: '',
-    priceMax: '',
-    areaMin: '',
-    areaMax: '',
-    bedrooms: '',
-    bathrooms: '',
-    condition: '',
-    equipments: [] as string[],
-  });
-
-  // Charger les propriétés
+  // Load favorites from localStorage
   useEffect(() => {
-    const fetchProperties = async () => {
+    const savedFavorites = localStorage.getItem('sabbar_favorites');
+    const favs = savedFavorites ? JSON.parse(savedFavorites) : [];
+    setFavorites(favs);
+    setIsFavorite(favs.includes(parseInt(propertyId)));
+  }, [propertyId]);
+
+  // Fetch property from API
+  useEffect(() => {
+    const fetchProperty = async () => {
       try {
         setLoading(true);
-        const response = await propertiesApi.getProperties({ limit: 100, offset: 0 });
-        setProperties(response || []);
-        setFilteredProperties(response || []);
-      } catch (error) {
-        console.error('Erreur:', error);
+        setError(null);
+        console.log('📡 Fetching property from API...', propertyId);
+        
+        const response = await propertiesApi.getProperties({
+          limit: 100,
+          offset: 0
+        });
+        
+        console.log('✅ Properties loaded:', response);
+        console.log('📊 Total properties:', Array.isArray(response) ? response.length : 0);
+        
+        const foundProperty = response?.find((p: any) => String(p.id) === String(propertyId));
+        
+        if (foundProperty) {
+          console.log('🏠 Property found:', foundProperty);
+          console.log('🎬 Video URL (video_url):', foundProperty.video_url);
+          console.log('🎬 Video URL (videoUrl):', foundProperty.videoUrl);
+          console.log('🎬 All keys in property:', Object.keys(foundProperty));
+          setProperty(foundProperty);
+        } else {
+          setError('Propriété non trouvée');
+          setProperty(null);
+        }
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Erreur lors du chargement';
+        console.error('❌ Erreur:', message);
+        setError(message);
+        setProperty(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProperties();
-  }, []);
+    fetchProperty();
+  }, [propertyId]);
 
-  // Appliquer les filtres
-  useEffect(() => {
-    const filtered = properties.filter(property => {
-      if (filters.city && property.city !== filters.city) return false;
-      if (filters.transactionType && property.transaction_type !== filters.transactionType) return false;
-      if (filters.propertyType && property.property_type !== filters.propertyType) return false;
+  // Helper function to convert video URL to embed format
+  const getEmbedUrl = (videoUrl: string): string | null => {
+    if (!videoUrl) return null;
+    
+    // YouTube watch URL format
+    if (videoUrl.includes('youtube.com/watch?v=')) {
+      const videoId = videoUrl.split('v=')[1]?.split('&')[0];
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+    }
+    
+    // YouTube youtu.be short format
+    if (videoUrl.includes('youtu.be/')) {
+      const videoId = videoUrl.split('youtu.be/')[1]?.split('?')[0];
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+    }
+    
+    // Already embed format
+    if (videoUrl.includes('youtube.com/embed/')) {
+      return videoUrl;
+    }
+    
+    // Vimeo format
+    if (videoUrl.includes('vimeo.com/')) {
+      const videoId = videoUrl.split('vimeo.com/')[1]?.split('?')[0];
+      return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
+    }
+    
+    return null;
+  };
 
-      if (filters.priceMin && property.price < parseInt(filters.priceMin)) return false;
-      if (filters.priceMax && property.price > parseInt(filters.priceMax)) return false;
-
-      if (filters.areaMin && property.area && property.area < parseInt(filters.areaMin)) return false;
-      if (filters.areaMax && property.area && property.area > parseInt(filters.areaMax)) return false;
-
-      if (filters.bedrooms && property.bedrooms !== parseInt(filters.bedrooms)) return false;
-      if (filters.bathrooms && property.bathrooms !== parseInt(filters.bathrooms)) return false;
-
-      if (
-        filters.condition &&
-        property.condition?.toLowerCase() !== filters.condition.toLowerCase()
-      ) return false;
-
-      if (filters.equipments.length > 0) {
-        const propertyEquipments = property.equipments || [];
-
-        const hasAllEquipments = filters.equipments.every(eq =>
-          propertyEquipments.some(pEq => {
-            const value =
-              typeof pEq === 'string'
-                ? pEq
-                : pEq?.name;
-
-            return value?.toLowerCase() === eq.toLowerCase();
-          })
-        );
-
-        if (!hasAllEquipments) return false;
+  // Helper function to determine if URL is a direct video file (including Supabase)
+  const isDirectVideoFile = (videoUrl: string): boolean => {
+    if (!videoUrl) {
+      console.log('❌ isDirectVideoFile: videoUrl est vide');
+      return false;
+    }
+    
+    console.log('🎬 Checking video URL:', videoUrl);
+    
+    // Check for direct video file extensions (this should catch .mp4)
+    const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.flv', '.m4v', '.3gp'];
+    for (const ext of videoExtensions) {
+      if (videoUrl.toLowerCase().includes(ext)) {
+        console.log(`✅ Detected video extension: ${ext}`);
+        return true;
       }
-
+    }
+    
+    // Supabase Storage URLs - these are direct video files
+    if (videoUrl.includes('supabase.co') && (videoUrl.includes('/storage/') || videoUrl.includes('/object/'))) {
+      console.log('✅ Detected Supabase Storage URL');
       return true;
-    });
+    }
+    
+    console.log('❌ Not detected as direct video file');
+    return false;
+  };
 
-    setFilteredProperties(filtered);
-  }, [filters, properties]);
+  const toggleFavorite = () => {
+    const newFavorites = favorites.includes(parseInt(propertyId))
+      ? favorites.filter(id => id !== parseInt(propertyId))
+      : [...favorites, parseInt(propertyId)];
+    
+    setFavorites(newFavorites);
+    setIsFavorite(!isFavorite);
+    localStorage.setItem('sabbar_favorites', JSON.stringify(newFavorites));
+  };
 
-  const handleResetFilters = () => {
-    setFilters({
-      city: '',
-      transactionType: '',
-      propertyType: '',
-      priceMin: '',
-      priceMax: '',
-      areaMin: '',
-      areaMax: '',
-      bedrooms: '',
-      bathrooms: '',
-      condition: '',
-      equipments: [],
+  // ✅ NOUVELLE FONCTION: Gestion du partage
+  const handleShare = async () => {
+    const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+    const shareTitle = property.title;
+    const shareText = `Découvrez cette propriété: ${property.title} - ${property.price.toLocaleString('fr-FR')} MAD`;
+
+    // Vérifier si Web Share API est disponible (Android, iOS, certains navigateurs)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        console.log('✅ Contenu partagé avec succès');
+        setShareSuccess(true);
+        setTimeout(() => setShareSuccess(false), 3000);
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          console.error('❌ Erreur lors du partage:', error);
+          // Fallback en cas d'erreur
+          copyToClipboard(shareUrl);
+        }
+      }
+    } else {
+      // Fallback pour les navigateurs qui ne supportent pas Web Share API
+      copyToClipboard(shareUrl);
+    }
+  };
+
+  // ✅ Fonction utilitaire pour copier dans le presse-papiers
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setShareSuccess(true);
+      console.log('✅ Lien copié dans le presse-papiers');
+      setTimeout(() => setShareSuccess(false), 3000);
+    } catch (error) {
+      console.error('❌ Erreur lors de la copie:', error);
+      // Fallback pour les anciens navigateurs
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setShareSuccess(true);
+        setTimeout(() => setShareSuccess(false), 3000);
+      } catch (err) {
+        console.error('❌ Impossible de copier le lien:', err);
+      }
+      document.body.removeChild(textArea);
+    }
+  };
+
+  if (loading) {
+    return (
+      <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
+        <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
+          <div className="max-w-[1400px] mx-auto">
+            <Link href="/properties" className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#f4d03f] transition-colors">
+              <ArrowLeft size={20} />
+              <span>Retour aux propriétés</span>
+            </Link>
+          </div>
+        </div>
+        <div className="py-12 px-[5%]">
+          <div className="max-w-[1400px] mx-auto">
+            <p className="text-[#b0b0b0] text-lg">⏳ Chargement de la propriété...</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !property) {
+    return (
+      <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
+        <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
+          <div className="max-w-[1400px] mx-auto">
+            <Link href="/properties" className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#f4d03f] transition-colors">
+              <ArrowLeft size={20} />
+              <span>Retour aux propriétés</span>
+            </Link>
+          </div>
+        </div>
+        <div className="py-12 px-[5%]">
+          <div className="max-w-[1400px] mx-auto">
+            <div className="bg-[rgba(220,38,38,0.1)] border border-[rgba(220,38,38,0.3)] text-[#fca5a5] px-6 py-4 rounded-lg">
+              ❌ {error || 'Propriété non trouvée'}
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // ✅ Définir les images et vidéo EN HAUT avant le return JSX
+  const images = property.images && property.images.length > 0 ? property.images : [property.image || '/placeholder.jpg'];
+
+  // ✅ IMPORTANT: Chercher la vidéo dans TOUS les champs possibles
+  const videoUrl = property?.video_url 
+    || property?.videoUrl 
+    || property?.video 
+    || property?.video_URL
+    || property?.Video
+    || property?.VIDEO
+    || property?.video_path
+    || property?.videoPath
+    || null;
+
+  console.log('🎯 FINAL videoUrl extracted:', videoUrl);
+
+  // ✅ Extraire et afficher tous les champs liés à la vidéo
+  if (!videoUrl) {
+    console.warn('⚠️ VIDEO URL NOT FOUND. Checking all property keys...');
+    const allKeys = Object.keys(property);
+    const videoRelatedKeys = allKeys.filter(key => 
+      key.toLowerCase().includes('video') || 
+      key.toLowerCase().includes('url') ||
+      key.toLowerCase().includes('path') ||
+      key.toLowerCase().includes('media')
+    );
+    console.log('🔍 Video-related keys found:', videoRelatedKeys);
+    videoRelatedKeys.forEach(key => {
+      console.log(`  ${key}:`, property[key]);
     });
+  }
+
+  // Image navigation handlers
+  const handlePrevImage = () => {
+    if (images && images.length > 0) {
+      setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    }
+  };
+
+  const handleNextImage = () => {
+    if (images && images.length > 0) {
+      setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    }
+  };
+
+  // Touch handlers for swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const touchEndValue = e.changedTouches[0].clientX;
+    const distance = touchStartRef.current - touchEndValue;
+
+    if (Math.abs(distance) > 50) {
+      if (distance > 0) {
+        handleNextImage();
+      } else {
+        handlePrevImage();
+      }
+    }
+  };
+
+  // ✅ Composant VideoSection - logique de rendu vidéo
+  const VideoSection = () => {
+    console.log('🎬 VideoSection render - videoUrl:', videoUrl);
+
+    if (!videoUrl) {
+      console.log('ℹ️ Aucune vidéo trouvée');
+      return (
+        <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
+          <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
+            <Play size={48} className="text-[#d4af37]" />
+          </div>
+          <p className="text-[#b0b0b0] text-lg font-semibold">Aucune vidéo disponible</p>
+          <p className="text-[#666] text-sm mt-2">Les vidéos seront disponibles prochainement</p>
+        </div>
+      );
+    }
+
+    // ✅ Vérifier les formats directs EN PREMIER
+    if (isDirectVideoFile(videoUrl)) {
+      console.log('✅ Rendering direct video (MP4, WebM, etc.)');
+      return (
+        <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
+          <video
+            width="100%"
+            height="100%"
+            controls
+            controlsList="nodownload"
+            className="w-full h-full"
+            style={{ display: 'block' }}
+            onError={(e) => {
+              console.error('❌ Video playback error:', e);
+            }}
+            onLoadedMetadata={() => {
+              console.log('✅ Video metadata loaded');
+            }}
+          >
+            <source src={videoUrl} type="video/mp4" />
+            <source src={videoUrl} type="video/webm" />
+            Votre navigateur ne supporte pas le lecteur vidéo HTML5.
+          </video>
+        </div>
+      );
+    }
+
+    // ✅ Vérifier YouTube/Vimeo après
+    const embedUrl = getEmbedUrl(videoUrl);
+    if (embedUrl) {
+      console.log('✅ Rendering embedded video (YouTube/Vimeo)');
+      return (
+        <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
+          <iframe
+            width="100%"
+            height="100%"
+            src={embedUrl}
+            title="Property Video"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            style={{ display: 'block' }}
+          />
+        </div>
+      );
+    }
+
+    // ✅ Format non supporté
+    console.log('❌ Unsupported video format:', videoUrl);
+    return (
+      <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
+        <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
+          <Play size={48} className="text-[#d4af37]" />
+        </div>
+        <p className="text-[#b0b0b0] text-lg font-semibold">Format vidéo non supporté</p>
+        <p className="text-[#666] text-sm mt-2 break-all max-w-xs">
+          URL: {videoUrl.substring(0, 80)}...
+        </p>
+        <p className="text-[#666] text-xs mt-1">
+          Formats supportés: MP4, WebM, YouTube, Vimeo, Supabase
+        </p>
+      </div>
+    );
   };
 
   return (
-    <main style={{ backgroundColor: SABBAR_COLORS.navyDominant }}>
-      {/* Header */}
-      <section className="py-12 px-[5%]" style={{ backgroundColor: SABBAR_COLORS.navyDominant }}>
+    <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
+      {/* Back Button */}
+      <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
         <div className="max-w-[1400px] mx-auto">
-          <h1
-            className="text-5xl font-light mb-2"
-            style={{
-              color: SABBAR_COLORS.ivory,
-              fontFamily: "'Cormorant Garamond', serif",
-            }}
-          >
-            Nos <span style={{ color: SABBAR_COLORS.goldAccent }}>Propriétés</span>
-          </h1>
-          <p
-            className="text-lg"
-            style={{
-              color: SABBAR_COLORS.goldLight,
-              fontFamily: "'DM Sans', sans-serif",
-            }}
-          >
-            Découvrez tous nos biens immobiliers disponibles
-          </p>
+          <Link href="/properties" className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#f4d03f] transition-colors">
+            <ArrowLeft size={20} />
+            <span>Retour aux propriétés</span>
+          </Link>
         </div>
-      </section>
+      </div>
 
-      {/* 🎯 SECTION FILTRES - EN UNE SEULE LIGNE */}
-      <section
-        className="py-4 px-[5%] border-b overflow-x-auto"
-        style={{
-          backgroundColor: SABBAR_COLORS.navyDominant,
-          borderColor: SABBAR_COLORS.goldAccent + '30',
-        }}
-      >
+      {/* Image Gallery with Swipe */}
+      <section className="py-12 px-[5%]">
         <div className="max-w-[1400px] mx-auto">
-          <div className="flex items-center gap-3 mb-3">
-            <span style={{ fontSize: '18px' }}>🔍</span>
-            <h2
-              className="text-sm font-bold whitespace-nowrap"
-              style={{
-                color: SABBAR_COLORS.goldAccent,
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '13px',
-                fontWeight: 700,
-              }}
-            >
-              Affiner votre recherche
-            </h2>
-          </div>
-
-          {/* Grille de filtres - STRUCTURE HORIZONTALE */}
-          <div className="flex flex-wrap gap-3 items-end">
-            {/* Prix - 2 champs Min/Max */}
-            <div className="flex-1 min-w-[200px]">
-              <label
-                className="block text-[10px] font-bold uppercase mb-1.5"
-                style={{
-                  color: SABBAR_COLORS.goldAccent,
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '0.5px',
-                }}
-              >
-                Prix (MAD)
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={filters.priceMin}
-                  onChange={(e) => setFilters({ ...filters, priceMin: e.target.value })}
-                  className="flex-1 px-2.5 py-1.5 rounded text-xs"
-                  style={{
-                    backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                    borderColor: SABBAR_COLORS.goldAccent,
-                    color: SABBAR_COLORS.goldLight,
-                    border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                    fontFamily: "'DM Sans', sans-serif",
-                  }}
-                />
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={filters.priceMax}
-                  onChange={(e) => setFilters({ ...filters, priceMax: e.target.value })}
-                  className="flex-1 px-2.5 py-1.5 rounded text-xs"
-                  style={{
-                    backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                    borderColor: SABBAR_COLORS.goldAccent,
-                    color: SABBAR_COLORS.goldLight,
-                    border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                    fontFamily: "'DM Sans', sans-serif",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Surface - 2 champs Min/Max */}
-            <div className="flex-1 min-w-[200px]">
-              <label
-                className="block text-[10px] font-bold uppercase mb-1.5"
-                style={{
-                  color: SABBAR_COLORS.goldAccent,
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '0.5px',
-                }}
-              >
-                Surface (m²)
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={filters.areaMin}
-                  onChange={(e) => setFilters({ ...filters, areaMin: e.target.value })}
-                  className="flex-1 px-2.5 py-1.5 rounded text-xs"
-                  style={{
-                    backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                    borderColor: SABBAR_COLORS.goldAccent,
-                    color: SABBAR_COLORS.goldLight,
-                    border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                    fontFamily: "'DM Sans', sans-serif",
-                  }}
-                />
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={filters.areaMax}
-                  onChange={(e) => setFilters({ ...filters, areaMax: e.target.value })}
-                  className="flex-1 px-2.5 py-1.5 rounded text-xs"
-                  style={{
-                    backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                    borderColor: SABBAR_COLORS.goldAccent,
-                    color: SABBAR_COLORS.goldLight,
-                    border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                    fontFamily: "'DM Sans', sans-serif",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Chambres - Une seule case */}
-            <div className="flex-1 min-w-[100px]">
-              <label
-                className="block text-[10px] font-bold uppercase mb-1.5"
-                style={{
-                  color: SABBAR_COLORS.goldAccent,
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '0.5px',
-                }}
-              >
-                Chambres
-              </label>
-              <input
-                type="number"
-                placeholder="Ex: 2"
-                value={filters.bedrooms}
-                onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
-                className="w-full px-2.5 py-1.5 rounded text-xs"
-                style={{
-                  backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                  borderColor: SABBAR_COLORS.goldAccent,
-                  color: SABBAR_COLORS.goldLight,
-                  border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                  fontFamily: "'DM Sans', sans-serif",
-                }}
-              />
-            </div>
-
-            {/* Salles de bain - Une seule case */}
-            <div className="flex-1 min-w-[100px]">
-              <label
-                className="block text-[10px] font-bold uppercase mb-1.5"
-                style={{
-                  color: SABBAR_COLORS.goldAccent,
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '0.5px',
-                }}
-              >
-                Salles de bain
-              </label>
-              <input
-                type="number"
-                placeholder="Ex: 1"
-                value={filters.bathrooms}
-                onChange={(e) => setFilters({ ...filters, bathrooms: e.target.value })}
-                className="w-full px-2.5 py-1.5 rounded text-xs"
-                style={{
-                  backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                  borderColor: SABBAR_COLORS.goldAccent,
-                  color: SABBAR_COLORS.goldLight,
-                  border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                  fontFamily: "'DM Sans', sans-serif",
-                }}
-              />
-            </div>
-
-            {/* État du bien - Checkbox "Neuf" seulement */}
-            <div className="flex-1 min-w-[100px]">
-              <label
-                className="block text-[10px] font-bold uppercase mb-1.5"
-                style={{
-                  color: SABBAR_COLORS.goldAccent,
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '0.5px',
-                }}
-              >
-                État du bien
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer px-2.5 py-1.5 border rounded"
-                style={{
-                  backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                  borderColor: SABBAR_COLORS.goldAccent,
-                  border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={filters.condition === 'new'}
-                  onChange={(e) => setFilters({ ...filters, condition: e.target.checked ? 'new' : '' })}
-                  className="w-3.5 h-3.5 cursor-pointer"
-                />
-                <span
-                  className="text-xs whitespace-nowrap"
-                  style={{
-                    color: SABBAR_COLORS.goldLight,
-                    fontFamily: "'DM Sans', sans-serif",
-                  }}
-                >
-                  🆕 Neuf
-                </span>
-              </label>
-            </div>
-
-            {/* Équipements - Checkboxes horizontales */}
-            <div className="flex-1 min-w-[300px]">
-              <label
-                className="block text-[10px] font-bold uppercase mb-1.5"
-                style={{
-                  color: SABBAR_COLORS.goldAccent,
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '0.5px',
-                }}
-              >
-                Équipements
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {['Parking', 'Jardin', 'Piscine', 'Meublé'].map((eq) => (
-                  <label
-                    key={eq}
-                    className="flex items-center gap-1.5 cursor-pointer px-2 py-1.5 border rounded text-[11px]"
-                    style={{
-                      backgroundColor: filters.equipments.includes(eq)
-                        ? SABBAR_COLORS.goldAccent + '25'
-                        : 'rgba(249, 245, 239, 0.05)',
-                      borderColor: filters.equipments.includes(eq)
-                        ? SABBAR_COLORS.goldAccent
-                        : SABBAR_COLORS.goldAccent + '50',
-                      border: `1px solid`,
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={filters.equipments?.includes(eq) || false}
-                      onChange={() => {
-                        const newEquipments = filters.equipments?.includes(eq)
-                          ? filters.equipments.filter(e => e !== eq)
-                          : [...(filters.equipments || []), eq];
-                        setFilters({ ...filters, equipments: newEquipments });
-                      }}
-                      className="w-3.5 h-3.5 cursor-pointer"
-                    />
-                    <span
-                      style={{
-                        color: SABBAR_COLORS.goldLight,
-                        fontFamily: "'DM Sans', sans-serif",
-                      }}
-                    >
-                      {eq}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Sélecteurs principaux - Ville, Type de transaction, Type de bien */}
-            <FilterSelect
-              label="Ville"
-              options={staticCities.map(city => ({ original: city, label: city }))}
-              value={filters.city}
-              onChange={(value) => setFilters({ ...filters, city: value })}
-              placeholder="Toutes"
+          <div 
+            className="relative bg-[#0f1a2e] rounded-2xl overflow-hidden h-96 sm:h-[500px] md:h-[600px] flex items-center justify-center group mb-8 cursor-grab active:cursor-grabbing"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            {/* Main Image */}
+            <img
+              src={images[currentImageIndex]}
+              alt={property.title}
+              className="w-full h-full object-cover transition-opacity duration-300"
             />
 
-            <FilterSelect
-              label="Type de transaction"
-              options={staticTransactionTypes}
-              value={filters.transactionType}
-              onChange={(value) => setFilters({ ...filters, transactionType: value })}
-              placeholder="Tous"
-            />
-
-            <FilterSelect
-              label="Type de bien"
-              options={staticPropertyTypes}
-              value={filters.propertyType}
-              onChange={(value) => setFilters({ ...filters, propertyType: value })}
-              placeholder="Tous"
-            />
-
-            {/* Bouton Réinitialiser */}
+            {/* Favorite Button */}
             <button
-              onClick={handleResetFilters}
-              className="px-3 py-1.5 rounded text-xs font-bold transition-all whitespace-nowrap"
-              style={{
-                backgroundColor: SABBAR_COLORS.goldAccent,
-                color: SABBAR_COLORS.navyDominant,
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '11px',
-              }}
+              onClick={toggleFavorite}
+              className={`absolute top-4 left-4 p-3 rounded-full transition-all z-10 ${
+                isFavorite
+                  ? 'bg-[#d4af37] text-[#0f1a2e]'
+                  : 'bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white'
+              }`}
             >
-              Réinitialiser
+              <Heart size={24} fill={isFavorite ? 'currentColor' : 'none'} />
             </button>
+
+            {/* Image Counter */}
+            <div className="absolute bottom-4 right-4 bg-[rgba(0,0,0,0.7)] text-white px-4 py-2 rounded-lg text-sm font-bold">
+              {currentImageIndex + 1} / {images.length}
+            </div>
+
+            {/* Left Arrow */}
+            {images.length > 1 && (
+              <button
+                onClick={handlePrevImage}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white hover:text-[#0f1a2e] p-3 rounded-full transition-all z-10 hidden group-hover:block"
+              >
+                <ChevronLeft size={24} />
+              </button>
+            )}
+
+            {/* Right Arrow */}
+            {images.length > 1 && (
+              <button
+                onClick={handleNextImage}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white hover:text-[#0f1a2e] p-3 rounded-full transition-all z-10 hidden group-hover:block"
+              >
+                <ChevronRight size={24} />
+              </button>
+            )}
+
+            {/* Swipe Hint */}
+            <div className="absolute bottom-4 left-4 bg-[rgba(0,0,0,0.7)] text-white px-3 py-1 rounded-lg text-xs font-semibold">
+              👉 Glissez pour naviguer
+            </div>
           </div>
-        </div>
-      </section>
 
-      {/* Résultats */}
-      <section className="py-8 px-[5%]">
-        <div className="max-w-[1400px] mx-auto">
-          <p
-            className="mb-6 text-sm"
-            style={{
-              color: SABBAR_COLORS.goldLight,
-              fontFamily: "'DM Sans', sans-serif",
-            }}
-          >
-            {filteredProperties.length} propriété{filteredProperties.length !== 1 ? 's' : ''} trouvée{filteredProperties.length !== 1 ? 's' : ''}
-          </p>
-
-          {loading ? (
-            <div style={{ color: SABBAR_COLORS.goldLight }}>Chargement...</div>
-          ) : filteredProperties.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
+          {/* Thumbnail Images */}
+          {images.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto pb-4">
+              {images.map((img: string, index: number) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                    currentImageIndex === index
+                      ? 'border-[#d4af37]'
+                      : 'border-[rgba(212,175,55,0.2)] hover:border-[#d4af37]'
+                  }`}
+                >
+                  <img src={img} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                </button>
               ))}
             </div>
-          ) : (
-            <div
-              className="px-6 py-12 rounded-lg border text-center"
-              style={{
-                backgroundColor: SABBAR_COLORS.navyDominant + '50',
-                borderColor: SABBAR_COLORS.goldAccent + '30',
-                color: SABBAR_COLORS.goldLight,
-                fontFamily: "'DM Sans', sans-serif",
-              }}
-            >
-              Aucune propriété ne correspond à vos critères
-            </div>
           )}
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <section className="py-12 px-[5%]">
+        <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column */}
+          <div className="lg:col-span-2">
+            {/* Title and Location */}
+            <div className="mb-8">
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{property.title}</h1>
+              <div className="flex items-center gap-2 text-[#d4af37] text-lg mb-4">
+                <MapPin size={24} />
+                <span>{property.city} - {property.quarter || property.district}</span>
+              </div>
+            </div>
+
+            {/* Description */}
+            {property.description && (
+              <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
+                <h2 className="text-2xl font-bold text-white mb-6">📝 Description</h2>
+                <p className="text-[#b0b0b0] leading-relaxed">{property.description}</p>
+              </div>
+            )}
+
+            {/* Characteristics Section */}
+            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
+              <h2 className="text-2xl font-bold text-white mb-6">📋 Caractéristiques</h2>
+              <div className="space-y-4">
+                {/* Transaction Type */}
+                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                  <span className="text-[#b0b0b0]">Type de transaction</span>
+                  <span className="text-white font-bold">{getTransactionTypeLabel(property.transaction_type)}</span>
+                </div>
+
+                {/* Property Type */}
+                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                  <span className="text-[#b0b0b0]">Type de bien</span>
+                  <span className="text-white font-bold">{getPropertyTypeLabel(property.property_type)}</span>
+                </div>
+
+                {/* City */}
+                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                  <span className="text-[#b0b0b0]">Ville</span>
+                  <span className="text-white font-bold">{property.city}</span>
+                </div>
+
+                {/* District/Quarter */}
+                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                  <span className="text-[#b0b0b0]">Quartier</span>
+                  <span className="text-white font-bold">{property.quarter || property.district || 'N/A'}</span>
+                </div>
+
+                {/* Floor */}
+                {property.floor && (
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                    <span className="text-[#b0b0b0]">Étage</span>
+                    <span className="text-white font-bold">{property.floor}</span>
+                  </div>
+                )}
+
+                {/* Elevator */}
+                {property.elevator || property.has_elevator ? (
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                    <span className="text-[#b0b0b0]">Ascenseur</span>
+                    <span className="text-[#d4af37] font-bold">✓ Oui</span>
+                  </div>
+                ) : null}
+
+                {/* Bedrooms */}
+                {property.bedrooms && (
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                    <span className="text-[#b0b0b0]">Chambres</span>
+                    <span className="text-white font-bold">{property.bedrooms}</span>
+                  </div>
+                )}
+
+                {/* Bathrooms */}
+                {property.bathrooms && (
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                    <span className="text-[#b0b0b0]">Salles de bain</span>
+                    <span className="text-white font-bold">{property.bathrooms}</span>
+                  </div>
+                )}
+
+                {/* Area */}
+                {property.area && (
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                    <span className="text-[#b0b0b0]">Surface</span>
+                    <span className="text-white font-bold">{property.area} m²</span>
+                  </div>
+                )}
+
+                {/* Equipment */}
+                {property.equipments && property.equipments.length > 0 && (
+                  <div className="pb-4">
+                    <span className="text-[#b0b0b0] block mb-3">Équipements</span>
+                    <div className="flex flex-wrap gap-2">
+                      {property.equipments.map((equipment: string, index: number) => (
+                        <span key={index} className="bg-[rgba(212,175,55,0.2)] text-[#d4af37] px-3 py-1 rounded-full text-sm font-bold border border-[rgba(212,175,55,0.3)]">
+                          {equipment}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Status */}
+                {property.status && (
+                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
+                    <span className="text-[#b0b0b0]">Statut</span>
+                    <span className="text-white font-bold">{property.status}</span>
+                  </div>
+                )}
+
+                {/* Creation Date */}
+                <div className="flex justify-between items-center">
+                  <span className="text-[#b0b0b0]">Date de création</span>
+                  <span className="text-white font-bold">{new Date(property.createdAt || property.created_at).toLocaleDateString('fr-FR')}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Video Section */}
+            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
+              <h2 className="text-2xl font-bold text-white mb-6">🎬 Vidéo de la propriété</h2>
+              <VideoSection />
+            </div>
+          </div>
+
+          {/* Right Column - Price and Contact */}
+          <div className="lg:col-span-1">
+            {/* Price Card */}
+            <div className="bg-gradient-to-br from-[#d4af37] to-[#f4d03f] rounded-xl p-6 mb-6 sticky top-8">
+              <p className="text-[#0f1a2e] font-bold text-xs mb-1">PRIX</p>
+              <div className="text-2xl font-bold text-[#0f1a2e] mb-1 break-words">
+                {property.price.toLocaleString('fr-FR', { 
+                  minimumFractionDigits: 0, 
+                  maximumFractionDigits: 0 
+                })}
+              </div>
+              <p className="text-[#0f1a2e] font-semibold text-sm">MAD</p>
+            </div>
+
+            {/* Contact Card */}
+            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-6">
+              <h3 className="text-xl font-bold text-white mb-4">📞 Nous contacter</h3>
+
+              <div className="space-y-3">
+                <a
+                  href="tel:+212605585720"
+                  className="w-full flex items-center justify-center gap-3 bg-[#d4af37] hover:bg-[#f4d03f] text-[#0f1a2e] font-bold py-2 px-3 rounded-lg transition text-sm"
+                >
+                  <Phone size={18} />
+                  +212 6 05 58 57 20
+                </a>
+
+                <a
+                  href="mailto:Landmarkestate3@gmail.com"
+                  className="w-full flex items-center justify-center gap-3 border-2 border-[#d4af37] hover:bg-[#d4af37] text-[#d4af37] hover:text-[#0f1a2e] font-bold py-2 px-3 rounded-lg transition text-sm"
+                >
+                  <Mail size={18} />
+                  Landmarkestate3@gmail.com
+                </a>
+
+                {/* ✅ BOUTON PARTAGER AMÉLIORÉ */}
+                <button
+                  onClick={handleShare}
+                  className={`w-full flex items-center justify-center gap-3 border-2 font-bold py-2 px-3 rounded-lg transition text-sm ${
+                    shareSuccess
+                      ? 'bg-green-600 border-green-600 text-white'
+                      : 'border-[#b0b0b0] hover:border-[#d4af37] text-[#b0b0b0] hover:text-[#d4af37]'
+                  }`}
+                >
+                  <Share2 size={18} />
+                  {shareSuccess ? '✅ Copié!' : 'Partager'}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </main>
