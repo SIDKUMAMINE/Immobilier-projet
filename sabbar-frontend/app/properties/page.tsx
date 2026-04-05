@@ -573,7 +573,7 @@ export default function PropertiesPage() {
               }}
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-                {/* Prix */}
+                {/* Prix - MIN ET MAX SÉPARÉS */}
                 <div>
                   <label
                     className="block text-[10px] font-bold uppercase mb-2"
@@ -583,45 +583,27 @@ export default function PropertiesPage() {
                       letterSpacing: '0.5px',
                     }}
                   >
-                    Prix (MAD)
+                    Prix Min (MAD)
                   </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      placeholder="Min"
-                      value={filters.priceMin}
-                      onChange={(e) => {
-                        console.log('✅ Prix Min changé:', e.target.value);
-                        setFilters({ ...filters, priceMin: e.target.value });
-                      }}
-                      className="flex-1 px-3 py-2 rounded text-xs"
-                      style={{
-                        backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                        color: SABBAR_COLORS.goldLight,
-                        border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                        fontFamily: "'DM Sans', sans-serif",
-                      }}
-                    />
-                    <input
-                      type="number"
-                      placeholder="Max"
-                      value={filters.priceMax}
-                      onChange={(e) => {
-                        console.log('✅ Prix Max changé:', e.target.value);
-                        setFilters({ ...filters, priceMax: e.target.value });
-                      }}
-                      className="flex-1 px-3 py-2 rounded text-xs"
-                      style={{
-                        backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                        color: SABBAR_COLORS.goldLight,
-                        border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                        fontFamily: "'DM Sans', sans-serif",
-                      }}
-                    />
-                  </div>
+                  <input
+                    type="number"
+                    placeholder="Ex: 100000"
+                    value={filters.priceMin}
+                    onChange={(e) => {
+                      console.log('✅ Prix Min changé:', e.target.value);
+                      setFilters({ ...filters, priceMin: e.target.value });
+                    }}
+                    className="w-full px-3 py-2 rounded text-xs"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: SABBAR_COLORS.goldLight,
+                      border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
                 </div>
 
-                {/* Surface */}
+                {/* Prix Max */}
                 <div>
                   <label
                     className="block text-[10px] font-bold uppercase mb-2"
@@ -631,45 +613,87 @@ export default function PropertiesPage() {
                       letterSpacing: '0.5px',
                     }}
                   >
-                    Surface (m²)
+                    Prix Max (MAD)
                   </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      placeholder="Min"
-                      value={filters.areaMin}
-                      onChange={(e) => {
-                        console.log('✅ Surface Min changée:', e.target.value);
-                        setFilters({ ...filters, areaMin: e.target.value });
-                      }}
-                      className="flex-1 px-3 py-2 rounded text-xs"
-                      style={{
-                        backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                        color: SABBAR_COLORS.goldLight,
-                        border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                        fontFamily: "'DM Sans', sans-serif",
-                      }}
-                    />
-                    <input
-                      type="number"
-                      placeholder="Max"
-                      value={filters.areaMax}
-                      onChange={(e) => {
-                        console.log('✅ Surface Max changée:', e.target.value);
-                        setFilters({ ...filters, areaMax: e.target.value });
-                      }}
-                      className="flex-1 px-3 py-2 rounded text-xs"
-                      style={{
-                        backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                        color: SABBAR_COLORS.goldLight,
-                        border: `1px solid ${SABBAR_COLORS.goldAccent}`,
-                        fontFamily: "'DM Sans', sans-serif",
-                      }}
-                    />
-                  </div>
+                  <input
+                    type="number"
+                    placeholder="Ex: 500000"
+                    value={filters.priceMax}
+                    onChange={(e) => {
+                      console.log('✅ Prix Max changé:', e.target.value);
+                      setFilters({ ...filters, priceMax: e.target.value });
+                    }}
+                    className="w-full px-3 py-2 rounded text-xs"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: SABBAR_COLORS.goldLight,
+                      border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
                 </div>
 
-                {/* Chambres */}
+                {/* Surface Min */}
+                <div>
+                  <label
+                    className="block text-[10px] font-bold uppercase mb-2"
+                    style={{
+                      color: SABBAR_COLORS.goldAccent,
+                      fontFamily: "'DM Sans', sans-serif",
+                      letterSpacing: '0.5px',
+                    }}
+                  >
+                    Surface Min (m²)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="Ex: 50"
+                    value={filters.areaMin}
+                    onChange={(e) => {
+                      console.log('✅ Surface Min changée:', e.target.value);
+                      setFilters({ ...filters, areaMin: e.target.value });
+                    }}
+                    className="w-full px-3 py-2 rounded text-xs"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: SABBAR_COLORS.goldLight,
+                      border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                </div>
+
+                {/* Surface Max */}
+                <div>
+                  <label
+                    className="block text-[10px] font-bold uppercase mb-2"
+                    style={{
+                      color: SABBAR_COLORS.goldAccent,
+                      fontFamily: "'DM Sans', sans-serif",
+                      letterSpacing: '0.5px',
+                    }}
+                  >
+                    Surface Max (m²)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="Ex: 200"
+                    value={filters.areaMax}
+                    onChange={(e) => {
+                      console.log('✅ Surface Max changée:', e.target.value);
+                      setFilters({ ...filters, areaMax: e.target.value });
+                    }}
+                    className="w-full px-3 py-2 rounded text-xs"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: SABBAR_COLORS.goldLight,
+                      border: `1px solid ${SABBAR_COLORS.goldAccent}`,
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                </div>
+
+                {/* Chambres - UNE SEULE CASE */}
                 <div>
                   <label
                     className="block text-[10px] font-bold uppercase mb-2"
@@ -699,7 +723,7 @@ export default function PropertiesPage() {
                   />
                 </div>
 
-                {/* Salles de bain */}
+                {/* Salles de bain - UNE SEULE CASE */}
                 <div>
                   <label
                     className="block text-[10px] font-bold uppercase mb-2"
@@ -770,7 +794,7 @@ export default function PropertiesPage() {
                   </label>
                 </div>
 
-                {/* Équipements */}
+                {/* Équipements - AVEC ASCENSEUR AJOUTÉ */}
                 <div>
                   <label
                     className="block text-[10px] font-bold uppercase mb-2"
@@ -783,7 +807,7 @@ export default function PropertiesPage() {
                     Équipements
                   </label>
                   <div className="grid grid-cols-2 gap-2">
-                    {['Parking', 'Jardin', 'Piscine', 'Meublé'].map((eq) => (
+                    {['Parking', 'Jardin', 'Piscine', 'Meublé', 'Ascenseur'].map((eq) => (
                       <label
                         key={eq}
                         className="flex items-center gap-1.5 cursor-pointer"
