@@ -524,28 +524,11 @@ export default function PropertyDetailPage() {
               </div>
             </div>
 
-            {/* Description - Affichage avec emojis */}
+            {/* Description - Affichage simple */}
             {property.description && (
               <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
                 <h2 className="text-2xl font-bold text-white mb-6">📝 Description</h2>
-                <div className="space-y-3">
-                  {property.description
-                    .split(/[-•\*]\s+|\n+/) // Diviser par tirets, puces ou sauts de ligne
-                    .map((item: string) => item.trim())
-                    .filter((item: string) => item.length > 0)
-                    .map((item: string, index: number) => {
-                      // Liste d'emojis variés pour chaque ligne
-                      const emojis = ['🔑', '🏢', '📍', '📐', '🪟', '☀️', '🍳', '🛁', '💡', '💰', '✅', '⭐', '📱', '🎯', '🌟', '🏠', '🔔', '🎨', '🚪', '🌳'];
-                      const emoji = emojis[index % emojis.length];
-                      
-                      return (
-                        <div key={index} className="flex items-start gap-3">
-                          <span className="text-2xl flex-shrink-0 w-8 h-8 flex items-center justify-center">{emoji}</span>
-                          <p className="text-[#b0b0b0] leading-relaxed flex-1 pt-1">{item}</p>
-                        </div>
-                      );
-                    })}
-                </div>
+                <p className="text-[#b0b0b0] leading-relaxed whitespace-pre-wrap">{property.description}</p>
               </div>
             )}
 

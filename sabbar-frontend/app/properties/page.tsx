@@ -296,7 +296,11 @@ export default function PropertiesPage() {
     bedrooms: '',
     bathrooms: '',
     condition: '',
-    equipments: [] as string[],
+    has_parking: false,
+    has_garden: false,
+    has_pool: false,
+    has_elevator: false,
+    is_furnished: false,
   });
 
   // Charger les propriétés
@@ -396,19 +400,25 @@ export default function PropertiesPage() {
         }
       }
 
-      // ✅ ÉQUIPEMENTS
-      if (filters.equipments.length > 0) {
-        const propertyEquipments = property.equipments || [];
-        const hasAllEquipments = filters.equipments.every(eq => {
-          return propertyEquipments.some(pEq => {
-            const value = typeof pEq === 'string' ? pEq : pEq?.name;
-            return value?.toLowerCase() === eq.toLowerCase();
-          });
-        });
+      // ✅ ÉQUIPEMENTS - CORRECTIFS AVEC LES BONS NOMS DE CHAMPS
+      if (filters.has_parking && !property.has_parking) {
+        return false;
+      }
 
-        if (!hasAllEquipments) {
-          return false;
-        }
+      if (filters.has_garden && !property.has_garden) {
+        return false;
+      }
+
+      if (filters.has_pool && !property.has_pool) {
+        return false;
+      }
+
+      if (filters.has_elevator && !property.has_elevator) {
+        return false;
+      }
+
+      if (filters.is_furnished && !property.is_furnished) {
+        return false;
       }
 
       return true;
@@ -431,7 +441,11 @@ export default function PropertiesPage() {
       bedrooms: '',
       bathrooms: '',
       condition: '',
-      equipments: [],
+      has_parking: false,
+      has_garden: false,
+      has_pool: false,
+      has_elevator: false,
+      is_furnished: false,
     });
   };
 
@@ -573,7 +587,7 @@ export default function PropertiesPage() {
               }}
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-                {/* Prix - MIN ET MAX SÉPARÉS */}
+                {/* Prix Min */}
                 <div>
                   <label
                     className="block text-[10px] font-bold uppercase mb-2"
@@ -693,7 +707,7 @@ export default function PropertiesPage() {
                   />
                 </div>
 
-                {/* Chambres - UNE SEULE CASE */}
+                {/* Chambres */}
                 <div>
                   <label
                     className="block text-[10px] font-bold uppercase mb-2"
@@ -723,7 +737,7 @@ export default function PropertiesPage() {
                   />
                 </div>
 
-                {/* Salles de bain - UNE SEULE CASE */}
+                {/* Salles de bain */}
                 <div>
                   <label
                     className="block text-[10px] font-bold uppercase mb-2"
@@ -794,7 +808,7 @@ export default function PropertiesPage() {
                   </label>
                 </div>
 
-                {/* Équipements - AVEC ASCENSEUR AJOUTÉ */}
+                {/* Équipements - AVEC LES BONS NOMS DE CHAMPS */}
                 <div>
                   <label
                     className="block text-[10px] font-bold uppercase mb-2"
@@ -807,34 +821,110 @@ export default function PropertiesPage() {
                     Équipements
                   </label>
                   <div className="grid grid-cols-2 gap-2">
-                    {['Parking', 'Jardin', 'Piscine', 'Meublé', 'Ascenseur'].map((eq) => (
-                      <label
-                        key={eq}
-                        className="flex items-center gap-1.5 cursor-pointer"
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={filters.has_parking}
+                        onChange={() => {
+                          console.log('✅ Parking changé');
+                          setFilters({ ...filters, has_parking: !filters.has_parking });
+                        }}
+                        className="w-4 h-4 cursor-pointer"
+                      />
+                      <span
+                        className="text-xs"
+                        style={{
+                          color: SABBAR_COLORS.goldLight,
+                          fontFamily: "'DM Sans', sans-serif",
+                        }}
                       >
-                        <input
-                          type="checkbox"
-                          checked={filters.equipments?.includes(eq) || false}
-                          onChange={() => {
-                            const newEquipments = filters.equipments?.includes(eq)
-                              ? filters.equipments.filter(e => e !== eq)
-                              : [...(filters.equipments || []), eq];
-                            console.log('✅ Équipement changé:', eq, 'Nouveaux équipements:', newEquipments);
-                            setFilters({ ...filters, equipments: newEquipments });
-                          }}
-                          className="w-4 h-4 cursor-pointer"
-                        />
-                        <span
-                          className="text-xs"
-                          style={{
-                            color: SABBAR_COLORS.goldLight,
-                            fontFamily: "'DM Sans', sans-serif",
-                          }}
-                        >
-                          {eq}
-                        </span>
-                      </label>
-                    ))}
+                        Parking
+                      </span>
+                    </label>
+
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={filters.has_garden}
+                        onChange={() => {
+                          console.log('✅ Jardin changé');
+                          setFilters({ ...filters, has_garden: !filters.has_garden });
+                        }}
+                        className="w-4 h-4 cursor-pointer"
+                      />
+                      <span
+                        className="text-xs"
+                        style={{
+                          color: SABBAR_COLORS.goldLight,
+                          fontFamily: "'DM Sans', sans-serif",
+                        }}
+                      >
+                        Jardin
+                      </span>
+                    </label>
+
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={filters.has_pool}
+                        onChange={() => {
+                          console.log('✅ Piscine changée');
+                          setFilters({ ...filters, has_pool: !filters.has_pool });
+                        }}
+                        className="w-4 h-4 cursor-pointer"
+                      />
+                      <span
+                        className="text-xs"
+                        style={{
+                          color: SABBAR_COLORS.goldLight,
+                          fontFamily: "'DM Sans', sans-serif",
+                        }}
+                      >
+                        Piscine
+                      </span>
+                    </label>
+
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={filters.is_furnished}
+                        onChange={() => {
+                          console.log('✅ Meublé changé');
+                          setFilters({ ...filters, is_furnished: !filters.is_furnished });
+                        }}
+                        className="w-4 h-4 cursor-pointer"
+                      />
+                      <span
+                        className="text-xs"
+                        style={{
+                          color: SABBAR_COLORS.goldLight,
+                          fontFamily: "'DM Sans', sans-serif",
+                        }}
+                      >
+                        Meublé
+                      </span>
+                    </label>
+
+                    <label className="flex items-center gap-1.5 cursor-pointer col-span-2">
+                      <input
+                        type="checkbox"
+                        checked={filters.has_elevator}
+                        onChange={() => {
+                          console.log('✅ Ascenseur changé');
+                          setFilters({ ...filters, has_elevator: !filters.has_elevator });
+                        }}
+                        className="w-4 h-4 cursor-pointer"
+                      />
+                      <span
+                        className="text-xs"
+                        style={{
+                          color: SABBAR_COLORS.goldLight,
+                          fontFamily: "'DM Sans', sans-serif",
+                        }}
+                      >
+                        Ascenseur
+                      </span>
+                    </label>
                   </div>
                 </div>
               </div>
