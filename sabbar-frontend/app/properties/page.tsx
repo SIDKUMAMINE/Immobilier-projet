@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Heart, MapPin, ChevronDown } from 'lucide-react';
 import { propertiesApi } from '@/lib/api';
@@ -64,7 +64,7 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
   };
 
   return (
-    <div className="flex-1 min-w-[140px]">
+    <div className="flex-1 min-w-[180px]">
       <label
         className="block text-[10px] font-bold uppercase mb-1.5"
         style={{
@@ -79,7 +79,7 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
       <div className="relative">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full px-2.5 py-1.5 rounded flex items-center justify-between transition-all duration-200 text-xs"
+          className="w-full px-3 py-2 rounded flex items-center justify-between transition-all duration-200 text-xs"
           style={{
             backgroundColor: isOpen ? SABBAR_COLORS.navyDominant : 'rgba(249, 245, 239, 0.05)',
             color: value && value !== placeholder ? SABBAR_COLORS.ivory : SABBAR_COLORS.goldLight,
@@ -88,10 +88,10 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
             fontWeight: 500,
           }}
         >
-          <span className="truncate text-[11px]">{getDisplayLabel()}</span>
+          <span className="truncate text-[12px]">{getDisplayLabel()}</span>
           <ChevronDown
-            size={14}
-            className="flex-shrink-0 ml-1 transition-transform duration-200"
+            size={16}
+            className="flex-shrink-0 ml-2 transition-transform duration-200"
             style={{
               color: SABBAR_COLORS.goldAccent,
               transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
@@ -106,7 +106,7 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
               backgroundColor: SABBAR_COLORS.navyDominant,
               borderColor: SABBAR_COLORS.goldAccent,
               boxShadow: `0 4px 12px rgba(200, 169, 110, 0.15)`,
-              maxHeight: '200px',
+              maxHeight: '250px',
               overflowY: 'auto',
             }}
           >
@@ -115,12 +115,11 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
                 onChange('');
                 setIsOpen(false);
               }}
-              className="w-full px-2.5 py-1.5 text-left transition-colors text-[11px]"
+              className="w-full px-3 py-2 text-left transition-colors text-[12px]"
               style={{
                 backgroundColor: !value ? SABBAR_COLORS.goldAccent + '20' : 'transparent',
                 color: !value ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.goldLight,
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: '11px',
               }}
             >
               {placeholder}
@@ -135,12 +134,11 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
                   onChange(option.original);
                   setIsOpen(false);
                 }}
-                className="w-full px-2.5 py-1.5 text-left transition-colors text-[11px]"
+                className="w-full px-3 py-2 text-left transition-colors text-[12px]"
                 style={{
                   backgroundColor: value === option.original ? SABBAR_COLORS.goldAccent + '20' : 'transparent',
                   color: value === option.original ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.goldLight,
                   fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '11px',
                   fontWeight: value === option.original ? 600 : 500,
                   borderBottom: `0.5px solid ${SABBAR_COLORS.goldAccent}08`,
                 }}
@@ -157,7 +155,7 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
   );
 };
 
-// 🏠 CARTE PROPRIÉTÉ - FIX NAVIGATION
+// 🏠 CARTE PROPRIÉTÉ
 interface PropertyCardProps {
   property: any;
 }
@@ -183,8 +181,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   };
 
   const image = property.images?.[0] || property.image || '/placeholder.jpg';
-
-  // ✅ FIX: Utiliser le chemin correct pour la navigation
   const propertyUrl = `/properties/${property.id}`;
 
   return (
@@ -406,23 +402,24 @@ export default function PropertiesPage() {
         </div>
       </section>
 
-      {/* 🎯 SECTION FILTRES - ORDRE RÉORGANISÉ */}
+      {/* 🎯 SECTION FILTRES - STRUCTURE CLAIRE ET ORGANISÉE */}
       <section
-        className="py-4 px-[5%] border-b overflow-x-auto"
+        className="py-6 px-[5%] border-b"
         style={{
           backgroundColor: SABBAR_COLORS.navyDominant,
           borderColor: SABBAR_COLORS.goldAccent + '30',
         }}
       >
         <div className="max-w-[1400px] mx-auto">
-          <div className="flex items-center gap-3 mb-3">
-            <span style={{ fontSize: '18px' }}>🔍</span>
+          {/* Titre */}
+          <div className="flex items-center gap-3 mb-4">
+            <span style={{ fontSize: '20px' }}>🔍</span>
             <h2
-              className="text-sm font-bold whitespace-nowrap"
+              className="text-sm font-bold"
               style={{
                 color: SABBAR_COLORS.goldAccent,
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: '13px',
+                fontSize: '14px',
                 fontWeight: 700,
               }}
             >
@@ -430,10 +427,10 @@ export default function PropertiesPage() {
             </h2>
           </div>
 
-          {/* LIGNE 1: Prix, Surface, Chambres, Salles de bain, État, Équipements, Ville */}
-          <div className="flex flex-wrap gap-3 items-end mb-3">
-            {/* Prix - 2 champs Min/Max */}
-            <div className="flex-1 min-w-[160px]">
+          {/* LIGNE 1: Filtres de base (Prix, Surface, Chambres, Salles de bain, État, Équipements) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
+            {/* Prix Min/Max */}
+            <div className="sm:col-span-1 lg:col-span-1">
               <label
                 className="block text-[10px] font-bold uppercase mb-1.5"
                 style={{
@@ -450,7 +447,7 @@ export default function PropertiesPage() {
                   placeholder="Min"
                   value={filters.priceMin}
                   onChange={(e) => setFilters({ ...filters, priceMin: e.target.value })}
-                  className="flex-1 px-2.5 py-1.5 rounded text-xs"
+                  className="flex-1 px-3 py-2 rounded text-xs"
                   style={{
                     backgroundColor: 'rgba(249, 245, 239, 0.05)',
                     borderColor: SABBAR_COLORS.goldAccent,
@@ -464,7 +461,7 @@ export default function PropertiesPage() {
                   placeholder="Max"
                   value={filters.priceMax}
                   onChange={(e) => setFilters({ ...filters, priceMax: e.target.value })}
-                  className="flex-1 px-2.5 py-1.5 rounded text-xs"
+                  className="flex-1 px-3 py-2 rounded text-xs"
                   style={{
                     backgroundColor: 'rgba(249, 245, 239, 0.05)',
                     borderColor: SABBAR_COLORS.goldAccent,
@@ -476,8 +473,8 @@ export default function PropertiesPage() {
               </div>
             </div>
 
-            {/* Surface - 2 champs Min/Max */}
-            <div className="flex-1 min-w-[160px]">
+            {/* Surface Min/Max */}
+            <div className="sm:col-span-1 lg:col-span-1">
               <label
                 className="block text-[10px] font-bold uppercase mb-1.5"
                 style={{
@@ -494,7 +491,7 @@ export default function PropertiesPage() {
                   placeholder="Min"
                   value={filters.areaMin}
                   onChange={(e) => setFilters({ ...filters, areaMin: e.target.value })}
-                  className="flex-1 px-2.5 py-1.5 rounded text-xs"
+                  className="flex-1 px-3 py-2 rounded text-xs"
                   style={{
                     backgroundColor: 'rgba(249, 245, 239, 0.05)',
                     borderColor: SABBAR_COLORS.goldAccent,
@@ -508,7 +505,7 @@ export default function PropertiesPage() {
                   placeholder="Max"
                   value={filters.areaMax}
                   onChange={(e) => setFilters({ ...filters, areaMax: e.target.value })}
-                  className="flex-1 px-2.5 py-1.5 rounded text-xs"
+                  className="flex-1 px-3 py-2 rounded text-xs"
                   style={{
                     backgroundColor: 'rgba(249, 245, 239, 0.05)',
                     borderColor: SABBAR_COLORS.goldAccent,
@@ -520,8 +517,8 @@ export default function PropertiesPage() {
               </div>
             </div>
 
-            {/* Chambres - Une seule case */}
-            <div className="flex-1 min-w-[90px]">
+            {/* Chambres */}
+            <div>
               <label
                 className="block text-[10px] font-bold uppercase mb-1.5"
                 style={{
@@ -537,7 +534,7 @@ export default function PropertiesPage() {
                 placeholder="Ex: 2"
                 value={filters.bedrooms}
                 onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
-                className="w-full px-2.5 py-1.5 rounded text-xs"
+                className="w-full px-3 py-2 rounded text-xs"
                 style={{
                   backgroundColor: 'rgba(249, 245, 239, 0.05)',
                   borderColor: SABBAR_COLORS.goldAccent,
@@ -548,8 +545,8 @@ export default function PropertiesPage() {
               />
             </div>
 
-            {/* Salles de bain - Une seule case */}
-            <div className="flex-1 min-w-[90px]">
+            {/* Salles de bain */}
+            <div>
               <label
                 className="block text-[10px] font-bold uppercase mb-1.5"
                 style={{
@@ -565,7 +562,7 @@ export default function PropertiesPage() {
                 placeholder="Ex: 1"
                 value={filters.bathrooms}
                 onChange={(e) => setFilters({ ...filters, bathrooms: e.target.value })}
-                className="w-full px-2.5 py-1.5 rounded text-xs"
+                className="w-full px-3 py-2 rounded text-xs"
                 style={{
                   backgroundColor: 'rgba(249, 245, 239, 0.05)',
                   borderColor: SABBAR_COLORS.goldAccent,
@@ -576,8 +573,8 @@ export default function PropertiesPage() {
               />
             </div>
 
-            {/* État du bien - Checkbox "Neuf" seulement */}
-            <div className="flex-1 min-w-[90px]">
+            {/* État du bien - Checkbox "Neuf" */}
+            <div>
               <label
                 className="block text-[10px] font-bold uppercase mb-1.5"
                 style={{
@@ -588,7 +585,8 @@ export default function PropertiesPage() {
               >
                 État du bien
               </label>
-              <label className="flex items-center gap-2 cursor-pointer px-2.5 py-1.5 border rounded h-9"
+              <label
+                className="flex items-center gap-2 cursor-pointer px-3 py-2 border rounded"
                 style={{
                   backgroundColor: 'rgba(249, 245, 239, 0.05)',
                   borderColor: SABBAR_COLORS.goldAccent,
@@ -599,10 +597,10 @@ export default function PropertiesPage() {
                   type="checkbox"
                   checked={filters.condition === 'new'}
                   onChange={(e) => setFilters({ ...filters, condition: e.target.checked ? 'new' : '' })}
-                  className="w-3.5 h-3.5 cursor-pointer"
+                  className="w-4 h-4 cursor-pointer"
                 />
                 <span
-                  className="text-[11px] whitespace-nowrap"
+                  className="text-xs whitespace-nowrap"
                   style={{
                     color: SABBAR_COLORS.goldLight,
                     fontFamily: "'DM Sans', sans-serif",
@@ -613,8 +611,8 @@ export default function PropertiesPage() {
               </label>
             </div>
 
-            {/* Équipements - Checkboxes horizontales */}
-            <div className="flex-1 min-w-[240px]">
+            {/* Équipements - 4 checkboxes */}
+            <div>
               <label
                 className="block text-[10px] font-bold uppercase mb-1.5"
                 style={{
@@ -625,11 +623,11 @@ export default function PropertiesPage() {
               >
                 Équipements
               </label>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {['Parking', 'Jardin', 'Piscine', 'Meublé'].map((eq) => (
                   <label
                     key={eq}
-                    className="flex items-center gap-1 cursor-pointer px-2 py-1.5 border rounded text-[10px] whitespace-nowrap"
+                    className="flex items-center gap-1 cursor-pointer px-2 py-2 border rounded text-[10px] whitespace-nowrap"
                     style={{
                       backgroundColor: filters.equipments.includes(eq)
                         ? SABBAR_COLORS.goldAccent + '25'
@@ -663,8 +661,10 @@ export default function PropertiesPage() {
                 ))}
               </div>
             </div>
+          </div>
 
-            {/* Ville */}
+          {/* LIGNE 2: Sélecteurs + Actions */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <FilterSelect
               label="Ville"
               options={staticCities.map(city => ({ original: city, label: city }))}
@@ -672,11 +672,7 @@ export default function PropertiesPage() {
               onChange={(value) => setFilters({ ...filters, city: value })}
               placeholder="Toutes"
             />
-          </div>
 
-          {/* LIGNE 2: Type de transaction, Type de bien, Réinitialiser */}
-          <div className="flex flex-wrap gap-3 items-end">
-            {/* Type de transaction */}
             <FilterSelect
               label="Type de transaction"
               options={staticTransactionTypes}
@@ -685,7 +681,6 @@ export default function PropertiesPage() {
               placeholder="Tous"
             />
 
-            {/* Type de bien */}
             <FilterSelect
               label="Type de bien"
               options={staticPropertyTypes}
@@ -697,12 +692,12 @@ export default function PropertiesPage() {
             {/* Bouton Réinitialiser */}
             <button
               onClick={handleResetFilters}
-              className="px-4 py-1.5 rounded text-xs font-bold transition-all whitespace-nowrap h-9"
+              className="px-6 py-2 rounded text-xs font-bold transition-all h-full"
               style={{
                 backgroundColor: SABBAR_COLORS.goldAccent,
                 color: SABBAR_COLORS.navyDominant,
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: '11px',
+                fontSize: '12px',
               }}
             >
               Réinitialiser
