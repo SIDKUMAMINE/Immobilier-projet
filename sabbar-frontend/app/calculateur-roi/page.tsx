@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { TrendingUp, Home, Plane, Waves, ChevronDown, Plus, Minus } from 'lucide-react';
+import { TrendingUp, Home, Plane, Waves, Plus, Minus } from 'lucide-react';
 
 const CalculateurROI = () => {
   // État global
@@ -31,12 +31,6 @@ const CalculateurROI = () => {
   
   const [activeTab, setActiveTab] = useState('params');
   const [yearsToProject, setYearsToProject] = useState(20);
-
-  // Fonction pour ajuster une valeur avec des boutons +/-
-  const adjustValue = (value, step, min = 0) => ({
-    increase: () => value + step,
-    decrease: () => Math.max(min, value - step),
-  });
 
   // Calculs
   const loanAmount = useLoan ? (purchasePrice - downPayment) : 0;
@@ -73,8 +67,7 @@ const CalculateurROI = () => {
   };
 
   // Stratégie 1: Longue durée
-  const monthlyRentCollected = (longTermRent * 12 * (100 - longTermVacancy) / 100);
-  const annualRentCollected = monthlyRentCollected * 12;
+  const annualRentCollected = longTermRent * 12 * (100 - longTermVacancy) / 100;
   const longTermCharges = (annualRentCollected * longTermMgmt / 100) + longTermMaint + 2000;
   const longTermResult = calculateStrategy(annualRentCollected, longTermCharges, 10);
 
@@ -120,40 +113,57 @@ const CalculateurROI = () => {
   // Composant pour les boutons +/-
   const NumberInputWithButtons = ({ value, onChange, step, label, suffix = '', min = 0 }) => (
     <div>
-      <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif" }}>
+      <label className="block text-xs uppercase mb-3" style={{ color: '#C8A96E', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif", fontWeight: '600' }}>
         {label}
       </label>
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-3 items-stretch">
         <button
           onClick={() => onChange(Math.max(min, value - step))}
-          className="p-2 rounded transition-all hover:opacity-80"
-          style={{ backgroundColor: '#C8A96E30', color: '#C8A96E', border: '1px solid #C8A96E40' }}
+          className="px-3 py-2 rounded transition-all hover:bg-opacity-80 flex items-center justify-center"
+          style={{ 
+            backgroundColor: '#C8A96E40', 
+            color: '#C8A96E', 
+            border: '1px solid #C8A96E60',
+            cursor: 'pointer',
+            minWidth: '44px'
+          }}
+          title="Diminuer"
         >
-          <Minus size={16} />
+          <Minus size={18} strokeWidth={3} />
         </button>
         
         <input
           type="number"
           value={value}
           onChange={(e) => onChange(Math.max(min, Number(e.target.value)))}
-          className="flex-1 px-3 py-2 rounded text-sm text-center"
+          className="flex-1 px-4 py-2 rounded text-center"
           style={{
-            backgroundColor: 'rgba(249, 245, 239, 0.05)',
+            backgroundColor: 'rgba(249, 245, 239, 0.08)',
             color: '#E2C98A',
-            border: '1px solid #C8A96E40',
+            border: '2px solid #C8A96E50',
             fontFamily: "'DM Sans', sans-serif",
+            fontSize: '16px',
+            fontWeight: '600',
+            outline: 'none',
           }}
         />
         
         <button
           onClick={() => onChange(value + step)}
-          className="p-2 rounded transition-all hover:opacity-80"
-          style={{ backgroundColor: '#C8A96E30', color: '#C8A96E', border: '1px solid #C8A96E40' }}
+          className="px-3 py-2 rounded transition-all hover:bg-opacity-80 flex items-center justify-center"
+          style={{ 
+            backgroundColor: '#C8A96E40', 
+            color: '#C8A96E', 
+            border: '1px solid #C8A96E60',
+            cursor: 'pointer',
+            minWidth: '44px'
+          }}
+          title="Augmenter"
         >
-          <Plus size={16} />
+          <Plus size={18} strokeWidth={3} />
         </button>
       </div>
-      {suffix && <p style={{ color: '#E2C98A', fontSize: '12px' }} className="mt-2">{suffix}</p>}
+      {suffix && <p style={{ color: '#C8A96E', fontSize: '13px', marginTop: '8px', fontWeight: '500', fontFamily: "'DM Sans', sans-serif" }}>{suffix}</p>}
     </div>
   );
 
@@ -201,6 +211,9 @@ const CalculateurROI = () => {
                 color: activeTab === tab.id ? '#C8A96E' : '#E2C98A',
                 borderBottom: activeTab === tab.id ? '3px solid #C8A96E' : 'none',
                 fontFamily: "'DM Sans', sans-serif",
+                backgroundColor: 'transparent',
+                border: 'none',
+                cursor: 'pointer'
               }}
             >
               {tab.label}
@@ -215,8 +228,8 @@ const CalculateurROI = () => {
         {activeTab === 'params' && (
           <div className="space-y-8">
             {/* Paramètres Généraux */}
-            <div className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + '80', border: '1px solid #C8A96E30' }}>
-              <h2 className="text-2xl font-bold mb-6" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>
+            <div className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + 'cc', border: '1px solid #C8A96E30' }}>
+              <h2 className="text-2xl font-bold mb-8" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>
                 💰 Paramètres Généraux
               </h2>
               
@@ -230,33 +243,35 @@ const CalculateurROI = () => {
                 />
 
                 <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif" }}>
+                  <label className="block text-xs uppercase mb-3" style={{ color: '#C8A96E', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif", fontWeight: '600' }}>
                     Mode de paiement
                   </label>
-                  <div className="flex gap-4">
+                  <div className="flex gap-3">
                     <button
                       onClick={() => setUseLoan(true)}
                       className="flex-1 px-4 py-3 rounded text-sm font-bold transition-all"
                       style={{
-                        backgroundColor: useLoan ? '#C8A96E' : 'rgba(200, 169, 110, 0.1)',
+                        backgroundColor: useLoan ? '#C8A96E' : 'rgba(200, 169, 110, 0.15)',
                         color: useLoan ? '#0D1F3C' : '#C8A96E',
-                        border: `1px solid #C8A96E${useLoan ? '99' : '30'}`,
+                        border: `2px solid #C8A96E${useLoan ? '99' : '40'}`,
                         fontFamily: "'DM Sans', sans-serif",
+                        cursor: 'pointer',
                       }}
                     >
-                      Avec Crédit
+                      ✓ Avec Crédit
                     </button>
                     <button
                       onClick={() => setUseLoan(false)}
                       className="flex-1 px-4 py-3 rounded text-sm font-bold transition-all"
                       style={{
-                        backgroundColor: !useLoan ? '#C8A96E' : 'rgba(200, 169, 110, 0.1)',
+                        backgroundColor: !useLoan ? '#C8A96E' : 'rgba(200, 169, 110, 0.15)',
                         color: !useLoan ? '#0D1F3C' : '#C8A96E',
-                        border: `1px solid #C8A96E${!useLoan ? '99' : '30'}`,
+                        border: `2px solid #C8A96E${!useLoan ? '99' : '40'}`,
                         fontFamily: "'DM Sans', sans-serif",
+                        cursor: 'pointer',
                       }}
                     >
-                      Comptant
+                      💰 Comptant
                     </button>
                   </div>
                 </div>
@@ -264,7 +279,7 @@ const CalculateurROI = () => {
 
               {/* Section crédit - Visible seulement si crédit activé */}
               {useLoan && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 rounded-lg" style={{ backgroundColor: 'rgba(200, 169, 110, 0.05)', border: '1px solid #C8A96E30' }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 rounded-lg" style={{ backgroundColor: 'rgba(200, 169, 110, 0.08)', border: '1px solid #C8A96E40' }}>
                   <NumberInputWithButtons
                     value={downPayment}
                     onChange={setDownPayment}
@@ -290,13 +305,13 @@ const CalculateurROI = () => {
                   />
 
                   <div>
-                    <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif" }}>
+                    <label className="block text-xs uppercase mb-3" style={{ color: '#C8A96E', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif", fontWeight: '600' }}>
                       Montant du crédit (DH)
                     </label>
-                    <div className="px-4 py-3 rounded text-sm" style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                    <div className="px-4 py-3 rounded text-sm text-center font-bold" style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.08)',
                       color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
+                      border: '2px solid #C8A96E50',
                       fontFamily: "'DM Sans', sans-serif",
                     }}>
                       {(loanAmount / 1000000).toFixed(2)}M DH
@@ -307,8 +322,8 @@ const CalculateurROI = () => {
             </div>
 
             {/* Stratégie 1: Longue Durée */}
-            <div className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + '80', border: '1px solid #C8A96E30' }}>
-              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>
+            <div className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + 'cc', border: '1px solid #C8A96E30' }}>
+              <h2 className="text-2xl font-bold mb-8 flex items-center gap-3" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>
                 <Home size={28} /> Location Longue Durée
               </h2>
               
@@ -344,8 +359,8 @@ const CalculateurROI = () => {
             </div>
 
             {/* Stratégie 2: Airbnb */}
-            <div className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + '80', border: '1px solid #C8A96E30' }}>
-              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>
+            <div className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + 'cc', border: '1px solid #C8A96E30' }}>
+              <h2 className="text-2xl font-bold mb-8 flex items-center gap-3" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>
                 <Plane size={28} /> Airbnb / Location Meublée
               </h2>
               
@@ -388,8 +403,8 @@ const CalculateurROI = () => {
             </div>
 
             {/* Stratégie 3: Saisonnier */}
-            <div className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + '80', border: '1px solid #C8A96E30' }}>
-              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>
+            <div className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + 'cc', border: '1px solid #C8A96E30' }}>
+              <h2 className="text-2xl font-bold mb-8 flex items-center gap-3" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>
                 <Waves size={28} /> Location Saisonnière
               </h2>
               
@@ -445,12 +460,12 @@ const CalculateurROI = () => {
             ].map((strategy, idx) => {
               const Icon = strategy.icon;
               return (
-                <div key={idx} className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + '80', border: '1px solid #C8A96E30' }}>
+                <div key={idx} className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + 'cc', border: '1px solid #C8A96E30' }}>
                   <h3 className="text-xl font-bold mb-6 flex items-center gap-2" style={{ color: strategy.color, fontFamily: "'DM Sans', sans-serif" }}>
                     <Icon size={24} /> {strategy.title}
                   </h3>
                   
-                  <div className="space-y-3 text-sm">
+                  <div className="space-y-4 text-sm">
                     <div className="flex justify-between pb-3" style={{ borderBottom: '1px solid #C8A96E20' }}>
                       <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Revenus bruts/an</span>
                       <span style={{ color: '#F9F5EF', fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>{(strategy.result.gross / 1000).toFixed(0)}k DH</span>
@@ -478,7 +493,7 @@ const CalculateurROI = () => {
                       </div>
                     )}
                     
-                    <div className="flex justify-between pt-3 bg-opacity-20 px-3 py-2 rounded" style={{ backgroundColor: strategy.color + '20' }}>
+                    <div className="flex justify-between pt-3 px-4 py-3 rounded" style={{ backgroundColor: strategy.color + '20', borderLeft: `4px solid ${strategy.color}` }}>
                       <span style={{ color: '#E2C98A', fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>Cash-Flow/mois</span>
                       <span style={{ color: strategy.color, fontWeight: 'bold', fontSize: '18px', fontFamily: "'DM Sans', sans-serif" }}>
                         {(strategy.result.cashFlow / 12).toFixed(0)} DH
@@ -487,14 +502,14 @@ const CalculateurROI = () => {
                   </div>
 
                   <div className="mt-6 pt-6" style={{ borderTop: '1px solid #C8A96E30' }}>
-                    <h4 style={{ color: '#C8A96E', fontSize: '12px', fontWeight: 'bold', marginBottom: '12px', fontFamily: "'DM Sans', sans-serif" }}>Rendements</h4>
+                    <h4 style={{ color: '#C8A96E', fontSize: '12px', fontWeight: 'bold', marginBottom: '12px', fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase' }}>Rendements</h4>
                     <div className="space-y-2 text-xs">
                       <div className="flex justify-between">
-                        <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Rendement brut</span>
+                        <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Brut</span>
                         <span style={{ color: '#F9F5EF', fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>{strategy.result.grossYield.toFixed(2)}%</span>
                       </div>
                       <div className="flex justify-between">
-                        <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Rendement net</span>
+                        <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Net</span>
                         <span style={{ color: strategy.color, fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>{strategy.result.netYield.toFixed(2)}%</span>
                       </div>
                       <div className="flex justify-between">
@@ -515,11 +530,11 @@ const CalculateurROI = () => {
             <div className="rounded-lg overflow-hidden border" style={{ borderColor: '#C8A96E30' }}>
               <table className="w-full text-sm">
                 <thead>
-                  <tr style={{ backgroundColor: '#0D1F3C' + 'cc', borderBottom: '2px solid #C8A96E' }}>
-                    <th className="px-6 py-4 text-left" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Métrique</th>
-                    <th className="px-6 py-4 text-right" style={{ color: '#4CAF50', fontFamily: "'DM Sans', sans-serif" }}>Longue Durée</th>
-                    <th className="px-6 py-4 text-right" style={{ color: '#2196F3', fontFamily: "'DM Sans', sans-serif" }}>Airbnb</th>
-                    <th className="px-6 py-4 text-right" style={{ color: '#FF9800', fontFamily: "'DM Sans', sans-serif" }}>Saisonnier</th>
+                  <tr style={{ backgroundColor: '#0D1F3C' + 'dd', borderBottom: '2px solid #C8A96E' }}>
+                    <th className="px-6 py-4 text-left" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>Métrique</th>
+                    <th className="px-6 py-4 text-right" style={{ color: '#4CAF50', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>Longue Durée</th>
+                    <th className="px-6 py-4 text-right" style={{ color: '#2196F3', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>Airbnb</th>
+                    <th className="px-6 py-4 text-right" style={{ color: '#FF9800', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>Saisonnier</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -535,14 +550,14 @@ const CalculateurROI = () => {
                     { label: 'Cash-on-Cash', key: 'cashOnCash', format: (v: number) => `${v.toFixed(2)}%` },
                   ].map((row, idx) => (
                     <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? '#0D1F3C50' : 'transparent', borderBottom: '1px solid #C8A96E15' }}>
-                      <td className="px-6 py-4" style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>{row.label}</td>
-                      <td className="px-6 py-4 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif" }}>
+                      <td className="px-6 py-4" style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif", fontWeight: '500' }}>{row.label}</td>
+                      <td className="px-6 py-4 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>
                         {row.format ? row.format(longTermResult[row.key as keyof typeof longTermResult]) : `${(longTermResult[row.key as keyof typeof longTermResult] / 1000).toFixed(0)}k DH`}
                       </td>
-                      <td className="px-6 py-4 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif" }}>
+                      <td className="px-6 py-4 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>
                         {row.format ? row.format(airbnbResult[row.key as keyof typeof airbnbResult]) : `${(airbnbResult[row.key as keyof typeof airbnbResult] / 1000).toFixed(0)}k DH`}
                       </td>
-                      <td className="px-6 py-4 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif" }}>
+                      <td className="px-6 py-4 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>
                         {row.format ? row.format(seasonalResult[row.key as keyof typeof seasonalResult]) : `${(seasonalResult[row.key as keyof typeof seasonalResult] / 1000).toFixed(0)}k DH`}
                       </td>
                     </tr>
@@ -556,8 +571,8 @@ const CalculateurROI = () => {
         {/* TAB 4: PROJECTION 20 ANS */}
         {activeTab === 'projection' && (
           <div className="space-y-8">
-            <div className="rounded-lg p-6" style={{ backgroundColor: '#0D1F3C' + '80', border: '1px solid #C8A96E30' }}>
-              <label className="block text-xs uppercase mb-4" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>
+            <div className="rounded-lg p-6" style={{ backgroundColor: '#0D1F3C' + 'cc', border: '1px solid #C8A96E30' }}>
+              <label className="block text-xs uppercase mb-4" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", fontWeight: '600' }}>
                 Projection jusqu'à {yearsToProject} ans
               </label>
               <input
@@ -571,26 +586,26 @@ const CalculateurROI = () => {
               />
             </div>
 
-            <div className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + '80', border: '1px solid #C8A96E30' }}>
+            <div className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + 'cc', border: '1px solid #C8A96E30' }}>
               <h3 className="text-xl font-bold mb-6" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Richesse Nette Cumulée</h3>
               
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr style={{ borderBottom: '2px solid #C8A96E' }}>
-                      <th className="px-4 py-3 text-left" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Année</th>
-                      <th className="px-4 py-3 text-right" style={{ color: '#4CAF50', fontFamily: "'DM Sans', sans-serif" }}>Longue Durée</th>
-                      <th className="px-4 py-3 text-right" style={{ color: '#2196F3', fontFamily: "'DM Sans', sans-serif" }}>Airbnb</th>
-                      <th className="px-4 py-3 text-right" style={{ color: '#FF9800', fontFamily: "'DM Sans', sans-serif" }}>Saisonnier</th>
+                      <th className="px-4 py-3 text-left" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>Année</th>
+                      <th className="px-4 py-3 text-right" style={{ color: '#4CAF50', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>Longue Durée</th>
+                      <th className="px-4 py-3 text-right" style={{ color: '#2196F3', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>Airbnb</th>
+                      <th className="px-4 py-3 text-right" style={{ color: '#FF9800', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>Saisonnier</th>
                     </tr>
                   </thead>
                   <tbody>
                     {projectionData.filter((_, i) => i % Math.ceil(projectionData.length / 11) === 0).map((data, idx) => (
                       <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? '#0D1F3C50' : 'transparent', borderBottom: '1px solid #C8A96E15' }}>
                         <td className="px-4 py-3" style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Année {data.year}</td>
-                        <td className="px-4 py-3 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif" }}>{(data.longTermTotal / 1000000).toFixed(2)}M DH</td>
-                        <td className="px-4 py-3 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif" }}>{(data.airbnbTotal / 1000000).toFixed(2)}M DH</td>
-                        <td className="px-4 py-3 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif" }}>{(data.seasonalTotal / 1000000).toFixed(2)}M DH</td>
+                        <td className="px-4 py-3 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>{(data.longTermTotal / 1000000).toFixed(2)}M DH</td>
+                        <td className="px-4 py-3 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>{(data.airbnbTotal / 1000000).toFixed(2)}M DH</td>
+                        <td className="px-4 py-3 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>{(data.seasonalTotal / 1000000).toFixed(2)}M DH</td>
                       </tr>
                     ))}
                   </tbody>
@@ -598,8 +613,8 @@ const CalculateurROI = () => {
               </div>
 
               <div className="mt-8 p-6 rounded-lg" style={{ backgroundColor: '#0D1F3C' + '99', border: '1px solid #C8A96E30' }}>
-                <p style={{ color: '#E2C98A', fontSize: '14px', marginBottom: '12px', fontFamily: "'DM Sans', sans-serif" }}>
-                  <strong>À l'année {yearsToProject}:</strong>
+                <p style={{ color: '#E2C98A', fontSize: '14px', marginBottom: '12px', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>
+                  À l'année {yearsToProject}:
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {[
@@ -637,14 +652,18 @@ const CalculateurROI = () => {
               backgroundColor: '#C8A96E',
               color: '#0D1F3C',
               fontFamily: "'DM Sans', sans-serif",
+              cursor: 'pointer',
+              textDecoration: 'none'
             }}
             onMouseEnter={(e) => {
               const target = e.currentTarget as HTMLAnchorElement;
               target.style.backgroundColor = '#D4B578';
+              target.style.transform = 'translateY(-2px)';
             }}
             onMouseLeave={(e) => {
               const target = e.currentTarget as HTMLAnchorElement;
               target.style.backgroundColor = '#C8A96E';
+              target.style.transform = 'translateY(0)';
             }}
           >
             Consultation Gratuite →
