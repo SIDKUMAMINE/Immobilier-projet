@@ -284,6 +284,33 @@ export default function PublicNavbarClient() {
               Blog
             </Link>
 
+            {/* 💰 Calculateur ROI - NOUVEAU */}
+            <Link
+              href="/calculateur-roi"
+              className="px-4 py-2 transition-colors rounded-lg flex items-center gap-1.5"
+              style={{
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontSize: '13px',
+                fontWeight: 600,
+                color: '#C8A96E',
+                backgroundColor: 'rgba(200, 169, 110, 0.15)',
+                border: '1px solid rgba(200, 169, 110, 0.3)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#F9F5EF';
+                e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.25)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(200, 169, 110, 0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#C8A96E';
+                e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.15)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <span>💰</span>
+              ROI
+            </Link>
+
             {/* Consultation */}
             <Link
               href="/contact"

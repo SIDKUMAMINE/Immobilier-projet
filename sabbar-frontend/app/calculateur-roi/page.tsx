@@ -1,0 +1,720 @@
+'use client';
+
+import React, { useState, useMemo } from 'react';
+import { TrendingUp, Home, Plane, Waves, ChevronDown } from 'lucide-react';
+
+const CalculateurROI = () => {
+  // État global
+  const [purchasePrice, setPurchasePrice] = useState(1500000);
+  const [downPayment, setDownPayment] = useState(300000);
+  const [loanRate, setLoanRate] = useState(4.5);
+  const [loanYears, setLoanYears] = useState(20);
+  
+  // Stratégies
+  const [longTermRent, setLongTermRent] = useState(12000);
+  const [longTermVacancy, setLongTermVacancy] = useState(8);
+  const [longTermMgmt, setLongTermMgmt] = useState(10);
+  const [longTermMaint, setLongTermMaint] = useState(2000);
+  
+  const [airbnbNight, setAirbnbNight] = useState(500);
+  const [airbnbOccupancy, setAirbnbOccupancy] = useState(70);
+  const [airbnbComm, setAirbnbComm] = useState(15);
+  const [airbnbCleaning, setAirbnbCleaning] = useState(2000);
+  const [airbnbConcierge, setAirbnbConcierge] = useState(1000);
+  
+  const [seasonalHighRate, setSeasonalHighRate] = useState(1200);
+  const [seasonalLowRate, setSeasonalLowRate] = useState(600);
+  const [seasonalHighNights, setSeasonalHighNights] = useState(120);
+  const [seasonalLowNights, setSeasonalLowNights] = useState(180);
+  const [seasonalCleaning, setSeasonalCleaning] = useState(1500);
+  
+  const [activeTab, setActiveTab] = useState('params');
+  const [yearsToProject, setYearsToProject] = useState(20);
+
+  // Calculs
+  const loanAmount = purchasePrice - downPayment;
+  const monthlyRate = loanRate / 100 / 12;
+  const numPayments = loanYears * 12;
+  const monthlyPayment = loanAmount > 0 
+    ? loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1)
+    : 0;
+
+  const calculateStrategy = (annualGross, annualCharges, taxRate = 10) => {
+    const gross = annualGross;
+    const charges = annualCharges;
+    const beforeTax = gross - charges;
+    const taxes = Math.max(0, beforeTax * (taxRate / 100));
+    const net = beforeTax - taxes;
+    
+    const annualMortgage = monthlyPayment * 12;
+    const cashFlow = net - annualMortgage;
+    
+    return {
+      gross,
+      charges,
+      beforeTax,
+      taxes,
+      net,
+      annualMortgage,
+      cashFlow,
+      grossYield: (gross / purchasePrice) * 100,
+      netYield: (net / purchasePrice) * 100,
+      cashOnCash: (cashFlow / downPayment) * 100,
+    };
+  };
+
+  // Stratégie 1: Longue durée
+  const monthlyRentCollected = (longTermRent * 12 * (100 - longTermVacancy) / 100);
+  const annualRentCollected = monthlyRentCollected * 12;
+  const longTermCharges = (annualRentCollected * longTermMgmt / 100) + longTermMaint + 2000;
+  const longTermResult = calculateStrategy(annualRentCollected, longTermCharges, 10);
+
+  // Stratégie 2: Airbnb
+  const airbnbNightsPerYear = 365 * (airbnbOccupancy / 100);
+  const airbnbAnnualGross = airbnbNight * airbnbNightsPerYear;
+  const airbnbCharges = (airbnbAnnualGross * airbnbComm / 100) + (airbnbCleaning * (airbnbNightsPerYear / 10)) + airbnbConcierge + 3000;
+  const airbnbResult = calculateStrategy(airbnbAnnualGross, airbnbCharges, 20);
+
+  // Stratégie 3: Saisonnier
+  const seasonalGross = (seasonalHighRate * seasonalHighNights) + (seasonalLowRate * seasonalLowNights);
+  const seasonalCharges = (seasonalCleaning * ((seasonalHighNights + seasonalLowNights) / 10)) + 4000 + 5000;
+  const seasonalResult = calculateStrategy(seasonalGross, seasonalCharges, 15);
+
+  // Projection 20 ans
+  const propertyAppreciation = 2;
+  const projectionData = useMemo(() => {
+    return Array.from({ length: yearsToProject + 1 }, (_, year) => {
+      const propertyValue = purchasePrice * Math.pow(1 + propertyAppreciation / 100, year);
+      const mortgageBalance = year >= loanYears ? 0 : loanAmount * Math.pow(1 + monthlyRate, year * 12) / Math.pow(1 + monthlyRate, numPayments) * (Math.pow(1 + monthlyRate, numPayments) - Math.pow(1 + monthlyRate, year * 12)) / (Math.pow(1 + monthlyRate, numPayments) - 1);
+      
+      const equity = propertyValue - Math.max(0, mortgageBalance);
+      
+      const longTermCumulative = longTermResult.cashFlow * year;
+      const airbnbCumulative = airbnbResult.cashFlow * year;
+      const seasonalCumulative = seasonalResult.cashFlow * year;
+      
+      return {
+        year,
+        longTermTotal: longTermCumulative + equity,
+        airbnbTotal: airbnbCumulative + equity,
+        seasonalTotal: seasonalCumulative + equity,
+        propertyValue,
+        equity,
+      };
+    });
+  }, [yearsToProject]);
+
+  return (
+    <div className="min-h-screen" style={{ backgroundColor: '#0D1F3C' }}>
+      {/* Header */}
+      <div className="relative overflow-hidden py-16 px-6 lg:py-24">
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: 'radial-gradient(circle at 20% 50%, #C8A96E 0%, transparent 50%)',
+        }}></div>
+        
+        <div className="relative max-w-7xl mx-auto">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#C8A96E' + '20', border: '1px solid #C8A96E' }}>
+              <TrendingUp size={24} style={{ color: '#C8A96E' }} />
+            </div>
+            <h1 className="text-sm uppercase tracking-widest font-bold" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>
+              Outil D'Analyse
+            </h1>
+          </div>
+
+          <h1 className="text-5xl lg:text-6xl font-light mb-4" style={{ color: '#F9F5EF', fontFamily: "'Cormorant Garamond', serif" }}>
+            Calculateur ROI <span style={{ color: '#C8A96E' }}>Immobilier</span>
+          </h1>
+          <p className="text-lg max-w-2xl" style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>
+            Estimez votre rendement réel en comparant 3 stratégies d'investissement : location longue durée, Airbnb et location saisonnière.
+          </p>
+        </div>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="max-w-7xl mx-auto px-6 mb-8">
+        <div className="flex gap-4 border-b overflow-x-auto" style={{ borderColor: '#C8A96E' + '30' }}>
+          {[
+            { id: 'params', label: '⚙️ Paramètres' },
+            { id: 'monthly', label: '💵 Flux Mensuels' },
+            { id: 'compare', label: '📊 Comparatif' },
+            { id: 'projection', label: '📈 Projection' },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className="px-6 py-4 font-medium text-sm transition-all whitespace-nowrap"
+              style={{
+                color: activeTab === tab.id ? '#C8A96E' : '#E2C98A',
+                borderBottom: activeTab === tab.id ? '3px solid #C8A96E' : 'none',
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Contenu */}
+      <div className="max-w-7xl mx-auto px-6 pb-16">
+        {/* TAB 1: PARAMÈTRES */}
+        {activeTab === 'params' && (
+          <div className="space-y-8">
+            {/* Paramètres Généraux */}
+            <div className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + '80', border: '1px solid #C8A96E30' }}>
+              <h2 className="text-2xl font-bold mb-6" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>
+                💰 Paramètres Généraux
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif" }}>
+                    Prix d'achat (DH)
+                  </label>
+                  <input
+                    type="number"
+                    value={purchasePrice}
+                    onChange={(e) => setPurchasePrice(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                  <p style={{ color: '#E2C98A', fontSize: '12px' }} className="mt-2">
+                    {(purchasePrice / 1000000).toFixed(2)}M DH
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif" }}>
+                    Apport personnel (DH)
+                  </label>
+                  <input
+                    type="number"
+                    value={downPayment}
+                    onChange={(e) => setDownPayment(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                  <p style={{ color: '#E2C98A', fontSize: '12px' }} className="mt-2">
+                    {((downPayment / purchasePrice) * 100).toFixed(1)}% du prix
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif" }}>
+                    Taux de crédit (%)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={loanRate}
+                    onChange={(e) => setLoanRate(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                  <p style={{ color: '#E2C98A', fontSize: '12px' }} className="mt-2">
+                    Mensualité: {(monthlyPayment).toFixed(0)} DH
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif" }}>
+                    Durée crédit (ans)
+                  </label>
+                  <input
+                    type="number"
+                    value={loanYears}
+                    onChange={(e) => setLoanYears(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                  <p style={{ color: '#E2C98A', fontSize: '12px' }} className="mt-2">
+                    Remboursement en {loanYears} ans
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Stratégie 1: Longue Durée */}
+            <div className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + '80', border: '1px solid #C8A96E30' }}>
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>
+                <Home size={28} /> Location Longue Durée
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Loyer mensuel (DH)</label>
+                  <input
+                    type="number"
+                    value={longTermRent}
+                    onChange={(e) => setLongTermRent(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Taux vacance (%)</label>
+                  <input
+                    type="number"
+                    value={longTermVacancy}
+                    onChange={(e) => setLongTermVacancy(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Gestion agence (%)</label>
+                  <input
+                    type="number"
+                    value={longTermMgmt}
+                    onChange={(e) => setLongTermMgmt(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Maintenance annuelle (DH)</label>
+                  <input
+                    type="number"
+                    value={longTermMaint}
+                    onChange={(e) => setLongTermMaint(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Stratégie 2: Airbnb */}
+            <div className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + '80', border: '1px solid #C8A96E30' }}>
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>
+                <Plane size={28} /> Airbnb / Location Meublée
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Tarif/nuit (DH)</label>
+                  <input
+                    type="number"
+                    value={airbnbNight}
+                    onChange={(e) => setAirbnbNight(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Taux occupation (%)</label>
+                  <input
+                    type="number"
+                    value={airbnbOccupancy}
+                    onChange={(e) => setAirbnbOccupancy(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Commission plateforme (%)</label>
+                  <input
+                    type="number"
+                    value={airbnbComm}
+                    onChange={(e) => setAirbnbComm(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Ménage/mois (DH)</label>
+                  <input
+                    type="number"
+                    value={airbnbCleaning}
+                    onChange={(e) => setAirbnbCleaning(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Conciergerie/an (DH)</label>
+                  <input
+                    type="number"
+                    value={airbnbConcierge}
+                    onChange={(e) => setAirbnbConcierge(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Stratégie 3: Saisonnier */}
+            <div className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + '80', border: '1px solid #C8A96E30' }}>
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>
+                <Waves size={28} /> Location Saisonnière
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Tarif haute saison (DH)</label>
+                  <input
+                    type="number"
+                    value={seasonalHighRate}
+                    onChange={(e) => setSeasonalHighRate(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Nuits haute saison</label>
+                  <input
+                    type="number"
+                    value={seasonalHighNights}
+                    onChange={(e) => setSeasonalHighNights(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Tarif basse saison (DH)</label>
+                  <input
+                    type="number"
+                    value={seasonalLowRate}
+                    onChange={(e) => setSeasonalLowRate(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Nuits basse saison</label>
+                  <input
+                    type="number"
+                    value={seasonalLowNights}
+                    onChange={(e) => setSeasonalLowNights(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Ménage/nuit (DH)</label>
+                  <input
+                    type="number"
+                    value={seasonalCleaning}
+                    onChange={(e) => setSeasonalCleaning(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded text-sm"
+                    style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: FLUX MENSUELS */}
+        {activeTab === 'monthly' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { icon: Home, title: 'Longue Durée', result: longTermResult, color: '#4CAF50' },
+              { icon: Plane, title: 'Airbnb', result: airbnbResult, color: '#2196F3' },
+              { icon: Waves, title: 'Saisonnier', result: seasonalResult, color: '#FF9800' },
+            ].map((strategy, idx) => {
+              const Icon = strategy.icon;
+              return (
+                <div key={idx} className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + '80', border: '1px solid #C8A96E30' }}>
+                  <h3 className="text-xl font-bold mb-6 flex items-center gap-2" style={{ color: strategy.color, fontFamily: "'DM Sans', sans-serif" }}>
+                    <Icon size={24} /> {strategy.title}
+                  </h3>
+                  
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between pb-3" style={{ borderBottom: '1px solid #C8A96E20' }}>
+                      <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Revenus bruts/an</span>
+                      <span style={{ color: '#F9F5EF', fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>{(strategy.result.gross / 1000).toFixed(0)}k DH</span>
+                    </div>
+                    
+                    <div className="flex justify-between pb-3" style={{ borderBottom: '1px solid #C8A96E20' }}>
+                      <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Charges/an</span>
+                      <span style={{ color: '#B5573A', fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>{(strategy.result.charges / 1000).toFixed(0)}k DH</span>
+                    </div>
+                    
+                    <div className="flex justify-between pb-3" style={{ borderBottom: '1px solid #C8A96E20' }}>
+                      <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Net/an</span>
+                      <span style={{ color: strategy.color, fontWeight: 'bold', fontSize: '16px', fontFamily: "'DM Sans', sans-serif" }}>{(strategy.result.net / 1000).toFixed(0)}k DH</span>
+                    </div>
+                    
+                    <div className="flex justify-between pt-3 bg-opacity-20 px-3 py-2 rounded" style={{ backgroundColor: strategy.color + '20' }}>
+                      <span style={{ color: '#E2C98A', fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>Cash-Flow/mois</span>
+                      <span style={{ color: strategy.color, fontWeight: 'bold', fontSize: '18px', fontFamily: "'DM Sans', sans-serif" }}>
+                        {(strategy.result.cashFlow / 12).toFixed(0)} DH
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 pt-6" style={{ borderTop: '1px solid #C8A96E30' }}>
+                    <h4 style={{ color: '#C8A96E', fontSize: '12px', fontWeight: 'bold', marginBottom: '12px', fontFamily: "'DM Sans', sans-serif" }}>Rendements</h4>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between">
+                        <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Brut</span>
+                        <span style={{ color: '#F9F5EF', fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>{strategy.result.grossYield.toFixed(2)}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Net</span>
+                        <span style={{ color: strategy.color, fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>{strategy.result.netYield.toFixed(2)}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Cash-on-Cash</span>
+                        <span style={{ color: strategy.color, fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>{strategy.result.cashOnCash.toFixed(2)}%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* TAB 3: COMPARATIF */}
+        {activeTab === 'compare' && (
+          <div className="space-y-8">
+            <div className="rounded-lg overflow-hidden border" style={{ borderColor: '#C8A96E30' }}>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr style={{ backgroundColor: '#0D1F3C' + 'cc', borderBottom: '2px solid #C8A96E' }}>
+                    <th className="px-6 py-4 text-left" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Métrique</th>
+                    <th className="px-6 py-4 text-right" style={{ color: '#4CAF50', fontFamily: "'DM Sans', sans-serif" }}>Longue Durée</th>
+                    <th className="px-6 py-4 text-right" style={{ color: '#2196F3', fontFamily: "'DM Sans', sans-serif" }}>Airbnb</th>
+                    <th className="px-6 py-4 text-right" style={{ color: '#FF9800', fontFamily: "'DM Sans', sans-serif" }}>Saisonnier</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { label: 'Revenus annuels', key: 'gross' },
+                    { label: 'Charges annuelles', key: 'charges' },
+                    { label: 'Revenu net/an', key: 'net' },
+                    { label: 'Rendement brut', key: 'grossYield', format: v => `${v.toFixed(2)}%` },
+                    { label: 'Rendement net', key: 'netYield', format: v => `${v.toFixed(2)}%` },
+                    { label: 'Cash-Flow annuel', key: 'cashFlow' },
+                    { label: 'Cash-Flow mensuel', key: 'cashFlow', format: v => `${(v/12).toFixed(0)} DH` },
+                    { label: 'Cash-on-Cash', key: 'cashOnCash', format: v => `${v.toFixed(2)}%` },
+                  ].map((row, idx) => (
+                    <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? '#0D1F3C50' : 'transparent', borderBottom: '1px solid #C8A96E15' }}>
+                      <td className="px-6 py-4" style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>{row.label}</td>
+                      <td className="px-6 py-4 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif" }}>
+                        {row.format ? row.format(longTermResult[row.key]) : `${(longTermResult[row.key] / 1000).toFixed(0)}k DH`}
+                      </td>
+                      <td className="px-6 py-4 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif" }}>
+                        {row.format ? row.format(airbnbResult[row.key]) : `${(airbnbResult[row.key] / 1000).toFixed(0)}k DH`}
+                      </td>
+                      <td className="px-6 py-4 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif" }}>
+                        {row.format ? row.format(seasonalResult[row.key]) : `${(seasonalResult[row.key] / 1000).toFixed(0)}k DH`}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: PROJECTION 20 ANS */}
+        {activeTab === 'projection' && (
+          <div className="space-y-8">
+            <div className="rounded-lg p-6" style={{ backgroundColor: '#0D1F3C' + '80', border: '1px solid #C8A96E30' }}>
+              <label className="block text-xs uppercase mb-4" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>
+                Projection jusqu'à {yearsToProject} ans
+              </label>
+              <input
+                type="range"
+                min="1"
+                max="30"
+                value={yearsToProject}
+                onChange={(e) => setYearsToProject(Number(e.target.value))}
+                className="w-full"
+              />
+            </div>
+
+            <div className="rounded-lg p-8" style={{ backgroundColor: '#0D1F3C' + '80', border: '1px solid #C8A96E30' }}>
+              <h3 className="text-xl font-bold mb-6" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Richesse Nette Cumulée</h3>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #C8A96E' }}>
+                      <th className="px-4 py-3 text-left" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Année</th>
+                      <th className="px-4 py-3 text-right" style={{ color: '#4CAF50', fontFamily: "'DM Sans', sans-serif" }}>Longue Durée</th>
+                      <th className="px-4 py-3 text-right" style={{ color: '#2196F3', fontFamily: "'DM Sans', sans-serif" }}>Airbnb</th>
+                      <th className="px-4 py-3 text-right" style={{ color: '#FF9800', fontFamily: "'DM Sans', sans-serif" }}>Saisonnier</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {projectionData.filter((_, i) => i % Math.ceil(projectionData.length / 11) === 0).map((data, idx) => (
+                      <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? '#0D1F3C50' : 'transparent', borderBottom: '1px solid #C8A96E15' }}>
+                        <td className="px-4 py-3" style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Année {data.year}</td>
+                        <td className="px-4 py-3 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif" }}>{(data.longTermTotal / 1000000).toFixed(2)}M DH</td>
+                        <td className="px-4 py-3 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif" }}>{(data.airbnbTotal / 1000000).toFixed(2)}M DH</td>
+                        <td className="px-4 py-3 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif" }}>{(data.seasonalTotal / 1000000).toFixed(2)}M DH</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-8 p-6 rounded-lg" style={{ backgroundColor: '#0D1F3C' + '99', border: '1px solid #C8A96E30' }}>
+                <p style={{ color: '#E2C98A', fontSize: '14px', marginBottom: '12px', fontFamily: "'DM Sans', sans-serif" }}>
+                  <strong>À l'année {yearsToProject}:</strong>
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[
+                    { label: 'Longue Durée', value: projectionData[yearsToProject]?.longTermTotal, color: '#4CAF50' },
+                    { label: 'Airbnb', value: projectionData[yearsToProject]?.airbnbTotal, color: '#2196F3' },
+                    { label: 'Saisonnier', value: projectionData[yearsToProject]?.seasonalTotal, color: '#FF9800' },
+                  ].map((strategy, idx) => (
+                    <div key={idx}>
+                      <p style={{ color: '#E2C98A', fontSize: '12px', marginBottom: '6px', fontFamily: "'DM Sans', sans-serif" }}>{strategy.label}</p>
+                      <p style={{ color: strategy.color, fontSize: '28px', fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>
+                        {(strategy.value / 1000000).toFixed(2)}M DH
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* CTA Section */}
+      <div className="mt-16 px-6 py-12 border-t" style={{ borderColor: '#C8A96E30', backgroundColor: '#0D1F3C' + '50' }}>
+        <div className="max-w-7xl mx-auto text-center">
+          <h3 className="text-2xl font-light mb-4" style={{ color: '#F9F5EF', fontFamily: "'Cormorant Garamond', serif" }}>
+            Prêt à <span style={{ color: '#C8A96E' }}>Investir ?</span>
+          </h3>
+          <p style={{ color: '#E2C98A', fontSize: '14px', marginBottom: '24px', fontFamily: "'DM Sans', sans-serif" }}>
+            Discutez de vos résultats avec nos experts et trouvez le bien immobilier idéal.
+          </p>
+          <a
+            href="/contact"
+            className="inline-block px-8 py-3 rounded-lg text-sm font-bold transition-all"
+            style={{
+              backgroundColor: '#C8A96E',
+              color: '#0D1F3C',
+              fontFamily: "'DM Sans', sans-serif",
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#D4B578'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#C8A96E'}
+          >
+            Consultation Gratuite →
+          </a>
+        </div>
+      </div>
+
+      {/* Footer Note */}
+      <div className="px-6 py-8" style={{ backgroundColor: '#0D1F3C' + '80', borderTop: '1px solid #C8A96E30' }}>
+        <div className="max-w-7xl mx-auto">
+          <p style={{ color: '#E2C98A', fontSize: '12px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif" }}>
+            💡 Ce calculateur est à titre informatif. Consultez un expert avant de prendre une décision d'investissement.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CalculateurROI;
