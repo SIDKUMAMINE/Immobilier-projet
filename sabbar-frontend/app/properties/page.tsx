@@ -169,7 +169,7 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
   );
 };
 
-// 🏠 CARTE PROPRIÉTÉ (ICÔNE EN BAS À DROITE SOUS TITRE)
+// 🏠 CARTE PROPRIÉTÉ
 interface PropertyCardProps {
   property: any;
 }
@@ -244,24 +244,25 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
         {/* Contenu */}
         <div className="p-4 flex-1 flex flex-col">
-          {/* Titre et Icône Type de Transaction - Flex horizontale */}
-          <div className="flex items-start justify-between gap-3 mb-2">
-            <h3
-              className="text-sm font-bold line-clamp-2 flex-1"
-              style={{
-                color: SABBAR_COLORS.ivory,
-                fontFamily: "'DM Sans', sans-serif",
-              }}
-            >
-              {property.title}
-            </h3>
+          {/* Titre */}
+          <h3
+            className="text-sm font-bold line-clamp-2 mb-2"
+            style={{
+              color: SABBAR_COLORS.ivory,
+              fontFamily: "'DM Sans', sans-serif",
+            }}
+          >
+            {property.title}
+          </h3>
 
-            {/* Icône Type de Transaction - BAS À DROITE 🎯 */}
+          {/* Icône Type de Transaction - BAS À DROITE SOUS TITRE 🎯 */}
+          <div className="flex justify-end mb-3">
             <div
-              className="px-2 py-1 rounded-lg flex items-center gap-1 backdrop-blur-sm flex-shrink-0"
+              className="px-2 py-1 rounded-lg flex items-center gap-1 backdrop-blur-sm"
               style={{
                 backgroundColor: 'rgba(0, 0, 0, 0.7)',
                 border: `1px solid ${transactionInfo.color}`,
+                width: 'fit-content',
               }}
             >
               <IconComponent 
@@ -339,7 +340,7 @@ export default function PropertiesPage() {
     areaMax: '',
     bedrooms: '',
     bathrooms: '',
-    condition: false, // ← BOOLÉEN pour is_new
+    condition: false,
     has_parking: false,
     has_garden: false,
     has_pool: false,
@@ -366,100 +367,52 @@ export default function PropertiesPage() {
     fetchProperties();
   }, []);
 
-  // Appliquer les filtres - LOGIQUE DÉBOGUÉE
+  // Appliquer les filtres
   useEffect(() => {
     console.log('🔄 Filtres appliqués:', filters);
     console.log('📊 Propriétés totales:', properties.length);
 
     const filtered = properties.filter(property => {
-      // ✅ VILLE
-      if (filters.city && property.city !== filters.city) {
-        return false;
-      }
+      if (filters.city && property.city !== filters.city) return false;
+      if (filters.transactionType && property.transaction_type !== filters.transactionType) return false;
+      if (filters.propertyType && property.property_type !== filters.propertyType) return false;
 
-      // ✅ TYPE DE TRANSACTION
-      if (filters.transactionType && property.transaction_type !== filters.transactionType) {
-        return false;
-      }
-
-      // ✅ TYPE DE BIEN
-      if (filters.propertyType && property.property_type !== filters.propertyType) {
-        return false;
-      }
-
-      // ✅ PRIX MIN
       if (filters.priceMin) {
         const priceMinValue = parseInt(filters.priceMin);
-        if (isNaN(priceMinValue) || property.price < priceMinValue) {
-          return false;
-        }
+        if (isNaN(priceMinValue) || property.price < priceMinValue) return false;
       }
 
-      // ✅ PRIX MAX
       if (filters.priceMax) {
         const priceMaxValue = parseInt(filters.priceMax);
-        if (isNaN(priceMaxValue) || property.price > priceMaxValue) {
-          return false;
-        }
+        if (isNaN(priceMaxValue) || property.price > priceMaxValue) return false;
       }
 
-      // ✅ SURFACE MIN
       if (filters.areaMin && property.area) {
         const areaMinValue = parseInt(filters.areaMin);
-        if (isNaN(areaMinValue) || property.area < areaMinValue) {
-          return false;
-        }
+        if (isNaN(areaMinValue) || property.area < areaMinValue) return false;
       }
 
-      // ✅ SURFACE MAX
       if (filters.areaMax && property.area) {
         const areaMaxValue = parseInt(filters.areaMax);
-        if (isNaN(areaMaxValue) || property.area > areaMaxValue) {
-          return false;
-        }
+        if (isNaN(areaMaxValue) || property.area > areaMaxValue) return false;
       }
 
-      // ✅ CHAMBRES
       if (filters.bedrooms) {
         const bedroomsValue = parseInt(filters.bedrooms);
-        if (isNaN(bedroomsValue) || property.bedrooms !== bedroomsValue) {
-          return false;
-        }
+        if (isNaN(bedroomsValue) || property.bedrooms !== bedroomsValue) return false;
       }
 
-      // ✅ SALLES DE BAIN
       if (filters.bathrooms) {
         const bathroomsValue = parseInt(filters.bathrooms);
-        if (isNaN(bathroomsValue) || property.bathrooms !== bathroomsValue) {
-          return false;
-        }
+        if (isNaN(bathroomsValue) || property.bathrooms !== bathroomsValue) return false;
       }
 
-      // ✅ CONDITION (Neuf) - UTILISER is_new BOOLÉEN
-      if (filters.condition && !property.is_new) {
-        return false;
-      }
-
-      // ✅ ÉQUIPEMENTS - CORRECTIFS AVEC LES BONS NOMS DE CHAMPS
-      if (filters.has_parking && !property.has_parking) {
-        return false;
-      }
-
-      if (filters.has_garden && !property.has_garden) {
-        return false;
-      }
-
-      if (filters.has_pool && !property.has_pool) {
-        return false;
-      }
-
-      if (filters.has_elevator && !property.has_elevator) {
-        return false;
-      }
-
-      if (filters.is_furnished && !property.is_furnished) {
-        return false;
-      }
+      if (filters.condition && !property.is_new) return false;
+      if (filters.has_parking && !property.has_parking) return false;
+      if (filters.has_garden && !property.has_garden) return false;
+      if (filters.has_pool && !property.has_pool) return false;
+      if (filters.has_elevator && !property.has_elevator) return false;
+      if (filters.is_furnished && !property.is_furnished) return false;
 
       return true;
     });
@@ -643,10 +596,7 @@ export default function PropertiesPage() {
                     type="number"
                     placeholder="Ex: 100000"
                     value={filters.priceMin}
-                    onChange={(e) => {
-                      console.log('✅ Prix Min changé:', e.target.value);
-                      setFilters({ ...filters, priceMin: e.target.value });
-                    }}
+                    onChange={(e) => setFilters({ ...filters, priceMin: e.target.value })}
                     className="w-full px-3 py-2 rounded text-xs"
                     style={{
                       backgroundColor: 'rgba(249, 245, 239, 0.05)',
@@ -673,10 +623,7 @@ export default function PropertiesPage() {
                     type="number"
                     placeholder="Ex: 500000"
                     value={filters.priceMax}
-                    onChange={(e) => {
-                      console.log('✅ Prix Max changé:', e.target.value);
-                      setFilters({ ...filters, priceMax: e.target.value });
-                    }}
+                    onChange={(e) => setFilters({ ...filters, priceMax: e.target.value })}
                     className="w-full px-3 py-2 rounded text-xs"
                     style={{
                       backgroundColor: 'rgba(249, 245, 239, 0.05)',
@@ -703,10 +650,7 @@ export default function PropertiesPage() {
                     type="number"
                     placeholder="Ex: 50"
                     value={filters.areaMin}
-                    onChange={(e) => {
-                      console.log('✅ Surface Min changée:', e.target.value);
-                      setFilters({ ...filters, areaMin: e.target.value });
-                    }}
+                    onChange={(e) => setFilters({ ...filters, areaMin: e.target.value })}
                     className="w-full px-3 py-2 rounded text-xs"
                     style={{
                       backgroundColor: 'rgba(249, 245, 239, 0.05)',
@@ -733,10 +677,7 @@ export default function PropertiesPage() {
                     type="number"
                     placeholder="Ex: 200"
                     value={filters.areaMax}
-                    onChange={(e) => {
-                      console.log('✅ Surface Max changée:', e.target.value);
-                      setFilters({ ...filters, areaMax: e.target.value });
-                    }}
+                    onChange={(e) => setFilters({ ...filters, areaMax: e.target.value })}
                     className="w-full px-3 py-2 rounded text-xs"
                     style={{
                       backgroundColor: 'rgba(249, 245, 239, 0.05)',
@@ -763,10 +704,7 @@ export default function PropertiesPage() {
                     type="number"
                     placeholder="Ex: 2"
                     value={filters.bedrooms}
-                    onChange={(e) => {
-                      console.log('✅ Chambres changées:', e.target.value);
-                      setFilters({ ...filters, bedrooms: e.target.value });
-                    }}
+                    onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
                     className="w-full px-3 py-2 rounded text-xs"
                     style={{
                       backgroundColor: 'rgba(249, 245, 239, 0.05)',
@@ -793,10 +731,7 @@ export default function PropertiesPage() {
                     type="number"
                     placeholder="Ex: 1"
                     value={filters.bathrooms}
-                    onChange={(e) => {
-                      console.log('✅ Salles de bain changées:', e.target.value);
-                      setFilters({ ...filters, bathrooms: e.target.value });
-                    }}
+                    onChange={(e) => setFilters({ ...filters, bathrooms: e.target.value })}
                     className="w-full px-3 py-2 rounded text-xs"
                     style={{
                       backgroundColor: 'rgba(249, 245, 239, 0.05)',
@@ -829,11 +764,7 @@ export default function PropertiesPage() {
                     <input
                       type="checkbox"
                       checked={filters.condition}
-                      onChange={(e) => {
-                        const newValue = e.target.checked;
-                        console.log('✅ État du bien (Neuf) changé:', newValue);
-                        setFilters({ ...filters, condition: newValue });
-                      }}
+                      onChange={(e) => setFilters({ ...filters, condition: e.target.checked })}
                       className="w-4 h-4 cursor-pointer"
                     />
                     <span
@@ -848,7 +779,7 @@ export default function PropertiesPage() {
                   </label>
                 </div>
 
-                {/* Équipements - AVEC LES BONS NOMS DE CHAMPS */}
+                {/* Équipements */}
                 <div>
                   <label
                     className="block text-[10px] font-bold uppercase mb-2"
@@ -865,10 +796,7 @@ export default function PropertiesPage() {
                       <input
                         type="checkbox"
                         checked={filters.has_parking}
-                        onChange={() => {
-                          console.log('✅ Parking changé');
-                          setFilters({ ...filters, has_parking: !filters.has_parking });
-                        }}
+                        onChange={() => setFilters({ ...filters, has_parking: !filters.has_parking })}
                         className="w-4 h-4 cursor-pointer"
                       />
                       <span
@@ -886,10 +814,7 @@ export default function PropertiesPage() {
                       <input
                         type="checkbox"
                         checked={filters.has_garden}
-                        onChange={() => {
-                          console.log('✅ Jardin changé');
-                          setFilters({ ...filters, has_garden: !filters.has_garden });
-                        }}
+                        onChange={() => setFilters({ ...filters, has_garden: !filters.has_garden })}
                         className="w-4 h-4 cursor-pointer"
                       />
                       <span
@@ -907,10 +832,7 @@ export default function PropertiesPage() {
                       <input
                         type="checkbox"
                         checked={filters.has_pool}
-                        onChange={() => {
-                          console.log('✅ Piscine changée');
-                          setFilters({ ...filters, has_pool: !filters.has_pool });
-                        }}
+                        onChange={() => setFilters({ ...filters, has_pool: !filters.has_pool })}
                         className="w-4 h-4 cursor-pointer"
                       />
                       <span
@@ -928,10 +850,7 @@ export default function PropertiesPage() {
                       <input
                         type="checkbox"
                         checked={filters.is_furnished}
-                        onChange={() => {
-                          console.log('✅ Meublé changé');
-                          setFilters({ ...filters, is_furnished: !filters.is_furnished });
-                        }}
+                        onChange={() => setFilters({ ...filters, is_furnished: !filters.is_furnished })}
                         className="w-4 h-4 cursor-pointer"
                       />
                       <span
@@ -949,10 +868,7 @@ export default function PropertiesPage() {
                       <input
                         type="checkbox"
                         checked={filters.has_elevator}
-                        onChange={() => {
-                          console.log('✅ Ascenseur changé');
-                          setFilters({ ...filters, has_elevator: !filters.has_elevator });
-                        }}
+                        onChange={() => setFilters({ ...filters, has_elevator: !filters.has_elevator })}
                         className="w-4 h-4 cursor-pointer"
                       />
                       <span
