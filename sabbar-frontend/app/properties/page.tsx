@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Heart, MapPin, ChevronDown } from 'lucide-react';
+import { Heart, MapPin, ChevronDown, Home, Key } from 'lucide-react';
 import { propertiesApi } from '@/lib/api';
 
 // 🎨 PALETTE SABBAR
@@ -15,7 +15,7 @@ const SABBAR_COLORS = {
 };
 
 // 📋 DATA STATIQUE
-const staticCities = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kénitra', 'Tétouan'];
+const staticCities = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger','Berrchid', 'Agadir', 'Meknès', 'Oujda', 'Kénitra', 'Tétouan'];
 
 const staticTransactionTypes = [
   { original: 'sale', label: 'Vente' },
@@ -33,6 +33,20 @@ const staticPropertyTypes = [
   { original: 'bureau', label: 'Bureau' },
   { original: 'local-commercial', label: 'Local commercial' },
 ];
+
+// 🎯 FONCTION UTILITAIRE - RÉCUPÉRER L'ICÔNE DU TYPE DE TRANSACTION
+const getTransactionIcon = (transactionType: string) => {
+  switch (transactionType) {
+    case 'sale':
+      return { icon: Home, label: 'À vendre', color: '#C8A96E' };
+    case 'rent':
+      return { icon: Key, label: 'À louer', color: '#E2C98A' };
+    case 'vacation_rental':
+      return { icon: Key, label: 'Location vacances', color: '#E2C98A' };
+    default:
+      return { icon: Home, label: 'Propriété', color: '#C8A96E' };
+  }
+};
 
 // 🎯 COMPOSANT FILTRE SELECT
 interface FilterSelectProps {
@@ -155,7 +169,7 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
   );
 };
 
-// 🏠 CARTE PROPRIÉTÉ
+// 🏠 CARTE PROPRIÉTÉ (MODIFIÉE AVEC ICÔNE DE TRANSACTION)
 interface PropertyCardProps {
   property: any;
 }
@@ -182,6 +196,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
   const image = property.images?.[0] || property.image || '/placeholder.jpg';
   const propertyUrl = `/properties/${property.id}`;
+  
+  // 🎯 RÉCUPÉRER LES INFOS DU TYPE DE TRANSACTION
+  const transactionInfo = getTransactionIcon(property.transaction_type);
+  const IconComponent = transactionInfo.icon;
 
   return (
     <Link href={propertyUrl} className="block">
@@ -209,6 +227,29 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             }}
           >
             {property.price.toLocaleString('fr-FR')} MAD
+          </div>
+
+          {/* Icône Type de Transaction - NOUVEAU 🎯 */}
+          <div
+            className="absolute top-3 right-20 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 backdrop-blur-sm"
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              border: `1px solid ${transactionInfo.color}`,
+            }}
+          >
+            <IconComponent 
+              size={16} 
+              style={{ color: transactionInfo.color }}
+            />
+            <span
+              className="text-xs font-semibold whitespace-nowrap"
+              style={{
+                color: transactionInfo.color,
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+            >
+              {transactionInfo.label}
+            </span>
           </div>
 
           {/* Bouton Favoris */}
