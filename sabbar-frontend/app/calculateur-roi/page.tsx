@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { TrendingUp, Home, Plane, Waves, ChevronDown } from 'lucide-react';
+import { TrendingUp, Home, Plane, Waves, ChevronDown, Plus, Minus } from 'lucide-react';
 
 const CalculateurROI = () => {
   // État global
   const [purchasePrice, setPurchasePrice] = useState(1500000);
+  const [useLoan, setUseLoan] = useState(true);
   const [downPayment, setDownPayment] = useState(300000);
   const [loanRate, setLoanRate] = useState(4.5);
   const [loanYears, setLoanYears] = useState(20);
@@ -31,11 +32,17 @@ const CalculateurROI = () => {
   const [activeTab, setActiveTab] = useState('params');
   const [yearsToProject, setYearsToProject] = useState(20);
 
+  // Fonction pour ajuster une valeur avec des boutons +/-
+  const adjustValue = (value, step, min = 0) => ({
+    increase: () => value + step,
+    decrease: () => Math.max(min, value - step),
+  });
+
   // Calculs
-  const loanAmount = purchasePrice - downPayment;
+  const loanAmount = useLoan ? (purchasePrice - downPayment) : 0;
   const monthlyRate = loanRate / 100 / 12;
   const numPayments = loanYears * 12;
-  const monthlyPayment = loanAmount > 0 
+  const monthlyPayment = loanAmount > 0 && useLoan
     ? loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1)
     : 0;
 
@@ -46,8 +53,10 @@ const CalculateurROI = () => {
     const taxes = Math.max(0, beforeTax * (taxRate / 100));
     const net = beforeTax - taxes;
     
-    const annualMortgage = monthlyPayment * 12;
+    const annualMortgage = useLoan ? monthlyPayment * 12 : 0;
     const cashFlow = net - annualMortgage;
+    
+    const investmentBase = useLoan ? downPayment : purchasePrice;
     
     return {
       gross,
@@ -59,7 +68,7 @@ const CalculateurROI = () => {
       cashFlow,
       grossYield: (gross / purchasePrice) * 100,
       netYield: (net / purchasePrice) * 100,
-      cashOnCash: (cashFlow / downPayment) * 100,
+      cashOnCash: (cashFlow / investmentBase) * 100,
     };
   };
 
@@ -85,7 +94,11 @@ const CalculateurROI = () => {
   const projectionData = useMemo(() => {
     return Array.from({ length: yearsToProject + 1 }, (_, year) => {
       const propertyValue = purchasePrice * Math.pow(1 + propertyAppreciation / 100, year);
-      const mortgageBalance = year >= loanYears ? 0 : loanAmount * Math.pow(1 + monthlyRate, year * 12) / Math.pow(1 + monthlyRate, numPayments) * (Math.pow(1 + monthlyRate, numPayments) - Math.pow(1 + monthlyRate, year * 12)) / (Math.pow(1 + monthlyRate, numPayments) - 1);
+      
+      let mortgageBalance = 0;
+      if (useLoan && year < loanYears) {
+        mortgageBalance = loanAmount * Math.pow(1 + monthlyRate, year * 12) / Math.pow(1 + monthlyRate, numPayments) * (Math.pow(1 + monthlyRate, numPayments) - Math.pow(1 + monthlyRate, year * 12)) / (Math.pow(1 + monthlyRate, numPayments) - 1);
+      }
       
       const equity = propertyValue - Math.max(0, mortgageBalance);
       
@@ -102,7 +115,47 @@ const CalculateurROI = () => {
         equity,
       };
     });
-  }, [yearsToProject]);
+  }, [yearsToProject, useLoan]);
+
+  // Composant pour les boutons +/-
+  const NumberInputWithButtons = ({ value, onChange, step, label, suffix = '', min = 0 }) => (
+    <div>
+      <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif" }}>
+        {label}
+      </label>
+      <div className="flex gap-2 items-center">
+        <button
+          onClick={() => onChange(Math.max(min, value - step))}
+          className="p-2 rounded transition-all hover:opacity-80"
+          style={{ backgroundColor: '#C8A96E30', color: '#C8A96E', border: '1px solid #C8A96E40' }}
+        >
+          <Minus size={16} />
+        </button>
+        
+        <input
+          type="number"
+          value={value}
+          onChange={(e) => onChange(Math.max(min, Number(e.target.value)))}
+          className="flex-1 px-3 py-2 rounded text-sm text-center"
+          style={{
+            backgroundColor: 'rgba(249, 245, 239, 0.05)',
+            color: '#E2C98A',
+            border: '1px solid #C8A96E40',
+            fontFamily: "'DM Sans', sans-serif",
+          }}
+        />
+        
+        <button
+          onClick={() => onChange(value + step)}
+          className="p-2 rounded transition-all hover:opacity-80"
+          style={{ backgroundColor: '#C8A96E30', color: '#C8A96E', border: '1px solid #C8A96E40' }}
+        >
+          <Plus size={16} />
+        </button>
+      </div>
+      {suffix && <p style={{ color: '#E2C98A', fontSize: '12px' }} className="mt-2">{suffix}</p>}
+    </div>
+  );
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#0D1F3C' }}>
@@ -167,92 +220,90 @@ const CalculateurROI = () => {
                 💰 Paramètres Généraux
               </h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif" }}>
-                    Prix d'achat (DH)
-                  </label>
-                  <input
-                    type="number"
-                    value={purchasePrice}
-                    onChange={(e) => setPurchasePrice(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                  <p style={{ color: '#E2C98A', fontSize: '12px' }} className="mt-2">
-                    {(purchasePrice / 1000000).toFixed(2)}M DH
-                  </p>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <NumberInputWithButtons
+                  value={purchasePrice}
+                  onChange={setPurchasePrice}
+                  step={1000000}
+                  label="Prix d'achat (DH)"
+                  suffix={`${(purchasePrice / 1000000).toFixed(2)}M DH`}
+                />
 
                 <div>
                   <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif" }}>
-                    Apport personnel (DH)
+                    Mode de paiement
                   </label>
-                  <input
-                    type="number"
-                    value={downPayment}
-                    onChange={(e) => setDownPayment(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                  <p style={{ color: '#E2C98A', fontSize: '12px' }} className="mt-2">
-                    {((downPayment / purchasePrice) * 100).toFixed(1)}% du prix
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif" }}>
-                    Taux de crédit (%)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={loanRate}
-                    onChange={(e) => setLoanRate(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                  <p style={{ color: '#E2C98A', fontSize: '12px' }} className="mt-2">
-                    Mensualité: {(monthlyPayment).toFixed(0)} DH
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif" }}>
-                    Durée crédit (ans)
-                  </label>
-                  <input
-                    type="number"
-                    value={loanYears}
-                    onChange={(e) => setLoanYears(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                  <p style={{ color: '#E2C98A', fontSize: '12px' }} className="mt-2">
-                    Remboursement en {loanYears} ans
-                  </p>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => setUseLoan(true)}
+                      className="flex-1 px-4 py-3 rounded text-sm font-bold transition-all"
+                      style={{
+                        backgroundColor: useLoan ? '#C8A96E' : 'rgba(200, 169, 110, 0.1)',
+                        color: useLoan ? '#0D1F3C' : '#C8A96E',
+                        border: `1px solid #C8A96E${useLoan ? '99' : '30'}`,
+                        fontFamily: "'DM Sans', sans-serif",
+                      }}
+                    >
+                      Avec Crédit
+                    </button>
+                    <button
+                      onClick={() => setUseLoan(false)}
+                      className="flex-1 px-4 py-3 rounded text-sm font-bold transition-all"
+                      style={{
+                        backgroundColor: !useLoan ? '#C8A96E' : 'rgba(200, 169, 110, 0.1)',
+                        color: !useLoan ? '#0D1F3C' : '#C8A96E',
+                        border: `1px solid #C8A96E${!useLoan ? '99' : '30'}`,
+                        fontFamily: "'DM Sans', sans-serif",
+                      }}
+                    >
+                      Comptant
+                    </button>
+                  </div>
                 </div>
               </div>
+
+              {/* Section crédit - Visible seulement si crédit activé */}
+              {useLoan && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 rounded-lg" style={{ backgroundColor: 'rgba(200, 169, 110, 0.05)', border: '1px solid #C8A96E30' }}>
+                  <NumberInputWithButtons
+                    value={downPayment}
+                    onChange={setDownPayment}
+                    step={100000}
+                    label="Apport personnel (DH)"
+                    suffix={`${((downPayment / purchasePrice) * 100).toFixed(1)}% du prix`}
+                  />
+
+                  <NumberInputWithButtons
+                    value={loanRate}
+                    onChange={setLoanRate}
+                    step={0.1}
+                    label="Taux de crédit (%)"
+                    suffix={`Mensualité: ${monthlyPayment.toFixed(0)} DH`}
+                  />
+
+                  <NumberInputWithButtons
+                    value={loanYears}
+                    onChange={setLoanYears}
+                    step={1}
+                    label="Durée crédit (ans)"
+                    suffix={`Remboursement en ${loanYears} ans`}
+                  />
+
+                  <div>
+                    <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', letterSpacing: '1px', fontFamily: "'DM Sans', sans-serif" }}>
+                      Montant du crédit (DH)
+                    </label>
+                    <div className="px-4 py-3 rounded text-sm" style={{
+                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
+                      color: '#E2C98A',
+                      border: '1px solid #C8A96E40',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}>
+                      {(loanAmount / 1000000).toFixed(2)}M DH
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Stratégie 1: Longue Durée */}
@@ -262,69 +313,33 @@ const CalculateurROI = () => {
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Loyer mensuel (DH)</label>
-                  <input
-                    type="number"
-                    value={longTermRent}
-                    onChange={(e) => setLongTermRent(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                </div>
+                <NumberInputWithButtons
+                  value={longTermRent}
+                  onChange={setLongTermRent}
+                  step={500}
+                  label="Loyer mensuel (DH)"
+                />
 
-                <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Taux vacance (%)</label>
-                  <input
-                    type="number"
-                    value={longTermVacancy}
-                    onChange={(e) => setLongTermVacancy(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                </div>
+                <NumberInputWithButtons
+                  value={longTermVacancy}
+                  onChange={setLongTermVacancy}
+                  step={1}
+                  label="Taux vacance (%)"
+                />
 
-                <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Gestion agence (%)</label>
-                  <input
-                    type="number"
-                    value={longTermMgmt}
-                    onChange={(e) => setLongTermMgmt(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                </div>
+                <NumberInputWithButtons
+                  value={longTermMgmt}
+                  onChange={setLongTermMgmt}
+                  step={1}
+                  label="Gestion agence (%)"
+                />
 
-                <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Maintenance annuelle (DH)</label>
-                  <input
-                    type="number"
-                    value={longTermMaint}
-                    onChange={(e) => setLongTermMaint(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                </div>
+                <NumberInputWithButtons
+                  value={longTermMaint}
+                  onChange={setLongTermMaint}
+                  step={1000}
+                  label="Maintenance annuelle (DH)"
+                />
               </div>
             </div>
 
@@ -335,85 +350,40 @@ const CalculateurROI = () => {
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Tarif/nuit (DH)</label>
-                  <input
-                    type="number"
-                    value={airbnbNight}
-                    onChange={(e) => setAirbnbNight(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                </div>
+                <NumberInputWithButtons
+                  value={airbnbNight}
+                  onChange={setAirbnbNight}
+                  step={50}
+                  label="Tarif/nuit (DH)"
+                />
 
-                <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Taux occupation (%)</label>
-                  <input
-                    type="number"
-                    value={airbnbOccupancy}
-                    onChange={(e) => setAirbnbOccupancy(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                </div>
+                <NumberInputWithButtons
+                  value={airbnbOccupancy}
+                  onChange={setAirbnbOccupancy}
+                  step={5}
+                  label="Taux occupation (%)"
+                />
 
-                <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Commission plateforme (%)</label>
-                  <input
-                    type="number"
-                    value={airbnbComm}
-                    onChange={(e) => setAirbnbComm(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                </div>
+                <NumberInputWithButtons
+                  value={airbnbComm}
+                  onChange={setAirbnbComm}
+                  step={1}
+                  label="Commission plateforme (%)"
+                />
 
-                <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Ménage/mois (DH)</label>
-                  <input
-                    type="number"
-                    value={airbnbCleaning}
-                    onChange={(e) => setAirbnbCleaning(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                </div>
+                <NumberInputWithButtons
+                  value={airbnbCleaning}
+                  onChange={setAirbnbCleaning}
+                  step={500}
+                  label="Ménage/mois (DH)"
+                />
 
-                <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Conciergerie/an (DH)</label>
-                  <input
-                    type="number"
-                    value={airbnbConcierge}
-                    onChange={(e) => setAirbnbConcierge(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                </div>
+                <NumberInputWithButtons
+                  value={airbnbConcierge}
+                  onChange={setAirbnbConcierge}
+                  step={500}
+                  label="Conciergerie/an (DH)"
+                />
               </div>
             </div>
 
@@ -424,83 +394,40 @@ const CalculateurROI = () => {
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Tarif haute saison (DH)</label>
-                  <input
-                    type="number"
-                    value={seasonalHighRate}
-                    onChange={(e) => setSeasonalHighRate(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                </div>
+                <NumberInputWithButtons
+                  value={seasonalHighRate}
+                  onChange={setSeasonalHighRate}
+                  step={50}
+                  label="Tarif haute saison (DH/nuit)"
+                />
 
-                <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Nuits haute saison</label>
-                  <input
-                    type="number"
-                    value={seasonalHighNights}
-                    onChange={(e) => setSeasonalHighNights(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                </div>
+                <NumberInputWithButtons
+                  value={seasonalHighNights}
+                  onChange={setSeasonalHighNights}
+                  step={10}
+                  label="Nuits haute saison"
+                />
 
-                <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Tarif basse saison (DH)</label>
-                  <input
-                    type="number"
-                    value={seasonalLowRate}
-                    onChange={(e) => setSeasonalLowRate(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                </div>
+                <NumberInputWithButtons
+                  value={seasonalLowRate}
+                  onChange={setSeasonalLowRate}
+                  step={50}
+                  label="Tarif basse saison (DH/nuit)"
+                />
 
-                <div>
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Nuits basse saison</label>
-                  <input
-                    type="number"
-                    value={seasonalLowNights}
-                    onChange={(e) => setSeasonalLowNights(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  />
-                </div>
+                <NumberInputWithButtons
+                  value={seasonalLowNights}
+                  onChange={setSeasonalLowNights}
+                  step={10}
+                  label="Nuits basse saison"
+                />
 
                 <div className="md:col-span-2">
-                  <label className="block text-xs uppercase mb-2" style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif" }}>Ménage/nuit (DH)</label>
-                  <input
-                    type="number"
+                  <NumberInputWithButtons
                     value={seasonalCleaning}
-                    onChange={(e) => setSeasonalCleaning(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded text-sm"
-                    style={{
-                      backgroundColor: 'rgba(249, 245, 239, 0.05)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E40',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
+                    onChange={setSeasonalCleaning}
+                    step={500}
+                    label="Ménage/nuit (DH)"
                   />
                 </div>
               </div>
@@ -539,6 +466,18 @@ const CalculateurROI = () => {
                       <span style={{ color: strategy.color, fontWeight: 'bold', fontSize: '16px', fontFamily: "'DM Sans', sans-serif" }}>{(strategy.result.net / 1000).toFixed(0)}k DH</span>
                     </div>
                     
+                    <div className="flex justify-between pb-3" style={{ borderBottom: '1px solid #C8A96E20' }}>
+                      <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Impôts/an</span>
+                      <span style={{ color: '#E74C3C', fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>{(strategy.result.taxes / 1000).toFixed(0)}k DH</span>
+                    </div>
+
+                    {useLoan && (
+                      <div className="flex justify-between pb-3" style={{ borderBottom: '1px solid #C8A96E20' }}>
+                        <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Mensualité crédit</span>
+                        <span style={{ color: '#FF6B6B', fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>{(monthlyPayment).toFixed(0)} DH</span>
+                      </div>
+                    )}
+                    
                     <div className="flex justify-between pt-3 bg-opacity-20 px-3 py-2 rounded" style={{ backgroundColor: strategy.color + '20' }}>
                       <span style={{ color: '#E2C98A', fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>Cash-Flow/mois</span>
                       <span style={{ color: strategy.color, fontWeight: 'bold', fontSize: '18px', fontFamily: "'DM Sans', sans-serif" }}>
@@ -551,11 +490,11 @@ const CalculateurROI = () => {
                     <h4 style={{ color: '#C8A96E', fontSize: '12px', fontWeight: 'bold', marginBottom: '12px', fontFamily: "'DM Sans', sans-serif" }}>Rendements</h4>
                     <div className="space-y-2 text-xs">
                       <div className="flex justify-between">
-                        <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Brut</span>
+                        <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Rendement brut</span>
                         <span style={{ color: '#F9F5EF', fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>{strategy.result.grossYield.toFixed(2)}%</span>
                       </div>
                       <div className="flex justify-between">
-                        <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Net</span>
+                        <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>Rendement net</span>
                         <span style={{ color: strategy.color, fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>{strategy.result.netYield.toFixed(2)}%</span>
                       </div>
                       <div className="flex justify-between">
@@ -588,6 +527,7 @@ const CalculateurROI = () => {
                     { label: 'Revenus annuels', key: 'gross' },
                     { label: 'Charges annuelles', key: 'charges' },
                     { label: 'Revenu net/an', key: 'net' },
+                    { label: 'Impôts/an', key: 'taxes' },
                     { label: 'Rendement brut', key: 'grossYield', format: (v: number) => `${v.toFixed(2)}%` },
                     { label: 'Rendement net', key: 'netYield', format: (v: number) => `${v.toFixed(2)}%` },
                     { label: 'Cash-Flow annuel', key: 'cashFlow' },
@@ -627,6 +567,7 @@ const CalculateurROI = () => {
                 value={yearsToProject}
                 onChange={(e) => setYearsToProject(Number(e.target.value))}
                 className="w-full"
+                style={{ accentColor: '#C8A96E' }}
               />
             </div>
 
