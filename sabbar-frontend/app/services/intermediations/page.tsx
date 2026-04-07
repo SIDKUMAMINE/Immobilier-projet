@@ -155,7 +155,7 @@ export default function IntermediationsPage() {
                   color: '#F9F5EF'
                 }}
               >
-                Intermédiations <span style={{ color: '#C8A96E' }}>Immobilière</span>
+                Intermédiation <span style={{ color: '#C8A96E' }}>Immobilière</span>
               </h1>
               <p 
                 className="max-w-2xl mb-4"

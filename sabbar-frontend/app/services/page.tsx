@@ -8,7 +8,7 @@ export default function ServicesPage() {
     {
       id: 1,
       icon: '🤝',
-      title: 'Intermédiations Immobilière',
+      title: 'Intermédiation Immobilière',
       subtitle: 'Accompagnement complet pour vos transactions',
       description: 'Accès à un large portefeuille de propriétés, négociation professionnelle, conseil personnalisé et gestion complète de votre dossier administratif.',
       link: '/services/intermediations'
