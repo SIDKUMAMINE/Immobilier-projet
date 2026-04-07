@@ -150,7 +150,7 @@ export default function PublicNavbarClient() {
                       e.currentTarget.style.color = '#E2C98A';
                     }}
                   >
-                    Intermédiations
+                    Intermédiation
                   </Link>
                   <Link
                     href="/services/commercialisation"

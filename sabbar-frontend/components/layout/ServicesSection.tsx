@@ -7,7 +7,7 @@ export default function ServicesSection() {
   const services = [
     {
       icon: '🤝',
-      title: 'Intermédiations Immobilière',
+      title: 'Intermédiation Immobilière',
       description: 'Accompagnement professionnel pour l\'achat, la vente ou la location de votre bien immobilier.',
       features: [
         'Accès à un large portefeuille de propriétés',
