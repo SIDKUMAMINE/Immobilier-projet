@@ -169,7 +169,7 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
   );
 };
 
-// 🏠 CARTE PROPRIÉTÉ (ICÔNE EN BAS À GAUCHE)
+// 🏠 CARTE PROPRIÉTÉ (ICÔNE EN BAS À DROITE SOUS TITRE)
 interface PropertyCardProps {
   property: any;
 }
@@ -204,7 +204,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   return (
     <Link href={propertyUrl} className="block">
       <div
-        className="group rounded-lg overflow-hidden border-2 transition-all duration-300 hover:border-opacity-100 cursor-pointer h-full flex flex-col relative"
+        className="group rounded-lg overflow-hidden border-2 transition-all duration-300 hover:border-opacity-100 cursor-pointer h-full flex flex-col"
         style={{
           backgroundColor: SABBAR_COLORS.navyDominant + '50',
           borderColor: SABBAR_COLORS.goldAccent + '30',
@@ -243,39 +243,42 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
         </div>
 
         {/* Contenu */}
-        <div className="p-4 flex-1 flex flex-col relative">
-          {/* Icône Type de Transaction - BAS À GAUCHE 🎯 */}
-          <div
-            className="absolute -bottom-4 -left-4 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 backdrop-blur-sm"
-            style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-              border: `1px solid ${transactionInfo.color}`,
-            }}
-          >
-            <IconComponent 
-              size={16} 
-              style={{ color: transactionInfo.color }}
-            />
-            <span
-              className="text-xs font-semibold whitespace-nowrap"
+        <div className="p-4 flex-1 flex flex-col">
+          {/* Titre et Icône Type de Transaction - Flex horizontale */}
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <h3
+              className="text-sm font-bold line-clamp-2 flex-1"
               style={{
-                color: transactionInfo.color,
+                color: SABBAR_COLORS.ivory,
                 fontFamily: "'DM Sans', sans-serif",
               }}
             >
-              {transactionInfo.label}
-            </span>
-          </div>
+              {property.title}
+            </h3>
 
-          <h3
-            className="text-sm font-bold mb-2 line-clamp-2"
-            style={{
-              color: SABBAR_COLORS.ivory,
-              fontFamily: "'DM Sans', sans-serif",
-            }}
-          >
-            {property.title}
-          </h3>
+            {/* Icône Type de Transaction - BAS À DROITE 🎯 */}
+            <div
+              className="px-2 py-1 rounded-lg flex items-center gap-1 backdrop-blur-sm flex-shrink-0"
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                border: `1px solid ${transactionInfo.color}`,
+              }}
+            >
+              <IconComponent 
+                size={14} 
+                style={{ color: transactionInfo.color }}
+              />
+              <span
+                className="text-xs font-semibold whitespace-nowrap"
+                style={{
+                  color: transactionInfo.color,
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              >
+                {transactionInfo.label}
+              </span>
+            </div>
+          </div>
 
           <div className="flex items-center gap-1 mb-3">
             <MapPin size={14} style={{ color: SABBAR_COLORS.goldAccent }} />
