@@ -39,7 +39,7 @@ const CalculateurROI = () => {
     ? loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1)
     : 0;
 
-  const calculateStrategy = (annualGross, annualCharges, taxRate = 10) => {
+  const calculateStrategy = (annualGross: number, annualCharges: number, taxRate = 10) => {
     const gross = annualGross;
     const charges = annualCharges;
     const beforeTax = gross - charges;
@@ -588,22 +588,22 @@ const CalculateurROI = () => {
                     { label: 'Revenus annuels', key: 'gross' },
                     { label: 'Charges annuelles', key: 'charges' },
                     { label: 'Revenu net/an', key: 'net' },
-                    { label: 'Rendement brut', key: 'grossYield', format: v => `${v.toFixed(2)}%` },
-                    { label: 'Rendement net', key: 'netYield', format: v => `${v.toFixed(2)}%` },
+                    { label: 'Rendement brut', key: 'grossYield', format: (v: number) => `${v.toFixed(2)}%` },
+                    { label: 'Rendement net', key: 'netYield', format: (v: number) => `${v.toFixed(2)}%` },
                     { label: 'Cash-Flow annuel', key: 'cashFlow' },
-                    { label: 'Cash-Flow mensuel', key: 'cashFlow', format: v => `${(v/12).toFixed(0)} DH` },
-                    { label: 'Cash-on-Cash', key: 'cashOnCash', format: v => `${v.toFixed(2)}%` },
+                    { label: 'Cash-Flow mensuel', key: 'cashFlow', format: (v: number) => `${(v/12).toFixed(0)} DH` },
+                    { label: 'Cash-on-Cash', key: 'cashOnCash', format: (v: number) => `${v.toFixed(2)}%` },
                   ].map((row, idx) => (
                     <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? '#0D1F3C50' : 'transparent', borderBottom: '1px solid #C8A96E15' }}>
                       <td className="px-6 py-4" style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>{row.label}</td>
                       <td className="px-6 py-4 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif" }}>
-                        {row.format ? row.format(longTermResult[row.key]) : `${(longTermResult[row.key] / 1000).toFixed(0)}k DH`}
+                        {row.format ? row.format(longTermResult[row.key as keyof typeof longTermResult]) : `${(longTermResult[row.key as keyof typeof longTermResult] / 1000).toFixed(0)}k DH`}
                       </td>
                       <td className="px-6 py-4 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif" }}>
-                        {row.format ? row.format(airbnbResult[row.key]) : `${(airbnbResult[row.key] / 1000).toFixed(0)}k DH`}
+                        {row.format ? row.format(airbnbResult[row.key as keyof typeof airbnbResult]) : `${(airbnbResult[row.key as keyof typeof airbnbResult] / 1000).toFixed(0)}k DH`}
                       </td>
                       <td className="px-6 py-4 text-right" style={{ color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif" }}>
-                        {row.format ? row.format(seasonalResult[row.key]) : `${(seasonalResult[row.key] / 1000).toFixed(0)}k DH`}
+                        {row.format ? row.format(seasonalResult[row.key as keyof typeof seasonalResult]) : `${(seasonalResult[row.key as keyof typeof seasonalResult] / 1000).toFixed(0)}k DH`}
                       </td>
                     </tr>
                   ))}
@@ -697,8 +697,14 @@ const CalculateurROI = () => {
               color: '#0D1F3C',
               fontFamily: "'DM Sans', sans-serif",
             }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#D4B578'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#C8A96E'}
+            onMouseEnter={(e) => {
+              const target = e.currentTarget as HTMLAnchorElement;
+              target.style.backgroundColor = '#D4B578';
+            }}
+            onMouseLeave={(e) => {
+              const target = e.currentTarget as HTMLAnchorElement;
+              target.style.backgroundColor = '#C8A96E';
+            }}
           >
             Consultation Gratuite →
           </a>
