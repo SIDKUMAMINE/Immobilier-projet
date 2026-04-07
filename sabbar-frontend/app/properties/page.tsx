@@ -169,7 +169,7 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
   );
 };
 
-// 🏠 CARTE PROPRIÉTÉ (MODIFIÉE AVEC ICÔNE DE TRANSACTION)
+// 🏠 CARTE PROPRIÉTÉ (ICÔNE EN BAS À GAUCHE)
 interface PropertyCardProps {
   property: any;
 }
@@ -204,7 +204,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   return (
     <Link href={propertyUrl} className="block">
       <div
-        className="group rounded-lg overflow-hidden border-2 transition-all duration-300 hover:border-opacity-100 cursor-pointer h-full flex flex-col"
+        className="group rounded-lg overflow-hidden border-2 transition-all duration-300 hover:border-opacity-100 cursor-pointer h-full flex flex-col relative"
         style={{
           backgroundColor: SABBAR_COLORS.navyDominant + '50',
           borderColor: SABBAR_COLORS.goldAccent + '30',
@@ -229,11 +229,26 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             {property.price.toLocaleString('fr-FR')} MAD
           </div>
 
-          {/* Icône Type de Transaction - NOUVEAU 🎯 */}
-          <div
-            className="absolute top-3 right-20 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 backdrop-blur-sm"
+          {/* Bouton Favoris */}
+          <button
+            onClick={toggleFavorite}
+            className="absolute top-3 left-3 p-2 rounded-full transition-all"
             style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              backgroundColor: isFavorite ? SABBAR_COLORS.goldAccent : 'rgba(0, 0, 0, 0.6)',
+              color: isFavorite ? SABBAR_COLORS.navyDominant : 'white',
+            }}
+          >
+            <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />
+          </button>
+        </div>
+
+        {/* Contenu */}
+        <div className="p-4 flex-1 flex flex-col relative">
+          {/* Icône Type de Transaction - BAS À GAUCHE 🎯 */}
+          <div
+            className="absolute -bottom-4 -left-4 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 backdrop-blur-sm"
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
               border: `1px solid ${transactionInfo.color}`,
             }}
           >
@@ -252,21 +267,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             </span>
           </div>
 
-          {/* Bouton Favoris */}
-          <button
-            onClick={toggleFavorite}
-            className="absolute top-3 left-3 p-2 rounded-full transition-all"
-            style={{
-              backgroundColor: isFavorite ? SABBAR_COLORS.goldAccent : 'rgba(0, 0, 0, 0.6)',
-              color: isFavorite ? SABBAR_COLORS.navyDominant : 'white',
-            }}
-          >
-            <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />
-          </button>
-        </div>
-
-        {/* Contenu */}
-        <div className="p-4 flex-1 flex flex-col">
           <h3
             className="text-sm font-bold mb-2 line-clamp-2"
             style={{
