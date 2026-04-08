@@ -37,4 +37,4 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <PublicFooter />
     </>
   );
-}
+}   

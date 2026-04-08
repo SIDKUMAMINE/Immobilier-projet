@@ -15,7 +15,7 @@ const SABBAR_COLORS = {
 };
 
 // 📋 DATA STATIQUE
-const staticCities = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger','Berrchid', 'Agadir', 'Meknès', 'Oujda', 'Kénitra', 'Tétouan'];
+const staticCities = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger','Berrechid ', 'Agadir', 'Meknès', 'Oujda', 'Kénitra', 'Tétouan'];
 
 const staticTransactionTypes = [
   { original: 'sale', label: 'Vente' },
