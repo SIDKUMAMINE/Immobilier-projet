@@ -3,8 +3,8 @@
 import Script from 'next/script';
 import { useEffect } from 'react';
 
-// ID du pixel Meta (à garder secret en production)
-const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+// 🔴 CORRECTION: Utiliser la variable d'environnement correctement
+const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '2028620518006643';
 
 if (!PIXEL_ID) {
   console.warn('[Meta Pixel] PIXEL_ID non configuré. Ajoutez NEXT_PUBLIC_META_PIXEL_ID à .env.local');
@@ -25,6 +25,7 @@ export default function MetaPixel() {
     const trackPageView = () => {
       if (typeof window !== 'undefined' && window.fbq) {
         window.fbq('track', 'PageView');
+        console.log('[Meta Pixel] PageView trackée');
       }
     };
 
@@ -38,6 +39,7 @@ export default function MetaPixel() {
   }, []);
 
   if (!PIXEL_ID) {
+    console.error('[Meta Pixel] PIXEL_ID non défini');
     return null; // Ne rien afficher si le pixel n'est pas configuré
   }
 
@@ -53,7 +55,11 @@ export default function MetaPixel() {
           if (window.fbq) {
             window.fbq('init', PIXEL_ID);
             window.fbq('track', 'PageView');
+            console.log('[Meta Pixel] ✅ Pixel initialisé avec ID:', PIXEL_ID);
           }
+        }}
+        onError={() => {
+          console.error('[Meta Pixel] ❌ Erreur lors du chargement de fbevents.js');
         }}
       />
 
@@ -72,6 +78,7 @@ export default function MetaPixel() {
             'https://connect.facebook.net/en_US/fbevents.js');
             fbq('init', '${PIXEL_ID}');
             fbq('track', 'PageView');
+            console.log('[Meta Pixel] ✅ Script inline exécuté');
           `,
         }}
       />
