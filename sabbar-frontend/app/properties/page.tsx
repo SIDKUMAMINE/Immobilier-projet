@@ -7,120 +7,17 @@ import { propertiesApi } from '@/lib/api';
 
 // 🇲🇦 VILLES MAROCAINES COMPLÈTES
 const MOROCCAN_CITIES = [
-  // Casablanca-Settat
-  'Casablanca',
-  'Berrechid',
-  'Fédala',
-  'Mohammedia',
-  'Tit Melloul',
-  'Ben Slimane',
-  'Settat',
-  'Kasbah Tadla',
-  'Rommani',
-  
-  // Fès-Meknès
-  'Fès',
-  'Meknès',
-  'Ifrane',
-  'Imouzzer Kandar',
-  'Sefrou',
-  'Moulay Idriss',
-  'Volubilis',
-  'Taounate',
-  'Taza',
-  'Al Hoceïma',
-  
-  // Marrakech-Safi
-  'Marrakech',
-  'Essaouira',
-  'Safi',
-  'Kalaat M\'Gouna',
-  'Ouarzazate',
-  'Taroudant',
-  'Tamatite',
-  'Ounila',
-  'Ouirgane',
-  'Imlil',
-  
-  // Rabat-Salé-Kénitra
-  'Rabat',
-  'Salé',
-  'Kénitra',
-  'Tétouan',
-  'Tanger',
-  'M\'diq',
-  'Fnideq',
-  'Larache',
-  'Ouazzane',
-  'Khémis Sahel',
-  
-  // Tangier-Tetouan-Al Hoceima
-  'Tanger',
-  'Tétouan',
-  'Oued Laou',
-  'Chechaouen',
-  'Ouazzane',
-  'Asilah',
-  'Fahs-Anjra',
-  'Ouezzane',
-  
-  // Drâa-Tafilalet
-  'Errachidia',
-  'Erfoud',
-  'Risani',
-  'Merzouga',
-  'Todra',
-  'Goulmima',
-  'Siege',
-  
-  // Souss-Massa
-  'Agadir',
-  'Inezgane',
-  'Ait-Melloul',
-  'Tiznit',
-  'Sidi Ifni',
-  'Guelmim',
-  'Tan-Tan',
-  'Tarfaya',
-  'Tantan',
-  
-  // Béni Mellal-Khénifra
-  'Béni Mellal',
-  'Khénifra',
-  'Kasbah Tadla',
-  'Rommani',
-  'Kasba Tadla',
-  
-  // Oriental
-  'Oujda',
-  'Berkane',
-  'Nador',
-  'Driouch',
-  'Guercif',
-  'Taourirt',
-  'Jerada',
-  'Saïdia',
-  
-  // Dakhla-Oued Ed-Dahab
-  'Dakhla',
-  'Lagouira',
-  
-  // Laâyoune-Sakia El Hamra
-  'Laâyoune',
-  'Smara',
-  'Boujdour',
-  'Tarfaya',
-  
-  // Autres villes importantes
-  'Azrou',
-  'Khénifra',
-  'Midelt',
-  'Tinghir',
-  'Imintanoute',
-  'Kelaat Mgouna',
-  'Aït Baha',
-  'Bouizakarne',
-  'Garzim',
+  'Casablanca', 'Berrechid', 'Fédala', 'Mohammedia', 'Tit Melloul', 'Ben Slimane', 'Settat', 'Kasbah Tadla', 'Rommani',
+  'Fès', 'Meknès', 'Ifrane', 'Imouzzer Kandar', 'Sefrou', 'Moulay Idriss', 'Volubilis', 'Taounate', 'Taza', 'Al Hoceïma',
+  'Marrakech', 'Essaouira', 'Safi', 'Kalaat M\'Gouna', 'Ouarzazate', 'Taroudant', 'Tamatite', 'Ounila', 'Ouirgane', 'Imlil',
+  'Rabat', 'Salé', 'Kénitra', 'Tétouan', 'Tanger', 'M\'diq', 'Fnideq', 'Larache', 'Ouazzane', 'Khémis Sahel',
+  'Tanger', 'Tétouan', 'Oued Laou', 'Chechaouen', 'Ouazzane', 'Asilah', 'Fahs-Anjra', 'Ouezzane',
+  'Errachidia', 'Erfoud', 'Risani', 'Merzouga', 'Todra', 'Goulmima', 'Siege',
+  'Agadir', 'Inezgane', 'Ait-Melloul', 'Tiznit', 'Sidi Ifni', 'Guelmim', 'Tan-Tan', 'Tarfaya', 'Tantan',
+  'Béni Mellal', 'Khénifra', 'Kasbah Tadla', 'Rommani', 'Kasba Tadla',
+  'Oujda', 'Berkane', 'Nador', 'Driouch', 'Guercif', 'Taourirt', 'Jerada', 'Saïdia',
+  'Dakhla', 'Lagouira', 'Laâyoune', 'Smara', 'Boujdour', 'Tarfaya',
+  'Azrou', 'Khénifra', 'Midelt', 'Tinghir', 'Imintanoute', 'Kelaat Mgouna', 'Aït Baha', 'Bouizakarne', 'Garzim',
 ];
 
 // 🎨 PALETTE SABBAR
@@ -132,7 +29,7 @@ const SABBAR_COLORS = {
   ivory: '#F9F5EF',
 };
 
-// 📋 DATA STATIQUE
+// 📋 DATA STATIQUE - ✅ CORRIGÉ: utilise 'original' au lieu de 'value'
 const staticTransactionTypes = [
   { original: 'sale', label: 'Vente' },
   { original: 'rent', label: 'Location' },
@@ -147,7 +44,7 @@ const staticPropertyTypes = [
   { original: 'riad', label: 'Riad' },
   { original: 'terrain', label: 'Terrain' },
   { original: 'bureau', label: 'Bureau' },
-  { value: 'commercial', label: 'Local commercial' },
+  { original: 'commercial', label: 'Local commercial' }, // ✅ CORRIGÉ: 'commercial'
 ];
 
 // 🎯 FONCTION UTILITAIRE - RÉCUPÉRER L'ICÔNE DU TYPE DE TRANSACTION
