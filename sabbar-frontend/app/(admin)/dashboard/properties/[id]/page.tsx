@@ -27,28 +27,144 @@ interface Property {
   has_pool?: boolean;
   has_elevator?: boolean;
   is_furnished?: boolean;
-  property_condition?: string; // 'new' ou 'used'
+  is_new?: boolean;
   images?: string[];
   video?: string;
 }
 
-const CITIES = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kénitra', 'Tétouan'];
+// 🇲🇦 VILLES MAROCAINES COMPLÈTES
+const MOROCCAN_CITIES = [
+  // Casablanca-Settat
+  'Casablanca',
+  'Berrechid',
+  'Fédala',
+  'Mohammedia',
+  'Tit Melloul',
+  'Ben Slimane',
+  'Settat',
+  'Kasbah Tadla',
+  'Rommani',
+  
+  // Fès-Meknès
+  'Fès',
+  'Meknès',
+  'Ifrane',
+  'Imouzzer Kandar',
+  'Sefrou',
+  'Moulay Idriss',
+  'Volubilis',
+  'Taounate',
+  'Taza',
+  'Al Hoceïma',
+  
+  // Marrakech-Safi
+  'Marrakech',
+  'Essaouira',
+  'Safi',
+  'Kalaat M\'Gouna',
+  'Ouarzazate',
+  'Taroudant',
+  'Tamatite',
+  'Ounila',
+  'Ouirgane',
+  'Imlil',
+  
+  // Rabat-Salé-Kénitra
+  'Rabat',
+  'Salé',
+  'Kénitra',
+  'Tétouan',
+  'Tanger',
+  'M\'diq',
+  'Fnideq',
+  'Larache',
+  'Ouazzane',
+  'Khémis Sahel',
+  
+  // Tangier-Tetouan-Al Hoceima
+  'Tanger',
+  'Tétouan',
+  'Oued Laou',
+  'Chechaouen',
+  'Ouazzane',
+  'Asilah',
+  'Fahs-Anjra',
+  'Ouezzane',
+  
+  // Drâa-Tafilalet
+  'Errachidia',
+  'Erfoud',
+  'Risani',
+  'Merzouga',
+  'Todra',
+  'Goulmima',
+  'Siege',
+  
+  // Souss-Massa
+  'Agadir',
+  'Inezgane',
+  'Ait-Melloul',
+  'Tiznit',
+  'Sidi Ifni',
+  'Guelmim',
+  'Tan-Tan',
+  'Tarfaya',
+  'Tantan',
+  
+  // Béni Mellal-Khénifra
+  'Béni Mellal',
+  'Khénifra',
+  'Kasbah Tadla',
+  'Rommani',
+  'Kasba Tadla',
+  
+  // Oriental
+  'Oujda',
+  'Berkane',
+  'Nador',
+  'Driouch',
+  'Guercif',
+  'Taourirt',
+  'Jerada',
+  'Saïdia',
+  
+  // Dakhla-Oued Ed-Dahab
+  'Dakhla',
+  'Lagouira',
+  
+  // Laâyoune-Sakia El Hamra
+  'Laâyoune',
+  'Smara',
+  'Boujdour',
+  'Tarfaya',
+  
+  // Autres villes importantes
+  'Azrou',
+  'Khénifra',
+  'Midelt',
+  'Tinghir',
+  'Imintanoute',
+  'Kelaat Mgouna',
+  'Aït Baha',
+  'Bouizakarne',
+  'Garzim',
+];
 
 const PROPERTY_TYPES = [
   { value: 'studio', label: 'Studio' },
   { value: 'apartment', label: 'Appartement' },
   { value: 'villa', label: 'Villa' },
-  { value: 'house', label: 'Maison' },
+  { value: 'maison', label: 'Maison' },
   { value: 'riad', label: 'Riad' },
-  { value: 'land', label: 'Terrain' },
-  { value: 'office', label: 'Bureau' },
-  { value: 'commercial', label: 'Local commercial' },
+  { value: 'terrain', label: 'Terrain' },
+  { value: 'bureau', label: 'Bureau' },
+  { value: 'local-commercial', label: 'Local commercial' },
 ];
 
 const TRANSACTION_TYPES = [
   { value: 'sale', label: 'Vente' },
   { value: 'rent', label: 'Location' },
-  { value: 'vacation_rent', label: 'Location vacances' },
+  { value: 'vacation_rental', label: 'Location vacances' },
 ];
 
 const PROPERTY_CONDITIONS = [
@@ -435,7 +551,7 @@ export default function PropertyDetailPage() {
                   className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 appearance-none cursor-pointer"
                 >
                   <option value="">Sélectionner une ville</option>
-                  {CITIES.map(c => (
+                  {MOROCCAN_CITIES.map(c => (
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
@@ -467,26 +583,6 @@ export default function PropertyDetailPage() {
       {/* Section 3: Critères supplémentaires */}
       <Section num={3} title="Critères supplémentaires">
         <div className="space-y-6">
-          {/* État du bien */}
-          <div>
-            <h4 className="text-sm font-semibold text-slate-700 mb-3">État du bien</h4>
-            <div className="grid grid-cols-2 gap-3">
-              {PROPERTY_CONDITIONS.map(condition => (
-                <label key={condition.value} className="flex items-center gap-2 cursor-pointer p-3 border border-slate-200 rounded-lg hover:bg-slate-50">
-                  <input
-                    type="radio"
-                    name="property_condition"
-                    value={condition.value}
-                    checked={editForm?.property_condition === condition.value}
-                    onChange={() => set('property_condition', condition.value)}
-                    className="w-4 h-4 text-blue-600 cursor-pointer"
-                  />
-                  <span className="text-sm text-slate-700">{condition.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
           {/* Caractéristiques */}
           <div>
             <h4 className="text-sm font-semibold text-slate-700 mb-3">Caractéristiques</h4>
@@ -553,6 +649,15 @@ export default function PropertyDetailPage() {
                   className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer"
                 />
                 <span className="text-sm text-slate-700">Meublé</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer p-2.5 border border-slate-200 rounded-lg hover:bg-slate-50">
+                <input
+                  type="checkbox"
+                  checked={editForm?.is_new || false}
+                  onChange={e => set('is_new', e.target.checked)}
+                  className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer"
+                />
+                <span className="text-sm text-slate-700">🆕 Neuf</span>
               </label>
             </div>
           </div>
