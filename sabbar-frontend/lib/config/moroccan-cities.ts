@@ -2,6 +2,7 @@
 export const MOROCCAN_CITIES = [
   // Casablanca-Settat
   'Casablanca',
+  'Berrechid',
   'Fédala',
   'Mohammedia',
   'Tit Melloul',

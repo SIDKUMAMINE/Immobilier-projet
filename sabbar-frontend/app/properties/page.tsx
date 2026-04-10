@@ -9,6 +9,7 @@ import { propertiesApi } from '@/lib/api';
 const MOROCCAN_CITIES = [
   // Casablanca-Settat
   'Casablanca',
+  'Berrechid',
   'Fédala',
   'Mohammedia',
   'Tit Melloul',
