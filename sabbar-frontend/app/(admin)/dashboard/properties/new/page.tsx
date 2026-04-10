@@ -8,20 +8,20 @@ import { propertiesApi, ApiCallError } from '@/lib/api';
 const CITIES = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kénitra', 'Tétouan'];
 
 const PROPERTY_TYPES = [
-  { value: 'studio', label: 'Studio' },  // ✨ NOUVEAU - Studio ajouté
+  { value: 'studio', label: 'Studio' },
   { value: 'apartment', label: 'Appartement' },
   { value: 'villa', label: 'Villa' },
-  { value: 'house', label: 'Maison' },
+  { value: 'maison', label: 'Maison' }, // ✅ CORRIGÉ: 'maison' au lieu de 'house'
   { value: 'riad', label: 'Riad' },
-  { value: 'land', label: 'Terrain' },
-  { value: 'office', label: 'Bureau' },
-  { value: 'commercial', label: 'Local commercial' },
+  { value: 'terrain', label: 'Terrain' }, // ✅ CORRIGÉ: 'terrain' au lieu de 'land'
+  { value: 'bureau', label: 'Bureau' }, // ✅ CORRIGÉ: 'bureau' au lieu de 'office'
+  { value: 'local-commercial', label: 'Local commercial' }, // ✅ CORRIGÉ: 'local-commercial' au lieu de 'commercial'
 ];
 
 const TRANSACTION_TYPES = [
   { value: 'sale', label: 'Vente' },
   { value: 'rent', label: 'Location' },
-  { value: 'vacation_rent', label: 'Location vacances' },
+  { value: 'vacation_rental', label: 'Location vacances' }, // ✅ CORRIGÉ: 'vacation_rental' au lieu de 'vacation_rent'
 ];
 
 interface FormData {
