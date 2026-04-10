@@ -158,7 +158,7 @@ const PROPERTY_TYPES = [
   { value: 'riad', label: 'Riad' },
   { value: 'terrain', label: 'Terrain' },
   { value: 'bureau', label: 'Bureau' },
-  { value: 'local-commercial', label: 'Local commercial' },
+ { value: 'commercial', label: 'Local commercial' },
 ];
 
 const TRANSACTION_TYPES = [

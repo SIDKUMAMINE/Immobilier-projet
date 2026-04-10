@@ -116,7 +116,7 @@ export const MOROCCAN_CITIES = [
   'Garzim',
 ];
 
-// 🏘️ TYPES DE PROPRIÉTÉS UNIFIÉS
+// 🏘️ TYPES DE PROPRIÉTÉS UNIFIÉS (ACCEPTÉS PAR LA BDD)
 export const PROPERTY_TYPES = [
   { value: 'studio', label: 'Studio' },
   { value: 'apartment', label: 'Appartement' },
@@ -125,7 +125,7 @@ export const PROPERTY_TYPES = [
   { value: 'riad', label: 'Riad' },
   { value: 'terrain', label: 'Terrain' },
   { value: 'bureau', label: 'Bureau' },
-  { value: 'local-commercial', label: 'Local commercial' },
+  { value: 'commercial', label: 'Local commercial' }, // ✅ CORRIGÉ: 'commercial' au lieu de 'local-commercial'
 ];
 
 // 🔄 TYPES DE TRANSACTION UNIFIÉS

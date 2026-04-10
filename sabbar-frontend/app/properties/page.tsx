@@ -147,7 +147,7 @@ const staticPropertyTypes = [
   { original: 'riad', label: 'Riad' },
   { original: 'terrain', label: 'Terrain' },
   { original: 'bureau', label: 'Bureau' },
-  { original: 'local-commercial', label: 'Local commercial' },
+  { value: 'commercial', label: 'Local commercial' },
 ];
 
 // 🎯 FONCTION UTILITAIRE - RÉCUPÉRER L'ICÔNE DU TYPE DE TRANSACTION
