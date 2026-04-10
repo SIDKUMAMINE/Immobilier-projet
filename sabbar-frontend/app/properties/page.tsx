@@ -5,6 +5,123 @@ import Link from 'next/link';
 import { Heart, MapPin, ChevronDown, Home, Key } from 'lucide-react';
 import { propertiesApi } from '@/lib/api';
 
+// 🇲🇦 VILLES MAROCAINES COMPLÈTES
+const MOROCCAN_CITIES = [
+  // Casablanca-Settat
+  'Casablanca',
+  'Fédala',
+  'Mohammedia',
+  'Tit Melloul',
+  'Ben Slimane',
+  'Settat',
+  'Kasbah Tadla',
+  'Rommani',
+  
+  // Fès-Meknès
+  'Fès',
+  'Meknès',
+  'Ifrane',
+  'Imouzzer Kandar',
+  'Sefrou',
+  'Moulay Idriss',
+  'Volubilis',
+  'Taounate',
+  'Taza',
+  'Al Hoceïma',
+  
+  // Marrakech-Safi
+  'Marrakech',
+  'Essaouira',
+  'Safi',
+  'Kalaat M\'Gouna',
+  'Ouarzazate',
+  'Taroudant',
+  'Tamatite',
+  'Ounila',
+  'Ouirgane',
+  'Imlil',
+  
+  // Rabat-Salé-Kénitra
+  'Rabat',
+  'Salé',
+  'Kénitra',
+  'Tétouan',
+  'Tanger',
+  'M\'diq',
+  'Fnideq',
+  'Larache',
+  'Ouazzane',
+  'Khémis Sahel',
+  
+  // Tangier-Tetouan-Al Hoceima
+  'Tanger',
+  'Tétouan',
+  'Oued Laou',
+  'Chechaouen',
+  'Ouazzane',
+  'Asilah',
+  'Fahs-Anjra',
+  'Ouezzane',
+  
+  // Drâa-Tafilalet
+  'Errachidia',
+  'Erfoud',
+  'Risani',
+  'Merzouga',
+  'Todra',
+  'Goulmima',
+  'Siege',
+  
+  // Souss-Massa
+  'Agadir',
+  'Inezgane',
+  'Ait-Melloul',
+  'Tiznit',
+  'Sidi Ifni',
+  'Guelmim',
+  'Tan-Tan',
+  'Tarfaya',
+  'Tantan',
+  
+  // Béni Mellal-Khénifra
+  'Béni Mellal',
+  'Khénifra',
+  'Kasbah Tadla',
+  'Rommani',
+  'Kasba Tadla',
+  
+  // Oriental
+  'Oujda',
+  'Berkane',
+  'Nador',
+  'Driouch',
+  'Guercif',
+  'Taourirt',
+  'Jerada',
+  'Saïdia',
+  
+  // Dakhla-Oued Ed-Dahab
+  'Dakhla',
+  'Lagouira',
+  
+  // Laâyoune-Sakia El Hamra
+  'Laâyoune',
+  'Smara',
+  'Boujdour',
+  'Tarfaya',
+  
+  // Autres villes importantes
+  'Azrou',
+  'Khénifra',
+  'Midelt',
+  'Tinghir',
+  'Imintanoute',
+  'Kelaat Mgouna',
+  'Aït Baha',
+  'Bouizakarne',
+  'Garzim',
+];
+
 // 🎨 PALETTE SABBAR
 const SABBAR_COLORS = {
   navyDominant: '#0D1F3C',
@@ -15,8 +132,6 @@ const SABBAR_COLORS = {
 };
 
 // 📋 DATA STATIQUE
-const staticCities = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger','Berrechid ', 'Agadir', 'Meknès', 'Oujda', 'Kénitra', 'Tétouan'];
-
 const staticTransactionTypes = [
   { original: 'sale', label: 'Vente' },
   { original: 'rent', label: 'Location' },
@@ -498,7 +613,7 @@ export default function PropertiesPage() {
             {/* Ville */}
             <FilterSelect
               label="Ville"
-              options={staticCities.map(city => ({ original: city, label: city }))}
+              options={MOROCCAN_CITIES.map(city => ({ original: city, label: city }))}
               value={filters.city}
               onChange={(value) => {
                 console.log('✅ Ville changée:', value);

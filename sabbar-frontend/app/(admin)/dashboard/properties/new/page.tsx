@@ -5,23 +5,138 @@ import { useRouter } from 'next/navigation';
 import { Upload, X, Video, AlertCircle, ChevronDown } from 'lucide-react';
 import { propertiesApi, ApiCallError } from '@/lib/api';
 
-const CITIES = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kénitra', 'Tétouan'];
+// 🇲🇦 VILLES MAROCAINES COMPLÈTES
+const MOROCCAN_CITIES = [
+  // Casablanca-Settat
+  'Casablanca',
+  'Fédala',
+  'Mohammedia',
+  'Tit Melloul',
+  'Ben Slimane',
+  'Settat',
+  'Kasbah Tadla',
+  'Rommani',
+  
+  // Fès-Meknès
+  'Fès',
+  'Meknès',
+  'Ifrane',
+  'Imouzzer Kandar',
+  'Sefrou',
+  'Moulay Idriss',
+  'Volubilis',
+  'Taounate',
+  'Taza',
+  'Al Hoceïma',
+  
+  // Marrakech-Safi
+  'Marrakech',
+  'Essaouira',
+  'Safi',
+  'Kalaat M\'Gouna',
+  'Ouarzazate',
+  'Taroudant',
+  'Tamatite',
+  'Ounila',
+  'Ouirgane',
+  'Imlil',
+  
+  // Rabat-Salé-Kénitra
+  'Rabat',
+  'Salé',
+  'Kénitra',
+  'Tétouan',
+  'Tanger',
+  'M\'diq',
+  'Fnideq',
+  'Larache',
+  'Ouazzane',
+  'Khémis Sahel',
+  
+  // Tangier-Tetouan-Al Hoceima
+  'Tanger',
+  'Tétouan',
+  'Oued Laou',
+  'Chechaouen',
+  'Ouazzane',
+  'Asilah',
+  'Fahs-Anjra',
+  'Ouezzane',
+  
+  // Drâa-Tafilalet
+  'Errachidia',
+  'Erfoud',
+  'Risani',
+  'Merzouga',
+  'Todra',
+  'Goulmima',
+  'Siege',
+  
+  // Souss-Massa
+  'Agadir',
+  'Inezgane',
+  'Ait-Melloul',
+  'Tiznit',
+  'Sidi Ifni',
+  'Guelmim',
+  'Tan-Tan',
+  'Tarfaya',
+  'Tantan',
+  
+  // Béni Mellal-Khénifra
+  'Béni Mellal',
+  'Khénifra',
+  'Kasbah Tadla',
+  'Rommani',
+  'Kasba Tadla',
+  
+  // Oriental
+  'Oujda',
+  'Berkane',
+  'Nador',
+  'Driouch',
+  'Guercif',
+  'Taourirt',
+  'Jerada',
+  'Saïdia',
+  
+  // Dakhla-Oued Ed-Dahab
+  'Dakhla',
+  'Lagouira',
+  
+  // Laâyoune-Sakia El Hamra
+  'Laâyoune',
+  'Smara',
+  'Boujdour',
+  'Tarfaya',
+  
+  // Autres villes importantes
+  'Azrou',
+  'Khénifra',
+  'Midelt',
+  'Tinghir',
+  'Imintanoute',
+  'Kelaat Mgouna',
+  'Aït Baha',
+  'Bouizakarne',
+  'Garzim',
+];
 
 const PROPERTY_TYPES = [
   { value: 'studio', label: 'Studio' },
   { value: 'apartment', label: 'Appartement' },
   { value: 'villa', label: 'Villa' },
-  { value: 'maison', label: 'Maison' }, // ✅ CORRIGÉ: 'maison' au lieu de 'house'
+  { value: 'maison', label: 'Maison' },
   { value: 'riad', label: 'Riad' },
-  { value: 'terrain', label: 'Terrain' }, // ✅ CORRIGÉ: 'terrain' au lieu de 'land'
-  { value: 'bureau', label: 'Bureau' }, // ✅ CORRIGÉ: 'bureau' au lieu de 'office'
-  { value: 'local-commercial', label: 'Local commercial' }, // ✅ CORRIGÉ: 'local-commercial' au lieu de 'commercial'
+  { value: 'terrain', label: 'Terrain' },
+  { value: 'bureau', label: 'Bureau' },
+  { value: 'local-commercial', label: 'Local commercial' },
 ];
 
 const TRANSACTION_TYPES = [
   { value: 'sale', label: 'Vente' },
   { value: 'rent', label: 'Location' },
-  { value: 'vacation_rental', label: 'Location vacances' }, // ✅ CORRIGÉ: 'vacation_rental' au lieu de 'vacation_rent'
+  { value: 'vacation_rental', label: 'Location vacances' },
 ];
 
 interface FormData {
@@ -36,7 +151,6 @@ interface FormData {
   address: string;
   bedrooms: string;
   bathrooms: string;
-  // ✨ NOUVEAUX CHAMPS
   floor: string;
   has_parking: boolean;
   has_garden: boolean;
@@ -63,7 +177,6 @@ export default function NewPropertyPage() {
     address: '',
     bedrooms: '',
     bathrooms: '',
-    // ✨ INITIALISER LES NOUVEAUX CHAMPS
     floor: '',
     has_parking: false,
     has_garden: false,
@@ -140,7 +253,6 @@ export default function NewPropertyPage() {
         address: form.address || null,
         bedrooms: form.bedrooms ? parseInt(form.bedrooms) : null,
         bathrooms: form.bathrooms ? parseInt(form.bathrooms) : null,
-        // ✨ AJOUTER LES NOUVEAUX CHAMPS
         floor: form.floor ? parseInt(form.floor) : null,
         has_parking: form.has_parking,
         has_garden: form.has_garden,
@@ -162,7 +274,6 @@ export default function NewPropertyPage() {
           console.log('✅ Photos uploadées');
         } catch (err: any) {
           console.warn('⚠️ Erreur upload photos:', err.message);
-          // Continuer même si les photos échouent
         }
       }
 
@@ -174,7 +285,6 @@ export default function NewPropertyPage() {
           console.log('✅ Vidéo uploadée');
         } catch (err: any) {
           console.warn('⚠️ Erreur upload vidéo:', err.message);
-          // Continuer même si la vidéo échoue
         }
       }
 
@@ -284,7 +394,7 @@ export default function NewPropertyPage() {
                 <div className="relative">
                   <select value={form.city} onChange={e => set('city', e.target.value)} className={selectCls}>
                     <option value="">Sélectionner une ville</option>
-                    {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    {MOROCCAN_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                   <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 </div>
@@ -299,7 +409,7 @@ export default function NewPropertyPage() {
           </div>
         </Section>
 
-        {/* ✨ 3. CRITÈRES SUPPLÉMENTAIRES (NOUVEAU) */}
+        {/* 3. CRITÈRES SUPPLÉMENTAIRES */}
         <Section num={3} title="Critères supplémentaires">
           <div className="space-y-4">
             {/* Sous-section: Caractéristiques structurelles */}
@@ -330,7 +440,7 @@ export default function NewPropertyPage() {
               </div>
             </div>
 
-            {/* Sous-section: Équipements extérieurs */}
+            {/* Sous-section: Équipements */}
             <div>
               <h4 className="text-xs font-semibold text-slate-600 mb-3">Équipements</h4>
               <div className="grid grid-cols-2 gap-4">
@@ -384,7 +494,7 @@ export default function NewPropertyPage() {
           </div>
         </Section>
 
-        {/* ✨ 4. Photos (anciennement 3) */}
+        {/* 4. Photos */}
         <Section num={4} title="Photos">
           <div
             className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:border-blue-300 transition cursor-pointer bg-slate-50"
@@ -429,7 +539,7 @@ export default function NewPropertyPage() {
           )}
         </Section>
 
-        {/* ✨ 5. Vidéo (anciennement 4) */}
+        {/* 5. Vidéo */}
         <Section num={5} title="Vidéo (optionnel)">
           {!videoPreview ? (
             <div
