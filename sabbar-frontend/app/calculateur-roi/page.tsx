@@ -80,21 +80,21 @@ const CalculateurROI = () => {
       case 'airbnb':
         return { 
           result: airbnbResult, 
-          color: '#6B9EB5', 
+          color: '#C8A96E', 
           icon: Plane, 
           title: 'Airbnb / Meublée',
         };
       case 'seasonal':
         return { 
           result: seasonalResult, 
-          color: '#A89D6B', 
+          color: '#B5573A', 
           icon: Waves, 
           title: 'Location Saisonnière',
         };
       default:
         return { 
           result: longTermResult, 
-          color: '#6BA87A', 
+          color: '#C8A96E', 
           icon: Home, 
           title: 'Location Longue Durée',
         };
@@ -106,24 +106,33 @@ const CalculateurROI = () => {
 
   const NumberInputWithButtons = ({ value, onChange, step, label, min = 0 }: any) => (
     <div>
-      <label style={{ color: '#C8A96E', letterSpacing: '0.5px', fontFamily: "'DM Sans', sans-serif", fontWeight: '600', fontSize: '10px', display: 'block', marginBottom: '6px', textTransform: 'uppercase' }}>
+      <label style={{ color: '#C8A96E', letterSpacing: '0.8px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', fontSize: '11px', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>
         {label}
       </label>
       <div style={{ display: 'flex', gap: '4px', alignItems: 'stretch' }}>
         <button
           onClick={() => onChange(Math.max(min, value - step))}
           style={{ 
-            backgroundColor: 'rgba(200, 169, 110, 0.3)', 
+            backgroundColor: '#C8A96E20', 
             color: '#C8A96E', 
-            border: '1px solid #C8A96E50',
+            border: '1px solid #C8A96E40',
             cursor: 'pointer',
-            minWidth: '30px',
+            minWidth: '32px',
             fontSize: '12px',
-            borderRadius: '4px',
-            padding: '6px',
+            borderRadius: '6px',
+            padding: '8px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#C8A96E30';
+            e.currentTarget.style.borderColor = '#C8A96E60';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#C8A96E20';
+            e.currentTarget.style.borderColor = '#C8A96E40';
           }}
         >
           <Minus size={12} strokeWidth={3} />
@@ -135,33 +144,51 @@ const CalculateurROI = () => {
           onChange={(e) => onChange(Math.max(min, Number(e.target.value)))}
           style={{
             flex: 1,
-            padding: '6px 8px',
-            borderRadius: '4px',
+            padding: '8px 12px',
+            borderRadius: '6px',
             textAlign: 'center',
-            fontSize: '12px',
-            backgroundColor: 'rgba(249, 245, 239, 0.08)',
-            color: '#E2C98A',
-            border: '1px solid #C8A96E50',
+            fontSize: '13px',
+            backgroundColor: '#0D1F3C30',
+            color: '#F9F5EF',
+            border: '1px solid #C8A96E40',
             fontFamily: "'DM Sans', sans-serif",
             fontWeight: '500',
             outline: 'none',
+            transition: 'all 0.2s'
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = '#C8A96E';
+            e.currentTarget.style.backgroundColor = '#0D1F3C50';
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = '#C8A96E40';
+            e.currentTarget.style.backgroundColor = '#0D1F3C30';
           }}
         />
         
         <button
           onClick={() => onChange(value + step)}
           style={{ 
-            backgroundColor: 'rgba(200, 169, 110, 0.3)', 
+            backgroundColor: '#C8A96E20', 
             color: '#C8A96E', 
-            border: '1px solid #C8A96E50',
+            border: '1px solid #C8A96E40',
             cursor: 'pointer',
-            minWidth: '30px',
+            minWidth: '32px',
             fontSize: '12px',
-            borderRadius: '4px',
-            padding: '6px',
+            borderRadius: '6px',
+            padding: '8px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#C8A96E30';
+            e.currentTarget.style.borderColor = '#C8A96E60';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#C8A96E20';
+            e.currentTarget.style.borderColor = '#C8A96E40';
           }}
         >
           <Plus size={12} strokeWidth={3} />
@@ -171,98 +198,77 @@ const CalculateurROI = () => {
   );
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#4A5568' }}>
-      <div style={{ padding: '12px 16px', borderBottom: '1px solid #C8A96E40', backgroundColor: '#5A6578' }}>
-        <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
-          <h1 style={{ fontSize: '14px', fontWeight: 'bold', color: '#E2C98A', fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.5px' }}>
-            Simulateur ROI Immobilier Locatif
+    <div style={{ minHeight: '100vh', backgroundColor: '#0D1F3C' }}>
+      {/* Header */}
+      <div style={{ padding: '24px 32px', borderBottom: '1px solid #C8A96E30', background: 'linear-gradient(to bottom, #0D1F3C, #0D1F3C)' }}>
+        <div style={{ maxWidth: '100%', margin: '0 auto' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: '300', color: '#F9F5EF', fontFamily: "'Cormorant Garamond', serif", letterSpacing: '1px', margin: '0 0 8px 0' }}>
+            Simulateur ROI <span style={{ color: '#C8A96E' }}>Immobilier Locatif</span>
           </h1>
-          <p style={{ fontSize: '12px', marginTop: '4px', color: '#B5A882', fontFamily: "'DM Sans', sans-serif" }}>
+          <p style={{ fontSize: '13px', marginTop: '8px', color: '#E2C98A', fontFamily: "'DM Sans', sans-serif", fontWeight: '400', margin: '0' }}>
             Comparaison : 3 stratégies • Crédit optionnel • Montants en DH
           </p>
         </div>
       </div>
 
-      <div style={{ padding: '16px', borderBottom: '1px solid #C8A96E20', backgroundColor: '#4A5568' }}>
-        <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-            <button
-              onClick={() => setActiveStrategy('longterm')}
-              style={{
-                padding: '12px',
-                borderRadius: '8px',
-                backgroundColor: activeStrategy === 'longterm' ? '#6BA87A40' : 'rgba(107, 168, 122, 0.15)',
-                border: activeStrategy === 'longterm' ? '2px solid #6BA87A' : '1px solid #C8A96E40',
-                cursor: 'pointer',
-                textAlign: 'left',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                <Home size={16} style={{ color: '#6BA87A' }} />
-                <h3 style={{ fontSize: '12px', fontWeight: 'bold', color: '#6BA87A', fontFamily: "'DM Sans', sans-serif" }}>
-                  Longue Durée
-                </h3>
-              </div>
-              <p style={{ color: '#C8A96E', fontSize: '10px', fontFamily: "'DM Sans', sans-serif" }}>
-                Stable & sécurisée
-              </p>
-            </button>
-
-            <button
-              onClick={() => setActiveStrategy('airbnb')}
-              style={{
-                padding: '12px',
-                borderRadius: '8px',
-                backgroundColor: activeStrategy === 'airbnb' ? '#6B9EB540' : 'rgba(107, 158, 181, 0.15)',
-                border: activeStrategy === 'airbnb' ? '2px solid #6B9EB5' : '1px solid #C8A96E40',
-                cursor: 'pointer',
-                textAlign: 'left',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                <Plane size={16} style={{ color: '#6B9EB5' }} />
-                <h3 style={{ fontSize: '12px', fontWeight: 'bold', color: '#6B9EB5', fontFamily: "'DM Sans', sans-serif" }}>
-                  Airbnb / Meublée
-                </h3>
-              </div>
-              <p style={{ color: '#C8A96E', fontSize: '10px', fontFamily: "'DM Sans', sans-serif" }}>
-                Rendement meilleur
-              </p>
-            </button>
-
-            <button
-              onClick={() => setActiveStrategy('seasonal')}
-              style={{
-                padding: '12px',
-                borderRadius: '8px',
-                backgroundColor: activeStrategy === 'seasonal' ? '#A89D6B40' : 'rgba(168, 157, 107, 0.15)',
-                border: activeStrategy === 'seasonal' ? '2px solid #A89D6B' : '1px solid #C8A96E40',
-                cursor: 'pointer',
-                textAlign: 'left',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                <Waves size={16} style={{ color: '#A89D6B' }} />
-                <h3 style={{ fontSize: '12px', fontWeight: 'bold', color: '#A89D6B', fontFamily: "'DM Sans', sans-serif" }}>
-                  Saisonnier
-                </h3>
-              </div>
-              <p style={{ color: '#C8A96E', fontSize: '10px', fontFamily: "'DM Sans', sans-serif" }}>
-                Haut potentiel
-              </p>
-            </button>
+      {/* Stratégies Selector */}
+      <div style={{ padding: '20px 32px', borderBottom: '1px solid #C8A96E20', backgroundColor: '#0D1F3C' }}>
+        <div style={{ maxWidth: '100%' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            {[
+              { key: 'longterm', title: 'Longue Durée', desc: 'Stable & sécurisée', color: '#C8A96E', icon: Home },
+              { key: 'airbnb', title: 'Airbnb / Meublée', desc: 'Rendement meilleur', color: '#C8A96E', icon: Plane },
+              { key: 'seasonal', title: 'Saisonnier', desc: 'Haut potentiel', color: '#B5573A', icon: Waves }
+            ].map((strategy: any) => {
+              const Icon = strategy.icon;
+              return (
+                <button
+                  key={strategy.key}
+                  onClick={() => setActiveStrategy(strategy.key)}
+                  style={{
+                    padding: '16px',
+                    borderRadius: '10px',
+                    backgroundColor: activeStrategy === strategy.key ? 'rgba(200, 169, 110, 0.15)' : 'rgba(200, 169, 110, 0.05)',
+                    border: activeStrategy === strategy.key ? `2px solid ${strategy.color}` : '1px solid #C8A96E30',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.3s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.12)';
+                    e.currentTarget.style.borderColor = '#C8A96E50';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = activeStrategy === strategy.key ? 'rgba(200, 169, 110, 0.15)' : 'rgba(200, 169, 110, 0.05)';
+                    e.currentTarget.style.borderColor = activeStrategy === strategy.key ? `${strategy.color}` : '#C8A96E30';
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                    <Icon size={18} style={{ color: strategy.color }} />
+                    <h3 style={{ fontSize: '14px', fontWeight: '500', color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif", margin: '0' }}>
+                      {strategy.title}
+                    </h3>
+                  </div>
+                  <p style={{ color: '#E2C98A', fontSize: '12px', fontFamily: "'DM Sans', sans-serif", margin: '0', fontWeight: '400' }}>
+                    {strategy.desc}
+                  </p>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      <div style={{ padding: '16px', backgroundColor: '#4A5568' }}>
-        <div style={{ maxWidth: '80rem', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ borderRadius: '8px', padding: '16px', backgroundColor: 'rgba(74, 85, 104, 0.8)', border: '1px solid #C8A96E30' }}>
-            <h3 style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '12px', color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.5px' }}>
-              Acquisition
+      {/* Content */}
+      <div style={{ padding: '24px 32px', backgroundColor: '#0D1F3C' }}>
+        <div style={{ maxWidth: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Acquisition Section */}
+          <div style={{ borderRadius: '10px', padding: '24px', backgroundColor: '#0D1F3C50', border: '1px solid #C8A96E25' }}>
+            <h3 style={{ fontSize: '12px', fontWeight: '500', textTransform: 'uppercase', marginBottom: '16px', color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px', margin: '0 0 16px 0' }}>
+              💰 Acquisition
             </h3>
             
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
               <NumberInputWithButtons
                 value={purchasePrice}
                 onChange={setPurchasePrice}
@@ -286,41 +292,44 @@ const CalculateurROI = () => {
               />
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px', borderRadius: '4px', backgroundColor: 'rgba(200, 169, 110, 0.08)', border: '1px solid #C8A96E20' }}>
-              <span style={{ color: '#E2C98A', fontSize: '11px', fontFamily: "'DM Sans', sans-serif" }}>
-                💰 Financement par crédit
+            {/* Loan Toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderRadius: '8px', backgroundColor: 'rgba(200, 169, 110, 0.08)', border: '1px solid #C8A96E20' }}>
+              <span style={{ color: '#E2C98A', fontSize: '12px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500' }}>
+                💳 Financement par crédit
               </span>
               <button
                 onClick={() => setUseLoan(!useLoan)}
                 style={{
                   position: 'relative',
-                  width: '40px',
-                  height: '24px',
-                  borderRadius: '12px',
-                  backgroundColor: useLoan ? '#6BA87A' : '#666',
+                  width: '44px',
+                  height: '26px',
+                  borderRadius: '13px',
+                  backgroundColor: useLoan ? '#C8A96E' : '#666',
                   border: 'none',
                   cursor: 'pointer',
+                  transition: 'all 0.3s'
                 }}
               >
                 <div
                   style={{
                     position: 'absolute',
-                    top: '2px',
-                    left: '2px',
+                    top: '3px',
+                    left: '3px',
                     width: '20px',
                     height: '20px',
                     backgroundColor: 'white',
                     borderRadius: '10px',
-                    transition: 'all 0.3s ease',
-                    transform: useLoan ? 'translateX(16px)' : 'translateX(0)',
+                    transition: 'all 0.3s',
+                    transform: useLoan ? 'translateX(18px)' : 'translateX(0)',
                   }}
                 />
               </button>
             </div>
 
+            {/* Loan Details */}
             {useLoan && loanRate > 0 && (
-              <div style={{ marginTop: '12px', padding: '8px', borderRadius: '4px', backgroundColor: 'rgba(107, 168, 122, 0.1)', border: '1px solid #6BA87A30' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+              <div style={{ marginTop: '16px', padding: '16px', borderRadius: '8px', backgroundColor: 'rgba(200, 169, 110, 0.06)', border: '1px solid #C8A96E25' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
                   <NumberInputWithButtons
                     value={loanYears}
                     onChange={setLoanYears}
@@ -329,17 +338,17 @@ const CalculateurROI = () => {
                     min={1}
                   />
                   <div>
-                    <label style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '600', display: 'block', marginBottom: '6px', textTransform: 'uppercase' }}>
+                    <label style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '500', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
                       Mensualité
                     </label>
                     <div style={{
-                      padding: '6px 8px',
-                      borderRadius: '4px',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
                       textAlign: 'center',
-                      fontSize: '12px',
-                      backgroundColor: 'rgba(249, 245, 239, 0.08)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E50',
+                      fontSize: '13px',
+                      backgroundColor: '#0D1F3C30',
+                      color: '#F9F5EF',
+                      border: '1px solid #C8A96E40',
                       fontFamily: "'DM Sans', sans-serif",
                       fontWeight: '500',
                     }}>
@@ -347,21 +356,21 @@ const CalculateurROI = () => {
                     </div>
                   </div>
                   <div>
-                    <label style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: '600', display: 'block', marginBottom: '6px', textTransform: 'uppercase' }}>
-                      Crédit
+                    <label style={{ color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: '500', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                      Montant Crédit
                     </label>
                     <div style={{
-                      padding: '6px 8px',
-                      borderRadius: '4px',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
                       textAlign: 'center',
-                      fontSize: '12px',
-                      backgroundColor: 'rgba(249, 245, 239, 0.08)',
-                      color: '#E2C98A',
-                      border: '1px solid #C8A96E50',
+                      fontSize: '13px',
+                      backgroundColor: '#0D1F3C30',
+                      color: '#F9F5EF',
+                      border: '1px solid #C8A96E40',
                       fontFamily: "'DM Sans', sans-serif",
                       fontWeight: '500',
                     }}>
-                      {(loanAmount / 1000000).toFixed(2)}M
+                      {(loanAmount / 1000000).toFixed(2)}M DH
                     </div>
                   </div>
                 </div>
@@ -369,13 +378,14 @@ const CalculateurROI = () => {
             )}
           </div>
 
-          <div style={{ borderRadius: '8px', padding: '16px', backgroundColor: 'rgba(74, 85, 104, 0.8)', border: `1px solid ${activeData.color}30` }}>
-            <h3 style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '12px', color: activeData.color, fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ActiveIcon size={14} /> {activeData.title}
+          {/* Strategy Parameters */}
+          <div style={{ borderRadius: '10px', padding: '24px', backgroundColor: '#0D1F3C50', border: `1px solid ${activeData.color}30` }}>
+            <h3 style={{ fontSize: '12px', fontWeight: '500', textTransform: 'uppercase', marginBottom: '16px', color: activeData.color, fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '10px', margin: '0 0 16px 0' }}>
+              <ActiveIcon size={16} /> {activeData.title}
             </h3>
 
             {activeStrategy === 'longterm' && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                 <NumberInputWithButtons value={longTermRent} onChange={setLongTermRent} step={500} label="Loyer/mois" min={500} />
                 <NumberInputWithButtons value={longTermVacancy} onChange={setLongTermVacancy} step={1} label="Vacance (%)" min={0} />
                 <NumberInputWithButtons value={longTermMgmt} onChange={setLongTermMgmt} step={1} label="Gestion (%)" min={0} />
@@ -384,7 +394,7 @@ const CalculateurROI = () => {
             )}
 
             {activeStrategy === 'airbnb' && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                 <NumberInputWithButtons value={airbnbNight} onChange={setAirbnbNight} step={50} label="Tarif/nuit" min={50} />
                 <NumberInputWithButtons value={airbnbOccupancy} onChange={setAirbnbOccupancy} step={5} label="Occupation (%)" min={0} />
                 <NumberInputWithButtons value={airbnbComm} onChange={setAirbnbComm} step={1} label="Commission (%)" min={0} />
@@ -394,7 +404,7 @@ const CalculateurROI = () => {
             )}
 
             {activeStrategy === 'seasonal' && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                 <NumberInputWithButtons value={seasonalHighRate} onChange={setSeasonalHighRate} step={50} label="Tarif haute/nuit" min={50} />
                 <NumberInputWithButtons value={seasonalHighNights} onChange={setSeasonalHighNights} step={10} label="Nuits haute" min={0} />
                 <NumberInputWithButtons value={seasonalLowRate} onChange={setSeasonalLowRate} step={50} label="Tarif basse/nuit" min={50} />
@@ -406,57 +416,58 @@ const CalculateurROI = () => {
             )}
           </div>
 
-          <div style={{ borderRadius: '8px', padding: '16px', backgroundColor: 'rgba(74, 85, 104, 0.8)', border: `2px solid ${activeData.color}40` }}>
-            <h3 style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '12px', color: activeData.color, fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.5px' }}>
+          {/* Results Section */}
+          <div style={{ borderRadius: '10px', padding: '24px', backgroundColor: '#0D1F3C50', border: `2px solid ${activeData.color}35` }}>
+            <h3 style={{ fontSize: '12px', fontWeight: '500', textTransform: 'uppercase', marginBottom: '16px', color: activeData.color, fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px', margin: '0 0 16px 0' }}>
               📊 Résultats & ROI Annuel
             </h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '12px' }}>
-              <div>
-                <p style={{ color: '#C8A96E', fontSize: '10px', marginBottom: '4px', fontFamily: "'DM Sans', sans-serif", fontWeight: '600' }}>Revenu Brut</p>
-                <p style={{ color: activeData.color, fontWeight: 'bold', fontSize: '13px', fontFamily: "'DM Sans', sans-serif" }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
+              <div style={{ padding: '12px', backgroundColor: '#0D1F3C50', borderRadius: '8px', border: '1px solid #C8A96E25' }}>
+                <p style={{ color: '#C8A96E', fontSize: '11px', marginBottom: '8px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px 0' }}>Revenu Brut</p>
+                <p style={{ color: '#F9F5EF', fontWeight: 'bold', fontSize: '16px', fontFamily: "'DM Sans', sans-serif", margin: '0' }}>
                   {(activeData.result.gross / 1000).toFixed(0)}k DH
                 </p>
               </div>
-              <div>
-                <p style={{ color: '#C8A96E', fontSize: '10px', marginBottom: '4px', fontFamily: "'DM Sans', sans-serif", fontWeight: '600' }}>Charges</p>
-                <p style={{ color: '#B5573A', fontWeight: 'bold', fontSize: '13px', fontFamily: "'DM Sans', sans-serif" }}>
+              <div style={{ padding: '12px', backgroundColor: '#0D1F3C50', borderRadius: '8px', border: '1px solid #C8A96E25' }}>
+                <p style={{ color: '#C8A96E', fontSize: '11px', marginBottom: '8px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px 0' }}>Charges</p>
+                <p style={{ color: '#B5573A', fontWeight: 'bold', fontSize: '16px', fontFamily: "'DM Sans', sans-serif", margin: '0' }}>
                   {(activeData.result.charges / 1000).toFixed(0)}k DH
                 </p>
               </div>
-              <div>
-                <p style={{ color: '#C8A96E', fontSize: '10px', marginBottom: '4px', fontFamily: "'DM Sans', sans-serif", fontWeight: '600' }}>Net/an</p>
-                <p style={{ color: activeData.color, fontWeight: 'bold', fontSize: '13px', fontFamily: "'DM Sans', sans-serif" }}>
+              <div style={{ padding: '12px', backgroundColor: '#0D1F3C50', borderRadius: '8px', border: '1px solid #C8A96E25' }}>
+                <p style={{ color: '#C8A96E', fontSize: '11px', marginBottom: '8px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px 0' }}>Net/an</p>
+                <p style={{ color: '#F9F5EF', fontWeight: 'bold', fontSize: '16px', fontFamily: "'DM Sans', sans-serif", margin: '0' }}>
                   {(activeData.result.net / 1000).toFixed(0)}k DH
                 </p>
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-              <div>
-                <p style={{ color: '#C8A96E', fontSize: '10px', marginBottom: '4px', fontFamily: "'DM Sans', sans-serif", fontWeight: '600' }}>Cash-Flow/Mois</p>
-                <p style={{ color: activeData.color, fontWeight: 'bold', fontSize: '14px', fontFamily: "'DM Sans', sans-serif" }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
+              <div style={{ padding: '12px', backgroundColor: '#0D1F3C50', borderRadius: '8px', border: '1px solid #C8A96E25' }}>
+                <p style={{ color: '#C8A96E', fontSize: '11px', marginBottom: '8px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px 0' }}>Cash-Flow/Mois</p>
+                <p style={{ color: activeData.color, fontWeight: 'bold', fontSize: '18px', fontFamily: "'DM Sans', sans-serif", margin: '0' }}>
                   {(activeData.result.cashFlow / 12).toFixed(0)} DH
                 </p>
               </div>
-              <div>
-                <p style={{ color: '#C8A96E', fontSize: '10px', marginBottom: '4px', fontFamily: "'DM Sans', sans-serif", fontWeight: '600' }}>Taux Annuel (%)</p>
-                <p style={{ color: activeData.color, fontWeight: 'bold', fontSize: '14px', fontFamily: "'DM Sans', sans-serif" }}>
+              <div style={{ padding: '12px', backgroundColor: '#0D1F3C50', borderRadius: '8px', border: '1px solid #C8A96E25' }}>
+                <p style={{ color: '#C8A96E', fontSize: '11px', marginBottom: '8px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px 0' }}>Taux Annuel (%)</p>
+                <p style={{ color: activeData.color, fontWeight: 'bold', fontSize: '18px', fontFamily: "'DM Sans', sans-serif", margin: '0' }}>
                   {activeData.result.netYield.toFixed(2)}%
                 </p>
               </div>
-              <div>
-                <p style={{ color: '#C8A96E', fontSize: '10px', marginBottom: '4px', fontFamily: "'DM Sans', sans-serif", fontWeight: '600' }}>ROI/an</p>
-                <p style={{ color: activeData.color, fontWeight: 'bold', fontSize: '14px', fontFamily: "'DM Sans', sans-serif" }}>
+              <div style={{ padding: '12px', backgroundColor: '#0D1F3C50', borderRadius: '8px', border: '1px solid #C8A96E25' }}>
+                <p style={{ color: '#C8A96E', fontSize: '11px', marginBottom: '8px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px 0' }}>ROI/an</p>
+                <p style={{ color: activeData.color, fontWeight: 'bold', fontSize: '18px', fontFamily: "'DM Sans', sans-serif", margin: '0' }}>
                   {activeData.result.cashOnCash.toFixed(2)}%
                 </p>
               </div>
             </div>
 
-            <div style={{ marginTop: '12px', padding: '8px', borderRadius: '4px', backgroundColor: `${activeData.color}15`, border: `1px solid ${activeData.color}30` }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
-                <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif" }}>💰 Investissement total:</span>
-                <span style={{ color: activeData.color, fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>
+            <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: 'rgba(200, 169, 110, 0.08)', border: `1px solid ${activeData.color}30` }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
+                <span style={{ color: '#E2C98A', fontFamily: "'DM Sans', sans-serif", fontWeight: '500' }}>💰 Investissement total:</span>
+                <span style={{ color: activeData.color, fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif", fontSize: '14px' }}>
                   {((useLoan && downPayment > 0 ? downPayment : purchasePrice) / 1000000).toFixed(2)}M DH
                 </span>
               </div>
@@ -465,8 +476,9 @@ const CalculateurROI = () => {
         </div>
       </div>
 
-      <div style={{ padding: '12px 16px', textAlign: 'center', backgroundColor: '#3A4A5A', borderTop: '1px solid #C8A96E20' }}>
-        <p style={{ color: '#B5A882', fontSize: '10px', fontFamily: "'DM Sans', sans-serif" }}>
+      {/* Footer */}
+      <div style={{ padding: '20px 32px', textAlign: 'center', backgroundColor: '#0D1F3C', borderTop: '1px solid #C8A96E20' }}>
+        <p style={{ color: '#E2C98A', fontSize: '12px', fontFamily: "'DM Sans', sans-serif", margin: '0', fontWeight: '400' }}>
           💡 Ce calculateur est à titre informatif. Consultez un expert avant d'investir.
         </p>
       </div>
