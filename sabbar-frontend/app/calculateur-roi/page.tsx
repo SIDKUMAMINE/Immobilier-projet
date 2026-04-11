@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Home, Plane, Waves, Plus, Minus } from 'lucide-react';
 
 const CalculateurROI = () => {
@@ -32,6 +32,9 @@ const CalculateurROI = () => {
   const [seasonalCleaning, setSeasonalCleaning] = useState(1500);
   
   const [activeStrategy, setActiveStrategy] = useState('longterm');
+
+  // Refs pour garder le focus
+  const inputRefs = useRef<{[key: string]: HTMLInputElement | null}>({});
 
   const loanAmount = useLoan ? (purchasePrice - downPayment) : 0;
   const monthlyRate = loanRate / 100 / 12;
@@ -108,10 +111,9 @@ const CalculateurROI = () => {
   const activeData = getActiveStrategyData();
   const ActiveIcon = activeData.icon;
 
-  const NumberInputWithButtons = ({ value, onChange, step, label, min = 0 }: any) => {
+  const NumberInputWithButtons = ({ value, onChange, step, label, min = 0, id }: any) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newVal = e.target.value === '' ? min : Math.max(min, Number(e.target.value) || 0);
-      onChange(newVal);
+      onChange(Number(e.target.value) || min);
     };
 
     return (
@@ -151,6 +153,9 @@ const CalculateurROI = () => {
           </button>
           
           <input
+            ref={(el) => {
+              if (el) inputRefs.current[id] = el;
+            }}
             type="number"
             value={value}
             onChange={handleChange}
@@ -285,6 +290,7 @@ const CalculateurROI = () => {
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px', marginBottom: '32px' }}>
               <NumberInputWithButtons
+                id="purchasePrice"
                 value={purchasePrice}
                 onChange={setPurchasePrice}
                 step={50000}
@@ -292,6 +298,7 @@ const CalculateurROI = () => {
                 min={50000}
               />
               <NumberInputWithButtons
+                id="acquisitionFees"
                 value={acquisitionFees}
                 onChange={setAcquisitionFees}
                 step={0.5}
@@ -299,6 +306,7 @@ const CalculateurROI = () => {
                 min={0}
               />
               <NumberInputWithButtons
+                id="renovationCosts"
                 value={renovationCosts}
                 onChange={setRenovationCosts}
                 step={10000}
@@ -353,6 +361,7 @@ const CalculateurROI = () => {
                 </h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }}>
                   <NumberInputWithButtons
+                    id="downPayment"
                     value={downPayment}
                     onChange={setDownPayment}
                     step={50000}
@@ -360,6 +369,7 @@ const CalculateurROI = () => {
                     min={0}
                   />
                   <NumberInputWithButtons
+                    id="loanRate"
                     value={loanRate}
                     onChange={setLoanRate}
                     step={0.1}
@@ -367,6 +377,7 @@ const CalculateurROI = () => {
                     min={0}
                   />
                   <NumberInputWithButtons
+                    id="loanYears"
                     value={loanYears}
                     onChange={setLoanYears}
                     step={1}
@@ -386,32 +397,32 @@ const CalculateurROI = () => {
 
             {activeStrategy === 'longterm' && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }}>
-                <NumberInputWithButtons value={longTermRent} onChange={setLongTermRent} step={500} label="Loyer mensuel brut" min={500} />
-                <NumberInputWithButtons value={longTermVacancy} onChange={setLongTermVacancy} step={0.5} label="Vacance locative (%)" min={0} />
-                <NumberInputWithButtons value={longTermRentIncrease} onChange={setLongTermRentIncrease} step={0.5} label="Revalorisation loyer (%/an)" min={0} />
-                <NumberInputWithButtons value={longTermCharges} onChange={setLongTermCharges} step={1000} label="Charges fixes annuelles" min={0} />
-                <NumberInputWithButtons value={longTermMgmt} onChange={setLongTermMgmt} step={1} label="Gestion agence (%)" min={0} />
-                <NumberInputWithButtons value={longTermTaxes} onChange={setLongTermTaxes} step={1} label="IR / fiscalité (%)" min={0} />
+                <NumberInputWithButtons id="longTermRent" value={longTermRent} onChange={setLongTermRent} step={500} label="Loyer mensuel brut" min={500} />
+                <NumberInputWithButtons id="longTermVacancy" value={longTermVacancy} onChange={setLongTermVacancy} step={0.5} label="Vacance locative (%)" min={0} />
+                <NumberInputWithButtons id="longTermRentIncrease" value={longTermRentIncrease} onChange={setLongTermRentIncrease} step={0.5} label="Revalorisation loyer (%/an)" min={0} />
+                <NumberInputWithButtons id="longTermCharges" value={longTermCharges} onChange={setLongTermCharges} step={1000} label="Charges fixes annuelles" min={0} />
+                <NumberInputWithButtons id="longTermMgmt" value={longTermMgmt} onChange={setLongTermMgmt} step={1} label="Gestion agence (%)" min={0} />
+                <NumberInputWithButtons id="longTermTaxes" value={longTermTaxes} onChange={setLongTermTaxes} step={1} label="IR / fiscalité (%)" min={0} />
               </div>
             )}
 
             {activeStrategy === 'airbnb' && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }}>
-                <NumberInputWithButtons value={airbnbNight} onChange={setAirbnbNight} step={50} label="Tarif/nuit" min={50} />
-                <NumberInputWithButtons value={airbnbOccupancy} onChange={setAirbnbOccupancy} step={5} label="Taux occupation (%)" min={0} />
-                <NumberInputWithButtons value={airbnbComm} onChange={setAirbnbComm} step={1} label="Commission plateforme (%)" min={0} />
-                <NumberInputWithButtons value={airbnbCleaning} onChange={setAirbnbCleaning} step={500} label="Ménage/mois (DH)" min={0} />
-                <NumberInputWithButtons value={airbnbConcierge} onChange={setAirbnbConcierge} step={500} label="Conciergerie/an (DH)" min={0} />
+                <NumberInputWithButtons id="airbnbNight" value={airbnbNight} onChange={setAirbnbNight} step={50} label="Tarif/nuit" min={50} />
+                <NumberInputWithButtons id="airbnbOccupancy" value={airbnbOccupancy} onChange={setAirbnbOccupancy} step={5} label="Taux occupation (%)" min={0} />
+                <NumberInputWithButtons id="airbnbComm" value={airbnbComm} onChange={setAirbnbComm} step={1} label="Commission plateforme (%)" min={0} />
+                <NumberInputWithButtons id="airbnbCleaning" value={airbnbCleaning} onChange={setAirbnbCleaning} step={500} label="Ménage/mois (DH)" min={0} />
+                <NumberInputWithButtons id="airbnbConcierge" value={airbnbConcierge} onChange={setAirbnbConcierge} step={500} label="Conciergerie/an (DH)" min={0} />
               </div>
             )}
 
             {activeStrategy === 'seasonal' && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }}>
-                <NumberInputWithButtons value={seasonalHighRate} onChange={setSeasonalHighRate} step={50} label="Tarif haute/nuit" min={50} />
-                <NumberInputWithButtons value={seasonalHighNights} onChange={setSeasonalHighNights} step={10} label="Nuits haute saison" min={0} />
-                <NumberInputWithButtons value={seasonalLowRate} onChange={setSeasonalLowRate} step={50} label="Tarif basse/nuit" min={50} />
-                <NumberInputWithButtons value={seasonalLowNights} onChange={setSeasonalLowNights} step={10} label="Nuits basse saison" min={0} />
-                <NumberInputWithButtons value={seasonalCleaning} onChange={setSeasonalCleaning} step={500} label="Ménage/nuit (DH)" min={0} />
+                <NumberInputWithButtons id="seasonalHighRate" value={seasonalHighRate} onChange={setSeasonalHighRate} step={50} label="Tarif haute/nuit" min={50} />
+                <NumberInputWithButtons id="seasonalHighNights" value={seasonalHighNights} onChange={setSeasonalHighNights} step={10} label="Nuits haute saison" min={0} />
+                <NumberInputWithButtons id="seasonalLowRate" value={seasonalLowRate} onChange={setSeasonalLowRate} step={50} label="Tarif basse/nuit" min={50} />
+                <NumberInputWithButtons id="seasonalLowNights" value={seasonalLowNights} onChange={setSeasonalLowNights} step={10} label="Nuits basse saison" min={0} />
+                <NumberInputWithButtons id="seasonalCleaning" value={seasonalCleaning} onChange={setSeasonalCleaning} step={500} label="Ménage/nuit (DH)" min={0} />
               </div>
             )}
           </div>
