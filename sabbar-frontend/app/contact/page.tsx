@@ -1,4 +1,4 @@
-"'use client';
+'use client';
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -35,10 +35,9 @@ export default function ContactPage() {
     setError(null);
 
     try {
-      // Envoyer l'email via EmailJS
       await emailjs.send(
-        'service_yktzmd1', // Service ID
-        'template_b8rxmer', // Template ID
+        'service_yktzmd1',
+        'template_b8rxmer',
         {
           name: formData.name,
           email: formData.email,
@@ -49,13 +48,12 @@ export default function ContactPage() {
         }
       );
 
-      // Succès
       setSubmitted(true);
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
       
       setTimeout(() => setSubmitted(false), 5000);
     } catch (err) {
-      console.error('❌ Erreur:', err);
+      console.error('Erreur:', err);
       setError('Erreur lors de l\'envoi du message. Veuillez réessayer.');
     } finally {
       setLoading(false);
@@ -93,19 +91,27 @@ export default function ContactPage() {
     <div style={{ background: 'linear-gradient(to bottom, #0D1F3C, #050D1A)' }}>
       
       {/* Hero Section */}
-      <section className="relative py-32 px-4 overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10"
-          style={{
-            background: 'radial-gradient(circle, #C8A96E 0%, transparent 70%)',
-            filter: 'blur(40px)'
-          }}
-        />
+      <section style={{ position: 'relative', padding: '128px 16px', overflow: 'hidden' }}>
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          width: '384px',
+          height: '384px',
+          borderRadius: '50%',
+          opacity: 0.1,
+          background: 'radial-gradient(circle, #C8A96E 0%, transparent 70%)',
+          filter: 'blur(40px)'
+        }} />
         
-        <div className="relative max-w-6xl mx-auto text-center space-y-6">
+        <div style={{ position: 'relative', maxWidth: '72rem', margin: '0 auto', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <h1 
-            className="text-6xl md:text-7xl font-bold text-white mb-6"
             style={{
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontSize: '56px',
+              fontWeight: 'bold',
+              color: 'white',
+              marginBottom: '24px',
+              fontFamily: 'Cormorant Garamond, Georgia, serif',
               fontWeight: 300
             }}
           >
@@ -113,10 +119,12 @@ export default function ContactPage() {
           </h1>
           
           <p 
-            className="text-lg md:text-xl max-w-3xl mx-auto"
             style={{
+              fontSize: '20px',
+              maxWidth: '48rem',
+              margin: '0 auto',
               color: '#8A9BB0',
-              fontFamily: "'DM Sans', system-ui, sans-serif",
+              fontFamily: 'DM Sans, system-ui, sans-serif',
               fontWeight: 400
             }}
           >
@@ -125,46 +133,53 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Contact Info Cards - 4 Columns */}
-      <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Contact Info Cards */}
+      <section style={{ padding: '64px 16px' }}>
+        <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
             {contactInfo.map((info, idx) => (
               <div
                 key={idx}
-                className="group rounded-2xl p-8 transition-all duration-300 text-center cursor-pointer"
                 style={{
+                  borderRadius: '16px',
+                  padding: '32px',
+                  transition: 'all 0.3s duration',
+                  textAlign: 'center',
+                  cursor: 'pointer',
                   background: 'rgba(26, 40, 71, 0.4)',
                   border: '1px solid rgba(200, 169, 110, 0.2)',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(26, 40, 71, 0.6)';
-                  e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
-                  e.currentTarget.style.transform = 'translateY(-5px)';
+                  const el = e.currentTarget as HTMLDivElement;
+                  el.style.background = 'rgba(26, 40, 71, 0.6)';
+                  el.style.borderColor = 'rgba(200, 169, 110, 0.5)';
+                  el.style.transform = 'translateY(-5px)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(26, 40, 71, 0.4)';
-                  e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.2)';
-                  e.currentTarget.style.transform = 'translateY(0)';
+                  const el = e.currentTarget as HTMLDivElement;
+                  el.style.background = 'rgba(26, 40, 71, 0.4)';
+                  el.style.borderColor = 'rgba(200, 169, 110, 0.2)';
+                  el.style.transform = 'translateY(0)';
                 }}
               >
-                <div className="text-5xl mb-4">{info.icon}</div>
+                <div style={{ fontSize: '56px', marginBottom: '16px' }}>{info.icon}</div>
                 <h3 
-                  className="text-lg font-bold mb-2"
                   style={{
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    marginBottom: '8px',
                     color: '#F9F5EF',
-                    fontFamily: "'Cormorant Garamond', Georgia, serif",
-                    fontWeight: 400
+                    fontFamily: 'Cormorant Garamond, Georgia, serif'
                   }}
                 >
                   {info.title}
                 </h3>
                 <p 
-                  className="font-semibold mb-1"
                   style={{
+                    fontWeight: 500,
+                    marginBottom: '4px',
                     color: '#C8A96E',
-                    fontFamily: "'DM Sans', system-ui, sans-serif",
-                    fontWeight: 500
+                    fontFamily: 'DM Sans, system-ui, sans-serif'
                   }}
                 >
                   {info.value}
@@ -173,8 +188,7 @@ export default function ContactPage() {
                   style={{
                     color: '#8A9BB0',
                     fontSize: '14px',
-                    fontFamily: "'DM Sans', system-ui, sans-serif",
-                    fontWeight: 400
+                    fontFamily: 'DM Sans, system-ui, sans-serif'
                   }}
                 >
                   {info.subtext}
@@ -186,25 +200,31 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Section - Form + Map */}
-      <section className="py-24 px-4 relative">
-        <div className="absolute top-0 left-0 w-96 h-96 rounded-full opacity-5"
-          style={{
-            background: 'radial-gradient(circle, #C8A96E 0%, transparent 70%)',
-            filter: 'blur(40px)'
-          }}
-        />
+      <section style={{ padding: '96px 16px', position: 'relative' }}>
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '384px',
+          height: '384px',
+          borderRadius: '50%',
+          opacity: 0.05,
+          background: 'radial-gradient(circle, #C8A96E 0%, transparent 70%)',
+          filter: 'blur(40px)'
+        }} />
 
-        <div className="max-w-6xl mx-auto relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div style={{ maxWidth: '72rem', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', alignItems: 'center' }}>
             
             {/* Left - Form */}
             <div>
               <h2 
-                className="text-5xl font-bold mb-10"
                 style={{
+                  fontSize: '48px',
+                  fontWeight: 'bold',
+                  marginBottom: '40px',
                   color: '#F9F5EF',
-                  fontFamily: "'Cormorant Garamond', Georgia, serif",
-                  fontWeight: 300
+                  fontFamily: 'Cormorant Garamond, Georgia, serif'
                 }}
               >
                 Envoyez-nous<br />
@@ -213,17 +233,19 @@ export default function ContactPage() {
 
               {submitted && (
                 <div 
-                  className="mb-6 p-4 rounded-xl border-l-4"
                   style={{
-                    background: 'rgba(181, 87, 58, 0.1)',
-                    borderColor: '#B5573A'
+                    marginBottom: '24px',
+                    padding: '16px',
+                    borderRadius: '12px',
+                    borderLeft: '4px solid #B5573A',
+                    background: 'rgba(181, 87, 58, 0.1)'
                   }}
                 >
                   <p 
                     style={{
                       color: '#B5573A',
                       fontWeight: 600,
-                      fontFamily: "'DM Sans', system-ui, sans-serif"
+                      fontFamily: 'DM Sans, system-ui, sans-serif'
                     }}
                   >
                     ✅ Message envoyé avec succès ! Nous vous répondrons bientôt.
@@ -233,17 +255,19 @@ export default function ContactPage() {
 
               {error && (
                 <div 
-                  className="mb-6 p-4 rounded-xl border-l-4"
                   style={{
-                    background: 'rgba(220, 38, 38, 0.1)',
-                    borderColor: '#dc2626'
+                    marginBottom: '24px',
+                    padding: '16px',
+                    borderRadius: '12px',
+                    borderLeft: '4px solid #dc2626',
+                    background: 'rgba(220, 38, 38, 0.1)'
                   }}
                 >
                   <p 
                     style={{
                       color: '#dc2626',
                       fontWeight: 600,
-                      fontFamily: "'DM Sans', system-ui, sans-serif"
+                      fontFamily: 'DM Sans, system-ui, sans-serif'
                     }}
                   >
                     ❌ {error}
@@ -251,18 +275,19 @@ export default function ContactPage() {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 
                 {/* Nom */}
                 <div>
                   <label 
-                    className="block text-sm mb-3"
                     style={{
+                      display: 'block',
+                      fontSize: '11px',
+                      marginBottom: '12px',
                       color: '#E2C98A',
-                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontFamily: 'DM Sans, system-ui, sans-serif',
                       fontWeight: 500,
-                      textTransform: 'uppercase',
-                      fontSize: '11px'
+                      textTransform: 'uppercase'
                     }}
                   >
                     Nom complet <span style={{ color: '#B5573A' }}>*</span>
@@ -274,12 +299,16 @@ export default function ContactPage() {
                     onChange={handleChange}
                     placeholder="Votre nom"
                     required
-                    className="w-full px-5 py-3 rounded-lg text-white placeholder-opacity-50 focus:outline-none transition-all"
                     style={{
+                      width: '100%',
+                      padding: '12px 20px',
+                      borderRadius: '8px',
                       background: 'rgba(26, 40, 71, 0.5)',
                       border: '1px solid rgba(200, 169, 110, 0.2)',
                       color: '#F9F5EF',
-                      fontFamily: "'DM Sans', system-ui, sans-serif"
+                      fontFamily: 'DM Sans, system-ui, sans-serif',
+                      outline: 'none',
+                      transition: 'all 0.3s'
                     }}
                     onFocus={(e) => {
                       e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
@@ -295,13 +324,14 @@ export default function ContactPage() {
                 {/* Email */}
                 <div>
                   <label 
-                    className="block text-sm mb-3"
                     style={{
+                      display: 'block',
+                      fontSize: '11px',
+                      marginBottom: '12px',
                       color: '#E2C98A',
-                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontFamily: 'DM Sans, system-ui, sans-serif',
                       fontWeight: 500,
-                      textTransform: 'uppercase',
-                      fontSize: '11px'
+                      textTransform: 'uppercase'
                     }}
                   >
                     Email <span style={{ color: '#B5573A' }}>*</span>
@@ -313,12 +343,16 @@ export default function ContactPage() {
                     onChange={handleChange}
                     placeholder="votre@email.com"
                     required
-                    className="w-full px-5 py-3 rounded-lg text-white placeholder-opacity-50 focus:outline-none transition-all"
                     style={{
+                      width: '100%',
+                      padding: '12px 20px',
+                      borderRadius: '8px',
                       background: 'rgba(26, 40, 71, 0.5)',
                       border: '1px solid rgba(200, 169, 110, 0.2)',
                       color: '#F9F5EF',
-                      fontFamily: "'DM Sans', system-ui, sans-serif"
+                      fontFamily: 'DM Sans, system-ui, sans-serif',
+                      outline: 'none',
+                      transition: 'all 0.3s'
                     }}
                     onFocus={(e) => {
                       e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
@@ -334,13 +368,14 @@ export default function ContactPage() {
                 {/* Téléphone */}
                 <div>
                   <label 
-                    className="block text-sm mb-3"
                     style={{
+                      display: 'block',
+                      fontSize: '11px',
+                      marginBottom: '12px',
                       color: '#E2C98A',
-                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontFamily: 'DM Sans, system-ui, sans-serif',
                       fontWeight: 500,
-                      textTransform: 'uppercase',
-                      fontSize: '11px'
+                      textTransform: 'uppercase'
                     }}
                   >
                     Téléphone
@@ -351,12 +386,16 @@ export default function ContactPage() {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="+212 6 05 58 57 20"
-                    className="w-full px-5 py-3 rounded-lg text-white placeholder-opacity-50 focus:outline-none transition-all"
                     style={{
+                      width: '100%',
+                      padding: '12px 20px',
+                      borderRadius: '8px',
                       background: 'rgba(26, 40, 71, 0.5)',
                       border: '1px solid rgba(200, 169, 110, 0.2)',
                       color: '#F9F5EF',
-                      fontFamily: "'DM Sans', system-ui, sans-serif"
+                      fontFamily: 'DM Sans, system-ui, sans-serif',
+                      outline: 'none',
+                      transition: 'all 0.3s'
                     }}
                     onFocus={(e) => {
                       e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
@@ -372,13 +411,14 @@ export default function ContactPage() {
                 {/* Sujet */}
                 <div>
                   <label 
-                    className="block text-sm mb-3"
                     style={{
+                      display: 'block',
+                      fontSize: '11px',
+                      marginBottom: '12px',
                       color: '#E2C98A',
-                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontFamily: 'DM Sans, system-ui, sans-serif',
                       fontWeight: 500,
-                      textTransform: 'uppercase',
-                      fontSize: '11px'
+                      textTransform: 'uppercase'
                     }}
                   >
                     Sujet <span style={{ color: '#B5573A' }}>*</span>
@@ -388,12 +428,16 @@ export default function ContactPage() {
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="w-full px-5 py-3 rounded-lg text-white focus:outline-none transition-all"
                     style={{
+                      width: '100%',
+                      padding: '12px 20px',
+                      borderRadius: '8px',
                       background: 'rgba(26, 40, 71, 0.5)',
                       border: '1px solid rgba(200, 169, 110, 0.2)',
                       color: '#F9F5EF',
-                      fontFamily: "'DM Sans', system-ui, sans-serif"
+                      fontFamily: 'DM Sans, system-ui, sans-serif',
+                      outline: 'none',
+                      transition: 'all 0.3s'
                     }}
                     onFocus={(e) => {
                       e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
@@ -416,13 +460,14 @@ export default function ContactPage() {
                 {/* Message */}
                 <div>
                   <label 
-                    className="block text-sm mb-3"
                     style={{
+                      display: 'block',
+                      fontSize: '11px',
+                      marginBottom: '12px',
                       color: '#E2C98A',
-                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontFamily: 'DM Sans, system-ui, sans-serif',
                       fontWeight: 500,
-                      textTransform: 'uppercase',
-                      fontSize: '11px'
+                      textTransform: 'uppercase'
                     }}
                   >
                     Message <span style={{ color: '#B5573A' }}>*</span>
@@ -434,12 +479,17 @@ export default function ContactPage() {
                     placeholder="Décrivez votre demande..."
                     required
                     rows={6}
-                    className="w-full px-5 py-3 rounded-lg text-white placeholder-opacity-50 focus:outline-none transition-all resize-none"
                     style={{
+                      width: '100%',
+                      padding: '12px 20px',
+                      borderRadius: '8px',
                       background: 'rgba(26, 40, 71, 0.5)',
                       border: '1px solid rgba(200, 169, 110, 0.2)',
                       color: '#F9F5EF',
-                      fontFamily: "'DM Sans', system-ui, sans-serif"
+                      fontFamily: 'DM Sans, system-ui, sans-serif',
+                      outline: 'none',
+                      transition: 'all 0.3s',
+                      resize: 'none'
                     }}
                     onFocus={(e) => {
                       e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
@@ -456,13 +506,22 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 rounded-lg font-bold text-lg transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 flex items-center justify-center gap-2"
                   style={{
+                    width: '100%',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    fontWeight: 'bold',
+                    fontSize: '18px',
+                    transition: 'all 0.3s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
                     background: loading ? 'rgba(200, 169, 110, 0.5)' : 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)',
                     color: '#0D1F3C',
-                    fontFamily: "'DM Sans', system-ui, sans-serif",
-                    fontWeight: 500,
-                    cursor: loading ? 'not-allowed' : 'pointer'
+                    fontFamily: 'DM Sans, system-ui, sans-serif',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    border: 'none'
                   }}
                   onMouseEnter={(e) => {
                     if (!loading) {
@@ -475,7 +534,14 @@ export default function ContactPage() {
                 >
                   {loading ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2" style={{ borderColor: '#0D1F3C' }}></div>
+                      <div style={{
+                        animation: 'spin 1s linear infinite',
+                        borderRadius: '50%',
+                        height: '20px',
+                        width: '20px',
+                        borderTop: '2px solid #0D1F3C',
+                        borderRight: '2px solid transparent'
+                      }} />
                       <span>Envoi en cours...</span>
                     </>
                   ) : (
@@ -489,13 +555,16 @@ export default function ContactPage() {
             </div>
 
             {/* Right - Map + Info */}
-            <div className="space-y-8">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
               {/* Map Container */}
               <div 
-                className="rounded-3xl overflow-hidden h-96 shadow-2xl"
                 style={{
+                  borderRadius: '24px',
+                  overflow: 'hidden',
+                  height: '384px',
                   border: '2px solid rgba(200, 169, 110, 0.2)',
-                  background: 'rgba(26, 40, 71, 0.3)'
+                  background: 'rgba(26, 40, 71, 0.3)',
+                  boxShadow: '0 20px 25px rgba(0, 0, 0, 0.3)'
                 }}
               >
                 <iframe
@@ -503,40 +572,44 @@ export default function ContactPage() {
                   height="100%"
                   frameBorder="0"
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3324.7597313219144!2d-7.589323!3d33.573110!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xda7d2d8e8d8d8d8d%3A0x8d8d8d8d8d8d8d8d!2sCasablanca%2C%20Morocco!5e0!3m2!1sen!2s!4v1234567890"
-                  allowFullScreen
+                  allowFullScreen={true}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  className="w-full h-full"
+                  style={{ width: '100%', height: '100%' }}
                 ></iframe>
               </div>
 
               {/* Info Box */}
               <div 
-                className="rounded-3xl p-8 space-y-6"
                 style={{
+                  borderRadius: '24px',
+                  padding: '32px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '24px',
                   background: 'linear-gradient(135deg, rgba(26, 40, 71, 0.6), rgba(26, 40, 71, 0.4))',
                   border: '1px solid rgba(200, 169, 110, 0.2)',
                   backdropFilter: 'blur(10px)'
                 }}
               >
                 <h3 
-                  className="text-2xl font-bold"
                   style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
                     color: '#F9F5EF',
-                    fontFamily: "'Cormorant Garamond', Georgia, serif",
-                    fontWeight: 400
+                    fontFamily: 'Cormorant Garamond, Georgia, serif'
                   }}
                 >
                   Informations<br />
                   <span style={{ color: '#C8A96E' }}>Supplémentaires</span>
                 </h3>
 
-                <div className="space-y-5">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   <div>
                     <p 
                       style={{
                         color: '#F9F5EF',
-                        fontFamily: "'DM Sans', system-ui, sans-serif",
+                        fontFamily: 'DM Sans, system-ui, sans-serif',
                         fontWeight: 500,
                         marginBottom: '6px'
                       }}
@@ -546,8 +619,7 @@ export default function ContactPage() {
                     <p 
                       style={{
                         color: '#8A9BB0',
-                        fontFamily: "'DM Sans', system-ui, sans-serif",
-                        fontWeight: 400
+                        fontFamily: 'DM Sans, system-ui, sans-serif'
                       }}
                     >
                       Lundi au vendredi de 09h00 à 18h00
@@ -558,7 +630,7 @@ export default function ContactPage() {
                     <p 
                       style={{
                         color: '#F9F5EF',
-                        fontFamily: "'DM Sans', system-ui, sans-serif",
+                        fontFamily: 'DM Sans, system-ui, sans-serif',
                         fontWeight: 500,
                         marginBottom: '6px'
                       }}
@@ -571,7 +643,7 @@ export default function ContactPage() {
                       rel="noopener noreferrer"
                       style={{
                         color: '#C8A96E',
-                        fontFamily: "'DM Sans', system-ui, sans-serif",
+                        fontFamily: 'DM Sans, system-ui, sans-serif',
                         fontWeight: 500,
                         textDecoration: 'none',
                         cursor: 'pointer'
@@ -591,7 +663,7 @@ export default function ContactPage() {
                     <p 
                       style={{
                         color: '#F9F5EF',
-                        fontFamily: "'DM Sans', system-ui, sans-serif",
+                        fontFamily: 'DM Sans, system-ui, sans-serif',
                         fontWeight: 500,
                         marginBottom: '6px'
                       }}
@@ -601,8 +673,7 @@ export default function ContactPage() {
                     <p 
                       style={{
                         color: '#8A9BB0',
-                        fontFamily: "'DM Sans', system-ui, sans-serif",
-                        fontWeight: 400
+                        fontFamily: 'DM Sans, system-ui, sans-serif'
                       }}
                     >
                       Sur rendez-vous uniquement (contactez-nous à l'avance)
@@ -616,15 +687,15 @@ export default function ContactPage() {
       </section>
 
       <style>{`
-        input::placeholder, textarea::placeholder, select {
-          color: rgba(138, 155, 176, 0.6) !important;
-        }
-
-        option {
-          background: #0D1F3C;
-          color: #F9F5EF;
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
         }
       `}</style>
     </div>
   );
-}"
+}
