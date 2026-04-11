@@ -108,102 +108,109 @@ const CalculateurROI = () => {
   const activeData = getActiveStrategyData();
   const ActiveIcon = activeData.icon;
 
-  const NumberInputWithButtons = ({ value, onChange, step, label, min = 0, unit = '' }: any) => (
-    <div style={{ marginBottom: '16px' }}>
-      <label style={{ color: '#C8A96E', letterSpacing: '0.8px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', fontSize: '11px', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>
-        {label}
-      </label>
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-        <button
-          onClick={() => onChange(Math.max(min, value - step))}
-          style={{ 
-            backgroundColor: '#C8A96E15', 
-            color: '#C8A96E', 
-            border: '1px solid #C8A96E35',
-            cursor: 'pointer',
-            width: '40px',
-            height: '40px',
-            fontSize: '18px',
-            borderRadius: '6px',
-            padding: '0',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all 0.2s',
-            flexShrink: 0
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#C8A96E25';
-            e.currentTarget.style.borderColor = '#C8A96E50';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#C8A96E15';
-            e.currentTarget.style.borderColor = '#C8A96E35';
-          }}
-        >
-          <Minus size={16} strokeWidth={3} />
-        </button>
-        
-        <input
-          type="number"
-          value={value}
-          onChange={(e) => onChange(Math.max(min, Number(e.target.value)))}
-          style={{
-            flex: 1,
-            padding: '10px 16px',
-            borderRadius: '6px',
-            textAlign: 'center',
-            fontSize: '14px',
-            backgroundColor: '#0D1F3C30',
-            color: '#F9F5EF',
-            border: '1px solid #C8A96E35',
-            fontFamily: "'DM Sans', sans-serif",
-            fontWeight: '400',
-            outline: 'none',
-            transition: 'all 0.2s'
-          }}
-          onFocus={(e) => {
-            e.currentTarget.style.borderColor = '#C8A96E60';
-            e.currentTarget.style.backgroundColor = '#0D1F3C50';
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.borderColor = '#C8A96E35';
-            e.currentTarget.style.backgroundColor = '#0D1F3C30';
-          }}
-        />
-        
-        <button
-          onClick={() => onChange(value + step)}
-          style={{ 
-            backgroundColor: '#C8A96E15', 
-            color: '#C8A96E', 
-            border: '1px solid #C8A96E35',
-            cursor: 'pointer',
-            width: '40px',
-            height: '40px',
-            fontSize: '18px',
-            borderRadius: '6px',
-            padding: '0',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all 0.2s',
-            flexShrink: 0
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#C8A96E25';
-            e.currentTarget.style.borderColor = '#C8A96E50';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#C8A96E15';
-            e.currentTarget.style.borderColor = '#C8A96E35';
-          }}
-        >
-          <Plus size={16} strokeWidth={3} />
-        </button>
+  const NumberInputWithButtons = ({ value, onChange, step, label, min = 0 }: any) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newVal = e.target.value === '' ? min : Math.max(min, Number(e.target.value) || 0);
+      onChange(newVal);
+    };
+
+    return (
+      <div style={{ marginBottom: '16px' }}>
+        <label style={{ color: '#C8A96E', letterSpacing: '0.8px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', fontSize: '11px', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>
+          {label}
+        </label>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <button
+            onClick={() => onChange(Math.max(min, value - step))}
+            style={{ 
+              backgroundColor: '#C8A96E15', 
+              color: '#C8A96E', 
+              border: '1px solid #C8A96E35',
+              cursor: 'pointer',
+              width: '40px',
+              height: '40px',
+              fontSize: '18px',
+              borderRadius: '6px',
+              padding: '0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s',
+              flexShrink: 0
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#C8A96E25';
+              e.currentTarget.style.borderColor = '#C8A96E50';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#C8A96E15';
+              e.currentTarget.style.borderColor = '#C8A96E35';
+            }}
+          >
+            <Minus size={16} strokeWidth={3} />
+          </button>
+          
+          <input
+            type="number"
+            value={value}
+            onChange={handleChange}
+            style={{
+              flex: 1,
+              padding: '10px 16px',
+              borderRadius: '6px',
+              textAlign: 'center',
+              fontSize: '14px',
+              backgroundColor: '#0D1F3C30',
+              color: '#F9F5EF',
+              border: '1px solid #C8A96E35',
+              fontFamily: "'DM Sans', sans-serif",
+              fontWeight: '400',
+              outline: 'none',
+              transition: 'all 0.2s'
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#C8A96E60';
+              e.currentTarget.style.backgroundColor = '#0D1F3C50';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#C8A96E35';
+              e.currentTarget.style.backgroundColor = '#0D1F3C30';
+            }}
+          />
+          
+          <button
+            onClick={() => onChange(value + step)}
+            style={{ 
+              backgroundColor: '#C8A96E15', 
+              color: '#C8A96E', 
+              border: '1px solid #C8A96E35',
+              cursor: 'pointer',
+              width: '40px',
+              height: '40px',
+              fontSize: '18px',
+              borderRadius: '6px',
+              padding: '0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s',
+              flexShrink: 0
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#C8A96E25';
+              e.currentTarget.style.borderColor = '#C8A96E50';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#C8A96E15';
+              e.currentTarget.style.borderColor = '#C8A96E35';
+            }}
+          >
+            <Plus size={16} strokeWidth={3} />
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0D1F3C', color: '#F9F5EF' }}>
