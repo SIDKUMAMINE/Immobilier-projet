@@ -1,8 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 
 export default function ContactPage() {
@@ -17,7 +16,6 @@ export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialiser EmailJS
   useEffect(() => {
     emailjs.init('hTTnBv9DSUcGkL6Bl');
   }, []);
@@ -104,15 +102,14 @@ export default function ContactPage() {
           filter: 'blur(40px)'
         }} />
         
-        <div style={{ position: 'relative', maxWidth: '72rem', margin: '0 auto', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ position: 'relative', maxWidth: '72rem', margin: '0 auto', textAlign: 'center' }}>
           <h1 
             style={{
               fontSize: '56px',
               fontWeight: 'bold',
               color: 'white',
               marginBottom: '24px',
-              fontFamily: 'Cormorant Garamond, Georgia, serif',
-              fontWeight: 300
+              fontFamily: 'Cormorant Garamond, Georgia, serif'
             }}
           >
             Nous <span style={{ color: '#C8A96E' }}>Contacter</span>
@@ -124,8 +121,7 @@ export default function ContactPage() {
               maxWidth: '48rem',
               margin: '0 auto',
               color: '#8A9BB0',
-              fontFamily: 'DM Sans, system-ui, sans-serif',
-              fontWeight: 400
+              fontFamily: 'DM Sans, system-ui, sans-serif'
             }}
           >
             Une question ? Une demande spéciale ? Notre équipe LANDMARK ESTATE est là pour vous accompagner dans votre projet immobilier.
@@ -143,7 +139,7 @@ export default function ContactPage() {
                 style={{
                   borderRadius: '16px',
                   padding: '32px',
-                  transition: 'all 0.3s duration',
+                  transition: 'all 0.3s',
                   textAlign: 'center',
                   cursor: 'pointer',
                   background: 'rgba(26, 40, 71, 0.4)',
@@ -214,7 +210,7 @@ export default function ContactPage() {
         }} />
 
         <div style={{ maxWidth: '72rem', margin: '0 auto', position: 'relative', zIndex: 10 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', alignItems: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', alignItems: 'start' }}>
             
             {/* Left - Form */}
             <div>
@@ -308,7 +304,8 @@ export default function ContactPage() {
                       color: '#F9F5EF',
                       fontFamily: 'DM Sans, system-ui, sans-serif',
                       outline: 'none',
-                      transition: 'all 0.3s'
+                      transition: 'all 0.3s',
+                      boxSizing: 'border-box'
                     }}
                     onFocus={(e) => {
                       e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
@@ -352,7 +349,8 @@ export default function ContactPage() {
                       color: '#F9F5EF',
                       fontFamily: 'DM Sans, system-ui, sans-serif',
                       outline: 'none',
-                      transition: 'all 0.3s'
+                      transition: 'all 0.3s',
+                      boxSizing: 'border-box'
                     }}
                     onFocus={(e) => {
                       e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
@@ -395,7 +393,8 @@ export default function ContactPage() {
                       color: '#F9F5EF',
                       fontFamily: 'DM Sans, system-ui, sans-serif',
                       outline: 'none',
-                      transition: 'all 0.3s'
+                      transition: 'all 0.3s',
+                      boxSizing: 'border-box'
                     }}
                     onFocus={(e) => {
                       e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
@@ -437,7 +436,8 @@ export default function ContactPage() {
                       color: '#F9F5EF',
                       fontFamily: 'DM Sans, system-ui, sans-serif',
                       outline: 'none',
-                      transition: 'all 0.3s'
+                      transition: 'all 0.3s',
+                      boxSizing: 'border-box'
                     }}
                     onFocus={(e) => {
                       e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
@@ -489,7 +489,8 @@ export default function ContactPage() {
                       fontFamily: 'DM Sans, system-ui, sans-serif',
                       outline: 'none',
                       transition: 'all 0.3s',
-                      resize: 'none'
+                      resize: 'none',
+                      boxSizing: 'border-box'
                     }}
                     onFocus={(e) => {
                       e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.5)';
@@ -521,15 +522,18 @@ export default function ContactPage() {
                     color: '#0D1F3C',
                     fontFamily: 'DM Sans, system-ui, sans-serif',
                     cursor: loading ? 'not-allowed' : 'pointer',
-                    border: 'none'
+                    border: 'none',
+                    boxSizing: 'border-box'
                   }}
                   onMouseEnter={(e) => {
                     if (!loading) {
                       e.currentTarget.style.boxShadow = '0 20px 40px rgba(200, 169, 110, 0.3)';
+                      e.currentTarget.style.transform = 'scale(1.02)';
                     }
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.boxShadow = 'none';
+                    e.currentTarget.style.transform = 'scale(1)';
                   }}
                 >
                   {loading ? (
@@ -570,7 +574,7 @@ export default function ContactPage() {
                 <iframe
                   width="100%"
                   height="100%"
-                  frameBorder="0"
+                  frameBorder={0}
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3324.7597313219144!2d-7.589323!3d33.573110!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xda7d2d8e8d8d8d8d%3A0x8d8d8d8d8d8d8d8d!2sCasablanca%2C%20Morocco!5e0!3m2!1sen!2s!4v1234567890"
                   allowFullScreen={true}
                   loading="lazy"
@@ -693,6 +697,22 @@ export default function ContactPage() {
           }
           to {
             transform: rotate(360deg);
+          }
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+          color: rgba(138, 155, 176, 0.6) !important;
+        }
+
+        option {
+          background: #0D1F3C;
+          color: #F9F5EF;
+        }
+
+        @media (max-width: 1024px) {
+          [style*="display: grid"][style*="1fr 1fr"] {
+            grid-template-columns: 1fr !important;
           }
         }
       `}</style>
