@@ -284,7 +284,7 @@ export default function PublicNavbarClient() {
               Blog
             </Link>
 
-            {/* 💰 Calculateur ROI - NOUVEAU */}
+            {/*  Calculateur ROI - NOUVEAU */}
             <Link
               href="/calculateur-roi"
               className="px-4 py-2 transition-colors rounded-lg flex items-center gap-1.5"
@@ -307,7 +307,7 @@ export default function PublicNavbarClient() {
                 e.currentTarget.style.boxShadow = 'none';
               }}
             >
-              <span>💰</span>
+             
               ROI
             </Link>
 
