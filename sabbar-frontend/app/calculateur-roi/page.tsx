@@ -33,9 +33,6 @@ const CalculateurROI = () => {
   
   const [activeStrategy, setActiveStrategy] = useState('longterm');
 
-  // Refs pour garder le focus
-  const inputRefs = useRef<{[key: string]: HTMLInputElement | null}>({});
-
   const loanAmount = useLoan ? (purchasePrice - downPayment) : 0;
   const monthlyRate = loanRate / 100 / 12;
   const numPayments = loanYears * 12;
@@ -49,20 +46,11 @@ const CalculateurROI = () => {
     const beforeTax = gross - charges;
     const taxes = Math.max(0, beforeTax * (taxRate / 100));
     const net = beforeTax - taxes;
-    
     const annualMortgage = useLoan && loanRate > 0 ? monthlyPayment * 12 : 0;
     const cashFlow = net - annualMortgage;
-    
     const investmentBase = useLoan && downPayment > 0 ? downPayment : purchasePrice;
-    
     return {
-      gross,
-      charges,
-      beforeTax,
-      taxes,
-      net,
-      annualMortgage,
-      cashFlow,
+      gross, charges, beforeTax, taxes, net, annualMortgage, cashFlow,
       grossYield: (gross / purchasePrice) * 100,
       netYield: (net / purchasePrice) * 100,
       cashOnCash: investmentBase > 0 ? (cashFlow / investmentBase) * 100 : 0,
@@ -84,36 +72,65 @@ const CalculateurROI = () => {
 
   const getActiveStrategyData = () => {
     switch(activeStrategy) {
-      case 'airbnb':
-        return { 
-          result: airbnbResult, 
-          color: '#C8A96E', 
-          icon: Plane, 
-          title: 'Airbnb / Meublée',
-        };
-      case 'seasonal':
-        return { 
-          result: seasonalResult, 
-          color: '#B5573A', 
-          icon: Waves, 
-          title: 'Location Saisonnière',
-        };
-      default:
-        return { 
-          result: longTermResult, 
-          color: '#C8A96E', 
-          icon: Home, 
-          title: 'Location Longue Durée',
-        };
+      case 'airbnb': return { result: airbnbResult, color: '#C8A96E', icon: Plane, title: 'Airbnb / Meublée' };
+      case 'seasonal': return { result: seasonalResult, color: '#B5573A', icon: Waves, title: 'Location Saisonnière' };
+      default: return { result: longTermResult, color: '#C8A96E', icon: Home, title: 'Location Longue Durée' };
     }
   };
 
   const activeData = getActiveStrategyData();
   const ActiveIcon = activeData.icon;
 
+  // ✅ FIX PRINCIPAL: Composant avec état local string pour l'input
   const NumberInputWithButtons = ({ value, onChange, step, label, min = 0, id }: any) => {
+    // État local pour la valeur affichée (string) - permet de taper librement
+    const [localValue, setLocalValue] = useState<string>(String(value));
+    const [isFocused, setIsFocused] = useState(false);
+
+    // Sync si la valeur externe change (ex: boutons +/-)
+    // On utilise un ref pour savoir si c'est un changement externe
+    const prevValue = useRef(value);
+    if (!isFocused && prevValue.current !== value) {
+      prevValue.current = value;
+      setLocalValue(String(value));
+    }
+
+    const handleFocus = () => {
+      setIsFocused(true);
+      setLocalValue(String(value)); // Affiche la valeur actuelle sans formatage
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      onChange(Number(e.target.value) || min);
+      // Laisse l'utilisateur taper librement - pas de conversion immédiate
+      setLocalValue(e.target.value);
+    };
+
+    const handleBlur = () => {
+      setIsFocused(false);
+      // Seulement au blur on valide et met à jour la vraie valeur
+      const parsed = parseFloat(localValue);
+      if (!isNaN(parsed) && parsed >= min) {
+        onChange(parsed);
+        setLocalValue(String(parsed));
+        prevValue.current = parsed;
+      } else {
+        // Valeur invalide → revient à l'ancienne valeur
+        setLocalValue(String(value));
+      }
+    };
+
+    const handleMinus = () => {
+      const newVal = Math.max(min, value - step);
+      onChange(newVal);
+      if (!isFocused) setLocalValue(String(newVal));
+      prevValue.current = newVal;
+    };
+
+    const handlePlus = () => {
+      const newVal = value + step;
+      onChange(newVal);
+      if (!isFocused) setLocalValue(String(newVal));
+      prevValue.current = newVal;
     };
 
     return (
@@ -123,92 +140,42 @@ const CalculateurROI = () => {
         </label>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <button
-            onClick={() => onChange(Math.max(min, value - step))}
-            style={{ 
-              backgroundColor: '#C8A96E15', 
-              color: '#C8A96E', 
-              border: '1px solid #C8A96E35',
-              cursor: 'pointer',
-              width: '40px',
-              height: '40px',
-              fontSize: '18px',
-              borderRadius: '6px',
-              padding: '0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s',
-              flexShrink: 0
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#C8A96E25';
-              e.currentTarget.style.borderColor = '#C8A96E50';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#C8A96E15';
-              e.currentTarget.style.borderColor = '#C8A96E35';
-            }}
+            onClick={handleMinus}
+            style={{ backgroundColor: '#C8A96E15', color: '#C8A96E', border: '1px solid #C8A96E35', cursor: 'pointer', width: '40px', height: '40px', fontSize: '18px', borderRadius: '6px', padding: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', flexShrink: 0 }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#C8A96E25'; e.currentTarget.style.borderColor = '#C8A96E50'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#C8A96E15'; e.currentTarget.style.borderColor = '#C8A96E35'; }}
           >
             <Minus size={16} strokeWidth={3} />
           </button>
           
           <input
-            ref={(el) => {
-              if (el) inputRefs.current[id] = el;
-            }}
-            type="number"
-            value={value}
+            type="text"
+            inputMode="numeric"
+            value={localValue}
             onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             style={{
               flex: 1,
               padding: '10px 16px',
               borderRadius: '6px',
               textAlign: 'center',
               fontSize: '14px',
-              backgroundColor: '#0D1F3C30',
+              backgroundColor: isFocused ? '#0D1F3C50' : '#0D1F3C30',
               color: '#F9F5EF',
-              border: '1px solid #C8A96E35',
+              border: `1px solid ${isFocused ? '#C8A96E60' : '#C8A96E35'}`,
               fontFamily: "'DM Sans', sans-serif",
               fontWeight: '400',
               outline: 'none',
               transition: 'all 0.2s'
             }}
-            onFocus={(e) => {
-              e.currentTarget.style.borderColor = '#C8A96E60';
-              e.currentTarget.style.backgroundColor = '#0D1F3C50';
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.borderColor = '#C8A96E35';
-              e.currentTarget.style.backgroundColor = '#0D1F3C30';
-            }}
           />
           
           <button
-            onClick={() => onChange(value + step)}
-            style={{ 
-              backgroundColor: '#C8A96E15', 
-              color: '#C8A96E', 
-              border: '1px solid #C8A96E35',
-              cursor: 'pointer',
-              width: '40px',
-              height: '40px',
-              fontSize: '18px',
-              borderRadius: '6px',
-              padding: '0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s',
-              flexShrink: 0
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#C8A96E25';
-              e.currentTarget.style.borderColor = '#C8A96E50';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#C8A96E15';
-              e.currentTarget.style.borderColor = '#C8A96E35';
-            }}
+            onClick={handlePlus}
+            style={{ backgroundColor: '#C8A96E15', color: '#C8A96E', border: '1px solid #C8A96E35', cursor: 'pointer', width: '40px', height: '40px', fontSize: '18px', borderRadius: '6px', padding: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', flexShrink: 0 }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#C8A96E25'; e.currentTarget.style.borderColor = '#C8A96E50'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#C8A96E15'; e.currentTarget.style.borderColor = '#C8A96E35'; }}
           >
             <Plus size={16} strokeWidth={3} />
           </button>
@@ -243,36 +210,19 @@ const CalculateurROI = () => {
                 key={strategy.key}
                 onClick={() => setActiveStrategy(strategy.key)}
                 style={{
-                  padding: '16px',
-                  borderRadius: '10px',
+                  padding: '16px', borderRadius: '10px',
                   backgroundColor: activeStrategy === strategy.key ? 'rgba(200, 169, 110, 0.12)' : 'rgba(200, 169, 110, 0.05)',
                   border: activeStrategy === strategy.key ? `2px solid ${strategy.color}` : '1px solid #C8A96E25',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'all 0.3s',
+                  cursor: 'pointer', textAlign: 'left', transition: 'all 0.3s',
                 }}
-                onMouseEnter={(e) => {
-                  if (activeStrategy !== strategy.key) {
-                    e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.08)';
-                    e.currentTarget.style.borderColor = '#C8A96E40';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (activeStrategy !== strategy.key) {
-                    e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.05)';
-                    e.currentTarget.style.borderColor = '#C8A96E25';
-                  }
-                }}
+                onMouseEnter={(e) => { if (activeStrategy !== strategy.key) { e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.08)'; e.currentTarget.style.borderColor = '#C8A96E40'; } }}
+                onMouseLeave={(e) => { if (activeStrategy !== strategy.key) { e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.05)'; e.currentTarget.style.borderColor = '#C8A96E25'; } }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
                   <Icon size={18} style={{ color: strategy.color }} />
-                  <h3 style={{ fontSize: '13px', fontWeight: '500', color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif", margin: '0', textTransform: 'capitalize' }}>
-                    {strategy.title}
-                  </h3>
+                  <h3 style={{ fontSize: '13px', fontWeight: '500', color: '#F9F5EF', fontFamily: "'DM Sans', sans-serif", margin: '0', textTransform: 'capitalize' }}>{strategy.title}</h3>
                 </div>
-                <p style={{ color: '#E2C98A', fontSize: '11px', fontFamily: "'DM Sans', sans-serif", margin: '0', fontWeight: '400' }}>
-                  {strategy.desc}
-                </p>
+                <p style={{ color: '#E2C98A', fontSize: '11px', fontFamily: "'DM Sans', sans-serif", margin: '0', fontWeight: '400' }}>{strategy.desc}</p>
               </button>
             );
           })}
@@ -284,106 +234,36 @@ const CalculateurROI = () => {
         <div style={{ maxWidth: '100%', display: 'flex', flexDirection: 'column', gap: '32px' }}>
           {/* Acquisition Section */}
           <div>
-            <h3 style={{ fontSize: '11px', fontWeight: '500', textTransform: 'uppercase', marginBottom: '20px', color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px', margin: '0 0 20px 0' }}>
+            <h3 style={{ fontSize: '11px', fontWeight: '500', textTransform: 'uppercase', color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px', margin: '0 0 20px 0' }}>
               💰 Acquisition
             </h3>
-            
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px', marginBottom: '32px' }}>
-              <NumberInputWithButtons
-                id="purchasePrice"
-                value={purchasePrice}
-                onChange={setPurchasePrice}
-                step={50000}
-                label="Pnx d'achat"
-                min={50000}
-              />
-              <NumberInputWithButtons
-                id="acquisitionFees"
-                value={acquisitionFees}
-                onChange={setAcquisitionFees}
-                step={0.5}
-                label="Frais acquisition (%)"
-                min={0}
-              />
-              <NumberInputWithButtons
-                id="renovationCosts"
-                value={renovationCosts}
-                onChange={setRenovationCosts}
-                step={10000}
-                label="Travaux & ameublement"
-                min={0}
-              />
+              <NumberInputWithButtons id="purchasePrice" value={purchasePrice} onChange={setPurchasePrice} step={50000} label="Pnx d'achat" min={50000} />
+              <NumberInputWithButtons id="acquisitionFees" value={acquisitionFees} onChange={setAcquisitionFees} step={0.5} label="Frais acquisition (%)" min={0} />
+              <NumberInputWithButtons id="renovationCosts" value={renovationCosts} onChange={setRenovationCosts} step={10000} label="Travaux & ameublement" min={0} />
             </div>
 
             {/* Loan Toggle */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderRadius: '8px', backgroundColor: '#0D1F3C50', border: '1px solid #C8A96E25', marginBottom: '32px' }}>
               <div>
-                <span style={{ color: '#F9F5EF', fontSize: '13px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500' }}>
-                  🏦 Financement par crédit
-                </span>
-                <p style={{ color: '#C8A96E80', fontSize: '11px', fontFamily: "'DM Sans', sans-serif", margin: '4px 0 0 0' }}>
-                  Désactivez si vous achetez comptant
-                </p>
+                <span style={{ color: '#F9F5EF', fontSize: '13px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500' }}>🏦 Financement par crédit</span>
+                <p style={{ color: '#C8A96E80', fontSize: '11px', fontFamily: "'DM Sans', sans-serif", margin: '4px 0 0 0' }}>Désactivez si vous achetez comptant</p>
               </div>
               <button
                 onClick={() => setUseLoan(!useLoan)}
-                style={{
-                  position: 'relative',
-                  width: '50px',
-                  height: '28px',
-                  borderRadius: '14px',
-                  backgroundColor: useLoan ? '#C8A96E' : '#C8A96E40',
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s'
-                }}
+                style={{ position: 'relative', width: '50px', height: '28px', borderRadius: '14px', backgroundColor: useLoan ? '#C8A96E' : '#C8A96E40', border: 'none', cursor: 'pointer', transition: 'all 0.3s' }}
               >
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '3px',
-                    left: useLoan ? '24px' : '3px',
-                    width: '22px',
-                    height: '22px',
-                    backgroundColor: '#0D1F3C',
-                    borderRadius: '11px',
-                    transition: 'all 0.3s',
-                  }}
-                />
+                <div style={{ position: 'absolute', top: '3px', left: useLoan ? '24px' : '3px', width: '22px', height: '22px', backgroundColor: '#0D1F3C', borderRadius: '11px', transition: 'all 0.3s' }} />
               </button>
             </div>
 
-            {/* Loan Details */}
             {useLoan && (
               <div style={{ marginBottom: '32px' }}>
-                <h4 style={{ fontSize: '11px', fontWeight: '500', textTransform: 'uppercase', marginBottom: '20px', color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px', margin: '0 0 20px 0' }}>
-                  Crédit immobilier
-                </h4>
+                <h4 style={{ fontSize: '11px', fontWeight: '500', textTransform: 'uppercase', color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px', margin: '0 0 20px 0' }}>Crédit immobilier</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }}>
-                  <NumberInputWithButtons
-                    id="downPayment"
-                    value={downPayment}
-                    onChange={setDownPayment}
-                    step={50000}
-                    label="Apport personnel (%)"
-                    min={0}
-                  />
-                  <NumberInputWithButtons
-                    id="loanRate"
-                    value={loanRate}
-                    onChange={setLoanRate}
-                    step={0.1}
-                    label="Taux d'intérêt (%)"
-                    min={0}
-                  />
-                  <NumberInputWithButtons
-                    id="loanYears"
-                    value={loanYears}
-                    onChange={setLoanYears}
-                    step={1}
-                    label="Durée (ans)"
-                    min={1}
-                  />
+                  <NumberInputWithButtons id="downPayment" value={downPayment} onChange={setDownPayment} step={50000} label="Apport personnel (DH)" min={0} />
+                  <NumberInputWithButtons id="loanRate" value={loanRate} onChange={setLoanRate} step={0.1} label="Taux d'intérêt (%)" min={0} />
+                  <NumberInputWithButtons id="loanYears" value={loanYears} onChange={setLoanYears} step={1} label="Durée (ans)" min={1} />
                 </div>
               </div>
             )}
@@ -391,7 +271,7 @@ const CalculateurROI = () => {
 
           {/* Strategy Parameters */}
           <div>
-            <h3 style={{ fontSize: '11px', fontWeight: '500', textTransform: 'uppercase', marginBottom: '20px', color: activeData.color, fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '10px', margin: '0 0 20px 0' }}>
+            <h3 style={{ fontSize: '11px', fontWeight: '500', textTransform: 'uppercase', color: activeData.color, fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '10px', margin: '0 0 20px 0' }}>
               <ActiveIcon size={16} style={{ color: activeData.color }} /> {activeData.title}
             </h3>
 
@@ -429,30 +309,30 @@ const CalculateurROI = () => {
 
           {/* Results Section */}
           <div style={{ borderTop: '1px solid #C8A96E25', paddingTop: '32px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '32px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
               <div>
-                <p style={{ color: '#C8A96E', fontSize: '10px', marginBottom: '8px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 8px 0' }}>Investissement total</p>
+                <p style={{ color: '#C8A96E', fontSize: '10px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 8px 0' }}>Investissement total</p>
                 <p style={{ color: '#F9F5EF', fontWeight: 'bold', fontSize: '18px', fontFamily: "'DM Sans', sans-serif", margin: '0' }}>
                   {((purchasePrice + (purchasePrice * acquisitionFees / 100) + renovationCosts) / 1000000).toFixed(2)}M DH
                 </p>
                 <p style={{ color: '#C8A96E80', fontSize: '10px', fontFamily: "'DM Sans', sans-serif", margin: '4px 0 0 0' }}>achat comptant</p>
               </div>
               <div>
-                <p style={{ color: '#C8A96E', fontSize: '10px', marginBottom: '8px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 8px 0' }}>Rendement brut</p>
+                <p style={{ color: '#C8A96E', fontSize: '10px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 8px 0' }}>Rendement brut</p>
                 <p style={{ color: activeData.color, fontWeight: 'bold', fontSize: '18px', fontFamily: "'DM Sans', sans-serif", margin: '0' }}>
                   {activeData.result.grossYield.toFixed(1)} %
                 </p>
                 <p style={{ color: '#C8A96E80', fontSize: '10px', fontFamily: "'DM Sans', sans-serif", margin: '4px 0 0 0' }}>loyer / prix d'achat</p>
               </div>
               <div>
-                <p style={{ color: '#C8A96E', fontSize: '10px', marginBottom: '8px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 8px 0' }}>Cash-flow net</p>
+                <p style={{ color: '#C8A96E', fontSize: '10px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 8px 0' }}>Cash-flow net</p>
                 <p style={{ color: activeData.color, fontWeight: 'bold', fontSize: '18px', fontFamily: "'DM Sans', sans-serif", margin: '0' }}>
                   {(activeData.result.cashFlow / 12).toFixed(0)} DH/mois
                 </p>
                 <p style={{ color: '#C8A96E80', fontSize: '10px', fontFamily: "'DM Sans', sans-serif", margin: '4px 0 0 0' }}>après crédit & charges</p>
               </div>
               <div>
-                <p style={{ color: '#C8A96E', fontSize: '10px', marginBottom: '8px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 8px 0' }}>ROI net / an</p>
+                <p style={{ color: '#C8A96E', fontSize: '10px', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 8px 0' }}>ROI net / an</p>
                 <p style={{ color: activeData.color, fontWeight: 'bold', fontSize: '18px', fontFamily: "'DM Sans', sans-serif", margin: '0' }}>
                   {activeData.result.cashOnCash.toFixed(1)} %
                 </p>
