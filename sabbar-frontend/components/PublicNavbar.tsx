@@ -10,7 +10,6 @@ export default function PublicNavbarClient() {
   const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   
-  // ✅ Cacher complètement la navbar sur les pages admin
   const isAdminPage = pathname?.startsWith('/dashboard');
 
   if (isAdminPage) {
@@ -27,7 +26,7 @@ export default function PublicNavbarClient() {
     >
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-20">
-          {/* Logo avec texte */}
+          {/* Logo */}
           <Link
             href="/"
             className="flex items-center gap-3 font-bold transition-colors hover:text-[#C8A96E]"
@@ -44,6 +43,7 @@ export default function PublicNavbarClient() {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-2">
+
             {/* Accueil */}
             <Link
               href="/"
@@ -284,30 +284,25 @@ export default function PublicNavbarClient() {
               Blog
             </Link>
 
-            {/*  Calculateur ROI - NOUVEAU */}
+            {/* ROI - sans cadre, style normal */}
             <Link
               href="/calculateur-roi"
-              className="px-4 py-2 transition-colors rounded-lg flex items-center gap-1.5"
+              className="px-4 py-2 transition-colors rounded-lg"
               style={{
                 fontFamily: "'DM Sans', system-ui, sans-serif",
-                fontSize: '13px',
-                fontWeight: 600,
-                color: '#C8A96E',
-                backgroundColor: 'rgba(200, 169, 110, 0.15)',
-                border: '1px solid rgba(200, 169, 110, 0.3)',
+                fontSize: '14px',
+                fontWeight: 500,
+                color: '#E2C98A',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#F9F5EF';
-                e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.25)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(200, 169, 110, 0.2)';
+                e.currentTarget.style.color = '#C8A96E';
+                e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#C8A96E';
-                e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.15)';
-                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.color = '#E2C98A';
+                e.currentTarget.style.backgroundColor = 'transparent';
               }}
             >
-             
               ROI
             </Link>
 
@@ -359,7 +354,7 @@ export default function PublicNavbarClient() {
             Contactez-nous
           </Link>
 
-          {/* Mobile Hamburger - Hidden on desktop */}
+          {/* Mobile Hamburger */}
           <button
             className="md:hidden p-2 rounded-lg"
             style={{
