@@ -643,7 +643,7 @@ export default function CommercializationPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/contact"
+             href="/services/commercialisation/contact"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold transition-all duration-300"
               style={{
                 background: 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)',
