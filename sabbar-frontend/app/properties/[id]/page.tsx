@@ -7,15 +7,10 @@ import { ArrowLeft, MapPin, Heart, Phone, Mail, Share2, ChevronLeft, ChevronRigh
 import { propertiesApi } from '@/lib/api';
 
 const transactionTypeMap: { [key: string]: string } = {
-  // Vente
   'sale': 'Vente',
   'vente': 'Vente',
-  
-  // Location
   'rent': 'Location',
   'location': 'Location',
-  
-  // Location Vacances
   'vacation_rental': 'Location vacances',
   'vacation rental': 'Location vacances',
   'vacation': 'Location vacances',
@@ -48,6 +43,16 @@ const getPropertyTypeLabel = (type: string): string => {
   return propertyTypeMap[type.toLowerCase()] || type;
 };
 
+// LANDMARK color palette
+const COLORS = {
+  navy: '#0D1F3C',
+  navyLight: '#162D4F',
+  gold: '#C8A96E',
+  goldLight: '#E2C98A',
+  terracotta: '#B5573A',
+  ivory: '#F9F5EF',
+};
+
 export default function PropertyDetailPage() {
   const params = useParams();
   const propertyId = params.id as string;
@@ -60,7 +65,6 @@ export default function PropertyDetailPage() {
   const [shareSuccess, setShareSuccess] = useState(false);
   const touchStartRef = useRef<number>(0);
 
-  // Load favorites from localStorage
   useEffect(() => {
     const savedFavorites = localStorage.getItem('sabbar_favorites');
     const favs = savedFavorites ? JSON.parse(savedFavorites) : [];
@@ -68,29 +72,14 @@ export default function PropertyDetailPage() {
     setIsFavorite(favs.includes(parseInt(propertyId)));
   }, [propertyId]);
 
-  // Fetch property from API
   useEffect(() => {
     const fetchProperty = async () => {
       try {
         setLoading(true);
         setError(null);
-        console.log('📡 Fetching property from API...', propertyId);
-        
-        const response = await propertiesApi.getProperties({
-          limit: 100,
-          offset: 0
-        });
-        
-        console.log('✅ Properties loaded:', response);
-        console.log('📊 Total properties:', Array.isArray(response) ? response.length : 0);
-        
+        const response = await propertiesApi.getProperties({ limit: 100, offset: 0 });
         const foundProperty = response?.find((p: any) => String(p.id) === String(propertyId));
-        
         if (foundProperty) {
-          console.log('🏠 Property found:', foundProperty);
-          console.log('🎬 Video URL (video_url):', foundProperty.video_url);
-          console.log('🎬 Video URL (videoUrl):', foundProperty.videoUrl);
-          console.log('🎬 All keys in property:', Object.keys(foundProperty));
           setProperty(foundProperty);
         } else {
           setError('Propriété non trouvée');
@@ -98,72 +87,40 @@ export default function PropertyDetailPage() {
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Erreur lors du chargement';
-        console.error('❌ Erreur:', message);
         setError(message);
         setProperty(null);
       } finally {
         setLoading(false);
       }
     };
-
     fetchProperty();
   }, [propertyId]);
 
-  // Helper function to convert video URL to embed format
   const getEmbedUrl = (videoUrl: string): string | null => {
     if (!videoUrl) return null;
-    
-    // YouTube watch URL format
     if (videoUrl.includes('youtube.com/watch?v=')) {
       const videoId = videoUrl.split('v=')[1]?.split('&')[0];
       return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
     }
-    
-    // YouTube youtu.be short format
     if (videoUrl.includes('youtu.be/')) {
       const videoId = videoUrl.split('youtu.be/')[1]?.split('?')[0];
       return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
     }
-    
-    // Already embed format
-    if (videoUrl.includes('youtube.com/embed/')) {
-      return videoUrl;
-    }
-    
-    // Vimeo format
+    if (videoUrl.includes('youtube.com/embed/')) return videoUrl;
     if (videoUrl.includes('vimeo.com/')) {
       const videoId = videoUrl.split('vimeo.com/')[1]?.split('?')[0];
       return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
     }
-    
     return null;
   };
 
-  // Helper function to determine if URL is a direct video file (including Supabase)
   const isDirectVideoFile = (videoUrl: string): boolean => {
-    if (!videoUrl) {
-      console.log('❌ isDirectVideoFile: videoUrl est vide');
-      return false;
-    }
-    
-    console.log('🎬 Checking video URL:', videoUrl);
-    
-    // Check for direct video file extensions (this should catch .mp4)
+    if (!videoUrl) return false;
     const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.flv', '.m4v', '.3gp'];
     for (const ext of videoExtensions) {
-      if (videoUrl.toLowerCase().includes(ext)) {
-        console.log(`✅ Detected video extension: ${ext}`);
-        return true;
-      }
+      if (videoUrl.toLowerCase().includes(ext)) return true;
     }
-    
-    // Supabase Storage URLs - these are direct video files
-    if (videoUrl.includes('supabase.co') && (videoUrl.includes('/storage/') || videoUrl.includes('/object/'))) {
-      console.log('✅ Detected Supabase Storage URL');
-      return true;
-    }
-    
-    console.log('❌ Not detected as direct video file');
+    if (videoUrl.includes('supabase.co') && (videoUrl.includes('/storage/') || videoUrl.includes('/object/'))) return true;
     return false;
   };
 
@@ -171,52 +128,37 @@ export default function PropertyDetailPage() {
     const newFavorites = favorites.includes(parseInt(propertyId))
       ? favorites.filter(id => id !== parseInt(propertyId))
       : [...favorites, parseInt(propertyId)];
-    
     setFavorites(newFavorites);
     setIsFavorite(!isFavorite);
     localStorage.setItem('sabbar_favorites', JSON.stringify(newFavorites));
   };
 
-  // ✅ NOUVELLE FONCTION: Gestion du partage
   const handleShare = async () => {
     const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
     const shareTitle = property.title;
     const shareText = `Découvrez cette propriété: ${property.title} - ${property.price.toLocaleString('fr-FR')} MAD`;
 
-    // Vérifier si Web Share API est disponible (Android, iOS, certains navigateurs)
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: shareTitle,
-          text: shareText,
-          url: shareUrl,
-        });
-        console.log('✅ Contenu partagé avec succès');
+        await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
         setShareSuccess(true);
         setTimeout(() => setShareSuccess(false), 3000);
       } catch (error) {
         if ((error as Error).name !== 'AbortError') {
-          console.error('❌ Erreur lors du partage:', error);
-          // Fallback en cas d'erreur
           copyToClipboard(shareUrl);
         }
       }
     } else {
-      // Fallback pour les navigateurs qui ne supportent pas Web Share API
       copyToClipboard(shareUrl);
     }
   };
 
-  // ✅ Fonction utilitaire pour copier dans le presse-papiers
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
       setShareSuccess(true);
-      console.log('✅ Lien copié dans le presse-papiers');
       setTimeout(() => setShareSuccess(false), 3000);
     } catch (error) {
-      console.error('❌ Erreur lors de la copie:', error);
-      // Fallback pour les anciens navigateurs
       const textArea = document.createElement('textarea');
       textArea.value = text;
       document.body.appendChild(textArea);
@@ -226,7 +168,7 @@ export default function PropertyDetailPage() {
         setShareSuccess(true);
         setTimeout(() => setShareSuccess(false), 3000);
       } catch (err) {
-        console.error('❌ Impossible de copier le lien:', err);
+        console.error('Impossible de copier le lien:', err);
       }
       document.body.removeChild(textArea);
     }
@@ -234,18 +176,18 @@ export default function PropertyDetailPage() {
 
   if (loading) {
     return (
-      <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
-        <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
-          <div className="max-w-[1400px] mx-auto">
-            <Link href="/properties" className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#f4d03f] transition-colors">
+      <main style={{ background: `linear-gradient(to bottom, ${COLORS.navy}, #0f1a2e)`, minHeight: '100vh' }}>
+        <div style={{ backgroundColor: COLORS.navyLight, padding: '16px 5%', borderBottom: `1px solid rgba(200,169,110,0.2)` }}>
+          <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+            <Link href="/properties" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: COLORS.gold, fontFamily: "'DM Sans', sans-serif" }}>
               <ArrowLeft size={20} />
               <span>Retour aux propriétés</span>
             </Link>
           </div>
         </div>
-        <div className="py-12 px-[5%]">
-          <div className="max-w-[1400px] mx-auto">
-            <p className="text-[#b0b0b0] text-lg">⏳ Chargement de la propriété...</p>
+        <div style={{ padding: '48px 5%' }}>
+          <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+            <p style={{ color: COLORS.goldLight, fontFamily: "'DM Sans', sans-serif" }}>⏳ Chargement de la propriété...</p>
           </div>
         </div>
       </main>
@@ -254,18 +196,18 @@ export default function PropertyDetailPage() {
 
   if (error || !property) {
     return (
-      <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
-        <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
-          <div className="max-w-[1400px] mx-auto">
-            <Link href="/properties" className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#f4d03f] transition-colors">
+      <main style={{ background: `linear-gradient(to bottom, ${COLORS.navy}, #0f1a2e)`, minHeight: '100vh' }}>
+        <div style={{ backgroundColor: COLORS.navyLight, padding: '16px 5%', borderBottom: `1px solid rgba(200,169,110,0.2)` }}>
+          <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+            <Link href="/properties" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: COLORS.gold, fontFamily: "'DM Sans', sans-serif" }}>
               <ArrowLeft size={20} />
               <span>Retour aux propriétés</span>
             </Link>
           </div>
         </div>
-        <div className="py-12 px-[5%]">
-          <div className="max-w-[1400px] mx-auto">
-            <div className="bg-[rgba(220,38,38,0.1)] border border-[rgba(220,38,38,0.3)] text-[#fca5a5] px-6 py-4 rounded-lg">
+        <div style={{ padding: '48px 5%' }}>
+          <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+            <div style={{ backgroundColor: 'rgba(181,87,58,0.15)', border: `1px solid rgba(181,87,58,0.4)`, color: '#fca5a5', padding: '16px 24px', borderRadius: 12, fontFamily: "'DM Sans', sans-serif" }}>
               ❌ {error || 'Propriété non trouvée'}
             </div>
           </div>
@@ -274,39 +216,9 @@ export default function PropertyDetailPage() {
     );
   }
 
-  // ✅ Définir les images et vidéo EN HAUT avant le return JSX
   const images = property.images && property.images.length > 0 ? property.images : [property.image || '/placeholder.jpg'];
+  const videoUrl = property?.video_url || property?.videoUrl || property?.video || property?.video_URL || property?.Video || property?.VIDEO || property?.video_path || property?.videoPath || null;
 
-  // ✅ IMPORTANT: Chercher la vidéo dans TOUS les champs possibles
-  const videoUrl = property?.video_url 
-    || property?.videoUrl 
-    || property?.video 
-    || property?.video_URL
-    || property?.Video
-    || property?.VIDEO
-    || property?.video_path
-    || property?.videoPath
-    || null;
-
-  console.log('🎯 FINAL videoUrl extracted:', videoUrl);
-
-  // ✅ Extraire et afficher tous les champs liés à la vidéo
-  if (!videoUrl) {
-    console.warn('⚠️ VIDEO URL NOT FOUND. Checking all property keys...');
-    const allKeys = Object.keys(property);
-    const videoRelatedKeys = allKeys.filter(key => 
-      key.toLowerCase().includes('video') || 
-      key.toLowerCase().includes('url') ||
-      key.toLowerCase().includes('path') ||
-      key.toLowerCase().includes('media')
-    );
-    console.log('🔍 Video-related keys found:', videoRelatedKeys);
-    videoRelatedKeys.forEach(key => {
-      console.log(`  ${key}:`, property[key]);
-    });
-  }
-
-  // Image navigation handlers
   const handlePrevImage = () => {
     if (images && images.length > 0) {
       setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -319,7 +231,6 @@ export default function PropertyDetailPage() {
     }
   };
 
-  // Touch handlers for swipe
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = e.targetTouches[0].clientX;
   };
@@ -327,52 +238,29 @@ export default function PropertyDetailPage() {
   const handleTouchEnd = (e: React.TouchEvent) => {
     const touchEndValue = e.changedTouches[0].clientX;
     const distance = touchStartRef.current - touchEndValue;
-
     if (Math.abs(distance) > 50) {
-      if (distance > 0) {
-        handleNextImage();
-      } else {
-        handlePrevImage();
-      }
+      if (distance > 0) handleNextImage();
+      else handlePrevImage();
     }
   };
 
-  // ✅ Composant VideoSection - logique de rendu vidéo
   const VideoSection = () => {
-    console.log('🎬 VideoSection render - videoUrl:', videoUrl);
-
     if (!videoUrl) {
-      console.log('ℹ️ Aucune vidéo trouvée');
       return (
-        <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
-          <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
-            <Play size={48} className="text-[#d4af37]" />
+        <div style={{ backgroundColor: 'rgba(13,31,60,0.5)', border: `2px dashed rgba(200,169,110,0.3)`, borderRadius: 12, aspectRatio: '16/9', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+          <div style={{ backgroundColor: 'rgba(200,169,110,0.15)', padding: 16, borderRadius: '50%', marginBottom: 16 }}>
+            <Play size={48} color={COLORS.gold} />
           </div>
-          <p className="text-[#b0b0b0] text-lg font-semibold">Aucune vidéo disponible</p>
-          <p className="text-[#666] text-sm mt-2">Les vidéos seront disponibles prochainement</p>
+          <p style={{ color: COLORS.goldLight, fontSize: 18, fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>Aucune vidéo disponible</p>
+          <p style={{ color: 'rgba(226,201,138,0.5)', fontSize: 14, marginTop: 8, fontFamily: "'DM Sans', sans-serif" }}>Les vidéos seront disponibles prochainement</p>
         </div>
       );
     }
 
-    // ✅ Vérifier les formats directs EN PREMIER
     if (isDirectVideoFile(videoUrl)) {
-      console.log('✅ Rendering direct video (MP4, WebM, etc.)');
       return (
-        <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
-          <video
-            width="100%"
-            height="100%"
-            controls
-            controlsList="nodownload"
-            className="w-full h-full"
-            style={{ display: 'block' }}
-            onError={(e) => {
-              console.error('❌ Video playback error:', e);
-            }}
-            onLoadedMetadata={() => {
-              console.log('✅ Video metadata loaded');
-            }}
-          >
+        <div style={{ position: 'relative', backgroundColor: '#000', borderRadius: 12, overflow: 'hidden', width: '100%', aspectRatio: '16/9' }}>
+          <video width="100%" height="100%" controls controlsList="nodownload" style={{ display: 'block', width: '100%', height: '100%' }}>
             <source src={videoUrl} type="video/mp4" />
             <source src={videoUrl} type="video/webm" />
             Votre navigateur ne supporte pas le lecteur vidéo HTML5.
@@ -381,128 +269,78 @@ export default function PropertyDetailPage() {
       );
     }
 
-    // ✅ Vérifier YouTube/Vimeo après
     const embedUrl = getEmbedUrl(videoUrl);
     if (embedUrl) {
-      console.log('✅ Rendering embedded video (YouTube/Vimeo)');
       return (
-        <div className="relative bg-black rounded-lg overflow-hidden w-full aspect-video">
-          <iframe
-            width="100%"
-            height="100%"
-            src={embedUrl}
-            title="Property Video"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            style={{ display: 'block' }}
-          />
+        <div style={{ position: 'relative', backgroundColor: '#000', borderRadius: 12, overflow: 'hidden', width: '100%', aspectRatio: '16/9' }}>
+          <iframe width="100%" height="100%" src={embedUrl} title="Property Video" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ display: 'block' }} />
         </div>
       );
     }
 
-    // ✅ Format non supporté
-    console.log('❌ Unsupported video format:', videoUrl);
     return (
-      <div className="bg-[rgba(26,40,71,0.5)] border-2 border-dashed border-[rgba(212,175,55,0.3)] rounded-lg aspect-video flex flex-col items-center justify-center text-center p-8">
-        <div className="bg-[rgba(212,175,55,0.2)] p-4 rounded-full mb-4">
-          <Play size={48} className="text-[#d4af37]" />
-        </div>
-        <p className="text-[#b0b0b0] text-lg font-semibold">Format vidéo non supporté</p>
-        <p className="text-[#666] text-sm mt-2 break-all max-w-xs">
-          URL: {videoUrl.substring(0, 80)}...
-        </p>
-        <p className="text-[#666] text-xs mt-1">
-          Formats supportés: MP4, WebM, YouTube, Vimeo, Supabase
-        </p>
+      <div style={{ backgroundColor: 'rgba(13,31,60,0.5)', border: `2px dashed rgba(200,169,110,0.3)`, borderRadius: 12, aspectRatio: '16/9', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+        <Play size={48} color={COLORS.gold} />
+        <p style={{ color: COLORS.goldLight, fontFamily: "'DM Sans', sans-serif", marginTop: 12 }}>Format vidéo non supporté</p>
       </div>
     );
   };
 
   return (
-    <main className="bg-gradient-to-b from-[#0a0e1a] to-[#0f1424] min-h-screen">
+    <main style={{ background: `linear-gradient(to bottom, ${COLORS.navy}, #0f1a2e)`, minHeight: '100vh' }}>
       {/* Back Button */}
-      <div className="bg-[#0f1a2e] py-4 px-[5%] border-b border-[rgba(212,175,55,0.2)]">
-        <div className="max-w-[1400px] mx-auto">
-          <Link href="/properties" className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#f4d03f] transition-colors">
+      <div style={{ backgroundColor: COLORS.navyLight, padding: '16px 5%', borderBottom: `1px solid rgba(200,169,110,0.2)` }}>
+        <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+          <Link href="/properties" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: COLORS.gold, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500 }}>
             <ArrowLeft size={20} />
             <span>Retour aux propriétés</span>
           </Link>
         </div>
       </div>
 
-      {/* Image Gallery with Swipe */}
-      <section className="py-12 px-[5%]">
-        <div className="max-w-[1400px] mx-auto">
-          <div 
-            className="relative bg-[#0f1a2e] rounded-2xl overflow-hidden h-96 sm:h-[500px] md:h-[600px] flex items-center justify-center group mb-8 cursor-grab active:cursor-grabbing"
+      {/* Image Gallery */}
+      <section style={{ padding: '48px 5%' }}>
+        <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+          <div
+            style={{ position: 'relative', backgroundColor: COLORS.navyLight, borderRadius: 16, overflow: 'hidden', height: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16, cursor: 'grab' }}
+            className="group"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            {/* Main Image */}
-            <img
-              src={images[currentImageIndex]}
-              alt={property.title}
-              className="w-full h-full object-cover transition-opacity duration-300"
-            />
+            <img src={images[currentImageIndex]} alt={property.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
 
-            {/* Favorite Button */}
             <button
               onClick={toggleFavorite}
-              className={`absolute top-4 left-4 p-3 rounded-full transition-all z-10 ${
-                isFavorite
-                  ? 'bg-[#d4af37] text-[#0f1a2e]'
-                  : 'bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white'
-              }`}
+              style={{ position: 'absolute', top: 16, left: 16, padding: 12, borderRadius: '50%', border: 'none', cursor: 'pointer', backgroundColor: isFavorite ? COLORS.gold : 'rgba(0,0,0,0.6)', color: isFavorite ? COLORS.navy : '#fff', zIndex: 10 }}
             >
               <Heart size={24} fill={isFavorite ? 'currentColor' : 'none'} />
             </button>
 
-            {/* Image Counter */}
-            <div className="absolute bottom-4 right-4 bg-[rgba(0,0,0,0.7)] text-white px-4 py-2 rounded-lg text-sm font-bold">
+            <div style={{ position: 'absolute', bottom: 16, right: 16, backgroundColor: 'rgba(0,0,0,0.7)', color: '#fff', padding: '6px 14px', borderRadius: 8, fontSize: 13, fontFamily: "'DM Sans', sans-serif", fontWeight: 700 }}>
               {currentImageIndex + 1} / {images.length}
             </div>
 
-            {/* Left Arrow */}
             {images.length > 1 && (
-              <button
-                onClick={handlePrevImage}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white hover:text-[#0f1a2e] p-3 rounded-full transition-all z-10 hidden group-hover:block"
-              >
-                <ChevronLeft size={24} />
-              </button>
+              <>
+                <button onClick={handlePrevImage} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', padding: 12, borderRadius: '50%', cursor: 'pointer', zIndex: 10 }}>
+                  <ChevronLeft size={24} />
+                </button>
+                <button onClick={handleNextImage} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', padding: 12, borderRadius: '50%', cursor: 'pointer', zIndex: 10 }}>
+                  <ChevronRight size={24} />
+                </button>
+              </>
             )}
-
-            {/* Right Arrow */}
-            {images.length > 1 && (
-              <button
-                onClick={handleNextImage}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-[rgba(0,0,0,0.6)] hover:bg-[#d4af37] text-white hover:text-[#0f1a2e] p-3 rounded-full transition-all z-10 hidden group-hover:block"
-              >
-                <ChevronRight size={24} />
-              </button>
-            )}
-
-            {/* Swipe Hint */}
-            <div className="absolute bottom-4 left-4 bg-[rgba(0,0,0,0.7)] text-white px-3 py-1 rounded-lg text-xs font-semibold">
-              👉 Glissez pour naviguer
-            </div>
           </div>
 
-          {/* Thumbnail Images */}
           {images.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto pb-4">
+            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
               {images.map((img: string, index: number) => (
                 <button
                   key={index}
                   onClick={() => setCurrentImageIndex(index)}
-                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                    currentImageIndex === index
-                      ? 'border-[#d4af37]'
-                      : 'border-[rgba(212,175,55,0.2)] hover:border-[#d4af37]'
-                  }`}
+                  style={{ flexShrink: 0, width: 80, height: 80, borderRadius: 8, overflow: 'hidden', border: `2px solid ${currentImageIndex === index ? COLORS.gold : 'rgba(200,169,110,0.2)'}`, cursor: 'pointer', padding: 0 }}
                 >
-                  <img src={img} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                  <img src={img} alt={`Thumbnail ${index + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </button>
               ))}
             </div>
@@ -511,178 +349,148 @@ export default function PropertyDetailPage() {
       </section>
 
       {/* Main Content */}
-      <section className="py-12 px-[5%]">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <section style={{ padding: '0 5% 64px' }}>
+        <div style={{ maxWidth: 1400, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32 }}>
           {/* Left Column */}
-          <div className="lg:col-span-2">
-            {/* Title and Location */}
-            <div className="mb-8">
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{property.title}</h1>
-              <div className="flex items-center gap-2 text-[#d4af37] text-lg mb-4">
-                <MapPin size={24} />
+          <div style={{ gridColumn: 'span 2' }}>
+            {/* Title */}
+            <div style={{ marginBottom: 32 }}>
+              <h1 style={{ fontSize: 42, fontWeight: 300, color: COLORS.ivory, fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: 12 }}>{property.title}</h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: COLORS.gold, fontSize: 16, fontFamily: "'DM Sans', sans-serif" }}>
+                <MapPin size={20} />
                 <span>{property.city} - {property.quarter || property.district}</span>
               </div>
             </div>
 
-            {/* Description - Affichage simple */}
+            {/* Description */}
             {property.description && (
-              <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
-                <h2 className="text-2xl font-bold text-white mb-6">📝 Description</h2>
-                <p className="text-[#b0b0b0] leading-relaxed whitespace-pre-wrap">{property.description}</p>
+              <div style={{ backgroundColor: 'rgba(22,45,79,0.4)', border: `1px solid rgba(200,169,110,0.2)`, borderRadius: 16, padding: 32, marginBottom: 24 }}>
+                <h2 style={{ fontSize: 22, fontWeight: 300, color: COLORS.ivory, fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: 16 }}>Description</h2>
+                <p style={{ color: COLORS.goldLight, lineHeight: 1.8, fontFamily: "'DM Sans', sans-serif", fontSize: 15, whiteSpace: 'pre-wrap' }}>{property.description}</p>
               </div>
             )}
 
-            {/* Characteristics Section */}
-            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
-              <h2 className="text-2xl font-bold text-white mb-6">📋 Caractéristiques</h2>
-              <div className="space-y-4">
-                {/* Transaction Type */}
-                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                  <span className="text-[#b0b0b0]">Type de transaction</span>
-                  <span className="text-white font-bold">{getTransactionTypeLabel(property.transaction_type)}</span>
-                </div>
-
-                {/* Property Type */}
-                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                  <span className="text-[#b0b0b0]">Type de bien</span>
-                  <span className="text-white font-bold">{getPropertyTypeLabel(property.property_type)}</span>
-                </div>
-
-                {/* City */}
-                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                  <span className="text-[#b0b0b0]">Ville</span>
-                  <span className="text-white font-bold">{property.city}</span>
-                </div>
-
-                {/* District/Quarter */}
-                <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                  <span className="text-[#b0b0b0]">Quartier</span>
-                  <span className="text-white font-bold">{property.quarter || property.district || 'N/A'}</span>
-                </div>
-
-                {/* Floor */}
-                {property.floor && (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Étage</span>
-                    <span className="text-white font-bold">{property.floor}</span>
+            {/* Characteristics */}
+            <div style={{ backgroundColor: 'rgba(22,45,79,0.4)', border: `1px solid rgba(200,169,110,0.2)`, borderRadius: 16, padding: 32, marginBottom: 24 }}>
+              <h2 style={{ fontSize: 22, fontWeight: 300, color: COLORS.ivory, fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: 20 }}>Caractéristiques</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                {[
+                  { label: 'Type de transaction', value: getTransactionTypeLabel(property.transaction_type) },
+                  { label: 'Type de bien', value: getPropertyTypeLabel(property.property_type) },
+                  { label: 'Ville', value: property.city },
+                  { label: 'Quartier', value: property.quarter || property.district || 'N/A' },
+                  property.floor && { label: 'Étage', value: property.floor },
+                  (property.elevator || property.has_elevator) && { label: 'Ascenseur', value: '✓ Oui', gold: true },
+                  property.bedrooms && { label: 'Chambres', value: property.bedrooms },
+                  property.bathrooms && { label: 'Salles de bain', value: property.bathrooms },
+                  property.area && { label: 'Surface', value: `${property.area} m²` },
+                  property.status && { label: 'Statut', value: property.status },
+                  { label: 'Date de création', value: new Date(property.createdAt || property.created_at).toLocaleDateString('fr-FR') },
+                ].filter(Boolean).map((item: any, i: number, arr: any[]) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: i < arr.length - 1 ? `1px solid rgba(200,169,110,0.1)` : 'none' }}>
+                    <span style={{ color: 'rgba(226,201,138,0.6)', fontFamily: "'DM Sans', sans-serif", fontSize: 14 }}>{item.label}</span>
+                    <span style={{ color: item.gold ? COLORS.gold : COLORS.ivory, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600 }}>{item.value}</span>
                   </div>
-                )}
+                ))}
 
-                {/* Elevator */}
-                {property.elevator || property.has_elevator ? (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Ascenseur</span>
-                    <span className="text-[#d4af37] font-bold">✓ Oui</span>
-                  </div>
-                ) : null}
-
-                {/* Bedrooms */}
-                {property.bedrooms && (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Chambres</span>
-                    <span className="text-white font-bold">{property.bedrooms}</span>
-                  </div>
-                )}
-
-                {/* Bathrooms */}
-                {property.bathrooms && (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Salles de bain</span>
-                    <span className="text-white font-bold">{property.bathrooms}</span>
-                  </div>
-                )}
-
-                {/* Area */}
-                {property.area && (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Surface</span>
-                    <span className="text-white font-bold">{property.area} m²</span>
-                  </div>
-                )}
-
-                {/* Equipment */}
                 {property.equipments && property.equipments.length > 0 && (
-                  <div className="pb-4">
-                    <span className="text-[#b0b0b0] block mb-3">Équipements</span>
-                    <div className="flex flex-wrap gap-2">
-                      {property.equipments.map((equipment: string, index: number) => (
-                        <span key={index} className="bg-[rgba(212,175,55,0.2)] text-[#d4af37] px-3 py-1 rounded-full text-sm font-bold border border-[rgba(212,175,55,0.3)]">
-                          {equipment}
+                  <div style={{ paddingTop: 14 }}>
+                    <span style={{ color: 'rgba(226,201,138,0.6)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, display: 'block', marginBottom: 10 }}>Équipements</span>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {property.equipments.map((eq: string, i: number) => (
+                        <span key={i} style={{ backgroundColor: 'rgba(200,169,110,0.15)', color: COLORS.gold, padding: '4px 12px', borderRadius: 20, fontSize: 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 500, border: `1px solid rgba(200,169,110,0.3)` }}>
+                          {eq}
                         </span>
                       ))}
                     </div>
                   </div>
                 )}
-
-                {/* Status */}
-                {property.status && (
-                  <div className="flex justify-between items-center pb-4 border-b border-[rgba(212,175,55,0.1)]">
-                    <span className="text-[#b0b0b0]">Statut</span>
-                    <span className="text-white font-bold">{property.status}</span>
-                  </div>
-                )}
-
-                {/* Creation Date */}
-                <div className="flex justify-between items-center">
-                  <span className="text-[#b0b0b0]">Date de création</span>
-                  <span className="text-white font-bold">{new Date(property.createdAt || property.created_at).toLocaleDateString('fr-FR')}</span>
-                </div>
               </div>
             </div>
 
-            {/* Video Section */}
-            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-8 mb-8">
-              <h2 className="text-2xl font-bold text-white mb-6">🎬 Vidéo de la propriété</h2>
+            {/* Video */}
+            <div style={{ backgroundColor: 'rgba(22,45,79,0.4)', border: `1px solid rgba(200,169,110,0.2)`, borderRadius: 16, padding: 32, marginBottom: 24 }}>
+              <h2 style={{ fontSize: 22, fontWeight: 300, color: COLORS.ivory, fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: 20 }}>Vidéo de la propriété</h2>
               <VideoSection />
             </div>
           </div>
 
-          {/* Right Column - Price and Contact */}
-          <div className="lg:col-span-1">
+          {/* Right Column */}
+          <div style={{ gridColumn: 'span 1' }}>
             {/* Price Card */}
-            <div className="bg-gradient-to-br from-[#d4af37] to-[#f4d03f] rounded-xl p-6 mb-6 sticky top-8">
-              <p className="text-[#0f1a2e] font-bold text-xs mb-1">PRIX</p>
-              <div className="text-2xl font-bold text-[#0f1a2e] mb-1 break-words">
-                {property.price.toLocaleString('fr-FR', { 
-                  minimumFractionDigits: 0, 
-                  maximumFractionDigits: 0 
-                })}
+            <div style={{ background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldLight})`, borderRadius: 16, padding: 24, marginBottom: 20, position: 'sticky', top: 24 }}>
+              <p style={{ color: COLORS.navy, fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>PRIX</p>
+              <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.navy, fontFamily: "'Cormorant Garamond', Georgia, serif", wordBreak: 'break-word' }}>
+                {property.price.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </div>
-              <p className="text-[#0f1a2e] font-semibold text-sm">MAD</p>
+              <p style={{ color: COLORS.navy, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, marginTop: 2 }}>MAD</p>
             </div>
 
             {/* Contact Card */}
-            <div className="bg-[rgba(26,40,71,0.3)] border border-[rgba(212,175,55,0.2)] rounded-2xl p-6">
-              <h3 className="text-xl font-bold text-white mb-4">📞 Nous contacter</h3>
+            <div style={{ backgroundColor: 'rgba(22,45,79,0.5)', border: `1px solid rgba(200,169,110,0.2)`, borderRadius: 16, padding: 24 }}>
+              <h3 style={{ fontSize: 18, fontWeight: 300, color: COLORS.ivory, fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: 16 }}>Nous contacter</h3>
 
-              <div className="space-y-3">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {/* Téléphone */}
                 <a
                   href="tel:+212605585720"
-                  className="w-full flex items-center justify-center gap-3 bg-[#d4af37] hover:bg-[#f4d03f] text-[#0f1a2e] font-bold py-2 px-3 rounded-lg transition text-sm"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: COLORS.gold, color: COLORS.navy, fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, padding: '10px 16px', borderRadius: 10, textDecoration: 'none', transition: 'all 0.2s' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = COLORS.goldLight; e.currentTarget.style.boxShadow = `0 4px 16px rgba(200,169,110,0.3)`; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = COLORS.gold; e.currentTarget.style.boxShadow = 'none'; }}
                 >
-                  <Phone size={18} />
+                  <Phone size={16} />
                   +212 6 05 58 57 20
                 </a>
 
+                {/* Email */}
                 <a
                   href="mailto:Landmarkestate3@gmail.com"
-                  className="w-full flex items-center justify-center gap-3 border-2 border-[#d4af37] hover:bg-[#d4af37] text-[#d4af37] hover:text-[#0f1a2e] font-bold py-2 px-3 rounded-lg transition text-sm"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: 'transparent', color: COLORS.gold, fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, padding: '10px 16px', borderRadius: 10, textDecoration: 'none', border: `1.5px solid ${COLORS.gold}`, transition: 'all 0.2s' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = COLORS.gold; e.currentTarget.style.color = COLORS.navy; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = COLORS.gold; }}
                 >
-                  <Mail size={18} />
+                  <Mail size={16} />
                   Landmarkestate3@gmail.com
                 </a>
 
-                {/* ✅ BOUTON PARTAGER AMÉLIORÉ */}
+                {/* ✅ BOUTON PARTAGER - Style LANDMARK */}
                 <button
                   onClick={handleShare}
-                  className={`w-full flex items-center justify-center gap-3 border-2 font-bold py-2 px-3 rounded-lg transition text-sm ${
-                    shareSuccess
-                      ? 'bg-green-600 border-green-600 text-white'
-                      : 'border-[#b0b0b0] hover:border-[#d4af37] text-[#b0b0b0] hover:text-[#d4af37]'
-                  }`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 10,
+                    backgroundColor: shareSuccess ? 'rgba(200,169,110,0.2)' : 'rgba(200,169,110,0.08)',
+                    color: shareSuccess ? COLORS.gold : 'rgba(226,201,138,0.7)',
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    letterSpacing: '0.04em',
+                    padding: '10px 16px',
+                    borderRadius: 10,
+                    border: `1.5px solid ${shareSuccess ? COLORS.gold : 'rgba(200,169,110,0.25)'}`,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    width: '100%',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!shareSuccess) {
+                      e.currentTarget.style.backgroundColor = 'rgba(200,169,110,0.15)';
+                      e.currentTarget.style.color = COLORS.gold;
+                      e.currentTarget.style.borderColor = COLORS.gold;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!shareSuccess) {
+                      e.currentTarget.style.backgroundColor = 'rgba(200,169,110,0.08)';
+                      e.currentTarget.style.color = 'rgba(226,201,138,0.7)';
+                      e.currentTarget.style.borderColor = 'rgba(200,169,110,0.25)';
+                    }
+                  }}
                 >
-                  <Share2 size={18} />
-                  {shareSuccess ? '✅ Copié!' : 'Partager'}
+                  <Share2 size={16} />
+                  {shareSuccess ? '✓ Lien copié' : 'Partager'}
                 </button>
               </div>
             </div>
