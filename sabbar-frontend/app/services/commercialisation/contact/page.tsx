@@ -243,7 +243,7 @@ _Envoyé depuis la page Commercialisation - LANDMARK ESTATE_`;
                   onMouseEnter={(e) => { if (!loading) { e.currentTarget.style.boxShadow = '0 20px 40px rgba(200, 169, 110, 0.3)'; e.currentTarget.style.transform = 'translateY(-2px)'; } }}
                   onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}
                 >
-                  {loading ? <><div style={{ animation: 'spin 1s linear infinite', borderRadius: '50%', height: '20px', width: '20px', border: '2px solid #0D1F3C', borderTopColor: 'transparent' }} /><span>Envoi...</span></> : <><Send size={18} /><span>Demander un diagnostic gratuit</span></>}
+                  {loading ? <><div style={{ animation: 'spin 1s linear infinite', borderRadius: '50%', height: '20px', width: '20px', border: '2px solid #0D1F3C', borderTopColor: 'transparent' }} /><span>Envoi...</span></> : <><Send size={18} /><span>Réserver votre visite</span></>}
                 </button>
 
                 <p style={{ textAlign: 'center', color: '#8A9BB0', fontSize: '12px', fontFamily: 'DM Sans, system-ui, sans-serif', margin: 0 }}>
