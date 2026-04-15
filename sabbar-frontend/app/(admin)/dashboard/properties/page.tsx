@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, RefreshCw, Eye, Pencil, Trash2, Search, Building2, AlertCircle, Pin, PinOff } from 'lucide-react';
+import {
+  Plus, RefreshCw, Eye, Pencil, Trash2,
+  Search, Building2, AlertCircle, Pin, PinOff
+} from 'lucide-react';
 import { API_BASE_URL } from '@/lib/config';
 import { supabase } from '@/lib/supabase';
 
@@ -47,67 +50,76 @@ export default function PropertiesPage() {
   const [filter, setFilter] = useState('all');
   const [pinning, setPinning] = useState<string | null>(null);
 
-const load = async () => {
-  setLoading(true);
-  setError('');
-  try {
-    const token = localStorage.getItem('accessToken');
-    if (!token) { setError('Authentification requise'); return; }
+  const load = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) { setError('Authentification requise'); return; }
 
-    const res = await fetch(`${API_BASE_URL}/api/v1/properties?limit=50`, {
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    });
-    if (!res.ok) throw new Error(`Erreur ${res.status}: ${res.statusText}`);
-    const data = await res.json();
-    const list: Property[] = Array.isArray(data) ? data : data.data || [];
+      const res = await fetch(`${API_BASE_URL}/api/v1/properties?limit=50`, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      });
+      if (!res.ok) throw new Error(`Erreur ${res.status}: ${res.statusText}`);
+      const data = await res.json();
+      const list: Property[] = Array.isArray(data) ? data : data.data || [];
 
-    // ✅ Guard si supabase non initialisé (build statique)
-    if (!supabase) {
-      setProperties(list);
-      return;
+      if (!supabase) {
+        // ✅ Fallback sans is_pinned si Supabase non configuré
+        setProperties(list);
+        return;
+      }
+
+      const { data: pinData } = await supabase
+        .from('properties')
+        .select('id, is_pinned');
+
+      const pinMap: Record<string, boolean> = {};
+      (pinData || []).forEach((p: any) => { pinMap[p.id] = p.is_pinned; });
+
+      const merged = list.map(p => ({ ...p, is_pinned: pinMap[p.id] ?? false }));
+      setProperties(merged);
+    } catch (e: any) {
+      setError(e.message || 'Erreur lors du chargement des annonces');
+    } finally {
+      setLoading(false);
     }
-
-    const { data: pinData } = await supabase
-      .from('properties')
-      .select('id, is_pinned');
-
-    const pinMap: Record<string, boolean> = {};
-    (pinData || []).forEach((p: any) => { pinMap[p.id] = p.is_pinned; });
-
-    const merged = list.map(p => ({ ...p, is_pinned: pinMap[p.id] ?? false }));
-    setProperties(merged);
-  } catch (e: any) {
-    setError(e.message || 'Erreur lors du chargement des annonces');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   useEffect(() => { load(); }, []);
 
-  // ✅ TOGGLE PIN via Supabase directement
- const handleTogglePin = async (id: string, currentPinned: boolean) => {
-  setPinning(id);
-  try {
-    // ✅ Guard
-    if (!supabase) throw new Error('Supabase non initialisé');
+  const handleTogglePin = async (id: string, currentPinned: boolean) => {
+    setPinning(id);
+    try {
+      if (!supabase) {
+        // ✅ Message clair avec instructions
+        alert(
+          '⚠️ Supabase non configuré sur Vercel.\n\n' +
+          'Pour activer l\'épinglage :\n' +
+          '1. Allez sur Vercel → Settings → Environment Variables\n' +
+          '2. Ajoutez NEXT_PUBLIC_SUPABASE_URL\n' +
+          '3. Ajoutez NEXT_PUBLIC_SUPABASE_ANON_KEY\n' +
+          '4. Redéployez le projet'
+        );
+        return;
+      }
 
-    const { error } = await supabase
-      .from('properties')
-      .update({ is_pinned: !currentPinned })
-      .eq('id', id);
+      const { error } = await supabase
+        .from('properties')
+        .update({ is_pinned: !currentPinned })
+        .eq('id', id);
 
-    if (error) throw error;
+      if (error) throw error;
 
-    setProperties(prev =>
-      prev.map(p => p.id === id ? { ...p, is_pinned: !currentPinned } : p)
-    );
-  } catch (e: any) {
-    alert('Erreur épinglage: ' + e.message);
-  } finally {
-    setPinning(null);
-  }
-};
+      setProperties(prev =>
+        prev.map(p => p.id === id ? { ...p, is_pinned: !currentPinned } : p)
+      );
+    } catch (e: any) {
+      alert('Erreur épinglage: ' + e.message);
+    } finally {
+      setPinning(null);
+    }
+  };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Supprimer cette annonce ?')) return;
@@ -115,7 +127,10 @@ const load = async () => {
       const token = localStorage.getItem('accessToken');
       const res = await fetch(`${API_BASE_URL}/api/v1/properties/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}`, 'X-Agent-ID': '550e8400-e29b-41d4-a716-446655440000' },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'X-Agent-ID': '550e8400-e29b-41d4-a716-446655440000',
+        },
       });
       if (!res.ok) throw new Error('Erreur lors de la suppression');
       setProperties(prev => prev.filter(p => p.id !== id));
@@ -132,7 +147,6 @@ const load = async () => {
     return matchSearch && matchFilter;
   });
 
-  // Épinglés en premier
   const sorted = [...filtered].sort((a, b) => (b.is_pinned ? 1 : 0) - (a.is_pinned ? 1 : 0));
 
   return (
@@ -143,27 +157,48 @@ const load = async () => {
         </div>
       )}
 
+      {/* ✅ Bannière warning si Supabase non configuré */}
+      {!supabase && (
+        <div className="flex items-center gap-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+          <AlertCircle size={14} className="text-orange-500 shrink-0" />
+          <span className="text-xs text-orange-700">
+            <strong>Épinglage désactivé</strong> — Ajoutez{' '}
+            <code className="bg-orange-100 px-1 rounded">NEXT_PUBLIC_SUPABASE_URL</code> et{' '}
+            <code className="bg-orange-100 px-1 rounded">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>{' '}
+            dans Vercel → Settings → Environment Variables puis redéployez.
+          </span>
+        </div>
+      )}
+
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-xl font-bold text-slate-900">Mes Annonces</h2>
           <p className="text-sm text-slate-400 mt-0.5">{properties.length} annonces au total</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={load} className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold rounded-lg transition">
+          <button
+            onClick={load}
+            className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold rounded-lg transition"
+          >
             <RefreshCw size={15} className={loading ? 'animate-spin' : ''} /> Recharger
           </button>
-          <Link href="/dashboard/properties/new" className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition">
+          <Link
+            href="/dashboard/properties/new"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition"
+          >
             <Plus size={15} /> Nouvelle annonce
           </Link>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-        <Pin size={13} className="text-amber-500 shrink-0" />
-        <span className="text-xs text-amber-700">
-          Les biens épinglés apparaissent en priorité sur la page d'accueil et la page des biens
-        </span>
-      </div>
+      {supabase && (
+        <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <Pin size={13} className="text-amber-500 shrink-0" />
+          <span className="text-xs text-amber-700">
+            Les biens épinglés apparaissent en priorité sur la page d'accueil et la page des biens
+          </span>
+        </div>
+      )}
 
       <div className="flex gap-3">
         <div className="relative flex-1 max-w-md">
@@ -200,7 +235,10 @@ const load = async () => {
               <Building2 size={24} className="text-slate-300" />
             </div>
             <p className="text-slate-400 text-sm mt-3">Aucune annonce trouvée</p>
-            <Link href="/dashboard/properties/new" className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg">
+            <Link
+              href="/dashboard/properties/new"
+              className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg"
+            >
               <Plus size={14} /> Créer une annonce
             </Link>
           </div>
@@ -249,7 +287,9 @@ const load = async () => {
                       {p.bedrooms && <p>{p.bedrooms} chambre{p.bedrooms > 1 ? 's' : ''}</p>}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${status.color}`}>{status.label}</span>
+                      <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${status.color}`}>
+                        {status.label}
+                      </span>
                     </td>
 
                     {/* ✅ COLONNE ÉPINGLÉ */}
@@ -276,13 +316,22 @@ const load = async () => {
 
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <Link href={`/dashboard/properties/${p.id}`} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition">
+                        <Link
+                          href={`/dashboard/properties/${p.id}`}
+                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                        >
                           <Eye size={15} />
                         </Link>
-                        <Link href={`/dashboard/properties/${p.id}`} className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition">
+                        <Link
+                          href={`/dashboard/properties/${p.id}`}
+                          className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition"
+                        >
                           <Pencil size={15} />
                         </Link>
-                        <button onClick={() => handleDelete(p.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+                        <button
+                          onClick={() => handleDelete(p.id)}
+                          className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                        >
                           <Trash2 size={15} />
                         </button>
                       </div>
