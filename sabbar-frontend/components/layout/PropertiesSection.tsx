@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { MapPin, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { propertiesApi } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
+
 
 export default function PropertiesSection() {
   const [properties, setProperties] = useState<any[]>([]);
@@ -11,41 +13,36 @@ export default function PropertiesSection() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchProperties = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        console.log('📡 Fetching latest properties from API...');
-        
-        const response = await propertiesApi.getProperties({
-          limit: 100,
-          offset: 0
-        });
-        
-        console.log('✅ Properties loaded:', response);
-        
-        // Récupère les 3 dernières propriétés (les plus récemment ajoutées)
-        const latestProps = response && Array.isArray(response) 
-          ? response.sort((a: any, b: any) => {
-              const dateA = new Date(a.createdAt || a.created_at || 0).getTime();
-              const dateB = new Date(b.createdAt || b.created_at || 0).getTime();
-              return dateB - dateA; // Tri décroissant (plus récentes en premier)
-            }).slice(0, 3)
-          : [];
-        
-        setProperties(latestProps);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Erreur lors du chargement';
-        console.error('❌ Erreur:', message);
-        setError(message);
-        setProperties([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchProperties = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    fetchProperties();
-  }, []);
+      // ✅ Récupère directement depuis Supabase, épinglés en premier
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .order('is_pinned', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      if (error) throw error;
+
+      // Épinglés en priorité, max 3 affichés
+      const pinned = (data || []).filter((p: any) => p.is_pinned);
+      const recent = (data || []).filter((p: any) => !p.is_pinned);
+      setProperties([...pinned, ...recent].slice(0, 3));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erreur lors du chargement';
+      setError(message);
+      setProperties([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchProperties();
+}, []);
 
   if (loading) {
     return (

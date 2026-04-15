@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Heart, MapPin, ChevronDown, Home, Key } from 'lucide-react';
 import { propertiesApi } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
+import { Pin } from 'lucide-react';
 
 // 🇲🇦 VILLES MAROCAINES COMPLÈTES
 const MOROCCAN_CITIES = [
@@ -363,19 +365,29 @@ export default function PropertiesPage() {
 
   // Charger les propriétés
   useEffect(() => {
-    const fetchProperties = async () => {
-      try {
-        setLoading(true);
-        const response = await propertiesApi.getProperties({ limit: 100, offset: 0 });
-        console.log('✅ Propriétés chargées:', response);
-        setProperties(response || []);
-        setFilteredProperties(response || []);
-      } catch (error) {
-        console.error('❌ Erreur chargement:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+   const fetchProperties = async () => {
+  try {
+    setLoading(true);
+    const response = await propertiesApi.getProperties({ limit: 100, offset: 0 });
+    const list = response || [];
+
+    // ✅ Merger is_pinned depuis Supabase
+    const { data: pinData } = await supabase
+      .from('properties')
+      .select('id, is_pinned');
+
+    const pinMap: Record<string, boolean> = {};
+    (pinData || []).forEach((p: any) => { pinMap[p.id] = p.is_pinned; });
+
+    const merged = list.map((p: any) => ({ ...p, is_pinned: pinMap[p.id] ?? false }));
+    setProperties(merged);
+    setFilteredProperties(merged);
+  } catch (error) {
+    console.error('❌ Erreur chargement:', error);
+  } finally {
+    setLoading(false);
+  }
+};
 
     fetchProperties();
   }, []);
@@ -431,7 +443,11 @@ export default function PropertiesPage() {
     });
 
     console.log('✅ Propriétés filtrées:', filtered.length);
-    setFilteredProperties(filtered);
+    const sortedFiltered = [...filtered].sort(
+  (a, b) => (b.is_pinned ? 1 : 0) - (a.is_pinned ? 1 : 0)
+);
+setFilteredProperties(sortedFiltered);
+   
   }, [filters, properties]);
 
   const handleResetFilters = () => {
