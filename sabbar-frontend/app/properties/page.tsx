@@ -347,29 +347,35 @@ export default function PropertiesPage() {
 
   // ✅ Charger les propriétés + merger is_pinned depuis Supabase
   useEffect(() => {
-    const fetchProperties = async () => {
-      try {
-        setLoading(true);
-        const response = await propertiesApi.getProperties({ limit: 100, offset: 0 });
-        const list = response || [];
+ const fetchProperties = async () => {
+  try {
+    setLoading(true);
+    const response = await propertiesApi.getProperties({ limit: 100, offset: 0 });
+    const list = response || [];
 
-        // ✅ NOUVEAU: Récupérer is_pinned depuis Supabase
-        const { data: pinData } = await supabase
-          .from('properties')
-          .select('id, is_pinned');
+    // ✅ Guard si supabase non initialisé (build statique)
+    if (!supabase) {
+      setProperties(list);
+      setFilteredProperties(list);
+      return;
+    }
 
-        const pinMap: Record<string, boolean> = {};
-        (pinData || []).forEach((p: any) => { pinMap[p.id] = p.is_pinned; });
+    const { data: pinData } = await supabase
+      .from('properties')
+      .select('id, is_pinned');
 
-        const merged = list.map((p: any) => ({ ...p, is_pinned: pinMap[p.id] ?? false }));
-        setProperties(merged);
-        setFilteredProperties(merged);
-      } catch (error) {
-        console.error('❌ Erreur chargement:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const pinMap: Record<string, boolean> = {};
+    (pinData || []).forEach((p: any) => { pinMap[p.id] = p.is_pinned; });
+
+    const merged = list.map((p: any) => ({ ...p, is_pinned: pinMap[p.id] ?? false }));
+    setProperties(merged);
+    setFilteredProperties(merged);
+  } catch (error) {
+    console.error('❌ Erreur chargement:', error);
+  } finally {
+    setLoading(false);
+  }
+};
 
     fetchProperties();
   }, []);

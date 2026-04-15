@@ -47,59 +47,67 @@ export default function PropertiesPage() {
   const [filter, setFilter] = useState('all');
   const [pinning, setPinning] = useState<string | null>(null);
 
-  const load = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const token = localStorage.getItem('accessToken');
-      if (!token) { setError('Authentification requise'); return; }
+const load = async () => {
+  setLoading(true);
+  setError('');
+  try {
+    const token = localStorage.getItem('accessToken');
+    if (!token) { setError('Authentification requise'); return; }
 
-      const res = await fetch(`${API_BASE_URL}/api/v1/properties?limit=50`, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      });
-      if (!res.ok) throw new Error(`Erreur ${res.status}: ${res.statusText}`);
-      const data = await res.json();
-      const list: Property[] = Array.isArray(data) ? data : data.data || [];
+    const res = await fetch(`${API_BASE_URL}/api/v1/properties?limit=50`, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error(`Erreur ${res.status}: ${res.statusText}`);
+    const data = await res.json();
+    const list: Property[] = Array.isArray(data) ? data : data.data || [];
 
-      // ✅ Récupérer is_pinned depuis Supabase et merger
-      const { data: pinData } = await supabase
-        .from('properties')
-        .select('id, is_pinned');
-
-      const pinMap: Record<string, boolean> = {};
-      (pinData || []).forEach((p: any) => { pinMap[p.id] = p.is_pinned; });
-
-      const merged = list.map(p => ({ ...p, is_pinned: pinMap[p.id] ?? false }));
-      setProperties(merged);
-    } catch (e: any) {
-      setError(e.message || 'Erreur lors du chargement des annonces');
-    } finally {
-      setLoading(false);
+    // ✅ Guard si supabase non initialisé (build statique)
+    if (!supabase) {
+      setProperties(list);
+      return;
     }
-  };
+
+    const { data: pinData } = await supabase
+      .from('properties')
+      .select('id, is_pinned');
+
+    const pinMap: Record<string, boolean> = {};
+    (pinData || []).forEach((p: any) => { pinMap[p.id] = p.is_pinned; });
+
+    const merged = list.map(p => ({ ...p, is_pinned: pinMap[p.id] ?? false }));
+    setProperties(merged);
+  } catch (e: any) {
+    setError(e.message || 'Erreur lors du chargement des annonces');
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => { load(); }, []);
 
   // ✅ TOGGLE PIN via Supabase directement
-  const handleTogglePin = async (id: string, currentPinned: boolean) => {
-    setPinning(id);
-    try {
-      const { error } = await supabase
-        .from('properties')
-        .update({ is_pinned: !currentPinned })
-        .eq('id', id);
+ const handleTogglePin = async (id: string, currentPinned: boolean) => {
+  setPinning(id);
+  try {
+    // ✅ Guard
+    if (!supabase) throw new Error('Supabase non initialisé');
 
-      if (error) throw error;
+    const { error } = await supabase
+      .from('properties')
+      .update({ is_pinned: !currentPinned })
+      .eq('id', id);
 
-      setProperties(prev =>
-        prev.map(p => p.id === id ? { ...p, is_pinned: !currentPinned } : p)
-      );
-    } catch (e: any) {
-      alert('Erreur épinglage: ' + e.message);
-    } finally {
-      setPinning(null);
-    }
-  };
+    if (error) throw error;
+
+    setProperties(prev =>
+      prev.map(p => p.id === id ? { ...p, is_pinned: !currentPinned } : p)
+    );
+  } catch (e: any) {
+    alert('Erreur épinglage: ' + e.message);
+  } finally {
+    setPinning(null);
+  }
+};
 
   const handleDelete = async (id: string) => {
     if (!confirm('Supprimer cette annonce ?')) return;
