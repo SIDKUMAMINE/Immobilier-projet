@@ -12,7 +12,7 @@ export default function CommercializationPage() {
     "Diffusion sur Mubawab, Avito, Sarouty et reseaux sociaux",
     "Campagnes publicitaires Meta et Google ciblees",
     "Rapport mensuel detaille sur les performances",
-    "Partenariat exclusif — zero concurrence interne",
+    "Partenariat exclusif -- zero concurrence interne",
     "Accompagnement jusqu'a la signature chez le notaire",
   ];
 
@@ -51,8 +51,8 @@ export default function CommercializationPage() {
 
   const features = [
     { Icon: Camera, title: 'Contenu professionnel', detail: 'Photos, videos et fiches techniques pour valoriser chaque bien du projet' },
-    { Icon: Globe, title: 'Diffusion maximale', detail: 'Mubawab, Avito, Sarouty, Facebook, Instagram — toutes les plateformes actives au Maroc' },
-    { Icon: BarChart2, title: 'Rapport mensuel', detail: 'Vues, contacts, visites et ventes — chiffres reels chaque mois' },
+    { Icon: Globe, title: 'Diffusion maximale', detail: 'Mubawab, Avito, Sarouty, Facebook, Instagram -- toutes les plateformes actives au Maroc' },
+    { Icon: BarChart2, title: 'Rapport mensuel', detail: 'Vues, contacts, visites et ventes -- chiffres reels chaque mois' },
     { Icon: Users, title: 'Reseau acheteurs', detail: "Acces a une base de contacts qualifies cherchant activement a acheter a Casablanca" },
   ];
 
@@ -89,7 +89,7 @@ export default function CommercializationPage() {
             Commercialisation <span style={{ color: '#C8A96E' }}>exclusive</span>
           </h1>
           <p className="max-w-2xl mb-4" style={{ fontSize: '18px', color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.7' }}>
-            Vous etes promoteur a Casablanca ? Landmark Estate prend en charge la commercialisation complete de votre projet — de la strategie de prix jusqu'a la signature chez le notaire.
+            Vous etes promoteur a Casablanca ? Landmark Estate prend en charge la commercialisation complete de votre projet -- de la strategie de prix jusqu'a la signature chez le notaire.
           </p>
           <p className="max-w-2xl" style={{ fontSize: '16px', color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400 }}>
             <span style={{ color: '#C8A96E', fontWeight: 500 }}>Mohamed Sabbar</span>, marketeur et commercial specialise en immobilier, suit personnellement chaque projet en partenariat exclusif.
@@ -135,7 +135,7 @@ export default function CommercializationPage() {
                   En tant que promoteur, vous gardez le contr&ocirc;le de votre projet et de votre marge. Nous nous chargeons de tout le reste : visibilite, contacts, visites, negociation et coordination notariale.
                 </p>
                 <p style={{ color: '#8A9BB0', fontSize: '15px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.8', paddingTop: '16px', borderTop: '1px solid rgba(200,169,110,0.12)' }}>
-                  <span style={{ color: '#C8A96E', fontWeight: 500 }}>Mohamed Sabbar</span> — marketeur et commercial specialise en immobilier — prend personnellement en charge chaque partenariat. Vous avez un interlocuteur unique qui connait votre projet et defend vos interets.
+                  <span style={{ color: '#C8A96E', fontWeight: 500 }}>Mohamed Sabbar</span> -- marketeur et commercial specialise en immobilier -- prend personnellement en charge chaque partenariat. Vous avez un interlocuteur unique qui connait votre projet et defend vos interets.
                 </p>
               </div>
 
@@ -289,7 +289,7 @@ export default function CommercializationPage() {
                   'Negociation et suivi des offres',
                   'Rapport mensuel detaille',
                   'Partenariat exclusif long terme',
-                  'Accompagnement jusqu'au notaire',
+                  "Accompagnement jusqu'au notaire",
                 ].map((it, idx) => (
                   <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <CheckCircle2 size={14} style={{ color: '#C8A96E', flexShrink: 0 }} />
