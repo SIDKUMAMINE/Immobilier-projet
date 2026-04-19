@@ -104,7 +104,7 @@ export default function HeroSection() {
               <div className="text-left">
                 <div 
                   className="text-sm md:text-base text-white mb-1"
-                  style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400 }}
+                  style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400,  color: '#C8A96E'  }}
                 >
                   Réactivité &amp; suivi personnalisé
                 </div>
