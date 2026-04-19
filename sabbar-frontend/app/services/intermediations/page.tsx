@@ -5,15 +5,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Phone, FileSearch, Users, MessageS
 
 export default function IntermediationsPage() {
 
-  const benefits = [
-    "Acces a un portefeuille de biens verifies et selectionnes",
-    "Estimation professionnelle et conseil de prix juste",
-    "Diffusion multi-plateformes : Mubawab, Avito, Sarouty, reseaux sociaux",
-    "Negociation professionnelle et securisee",
-    "Verification du titre foncier avant chaque visite",
-    "Accompagnement administratif et juridique complet",
-    "Suivi jusqu'a la signature chez le notaire",
-  ];
+ 
 
   const steps = [
     {
@@ -143,9 +135,7 @@ export default function IntermediationsPage() {
                 </p>
               </div>
 
-              <h3 style={{ fontSize: '18px', fontWeight: 400, color: '#F9F5EF', fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: '16px', marginTop: '12px' }}>
-                Ce qui est inclus
-              </h3>
+             
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {benefits.map((benefit, idx) => (
                   <div key={idx} className="flex items-start gap-3">
