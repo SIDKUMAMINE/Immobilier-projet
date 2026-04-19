@@ -1,28 +1,22 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, Users, Target, Zap, Shield, TrendingUp } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Users, Target, Zap, Shield, TrendingUp, MapPin, Phone, Mail } from 'lucide-react';
 
 export default function AProposPage() {
   return (
     <main style={{ background: 'linear-gradient(to bottom, #0D1F3C, #050D1A)' }}>
+
       {/* Back Button */}
-      <div 
+      <div
         className="py-4 px-[5%] border-b"
-        style={{
-          background: 'rgba(26, 40, 71, 0.5)',
-          borderColor: 'rgba(200, 169, 110, 0.2)'
-        }}
+        style={{ background: 'rgba(26, 40, 71, 0.5)', borderColor: 'rgba(200, 169, 110, 0.2)' }}
       >
         <div className="max-w-[1400px] mx-auto">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="inline-flex items-center gap-2 transition-all hover:gap-3"
-            style={{
-              color: '#C8A96E',
-              fontFamily: "'DM Sans', system-ui, sans-serif",
-              fontWeight: 500
-            }}
+            style={{ color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500 }}
           >
             <ArrowLeft size={20} />
             <span>Retour à l'accueil</span>
@@ -30,452 +24,258 @@ export default function AProposPage() {
         </div>
       </div>
 
-      {/* Hero Section */}
-      <section 
-        className="py-24 px-[5%]"
-        style={{
-          background: 'linear-gradient(135deg, rgba(26, 40, 71, 0.5), rgba(26, 40, 71, 0.3))'
-        }}
-      >
-        <div className="max-w-[1400px] mx-auto">
-          <div className="text-center max-w-3xl mx-auto">
-            <h1 
-              className="mb-6"
-              style={{
-                fontSize: '52px',
-                fontFamily: "'Cormorant Garamond', Georgia, serif",
-                fontWeight: 300,
-                color: '#F9F5EF'
-              }}
-            >
-              À Propos de <span style={{ color: '#C8A96E' }}>LANDMARK_ESTATE</span>
-            </h1>
-            <p 
-              className="text-lg"
-              style={{
-                color: '#8A9BB0',
-                fontFamily: "'DM Sans', system-ui, sans-serif",
-                fontWeight: 400,
-                lineHeight: '1.8'
-              }}
-            >
-              Partenaire immobilier de référence à Casablanca. Nous transformons les projets en succès et les transactions en histoires de confiance.
-            </p>
-          </div>
+      {/* ── 1. HERO ── */}
+      <section className="py-24 px-[5%]" style={{ background: 'linear-gradient(135deg, rgba(26,40,71,0.5), rgba(26,40,71,0.3))' }}>
+        <div className="max-w-[1400px] mx-auto text-center max-w-3xl mx-auto">
+          <h1
+            className="mb-6"
+            style={{ fontSize: '52px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}
+          >
+            À Propos de <span style={{ color: '#C8A96E' }}>Landmark Estate</span>
+          </h1>
+          <p
+            className="text-lg"
+            style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.8' }}
+          >
+            Votre partenaire immobilier de confiance à Casablanca — de la première visite à la signature chez le notaire.
+          </p>
         </div>
       </section>
 
-      {/* Mission Section */}
+      {/* ── 2. QUI SOMMES-NOUS (avec fondateur) ── */}
       <section className="py-24 px-[5%]">
         <div className="max-w-[1400px] mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-20">
-            <div className="text-center">
-              <div 
-                className="text-5xl mb-6"
-              >
-                🎯
-              </div>
-              <h3 
-                style={{
-                  fontSize: '24px',
-                  fontFamily: "'Cormorant Garamond', Georgia, serif",
-                  fontWeight: 300,
-                  color: '#F9F5EF',
-                  marginBottom: '12px'
-                }}
-              >
-                Notre Mission
-              </h3>
-              <p 
-                style={{
-                  color: '#8A9BB0',
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                  fontWeight: 400,
-                  fontSize: '15px',
-                  lineHeight: '1.7'
-                }}
-              >
-                Redéfinir l'excellence immobilière à Casablanca. Pour promoteurs, propriétaires et acheteurs, nous offrons des solutions transparentes, innovantes et pleines de valeur.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div 
-                className="text-5xl mb-6"
-              >
-                💡
-              </div>
-              <h3 
-                style={{
-                  fontSize: '24px',
-                  fontFamily: "'Cormorant Garamond', Georgia, serif",
-                  fontWeight: 300,
-                  color: '#F9F5EF',
-                  marginBottom: '12px'
-                }}
-              >
-                Notre Vision
-              </h3>
-              <p 
-                style={{
-                  color: '#8A9BB0',
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                  fontWeight: 400,
-                  fontSize: '15px',
-                  lineHeight: '1.7'
-                }}
-              >
-                Marché immobilier plus transparent, plus accessible, plus humain. Zéro compromis sur la qualité, 100% focus sur les objectifs de nos clients.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div 
-                className="text-5xl mb-6"
-              >
-                ⭐
-              </div>
-              <h3 
-                style={{
-                  fontSize: '24px',
-                  fontFamily: "'Cormorant Garamond', Georgia, serif",
-                  fontWeight: 300,
-                  color: '#F9F5EF',
-                  marginBottom: '12px'
-                }}
-              >
-                Nos Valeurs
-              </h3>
-              <p 
-                style={{
-                  color: '#8A9BB0',
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                  fontWeight: 400,
-                  fontSize: '15px',
-                  lineHeight: '1.7'
-                }}
-              >
-                Intégrité, Excellence, Transparence, Innovation. Chaque interaction bâtit la confiance et crée de la valeur durable.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Story Section */}
-      <section 
-        className="py-24 px-[5%]"
-        style={{
-          background: 'rgba(26, 40, 71, 0.4)'
-        }}
-      >
-        <div className="max-w-[1400px] mx-auto">
-          <h2 
-            className="text-center mb-16"
-            style={{
-              fontSize: '48px',
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontWeight: 300,
-              color: '#F9F5EF'
-            }}
-          >
-            Notre <span style={{ color: '#C8A96E' }}>Histoire</span>
-          </h2>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+
+            {/* Texte */}
             <div>
-              <p 
-                style={{
-                  color: '#8A9BB0',
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                  fontWeight: 400,
-                  fontSize: '16px',
-                  lineHeight: '1.8',
-                  marginBottom: '20px'
-                }}
+              <h2
+                className="mb-8"
+                style={{ fontSize: '42px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}
               >
-                 Nous sommes votre partenaire de confiance en commercialisation et intermédiation immobilière. Pour les promoteurs et constructeurs, nous prenons en charge l'intégralité de la commercialisation de vos projets, garantissant des ventes 30-40% plus rapides, la préservation de votre marge et image de marque, ainsi que la liberté et le temps pour maximiser votre nombre de projets annuels
-              </p>
-
-              <p 
-                style={{
-                  color: '#8A9BB0',
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                  fontWeight: 400,
-                  fontSize: '16px',
-                  lineHeight: '1.8',
-                  marginBottom: '20px'
-                }}
-              >
-                Pour les propriétaires et particuliers, nous prenons soin de votre bien, qu'il s'agisse d'un appartement, villa ou local commercial, en le vendant rapidement avec une visibilité maximale sur notre site web et notre base de données d'acheteurs potentiels déjà qualifiés. 
-              </p>
-
-              <p 
-                style={{
-                  color: '#8A9BB0',
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                  fontWeight: 400,
-                  fontSize: '16px',
-                  lineHeight: '1.8'
-                }}
-              >
-               Notre expertise, notre réseau solide et notre transparence totale garantissent des résultats mesurables et des délais respectés. 📱 Contactez-nous dès aujourd'hui pour discuter de votre projet immobilier.
-              </p>
+                Notre <span style={{ color: '#C8A96E' }}>Histoire</span>
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <p style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, fontSize: '16px', lineHeight: '1.8' }}>
+                  Landmark Estate est née d'un constat simple : le marché immobilier casablancais manque de transparence et de suivi. Trop d'acquéreurs naviguent sans accompagnement, trop de vendeurs attendent sans nouvelles.
+                </p>
+                <p style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, fontSize: '16px', lineHeight: '1.8' }}>
+                  Fondée à Casablanca par <span style={{ color: '#C8A96E', fontWeight: 600 }}>Mohamed Sabbar</span>, notre agence s'est donnée une mission précise : être l'interlocuteur unique et fiable pour les promoteurs qui souhaitent commercialiser leurs projets, et pour les particuliers qui veulent acheter, vendre ou louer en toute sérénité.
+                </p>
+                <p style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, fontSize: '16px', lineHeight: '1.8' }}>
+                  Nous opérons aujourd'hui sur <strong style={{ color: '#F9F5EF' }}>Casablanca et Berrechid</strong>, avec un portefeuille de biens vérifiés et une disponibilité réelle — pas une hotline, mais un interlocuteur qui connaît votre dossier.
+                </p>
+              </div>
             </div>
 
-            <div 
-              className="rounded-2xl p-12"
-              style={{
-                background: 'rgba(200, 169, 110, 0.05)',
-                border: '1px solid rgba(200, 169, 110, 0.2)'
-              }}
+            {/* Carte fondateur + engagements réels */}
+            <div
+              className="rounded-2xl p-10"
+              style={{ background: 'rgba(200, 169, 110, 0.05)', border: '1px solid rgba(200, 169, 110, 0.2)' }}
             >
-              <h3 
-                style={{
-                  fontSize: '24px',
-                  fontFamily: "'Cormorant Garamond', Georgia, serif",
-                  fontWeight: 300,
-                  color: '#C8A96E',
-                  marginBottom: '20px'
-                }}
-              >
-                Chiffres Clés
-              </h3>
+              {/* Fondateur */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px', paddingBottom: '24px', borderBottom: '1px solid rgba(200,169,110,0.15)' }}>
+                <div
+                  style={{
+                    width: '56px', height: '56px', borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0, fontSize: '20px', fontWeight: 500, color: '#0D1F3C',
+                    fontFamily: "'Cormorant Garamond', Georgia, serif"
+                  }}
+                >
+                  MS
+                </div>
+                <div>
+                  <p style={{ color: '#F9F5EF', fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '20px', fontWeight: 300, margin: 0 }}>
+                    Mohamed Sabbar
+                  </p>
+                  <p style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '13px', margin: '4px 0 0' }}>
+                    Fondateur — Landmark Estate
+                  </p>
+                </div>
+              </div>
 
-              <div className="space-y-6">
+              {/* Engagements vérifiables */}
+              <h3 style={{ color: '#C8A96E', fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '20px', fontWeight: 300, marginBottom: '16px' }}>
+                Nos engagements concrets
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {[
-                  { label: 'Promoteurs en portefeuille', value: '50+' },
-                  { label: 'Transactions mensuelles', value: '25-30' },
-                  { label: 'Chiffre d\'affaires Year 1', value: 'MAD 11.25M' },
-                  { label: 'Accélération des ventes', value: '40%' },
-                  { label: 'Valeur préservée', value: '100%' },
-                  { label: 'Taux de satisfaction', value: '95%' }
+                  '14 biens disponibles, vérifiés et publiés',
+                  'Réponse WhatsApp garantie sous 2h',
+                  'Vérification du titre foncier avant chaque visite',
+                  'Accompagnement jusqu'à l'acte notarié',
+                  'Diffusion sur Mubawab, Avito et Sarouty',
+                  'Rapport de suivi mensuel pour les promoteurs',
                 ].map((item, idx) => (
-                  <div key={idx} className="flex justify-between items-center pb-4 border-b border-[rgba(200,169,110,0.1)]">
-                    <span 
-                      style={{
-                        color: '#8A9BB0',
-                        fontFamily: "'DM Sans', system-ui, sans-serif",
-                        fontWeight: 400
-                      }}
-                    >
-                      {item.label}
-                    </span>
-                    <span 
-                      style={{
-                        color: '#C8A96E',
-                        fontFamily: "'Cormorant Garamond', Georgia, serif",
-                        fontWeight: 300,
-                        fontSize: '20px'
-                      }}
-                    >
-                      {item.value}
+                  <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                    <CheckCircle2 size={16} style={{ color: '#C8A96E', flexShrink: 0, marginTop: '3px' }} />
+                    <span style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', lineHeight: 1.6 }}>
+                      {item}
                     </span>
                   </div>
                 ))}
               </div>
+
+              {/* Contact rapide */}
+              <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid rgba(200,169,110,0.15)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Phone size={14} style={{ color: '#C8A96E' }} />
+                  <a href="tel:+212605585720" style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '13px', textDecoration: 'none' }}>
+                    +212 6 05 58 57 20
+                  </a>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <MapPin size={14} style={{ color: '#C8A96E' }} />
+                  <span style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '13px' }}>
+                    Casablanca, Maroc
+                  </span>
+                </div>
+              </div>
             </div>
+
           </div>
         </div>
       </section>
 
-      {/* Dual Model Section */}
+      {/* ── 3. MISSION / VISION / VALEURS ── */}
+      <section className="py-24 px-[5%]" style={{ background: 'rgba(26, 40, 71, 0.4)' }}>
+        <div className="max-w-[1400px] mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+
+            {[
+              {
+                label: 'Notre mission',
+                text: 'Simplifier chaque étape d'une transaction immobilière à Casablanca — du premier contact à l'acte notarié, avec un seul interlocuteur qui connaît votre dossier.'
+              },
+              {
+                label: 'Notre vision',
+                text: 'Devenir la référence locale pour les promoteurs qui cherchent un partenaire commercial sérieux, et pour les familles qui cherchent leur chez-soi au Maroc.'
+              },
+              {
+                label: 'Nos valeurs',
+                text: 'Intégrité sur les documents, transparence sur les prix, réactivité sur les réponses. Chaque promesse que nous faisons est une promesse que nous tenons.'
+              }
+            ].map((item, idx) => (
+              <div key={idx} style={{ textAlign: 'center' }}>
+                <div
+                  style={{
+                    width: '48px', height: '48px', borderRadius: '50%',
+                    background: 'rgba(200,169,110,0.15)', border: '1px solid rgba(200,169,110,0.3)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 20px'
+                  }}
+                >
+                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#C8A96E' }} />
+                </div>
+                <h3
+                  style={{ fontSize: '24px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#C8A96E', marginBottom: '12px' }}
+                >
+                  {item.label}
+                </h3>
+                <p style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, fontSize: '15px', lineHeight: '1.7' }}>
+                  {item.text}
+                </p>
+              </div>
+            ))}
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4. MODÈLE BI-SEGMENTÉ (sans revenus) ── */}
       <section className="py-24 px-[5%]">
         <div className="max-w-[1400px] mx-auto">
-          <h2 
+          <h2
             className="text-center mb-16"
-            style={{
-              fontSize: '48px',
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontWeight: 300,
-              color: '#F9F5EF'
-            }}
+            style={{ fontSize: '48px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}
           >
             Notre Modèle <span style={{ color: '#C8A96E' }}>Bi-Segmenté</span>
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Commercialisation */}
-            <div 
+
+            {/* B2B */}
+            <div
               className="rounded-2xl p-8"
-              style={{
-                background: 'rgba(26, 40, 71, 0.4)',
-                border: '1px solid rgba(200, 169, 110, 0.2)'
-              }}
+              style={{ background: 'rgba(26, 40, 71, 0.4)', border: '1px solid rgba(200, 169, 110, 0.2)' }}
             >
-              <div className="flex items-center gap-3 mb-6">
-                <div 
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
-                  style={{
-                    background: 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)'
-                  }}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                <div
+                  style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'rgba(200,169,110,0.15)', border: '1px solid rgba(200,169,110,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
-                  💼
+                  <Users size={20} style={{ color: '#C8A96E' }} />
                 </div>
-                <h3 
-                  style={{
-                    fontSize: '24px',
-                    fontFamily: "'Cormorant Garamond', Georgia, serif",
-                    fontWeight: 300,
-                    color: '#F9F5EF'
-                  }}
-                >
+                <h3 style={{ fontSize: '24px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}>
                   Commercialisation B2B
                 </h3>
               </div>
-
-              <p 
-                style={{
-                  color: '#8A9BB0',
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                  fontWeight: 400,
-                  fontSize: '15px',
-                  lineHeight: '1.7',
-                  marginBottom: '16px'
-                }}
-              >
-                <span style={{ color: '#C8A96E', fontWeight: 600 }}>Target:</span> Promoteurs immobiliers
+              <p style={{ color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500, fontSize: '13px', marginBottom: '20px' }}>
+                Pour les promoteurs immobiliers
               </p>
-
-              <div className="space-y-3">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {[
-                  'Stratégie marketing 360°',
-                  'Équipe commerciale dédiée',
-                  'Contenu professionnel (4K, vidéos, visites 360°)',
-                  'Campagnes multi-canaux optimisées',
-                  'Rapports mensuels détaillés',
-                  'Partenariat exclusif long-terme'
+                  'Prise en charge complète de la commercialisation',
+                  'Stratégie marketing 360° — digital et terrain',
+                  'Contenu professionnel : photos, vidéos, visites 360°',
+                  'Campagnes multi-canaux : Mubawab, Avito, réseaux sociaux',
+                  'Rapport mensuel détaillé sur les performances',
+                  'Partenariat exclusif avec alignement d'objectifs',
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-2">
-                    <CheckCircle2 size={18} style={{ color: '#C8A96E', flexShrink: 0, marginTop: '2px' }} />
-                    <span 
-                      style={{
-                        color: '#8A9BB0',
-                        fontFamily: "'DM Sans', system-ui, sans-serif",
-                        fontWeight: 400,
-                        fontSize: '14px'
-                      }}
-                    >
-                      {item}
-                    </span>
+                  <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                    <CheckCircle2 size={16} style={{ color: '#C8A96E', flexShrink: 0, marginTop: '3px' }} />
+                    <span style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', lineHeight: 1.6 }}>{item}</span>
                   </div>
                 ))}
               </div>
-
-              <div 
-                className="mt-8 pt-6 border-t border-[rgba(200,169,110,0.1)]"
-              >
-                <p 
-                  style={{
-                    color: '#C8A96E',
-                    fontFamily: "'DM Sans', system-ui, sans-serif",
-                    fontWeight: 500,
-                    fontSize: '13px'
-                  }}
-                >
-                  Revenue: MAD 11.25M (2-3 contrats)
-                </p>
-              </div>
             </div>
 
-            {/* Intermédiaton */}
-            <div 
+            {/* B2C */}
+            <div
               className="rounded-2xl p-8"
-              style={{
-                background: 'rgba(26, 40, 71, 0.4)',
-                border: '1px solid rgba(200, 169, 110, 0.2)'
-              }}
+              style={{ background: 'rgba(26, 40, 71, 0.4)', border: '1px solid rgba(200, 169, 110, 0.2)' }}
             >
-              <div className="flex items-center gap-3 mb-6">
-                <div 
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
-                  style={{
-                    background: 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)'
-                  }}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                <div
+                  style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'rgba(200,169,110,0.15)', border: '1px solid rgba(200,169,110,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
-                  🤝
+                  <Target size={20} style={{ color: '#C8A96E' }} />
                 </div>
-                <h3 
-                  style={{
-                    fontSize: '24px',
-                    fontFamily: "'Cormorant Garamond', Georgia, serif",
-                    fontWeight: 300,
-                    color: '#F9F5EF'
-                  }}
-                >
-                  Intermédiaton B2C
+                <h3 style={{ fontSize: '24px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}>
+                  Intermédiation B2C
                 </h3>
               </div>
-
-              <p 
-                style={{
-                  color: '#8A9BB0',
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                  fontWeight: 400,
-                  fontSize: '15px',
-                  lineHeight: '1.7',
-                  marginBottom: '16px'
-                }}
-              >
-                <span style={{ color: '#C8A96E', fontWeight: 600 }}>Target:</span> Propriétaires, acheteurs, investisseurs
+              <p style={{ color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500, fontSize: '13px', marginBottom: '20px' }}>
+                Pour les propriétaires, acheteurs et investisseurs
               </p>
-
-              <div className="space-y-3">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {[
-                  'Plateforme digitale complète',
-                  'Lead generation multi-canaux',
-                  'Valuation professionnelle',
-                  'Négociation et gestion administrative',
-                  'Vente 3x plus rapide',
-                  'Support post-signature'
+                  'Estimation professionnelle de votre bien',
+                  'Diffusion sur les plateformes leaders au Maroc',
+                  'Gestion des visites et négociations',
+                  'Vérification des documents et titre foncier',
+                  'Accompagnement administratif et juridique',
+                  'Suivi jusqu'à la signature chez le notaire',
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-2">
-                    <CheckCircle2 size={18} style={{ color: '#C8A96E', flexShrink: 0, marginTop: '2px' }} />
-                    <span 
-                      style={{
-                        color: '#8A9BB0',
-                        fontFamily: "'DM Sans', system-ui, sans-serif",
-                        fontWeight: 400,
-                        fontSize: '14px'
-                      }}
-                    >
-                      {item}
-                    </span>
+                  <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                    <CheckCircle2 size={16} style={{ color: '#C8A96E', flexShrink: 0, marginTop: '3px' }} />
+                    <span style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', lineHeight: 1.6 }}>{item}</span>
                   </div>
                 ))}
               </div>
-
-              <div 
-                className="mt-8 pt-6 border-t border-[rgba(200,169,110,0.1)]"
-              >
-                <p 
-                  style={{
-                    color: '#C8A96E',
-                    fontFamily: "'DM Sans', system-ui, sans-serif",
-                    fontWeight: 500,
-                    fontSize: '13px'
-                  }}
-                >
-                  Revenue: MAD 450-600K (25-30 transactions)
-                </p>
-              </div>
             </div>
+
           </div>
         </div>
       </section>
 
- 
-      {/* Core Values Section */}
-      <section className="py-24 px-[5%]">
+      {/* ── 5. PILIERS ── */}
+      <section className="py-24 px-[5%]" style={{ background: 'rgba(26, 40, 71, 0.4)' }}>
         <div className="max-w-[1400px] mx-auto">
-          <h2 
+          <h2
             className="text-center mb-16"
-            style={{
-              fontSize: '48px',
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontWeight: 300,
-              color: '#F9F5EF'
-            }}
+            style={{ fontSize: '48px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}
           >
             Nos <span style={{ color: '#C8A96E' }}>Piliers</span>
           </h2>
@@ -485,44 +285,44 @@ export default function AProposPage() {
               {
                 icon: Shield,
                 title: 'Intégrité',
-                description: 'Transparence totale. Rapports mensuels détaillés. Zéro surprise. Données temps réel accessibles.'
+                description: 'Transparence totale sur les documents, les prix et les délais. Zéro surprise entre la promesse et la réalité.'
               },
               {
                 icon: Target,
                 title: 'Excellence',
-                description: 'Méthodologie éprouvée en 9 étapes. Résultats mesurés. Chaque détail compte. Zéro compromis.'
+                description: 'Un processus structuré de la mise en marché à la signature. Chaque bien est présenté avec le soin qu'il mérite.'
               },
               {
                 icon: Users,
                 title: 'Partenariat',
-                description: 'Engagement exclusif long-terme. Alignement d\'objectifs. Investis dans votre succès.'
+                description: 'Un seul interlocuteur du début à la fin. Votre succès est notre succès — nous nous y engageons.'
               },
               {
                 icon: Zap,
                 title: 'Innovation',
-                description: 'Technologie digitale. Stratégies modernes. Contenu 4K. Marketing 360°. Toujours à l\'avant.'
+                description: 'Présence digitale complète : site web, réseaux sociaux, plateformes immobilières. Votre bien vu partout.'
               },
               {
                 icon: TrendingUp,
                 title: 'Résultats',
-                description: '40% accélération. 100% valeur. 95% satisfaction. Chaque métrique documentée et optimisée.'
+                description: 'Des actions mesurables et un suivi régulier. Vous savez à tout moment où en est votre projet.'
               },
               {
                 icon: CheckCircle2,
                 title: 'Expertise',
-                description: 'Équipe expérimentée. Formation continue. Coaching quotidien. Professionnalisme reconnu.'
+                description: 'Connaissance terrain du marché casablancais et berrechidois. Nous conseillons en toute honnêteté.'
               }
             ].map((item, idx) => {
               const Icon = item.icon;
               return (
-                <div 
+                <div
                   key={idx}
                   className="rounded-2xl p-8"
                   style={{
                     background: 'rgba(26, 40, 71, 0.3)',
                     border: '1px solid rgba(200, 169, 110, 0.2)',
                     transition: 'all 0.3s ease',
-                    cursor: 'pointer'
+                    cursor: 'default'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = 'rgba(26, 40, 71, 0.5)';
@@ -536,25 +336,13 @@ export default function AProposPage() {
                   }}
                 >
                   <Icon size={32} style={{ color: '#C8A96E', marginBottom: '16px' }} />
-                  <h3 
-                    style={{
-                      fontSize: '20px',
-                      fontFamily: "'Cormorant Garamond', Georgia, serif",
-                      fontWeight: 300,
-                      color: '#F9F5EF',
-                      marginBottom: '12px'
-                    }}
+                  <h3
+                    style={{ fontSize: '20px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF', marginBottom: '12px' }}
                   >
                     {item.title}
                   </h3>
-                  <p 
-                    style={{
-                      color: '#8A9BB0',
-                      fontFamily: "'DM Sans', system-ui, sans-serif",
-                      fontWeight: 400,
-                      fontSize: '14px',
-                      lineHeight: '1.6'
-                    }}
+                  <p
+                    style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', lineHeight: '1.6' }}
                   >
                     {item.description}
                   </p>
@@ -565,62 +353,71 @@ export default function AProposPage() {
         </div>
       </section>
 
-      {/* CTA Final */}
-      <section 
-        className="py-24 px-[5%]"
-        style={{
-          background: 'rgba(26, 40, 71, 0.4)'
-        }}
-      >
+      {/* ── 6. CTA FINAL ── */}
+      <section className="py-24 px-[5%]">
         <div className="max-w-[1000px] mx-auto text-center">
-          <h2 
+          <h2
             className="mb-6"
-            style={{
-              fontSize: '48px',
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontWeight: 300,
-              color: '#F9F5EF'
-            }}
+            style={{ fontSize: '48px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}
           >
-            Prêt à <span style={{ color: '#C8A96E' }}>Nous Rejoindre</span>?
+            Parlons de votre <span style={{ color: '#C8A96E' }}>projet</span>
           </h2>
-          <p 
-            className="mb-8"
-            style={{
-              color: '#8A9BB0',
-              fontSize: '16px',
-              fontFamily: "'DM Sans', system-ui, sans-serif",
-              fontWeight: 400,
-              lineHeight: '1.7'
-            }}
+          <p
+            className="mb-10"
+            style={{ color: '#8A9BB0', fontSize: '16px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.7' }}
           >
-            Découvrez comment LANDMARK_ESTATE peut transformer votre projet immobilier en succès de marché.
+            Que vous soyez promoteur, propriétaire ou acheteur — une consultation gratuite suffit pour qu'on vous oriente honnêtement.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/contact"
-  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold transition-all duration-300"
-  style={{
-    background: 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)',
-    color: '#0D1F3C',
-    fontFamily: "'DM Sans', system-ui, sans-serif",
-    fontWeight: 500
-  }}
-  onMouseEnter={(e) => {
-    e.currentTarget.style.boxShadow = '0 20px 40px rgba(200, 169, 110, 0.3)';
-    e.currentTarget.style.transform = 'translateY(-2px)';
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.boxShadow = 'none';
-    e.currentTarget.style.transform = 'translateY(0)';
-  }}
->
-              Prendre Rendez-Vous
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl transition-all duration-300"
+              style={{
+                background: 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)',
+                color: '#0D1F3C',
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontWeight: 500
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 20px 40px rgba(200, 169, 110, 0.3)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              Prendre rendez-vous
             </Link>
+
+            <a
+              href="https://wa.me/212605585720"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl transition-all duration-300"
+              style={{
+                background: 'transparent',
+                border: '1px solid rgba(200, 169, 110, 0.4)',
+                color: '#C8A96E',
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                fontWeight: 500
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(200,169,110,0.08)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              Nous écrire sur WhatsApp
+            </a>
           </div>
         </div>
       </section>
+
     </main>
   );
 }
