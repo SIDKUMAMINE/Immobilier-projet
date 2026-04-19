@@ -5,16 +5,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Phone, BarChart2, Camera, Globe, U
 
 export default function CommercializationPage() {
 
-  const benefits = [
-    "Analyse du marche local et diagnostic de positionnement",
-    "Strategie de prix adaptee aux acheteurs casablancais",
-    "Photos et videos professionnelles du projet",
-    "Diffusion sur Mubawab, Avito, Sarouty et reseaux sociaux",
-    "Campagnes publicitaires Meta et Google ciblees",
-    "Rapport mensuel detaille sur les performances",
-    "Partenariat exclusif -- zero concurrence interne",
-    "Accompagnement jusqu'a la signature chez le notaire",
-  ];
+ 
 
   const steps = [
     {
@@ -255,59 +246,6 @@ export default function CommercializationPage() {
         </div>
       </section>
 
-      {/* TARIFICATION */}
-      <section className="py-24 px-[5%]" style={{ background: 'rgba(26,40,71,0.4)' }}>
-        <div className="max-w-[900px] mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="mb-4" style={{ fontSize: '40px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}>
-              Tarification <span style={{ color: '#C8A96E' }}>transparente</span>
-            </h2>
-          </div>
-
-          <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(200,169,110,0.25)' }}>
-            <div style={{ height: '4px', background: 'linear-gradient(90deg, #C8A96E 0%, #E2C98A 50%, rgba(200,169,110,0.2) 100%)' }} />
-            <div style={{ background: 'rgba(13,31,60,0.6)', padding: '40px' }}>
-
-              <div style={{ textAlign: 'center', paddingBottom: '28px', borderBottom: '1px solid rgba(200,169,110,0.12)', marginBottom: '28px' }}>
-                <p style={{ color: 'rgba(200,169,110,0.6)', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '11px', fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '12px' }}>
-                  Commission de commercialisation exclusive
-                </p>
-                <p style={{ color: '#C8A96E', fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '48px', fontWeight: 300, margin: '0 0 8px' }}>
-                  2.5%
-                </p>
-                <p style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px' }}>
-                  du prix de vente de chaque bien commercialise
-                </p>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
-                {[
-                  'Diagnostic et strategie de prix',
-                  'Production de contenu professionnel',
-                  'Diffusion multi-plateformes',
-                  'Gestion des leads et des visites',
-                  'Negociation et suivi des offres',
-                  'Rapport mensuel detaille',
-                  'Partenariat exclusif long terme',
-                  "Accompagnement jusqu'au notaire",
-                ].map((it, idx) => (
-                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <CheckCircle2 size={14} style={{ color: '#C8A96E', flexShrink: 0 }} />
-                    <span style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '13px' }}>{it}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ padding: '14px 16px', background: 'rgba(200,169,110,0.06)', borderRadius: '8px', border: '1px solid rgba(200,169,110,0.15)' }}>
-                <p style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '13px', lineHeight: 1.7, margin: 0 }}>
-                  <span style={{ color: '#C8A96E', fontWeight: 500 }}>Conditions :</span> partenariat exclusif sur la duree convenue. Des reductions de commission sont possibles sur les projets de grande envergure. Contactez-nous pour un devis personnalise.
-                </p>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* CTA FINAL */}
       <section className="py-24 px-[5%]">
