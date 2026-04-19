@@ -24,7 +24,7 @@ export default function AProposPage() {
         </div>
       </div>
 
-      {/* ── 1. HERO ── */}
+      {/* -- 1. HERO -- */}
       <section className="py-24 px-[5%]" style={{ background: 'linear-gradient(135deg, rgba(26,40,71,0.5), rgba(26,40,71,0.3))' }}>
         <div className="max-w-[1400px] mx-auto text-center max-w-3xl mx-auto">
           <h1
@@ -42,7 +42,7 @@ export default function AProposPage() {
         </div>
       </section>
 
-      {/* ── 2. QUI SOMMES-NOUS (avec fondateur) ── */}
+      {/* -- 2. QUI SOMMES-NOUS (avec fondateur) -- */}
       <section className="py-24 px-[5%]">
         <div className="max-w-[1400px] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
@@ -139,7 +139,7 @@ export default function AProposPage() {
         </div>
       </section>
 
-      {/* ── 3. MISSION / VISION / VALEURS ── */}
+      {/* -- 3. MISSION / VISION / VALEURS -- */}
       <section className="py-24 px-[5%]" style={{ background: 'rgba(26, 40, 71, 0.4)' }}>
         <div className="max-w-[1400px] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -184,7 +184,7 @@ export default function AProposPage() {
         </div>
       </section>
 
-      {/* ── 4. MODÈLE BI-SEGMENTÉ (sans revenus) ── */}
+      {/* -- 4. MODÈLE BI-SEGMENTÉ (sans revenus) -- */}
       <section className="py-24 px-[5%]">
         <div className="max-w-[1400px] mx-auto">
           <h2
@@ -270,7 +270,7 @@ export default function AProposPage() {
         </div>
       </section>
 
-      {/* ── 5. PILIERS ── */}
+      {/* -- 5. PILIERS -- */}
       <section className="py-24 px-[5%]" style={{ background: 'rgba(26, 40, 71, 0.4)' }}>
         <div className="max-w-[1400px] mx-auto">
           <h2
@@ -353,7 +353,7 @@ export default function AProposPage() {
         </div>
       </section>
 
-      {/* ── 6. CTA FINAL ── */}
+      {/* -- 6. CTA FINAL -- */}
       <section className="py-24 px-[5%]">
         <div className="max-w-[1000px] mx-auto text-center">
           <h2
