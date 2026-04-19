@@ -125,7 +125,7 @@ export default function AProposPage() {
                   {/* Tags expertise */}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '16px' }}>
                     {[
-                      'Experience marche local',
+                      'Experience marché local',
                       'Marketing immobilier',
                       'Commerce & Negociation',
                     ].map((tag, idx) => (
@@ -150,84 +150,71 @@ export default function AProposPage() {
                   </div>
                 </div>
 
-                {/* Engagements */}
-                <p
-                  style={{
-                    color: 'rgba(200,169,110,0.7)',
-                    fontFamily: "'DM Sans', system-ui, sans-serif",
-                    fontSize: '11px',
-                    fontWeight: 500,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    marginBottom: '16px'
-                  }}
-                >
-                  Engagements concrets
-                </p>
+             {/* Engagements */}
+<p
+  style={{
+    color: 'rgba(200,169,110,0.7)',
+    fontFamily: "'DM Sans', system-ui, sans-serif",
+    fontSize: '11px',
+    fontWeight: 500,
+    letterSpacing: '0.1em',
+    textTransform: 'uppercase',
+    marginBottom: '16px'
+  }}
+>
+  Nos engagements
+</p>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '11px', marginBottom: '28px' }}>
-                  {[
-                    '14 biens disponibles, verifies et publies',
-                    'Reponse garantie sous 2h',
-                    'Verification du titre foncier avant chaque visite',
-                    "Accompagnement jusqu'a l'acte notarie",
-                    'Diffusion sur Mubawab, Avito et Sarouty',
-                    'Rapport de suivi mensuel pour les promoteurs',
-                  ].map((item, idx) => (
-                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div
-                        style={{
-                          width: '6px',
-                          height: '6px',
-                          background: '#C8A96E',
-                          transform: 'rotate(45deg)',
-                          flexShrink: 0,
-                          opacity: 0.8
-                        }}
-                      />
-                      <span
-                        style={{
-                          color: '#8A9BB0',
-                          fontFamily: "'DM Sans', system-ui, sans-serif",
-                          fontSize: '14px',
-                          lineHeight: 1.5
-                        }}
-                      >
-                        {item}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+<div style={{ display: 'flex', flexDirection: 'column', gap: '11px', marginBottom: '28px' }}>
+  {[
+    { label: 'Reponse rapide', detail: 'Sous 2h sur WhatsApp, 7j/7' },
+    { label: 'Suivi personnalise', detail: 'Un seul interlocuteur du debut a la fin' },
+    { label: 'Connaissance terrain', detail: 'Prix reels, quartiers, tendances du marche casablancais' },
+    { label: 'Transparence totale', detail: 'Verification TF, pas de frais caches, tout explique clairement' },
+    { label: 'Disponibilite reelle', detail: 'Visites flexibles, meme le week-end' },
+  ].map((item, idx) => (
+    <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+      <div
+        style={{
+          width: '6px',
+          height: '6px',
+          background: '#C8A96E',
+          transform: 'rotate(45deg)',
+          flexShrink: 0,
+          marginTop: '7px',
+          opacity: 0.8
+        }}
+      />
+      <div>
+        <span
+          style={{
+            color: '#F9F5EF',
+            fontFamily: "'DM Sans', system-ui, sans-serif",
+            fontSize: '13px',
+            fontWeight: 500,
+            display: 'block',
+            lineHeight: 1.4
+          }}
+        >
+          {item.label}
+        </span>
+        <span
+          style={{
+            color: '#8A9BB0',
+            fontFamily: "'DM Sans', system-ui, sans-serif",
+            fontSize: '12px',
+            fontWeight: 400,
+            lineHeight: 1.4
+          }}
+        >
+          {item.detail}
+        </span>
+      </div>
+    </div>
+  ))}
+</div>
 
-                {/* Téléphone uniquement */}
-                <div style={{ paddingTop: '20px', borderTop: '1px solid rgba(200,169,110,0.12)' }}>
-                  <a
-                    href="tel:+212605585720"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      color: '#8A9BB0',
-                      fontFamily: "'DM Sans', system-ui, sans-serif",
-                      fontSize: '13px',
-                      textDecoration: 'none',
-                      transition: 'color 0.2s'
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.color = '#C8A96E'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = '#8A9BB0'; }}
-                  >
-                    <span style={{ color: '#C8A96E', fontSize: '14px' }}>&#9742;</span>
-                    +212 6 05 58 57 20
-                  </a>
-                </div>
-
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
+              
       {/* MISSION / VISION / VALEURS */}
       <section className="py-24 px-[5%]" style={{ background: 'rgba(26, 40, 71, 0.4)' }}>
         <div className="max-w-[1400px] mx-auto">
