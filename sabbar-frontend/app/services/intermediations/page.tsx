@@ -5,8 +5,6 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Phone, FileSearch, Users, MessageS
 
 export default function IntermediationsPage() {
 
- 
-
   const steps = [
     {
       number: '01',
@@ -91,7 +89,7 @@ export default function IntermediationsPage() {
         </div>
       </section>
 
-      {/* ENGAGEMENTS QUALITATIFS — sans chiffres */}
+      {/* ENGAGEMENTS QUALITATIFS */}
       <section className="py-16 px-[5%]" style={{ background: 'rgba(26,40,71,0.4)' }}>
         <div className="max-w-[1400px] mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
@@ -113,7 +111,7 @@ export default function IntermediationsPage() {
         </div>
       </section>
 
-      {/* DESCRIPTION + SERVICES */}
+      {/* DESCRIPTION + FEATURES */}
       <section className="py-24 px-[5%]">
         <div className="max-w-[1400px] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
@@ -121,30 +119,16 @@ export default function IntermediationsPage() {
               <h2 style={{ fontSize: '40px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF', marginBottom: '24px' }}>
                 Votre Partenaire<br /><span style={{ color: '#C8A96E' }}>De Confiance</span>
               </h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <p style={{ color: '#8A9BB0', fontSize: '16px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.8' }}>
                   Landmark Estate gere chaque etape de votre transaction immobiliere avec professionnalisme et transparence. Que vous soyez vendeur, acheteur ou locataire, nous sommes votre interlocuteur unique du debut a la fin.
                 </p>
                 <p style={{ color: '#8A9BB0', fontSize: '16px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.8' }}>
                   Pour les <strong style={{ color: '#F9F5EF' }}>proprietaires</strong> : vente au juste prix avec une visibilite maximale. Pour les <strong style={{ color: '#F9F5EF' }}>acheteurs</strong> : acces a des biens verifies avec titre foncier propre. Pour tous : zero surprise et 100% de transparence.
                 </p>
-
-                {/* Phrase Mohamed Sabbar */}
-                <p style={{ color: '#8A9BB0', fontSize: '15px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.8', paddingTop: '16px', borderTop: '1px solid rgba(200,169,110,0.12)', marginTop: '4px' }}>
+                <p style={{ color: '#8A9BB0', fontSize: '15px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.8', paddingTop: '16px', borderTop: '1px solid rgba(200,169,110,0.12)' }}>
                   <span style={{ color: '#C8A96E', fontWeight: 500 }}>Mohamed Sabbar</span>, fondateur de Landmark Estate, prend personnellement en charge chaque dossier d&apos;intermediation — vous n&apos;avez pas un agent parmi d&apos;autres, vous avez un interlocuteur qui connait votre bien et defend vos interets.
                 </p>
-              </div>
-
-             
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {benefits.map((benefit, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <CheckCircle2 size={18} style={{ color: '#C8A96E', flexShrink: 0, marginTop: '3px' }} />
-                    <span style={{ color: '#8A9BB0', fontSize: '14px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: 1.6 }}>
-                      {benefit}
-                    </span>
-                  </div>
-                ))}
               </div>
             </div>
 
@@ -253,7 +237,6 @@ export default function IntermediationsPage() {
               Tarification <span style={{ color: '#C8A96E' }}>Transparente</span>
             </h2>
           </div>
-
           <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(200,169,110,0.25)' }}>
             <div style={{ height: '4px', background: 'linear-gradient(90deg, #C8A96E 0%, #E2C98A 50%, rgba(200,169,110,0.2) 100%)' }} />
             <div style={{ background: 'rgba(13,31,60,0.6)', padding: '40px' }}>
@@ -263,20 +246,12 @@ export default function IntermediationsPage() {
                   { segment: 'Milieu de gamme (1M — 3M MAD)', taux: '2.5%' },
                   { segment: 'Accessible (moins de 1M MAD)', taux: '3.0%' },
                 ].map((item, idx) => (
-                  <div
-                    key={idx}
-                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: idx < 2 ? '1px solid rgba(200,169,110,0.1)' : 'none' }}
-                  >
-                    <span style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '15px' }}>
-                      {item.segment}
-                    </span>
-                    <span style={{ color: '#C8A96E', fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '28px', fontWeight: 300 }}>
-                      {item.taux}
-                    </span>
+                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: idx < 2 ? '1px solid rgba(200,169,110,0.1)' : 'none' }}>
+                    <span style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '15px' }}>{item.segment}</span>
+                    <span style={{ color: '#C8A96E', fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '28px', fontWeight: 300 }}>{item.taux}</span>
                   </div>
                 ))}
               </div>
-
               <div style={{ marginTop: '28px', paddingTop: '24px', borderTop: '1px solid rgba(200,169,110,0.12)' }}>
                 <p style={{ color: 'rgba(200,169,110,0.7)', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '11px', fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '14px' }}>
                   Tout est inclus dans ces commissions
@@ -297,7 +272,6 @@ export default function IntermediationsPage() {
                   ))}
                 </div>
               </div>
-
               <div style={{ marginTop: '20px', padding: '14px 16px', background: 'rgba(200,169,110,0.06)', borderRadius: '8px', border: '1px solid rgba(200,169,110,0.15)' }}>
                 <p style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '13px', lineHeight: 1.7, margin: 0 }}>
                   <span style={{ color: '#C8A96E', fontWeight: 500 }}>Frais de notaire :</span> environ 2.5 a 4% du prix de vente, reglementaires et a la charge de l&apos;acheteur. Nous vous aidons a les calculer en amont pour eviter toute surprise.
