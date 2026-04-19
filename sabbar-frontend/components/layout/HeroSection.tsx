@@ -26,7 +26,6 @@ export default function HeroSection() {
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10 w-full">
-        {/* MOBILE: Column layout | DESKTOP: Row layout */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:gap-12">
           
           {/* Left content */}
@@ -54,10 +53,7 @@ export default function HeroSection() {
               Partenaire immobilier stratégique à Casablanca. Commercialisation exclusive pour promoteurs et intermédiations complètes pour propriétaires et acheteurs.
             </p>
 
-           
-
             <div className="flex flex-col sm:flex-row gap-4 md:gap-6 mb-8 md:mb-10">
-              {/* Bouton Services */}
               <button 
                 className="text-[#0D1F3C] px-6 md:px-10 py-3 md:py-4 rounded-lg font-bold text-sm md:text-base transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer w-full sm:w-auto"
                 style={{
@@ -82,37 +78,46 @@ export default function HeroSection() {
               </button>
             </div>
 
-            {/* Stats - Responsive */}
-            <div className="flex flex-col sm:flex-row sm:gap-8 md:gap-16 pt-6 md:pt-8 border-t border-[rgba(200,169,110,0.1)]">
-              {[
-                { number: '50+', label: 'Promoteurs' },
-                { number: 'Suivi', label: 'Réactivité et personnalisé' }
+            {/* Stats */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-10 pt-6 md:pt-8 border-t border-[rgba(200,169,110,0.1)]">
 
-              ].map((stat, idx) => (
-                <div key={idx} className="text-left mb-4 sm:mb-0">
-                  <div 
-                    className="text-2xl md:text-3xl font-bold text-[#C8A96E] mb-1"
-                    style={{
-                      fontFamily: "'Cormorant Garamond', Georgia, serif",
-                      fontWeight: 300
-                    }}
-                  >
-                    {stat.number}
-                  </div>
-                  <div 
-                    className="text-xs md:text-xs text-[#8A9BB0] uppercase tracking-widest"
-                    style={{
-                      fontFamily: "'DM Sans', system-ui, sans-serif",
-                      fontWeight: 500
-                    }}
-                  >
-                    {stat.label}
-                  </div>
+              {/* Stat numérique */}
+              <div className="text-left mb-6 sm:mb-0">
+                <div 
+                  className="text-2xl md:text-3xl text-[#C8A96E] mb-1"
+                  style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300 }}
+                >
+                  50+
                 </div>
-              ))}
+                <div 
+                  className="text-xs text-[#8A9BB0] uppercase tracking-widest"
+                  style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500 }}
+                >
+                  Promoteurs partenaires
+                </div>
+              </div>
+
+              {/* Séparateur vertical */}
+              <div className="hidden sm:block h-10 w-px bg-[rgba(200,169,110,0.2)]" />
+
+              {/* Engagement texte */}
+              <div className="text-left">
+                <div 
+                  className="text-sm md:text-base text-white mb-1"
+                  style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400 }}
+                >
+                  Réactivité &amp; suivi personnalisé
+                </div>
+                <div 
+                  className="text-xs text-[#8A9BB0] uppercase tracking-widest"
+                  style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500 }}
+                >
+                  De la visite à la signature
+                </div>
+              </div>
+
             </div>
           </div>
-
 
         </div>
       </div>
@@ -133,7 +138,6 @@ export default function HeroSection() {
           animation: slideInLeft 1s ease-out;
         }
 
-        /* Responsive background attachment */
         @media (max-width: 768px) {
           section {
             background-attachment: scroll;
