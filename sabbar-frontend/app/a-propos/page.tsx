@@ -63,7 +63,7 @@ export default function AProposPage() {
                   Fondee a Casablanca par <span style={{ color: '#C8A96E', fontWeight: 600 }}>Mohamed Sabbar</span>, notre agence s&apos;est donnee une mission precise : etre l&apos;interlocuteur unique et fiable pour les promoteurs qui souhaitent commercialiser leurs projets, et pour les particuliers qui veulent acheter, vendre ou louer en toute serenite.
                 </p>
                 <p style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, fontSize: '16px', lineHeight: '1.8' }}>
-                  Nous operons aujourd&apos;hui sur <strong style={{ color: '#F9F5EF' }}>Casablanca et regions</strong>, avec un portefeuille de biens verifies et une disponibilite reelle — pas une hotline, mais un interlocuteur qui connait votre dossier.
+                  Nous operons aujourd&apos;hui sur <strong style={{ color: '#F9F5EF' }}>Casablanca et régions</strong>, avec un portefeuille de biens verifies et une disponibilite reelle — pas une hotline, mais un interlocuteur qui connait votre dossier.
                 </p>
               </div>
             </div>
@@ -119,18 +119,7 @@ export default function AProposPage() {
                   ))}
                 </div>
 
-                {/* Telephone */}
-                <div style={{ paddingTop: '20px', borderTop: '1px solid rgba(200,169,110,0.12)' }}>
-                  <a
-                    href="tel:+212605585720"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '13px', textDecoration: 'none', transition: 'color 0.2s' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.color = '#C8A96E'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = '#8A9BB0'; }}
-                  >
-                    <span style={{ color: '#C8A96E', fontSize: '14px' }}>&#9742;</span>
-                    +212 6 05 58 57 20
-                  </a>
-                </div>
+             
 
               </div>
             </div>
