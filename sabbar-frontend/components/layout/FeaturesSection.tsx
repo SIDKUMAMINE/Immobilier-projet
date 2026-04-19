@@ -92,7 +92,7 @@ export default function FeaturesSection() {
                         fontWeight: 300,
                       }}
                     >
-                      5000+
+            
                     </div>
                     <div
                       className="text-sm text-[#8A9BB0]"
@@ -101,7 +101,7 @@ export default function FeaturesSection() {
                         fontWeight: 400,
                       }}
                     >
-                      Transactions réussies
+                      Chaque bien traité avec soin et rigueur
                     </div>
                   </div>
                   <div>
@@ -112,7 +112,7 @@ export default function FeaturesSection() {
                         fontWeight: 300,
                       }}
                     >
-                      20+
+
                     </div>
                     <div
                       className="text-sm text-[#8A9BB0]"
@@ -121,7 +121,7 @@ export default function FeaturesSection() {
                         fontWeight: 400,
                       }}
                     >
-                      Ans d'expérience
+                      Équipe ancrée dans le marché casablancais
                     </div>
                   </div>
                   <div>

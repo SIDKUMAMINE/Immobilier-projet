@@ -54,15 +54,7 @@ export default function HeroSection() {
               Partenaire immobilier stratégique à Casablanca. Commercialisation exclusive pour promoteurs et intermédiations complètes pour propriétaires et acheteurs.
             </p>
 
-            <p 
-              className="text-sm md:text-base text-[#8A9BB0] leading-relaxed mb-6 md:mb-10"
-              style={{
-                fontFamily: "'DM Sans', system-ui, sans-serif",
-                fontWeight: 400
-              }}
-            >
-              <span style={{ color: '#C8A96E', fontWeight: 600 }}>40% plus vite.</span> <span style={{ color: '#C8A96E', fontWeight: 600 }}>100% de la valeur.</span> Zéro compromis sur l'excellence.
-            </p>
+           
 
             <div className="flex flex-col sm:flex-row gap-4 md:gap-6 mb-8 md:mb-10">
               {/* Bouton Services */}
@@ -94,8 +86,8 @@ export default function HeroSection() {
             <div className="flex flex-col sm:flex-row sm:gap-8 md:gap-16 pt-6 md:pt-8 border-t border-[rgba(200,169,110,0.1)]">
               {[
                 { number: '50+', label: 'Promoteurs' },
-                { number: '25-30', label: 'Transactions/Mois' },
-                { number: 'MAD 11.25M', label: 'Revenue Year 1' }
+                { number: 'Suivi', label: 'Réactivité et personnalisé' }
+
               ].map((stat, idx) => (
                 <div key={idx} className="text-left mb-4 sm:mb-0">
                   <div 
