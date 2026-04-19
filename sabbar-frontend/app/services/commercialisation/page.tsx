@@ -1,11 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, CheckCircle2, Phone, BarChart2, Camera, Globe, Users, TrendingUp, Shield, Target } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Phone, BarChart2, Camera, Globe, Users, TrendingUp, Shield, Target } from 'lucide-react';
 
 export default function CommercializationPage() {
-
- 
 
   const steps = [
     {
@@ -80,7 +78,7 @@ export default function CommercializationPage() {
             Commercialisation <span style={{ color: '#C8A96E' }}>exclusive</span>
           </h1>
           <p className="max-w-2xl mb-4" style={{ fontSize: '18px', color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.7' }}>
-            Vous etes promoteur a Casablanca ? Landmark Estate prend en charge la commercialisation complete de votre projet -- de la strategie de prix jusqu'a la signature chez le notaire.
+            Vous etes promoteur a Casablanca ? Landmark Estate prend en charge la commercialisation complete de votre projet -- de la strategie de prix jusqu&apos;a la signature chez le notaire.
           </p>
           <p className="max-w-2xl" style={{ fontSize: '16px', color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400 }}>
             <span style={{ color: '#C8A96E', fontWeight: 500 }}>Mohamed Sabbar</span>, marketeur et commercial specialise en immobilier, suit personnellement chaque projet en partenariat exclusif.
@@ -118,7 +116,7 @@ export default function CommercializationPage() {
               <h2 style={{ fontSize: '40px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF', marginBottom: '24px' }}>
                 Partenaire commercial<br /><span style={{ color: '#C8A96E' }}>de votre projet</span>
               </h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <p style={{ color: '#8A9BB0', fontSize: '16px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.8' }}>
                   Landmark Estate accompagne les promoteurs dans la commercialisation exclusive de leurs projets immobiliers a Casablanca. Nous combinons connaissance terrain du marche local, strategie marketing adaptee au client marocain et suivi rigoureux des performances.
                 </p>
@@ -128,20 +126,6 @@ export default function CommercializationPage() {
                 <p style={{ color: '#8A9BB0', fontSize: '15px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.8', paddingTop: '16px', borderTop: '1px solid rgba(200,169,110,0.12)' }}>
                   <span style={{ color: '#C8A96E', fontWeight: 500 }}>Mohamed Sabbar</span> -- marketeur et commercial specialise en immobilier -- prend personnellement en charge chaque partenariat. Vous avez un interlocuteur unique qui connait votre projet et defend vos interets.
                 </p>
-              </div>
-
-              <h3 style={{ fontSize: '18px', fontWeight: 400, color: '#F9F5EF', fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: '16px' }}>
-                Ce qui est inclus
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {benefits.map((benefit, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <CheckCircle2 size={18} style={{ color: '#C8A96E', flexShrink: 0, marginTop: '3px' }} />
-                    <span style={{ color: '#8A9BB0', fontSize: '14px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: 1.6 }}>
-                      {benefit}
-                    </span>
-                  </div>
-                ))}
               </div>
             </div>
 
@@ -246,9 +230,8 @@ export default function CommercializationPage() {
         </div>
       </section>
 
-
       {/* CTA FINAL */}
-      <section className="py-24 px-[5%]">
+      <section className="py-24 px-[5%]" style={{ background: 'rgba(26,40,71,0.4)' }}>
         <div className="max-w-[1000px] mx-auto text-center">
           <h2 className="mb-6" style={{ fontSize: '48px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}>
             Parlons de <span style={{ color: '#C8A96E' }}>votre projet</span>
