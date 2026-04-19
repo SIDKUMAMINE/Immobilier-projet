@@ -284,7 +284,7 @@ export default function PublicNavbarClient() {
               Blog
             </Link>
 
-            {/* ROI - sans cadre, style normal */}
+            {/* ROI */}
             <Link
               href="/calculateur-roi"
               className="px-4 py-2 transition-colors rounded-lg"
@@ -306,9 +306,9 @@ export default function PublicNavbarClient() {
               ROI
             </Link>
 
-            {/* Consultation */}
+            {/* Estimation de Bien — remplace Consultation */}
             <Link
-              href="/contact"
+              href="/estimation"
               className="px-4 py-2 transition-colors rounded-lg"
               style={{
                 fontFamily: "'DM Sans', system-ui, sans-serif",
@@ -325,7 +325,7 @@ export default function PublicNavbarClient() {
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
             >
-              Consultation
+              Estimation
             </Link>
           </div>
 
