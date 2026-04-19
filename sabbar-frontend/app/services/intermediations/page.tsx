@@ -229,58 +229,7 @@ export default function IntermediationsPage() {
         </div>
       </section>
 
-      {/* TARIFICATION */}
-      <section className="py-24 px-[5%]" style={{ background: 'rgba(26,40,71,0.4)' }}>
-        <div className="max-w-[900px] mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="mb-4" style={{ fontSize: '40px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}>
-              Tarification <span style={{ color: '#C8A96E' }}>Transparente</span>
-            </h2>
-          </div>
-          <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(200,169,110,0.25)' }}>
-            <div style={{ height: '4px', background: 'linear-gradient(90deg, #C8A96E 0%, #E2C98A 50%, rgba(200,169,110,0.2) 100%)' }} />
-            <div style={{ background: 'rgba(13,31,60,0.6)', padding: '40px' }}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {[
-                  { segment: 'Luxe (4M MAD et plus)', taux: '2.0%' },
-                  { segment: 'Milieu de gamme (1M — 3M MAD)', taux: '2.5%' },
-                  { segment: 'Accessible (moins de 1M MAD)', taux: '3.0%' },
-                ].map((item, idx) => (
-                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: idx < 2 ? '1px solid rgba(200,169,110,0.1)' : 'none' }}>
-                    <span style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '15px' }}>{item.segment}</span>
-                    <span style={{ color: '#C8A96E', fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '28px', fontWeight: 300 }}>{item.taux}</span>
-                  </div>
-                ))}
-              </div>
-              <div style={{ marginTop: '28px', paddingTop: '24px', borderTop: '1px solid rgba(200,169,110,0.12)' }}>
-                <p style={{ color: 'rgba(200,169,110,0.7)', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '11px', fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '14px' }}>
-                  Tout est inclus dans ces commissions
-                </p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  {[
-                    'Estimation et conseil de prix',
-                    'Diffusion multi-plateformes',
-                    'Organisation et suivi des visites',
-                    'Negociation et gestion des offres',
-                    'Verification du titre foncier',
-                    'Accompagnement chez le notaire',
-                  ].map((it, idx) => (
-                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <CheckCircle2 size={14} style={{ color: '#C8A96E', flexShrink: 0 }} />
-                      <span style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '13px' }}>{it}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div style={{ marginTop: '20px', padding: '14px 16px', background: 'rgba(200,169,110,0.06)', borderRadius: '8px', border: '1px solid rgba(200,169,110,0.15)' }}>
-                <p style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '13px', lineHeight: 1.7, margin: 0 }}>
-                  <span style={{ color: '#C8A96E', fontWeight: 500 }}>Frais de notaire :</span> environ 2.5 a 4% du prix de vente, reglementaires et a la charge de l&apos;acheteur. Nous vous aidons a les calculer en amont pour eviter toute surprise.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+    
 
       {/* CTA FINAL */}
       <section className="py-24 px-[5%]">
