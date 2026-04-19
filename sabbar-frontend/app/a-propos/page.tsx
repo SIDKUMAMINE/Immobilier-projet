@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, Users, Target, Zap, Shield, TrendingUp, MapPin, Phone } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Users, Target, Zap, Shield, TrendingUp } from 'lucide-react';
 
 export default function AProposPage() {
   return (
@@ -47,6 +47,7 @@ export default function AProposPage() {
         <div className="max-w-[1400px] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
 
+            {/* Texte gauche */}
             <div>
               <h2
                 className="mb-8"
@@ -62,71 +63,164 @@ export default function AProposPage() {
                   Fondee a Casablanca par <span style={{ color: '#C8A96E', fontWeight: 600 }}>Mohamed Sabbar</span>, notre agence s&apos;est donnee une mission precise : etre l&apos;interlocuteur unique et fiable pour les promoteurs qui souhaitent commercialiser leurs projets, et pour les particuliers qui veulent acheter, vendre ou louer en toute serenite.
                 </p>
                 <p style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, fontSize: '16px', lineHeight: '1.8' }}>
-                  Nous operons aujourd&apos;hui sur <strong style={{ color: '#F9F5EF' }}>Casablanca et Berrechid</strong>, avec un portefeuille de biens verifies et une disponibilite reelle — pas une hotline, mais un interlocuteur qui connait votre dossier.
+                  Nous operons aujourd&apos;hui sur <strong style={{ color: '#F9F5EF' }}>Casablanca et régions</strong>, avec un portefeuille de biens verifies et une disponibilite reelle — pas une hotline, mais un interlocuteur qui connait votre dossier.
                 </p>
               </div>
             </div>
 
+            {/* Carte fondateur redessinée */}
             <div
-              className="rounded-2xl p-10"
-              style={{ background: 'rgba(200, 169, 110, 0.05)', border: '1px solid rgba(200, 169, 110, 0.2)' }}
+              className="rounded-2xl overflow-hidden"
+              style={{ border: '1px solid rgba(200, 169, 110, 0.25)' }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px', paddingBottom: '24px', borderBottom: '1px solid rgba(200,169,110,0.15)' }}>
-                <div
-                  style={{
-                    width: '56px', height: '56px', borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    flexShrink: 0, fontSize: '20px', fontWeight: 500, color: '#0D1F3C',
-                    fontFamily: "'Cormorant Garamond', Georgia, serif"
-                  }}
-                >
-                  MS
-                </div>
-                <div>
-                  <p style={{ color: '#F9F5EF', fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '20px', fontWeight: 300, margin: 0 }}>
+              {/* Bande dorée en haut */}
+              <div
+                style={{
+                  height: '4px',
+                  background: 'linear-gradient(90deg, #C8A96E 0%, #E2C98A 50%, rgba(200,169,110,0.2) 100%)'
+                }}
+              />
+
+              <div style={{ background: 'rgba(13, 31, 60, 0.6)', padding: '36px 40px' }}>
+
+                {/* En-tête fondateur */}
+                <div style={{ marginBottom: '28px', paddingBottom: '24px', borderBottom: '1px solid rgba(200,169,110,0.12)' }}>
+                  <p
+                    style={{
+                      color: 'rgba(200,169,110,0.6)',
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontSize: '11px',
+                      fontWeight: 500,
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      marginBottom: '8px'
+                    }}
+                  >
+                    Fondateur
+                  </p>
+                  <p
+                    style={{
+                      color: '#F9F5EF',
+                      fontFamily: "'Cormorant Garamond', Georgia, serif",
+                      fontSize: '28px',
+                      fontWeight: 300,
+                      lineHeight: 1.2,
+                      margin: '0 0 6px'
+                    }}
+                  >
                     Mohamed Sabbar
                   </p>
-                  <p style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '13px', margin: '4px 0 0' }}>
-                    Fondateur — Landmark Estate
+                  <p
+                    style={{
+                      color: '#C8A96E',
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontSize: '13px',
+                      fontWeight: 400,
+                      margin: 0
+                    }}
+                  >
+                    Marketeur &amp; Commercial — Immobilier
                   </p>
-                </div>
-              </div>
 
-              <h3 style={{ color: '#C8A96E', fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '20px', fontWeight: 300, marginBottom: '16px' }}>
-                Nos engagements concrets
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {[
-                  '14 biens disponibles, verifies et publies',
-                  'Reponse WhatsApp garantie sous 2h',
-                  'Verification du titre foncier avant chaque visite',
-                  "Accompagnement jusqu'a l'acte notarie",
-                  'Diffusion sur Mubawab, Avito et Sarouty',
-                  'Rapport de suivi mensuel pour les promoteurs',
-                ].map((item, idx) => (
-                  <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                    <CheckCircle2 size={16} style={{ color: '#C8A96E', flexShrink: 0, marginTop: '3px' }} />
-                    <span style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', lineHeight: 1.6 }}>
-                      {item}
-                    </span>
+                  {/* Tags expertise */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '16px' }}>
+                    {[
+                      'Experience marche local',
+                      'Marketing immobilier',
+                      'Commerce & Negociation',
+                    ].map((tag, idx) => (
+                      <span
+                        key={idx}
+                        style={{
+                          display: 'inline-block',
+                          padding: '4px 12px',
+                          border: '1px solid rgba(200,169,110,0.3)',
+                          borderRadius: '20px',
+                          color: 'rgba(200,169,110,0.8)',
+                          fontFamily: "'DM Sans', system-ui, sans-serif",
+                          fontSize: '11px',
+                          fontWeight: 400,
+                          letterSpacing: '0.04em',
+                          background: 'rgba(200,169,110,0.06)'
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
 
-              <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid rgba(200,169,110,0.15)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Phone size={14} style={{ color: '#C8A96E' }} />
-                  <a href="tel:+212605585720" style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '13px', textDecoration: 'none' }}>
+                {/* Engagements */}
+                <p
+                  style={{
+                    color: 'rgba(200,169,110,0.7)',
+                    fontFamily: "'DM Sans', system-ui, sans-serif",
+                    fontSize: '11px',
+                    fontWeight: 500,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    marginBottom: '16px'
+                  }}
+                >
+                  Engagements concrets
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '11px', marginBottom: '28px' }}>
+                  {[
+                    '14 biens disponibles, verifies et publies',
+                    'Reponse garantie sous 2h',
+                    'Verification du titre foncier avant chaque visite',
+                    "Accompagnement jusqu'a l'acte notarie",
+                    'Diffusion sur Mubawab, Avito et Sarouty',
+                    'Rapport de suivi mensuel pour les promoteurs',
+                  ].map((item, idx) => (
+                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div
+                        style={{
+                          width: '6px',
+                          height: '6px',
+                          background: '#C8A96E',
+                          transform: 'rotate(45deg)',
+                          flexShrink: 0,
+                          opacity: 0.8
+                        }}
+                      />
+                      <span
+                        style={{
+                          color: '#8A9BB0',
+                          fontFamily: "'DM Sans', system-ui, sans-serif",
+                          fontSize: '14px',
+                          lineHeight: 1.5
+                        }}
+                      >
+                        {item}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Téléphone uniquement */}
+                <div style={{ paddingTop: '20px', borderTop: '1px solid rgba(200,169,110,0.12)' }}>
+                  <a
+                    href="tel:+212605585720"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      color: '#8A9BB0',
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                      fontSize: '13px',
+                      textDecoration: 'none',
+                      transition: 'color 0.2s'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = '#C8A96E'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = '#8A9BB0'; }}
+                  >
+                    <span style={{ color: '#C8A96E', fontSize: '14px' }}>&#9742;</span>
                     +212 6 05 58 57 20
                   </a>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <MapPin size={14} style={{ color: '#C8A96E' }} />
-                  <span style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '13px' }}>
-                    Casablanca, Maroc
-                  </span>
-                </div>
+
               </div>
             </div>
 
@@ -302,7 +396,7 @@ export default function AProposPage() {
             className="mb-10"
             style={{ color: '#8A9BB0', fontSize: '16px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.7' }}
           >
-            Que vous soyez promoteur, proprietaire ou acheteur — une consultation gratuite suffit pour vous orienter honnêtement.
+            Que vous soyez promoteur, proprietaire ou acheteur — une consultation gratuite suffit pour vous orienter honnetement.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
