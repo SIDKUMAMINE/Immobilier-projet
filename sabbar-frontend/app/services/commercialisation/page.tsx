@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, CheckCircle2, Phone, BarChart2, Camera, Globe, Users, TrendingUp, Shield, Target, Handshake } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, Phone, BarChart2, Camera, Globe, Users, TrendingUp, Shield, Target } from 'lucide-react';
 
 export default function CommercializationPage() {
 
@@ -57,7 +57,7 @@ export default function CommercializationPage() {
   ];
 
   const advantages = [
-    { Icon: Handshake, title: 'Partenariat exclusif', description: "Un seul partenaire commercial pour votre projet. Mohamed Sabbar suit personnellement chaque dossier." },
+    { Icon: Users, title: 'Partenariat exclusif', description: "Un seul partenaire commercial pour votre projet. Mohamed Sabbar suit personnellement chaque dossier." },
     { Icon: TrendingUp, title: 'Resultats mesurables', description: 'Chaque action est trackee et reportee. Vous savez exactement ou en est votre projet chaque mois.' },
     { Icon: Target, title: 'Ciblage marche local', description: 'Connaissance fine des acheteurs casablancais : leur budget, leurs quartiers preferes, leurs criteres.' },
     { Icon: Shield, title: 'Securite juridique', description: "Accompagnement jusqu'a l'acte notarie. Verification des documents et coordination avec le notaire." },
