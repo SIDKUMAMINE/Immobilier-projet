@@ -130,16 +130,12 @@ export default function CommercializationPage() {
             <span style={{ color: '#C8A96E', fontWeight: 500 }}>Mohamed Sabbar</span>, marketeur et commercial specialise en immobilier, suit personnellement chaque projet en partenariat exclusif.
           </p>
 
-          {/* 3 Pillars */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
+          {/* 3 Pillars — text only */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-12">
             {heroPillars.map((p, idx) => (
-              <div key={idx} className="rounded-xl p-5"
-                style={{ border: '1px solid rgba(200,169,110,0.25)', background: 'rgba(255,255,255,0.03)', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(200,169,110,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {p.icon}
-                </div>
-                <p style={{ fontSize: '15px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500, color: '#F9F5EF', margin: 0 }}>{p.title}</p>
-                <p style={{ fontSize: '13px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, color: '#6B7E96', lineHeight: 1.55, margin: 0 }}>{p.desc}</p>
+              <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <p style={{ fontSize: '15px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500, color: '#C8A96E', margin: 0 }}>{p.title}</p>
+                <p style={{ fontSize: '14px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, color: '#6B7E96', lineHeight: 1.6, margin: 0 }}>{p.desc}</p>
               </div>
             ))}
           </div>
