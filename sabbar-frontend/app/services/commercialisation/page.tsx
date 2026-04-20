@@ -1,41 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Phone, BarChart2, Camera, Globe, Users, TrendingUp, Shield, Target, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Phone, BarChart2, Camera, Globe, Users, TrendingUp, Shield, Target } from 'lucide-react';
 
 export default function CommercializationPage() {
 
   const steps = [
-    {
-      number: '01',
-      title: 'Diagnostic du projet',
-      description: "Analyse du projet, de son emplacement, de la concurrence locale et des acheteurs cibles. Identification des points forts a valoriser."
-    },
-    {
-      number: '02',
-      title: 'Strategie et positionnement',
-      description: "Definition du prix juste, du profil acheteur cible et du message commercial adapte au marche casablancais."
-    },
-    {
-      number: '03',
-      title: 'Production de contenu',
-      description: "Photos et videos professionnelles du projet. Fiches techniques detaillees et visuels adaptes aux plateformes marocaines."
-    },
-    {
-      number: '04',
-      title: 'Lancement commercial',
-      description: "Publication sur toutes les plateformes : Mubawab, Avito, Sarouty, Facebook, Instagram. Activation du reseau d'acheteurs qualifies."
-    },
-    {
-      number: '05',
-      title: 'Gestion des leads et visites',
-      description: "Reception et qualification des contacts, organisation des visites, suivi des prospects serieux jusqu'a l'offre d'achat."
-    },
-    {
-      number: '06',
-      title: 'Suivi et rapport mensuel',
-      description: "Rapport mensuel complet sur les vues, contacts, visites et ventes. Ajustements de strategie selon les resultats."
-    }
+    { number: '01', title: 'Diagnostic du projet', description: "Analyse du projet, de son emplacement, de la concurrence locale et des acheteurs cibles. Identification des points forts a valoriser." },
+    { number: '02', title: 'Strategie et positionnement', description: "Definition du prix juste, du profil acheteur cible et du message commercial adapte au marche casablancais." },
+    { number: '03', title: 'Production de contenu', description: "Photos et videos professionnelles du projet. Fiches techniques detaillees et visuels adaptes aux plateformes marocaines." },
+    { number: '04', title: 'Lancement commercial', description: "Publication sur toutes les plateformes : Mubawab, Avito, Sarouty, Facebook, Instagram. Activation du reseau d'acheteurs qualifies." },
+    { number: '05', title: 'Gestion des leads et visites', description: "Reception et qualification des contacts, organisation des visites, suivi des prospects serieux jusqu'a l'offre d'achat." },
+    { number: '06', title: 'Suivi et rapport mensuel', description: "Rapport mensuel complet sur les vues, contacts, visites et ventes. Ajustements de strategie selon les resultats." }
   ];
 
   const features = [
@@ -52,37 +28,6 @@ export default function CommercializationPage() {
     { Icon: Shield, title: 'Securite juridique', description: "Accompagnement jusqu'a l'acte notarie. Verification des documents et coordination avec le notaire." },
     { Icon: Camera, title: 'Mise en valeur du projet', description: 'Photos et videos professionnelles qui valorisent votre projet face a la concurrence.' },
     { Icon: BarChart2, title: 'Transparence totale', description: "Rapport mensuel detaille, acces aux statistiques de diffusion. Zero surprise sur les performances." },
-  ];
-
-  const heroPillars = [
-    {
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C8A96E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 12l9-9 9 9M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9"/>
-        </svg>
-      ),
-      title: 'Strategie de prix',
-      desc: 'Positionnement marche, analyse concurrentielle et grille tarifaire optimisee.'
-    },
-    {
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C8A96E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z"/>
-        </svg>
-      ),
-      title: 'Marketing & visibilite',
-      desc: 'Supports visuels, campagnes digitales et presence sur tous les canaux B2B.'
-    },
-    {
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C8A96E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-      ),
-      title: "Jusqu'a la signature",
-      desc: 'Accompagnement acheteurs, gestion des dossiers et suivi notarial complet.'
-    },
   ];
 
   return (
@@ -102,56 +47,85 @@ export default function CommercializationPage() {
         </div>
       </div>
 
-      {/* ── HERO B2B ── */}
-      <section className="py-24 px-[5%]" style={{ background: 'linear-gradient(135deg, rgba(26,40,71,0.6), rgba(26,40,71,0.3))' }}>
-        <div className="max-w-[1400px] mx-auto">
+      {/* ── HERO B2B — 2 colonnes ── */}
+      <section className="px-[5%]" style={{ paddingTop: '88px', paddingBottom: '88px', background: 'linear-gradient(135deg, rgba(26,40,71,0.55), rgba(5,13,26,0.25))' }}>
+        <div
+          className="max-w-[1400px] mx-auto"
+          style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'start' }}
+        >
 
-          {/* Tag B2B */}
-          <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full"
-            style={{ border: '1px solid rgba(200,169,110,0.35)', background: 'rgba(200,169,110,0.07)' }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#C8A96E', display: 'inline-block' }} />
-            <span style={{ fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500 }}>
-              Partenariat exclusif · Promoteurs Casablanca
-            </span>
+          {/* ── Colonne gauche ── */}
+          <div>
+            <div
+              className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 rounded-full"
+              style={{ border: '1px solid rgba(200,169,110,0.28)', background: 'rgba(200,169,110,0.05)' }}
+            >
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#C8A96E', display: 'inline-block' }} />
+              <span style={{ fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500 }}>
+                Réservé aux promoteurs · Casablanca
+              </span>
+            </div>
+
+            <h1 style={{ fontSize: '52px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF', lineHeight: 1.12, margin: '0 0 20px' }}>
+              Votre projet vendu.<br />
+              <span style={{ color: '#C8A96E', fontStyle: 'italic' }}>Sans compromis.</span>
+            </h1>
+
+            <div style={{ width: 40, height: 1, background: 'rgba(200,169,110,0.35)', margin: '0 0 28px' }} />
+
+            <p style={{ fontSize: '17px', color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.8', margin: '0 0 14px', maxWidth: '500px' }}>
+              Landmark Estate prend en charge la commercialisation complète de votre projet immobilier à Casablanca — de la stratégie de prix jusqu&apos;à la signature chez le notaire.
+            </p>
+
+            <p style={{ fontSize: '15px', color: '#6B7E96', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.7', maxWidth: '480px', margin: '0 0 52px' }}>
+              <span style={{ color: '#C8A96E', fontWeight: 500 }}>Mohamed Sabbar</span>, marketeur et commercial spécialisé en immobilier, suit personnellement chaque projet en partenariat exclusif.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {[
+                { title: 'Un seul interlocuteur', desc: 'Mohamed Sabbar suit chaque dossier personnellement, du diagnostic à la remise des clés.' },
+                { title: 'Exclusivité totale', desc: 'Aucune concurrence interne. Votre projet est notre unique priorité commerciale.' },
+                { title: 'Résultats transparents', desc: 'Rapport mensuel réel — vues, leads, visites, ventes. Rien de caché.' },
+              ].map((item, idx) => (
+                <div key={idx} style={{ display: 'flex', gap: '18px', alignItems: 'flex-start' }}>
+                  <div style={{ width: '1px', background: 'rgba(200,169,110,0.4)', minHeight: '46px', flexShrink: 0, marginTop: '2px' }} />
+                  <div>
+                    <p style={{ fontSize: '14px', fontWeight: 500, color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", margin: '0 0 5px' }}>{item.title}</p>
+                    <p style={{ fontSize: '13px', color: '#5D7087', fontFamily: "'DM Sans', system-ui, sans-serif", lineHeight: 1.65, margin: 0 }}>{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <h1 className="mb-6" style={{ fontSize: '52px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF', lineHeight: 1.15 }}>
-            Commercialisation <span style={{ color: '#C8A96E', fontStyle: 'italic' }}>exclusive</span>
-          </h1>
+          {/* ── Colonne droite ── */}
+          <div style={{ borderLeft: '1px solid rgba(200,169,110,0.1)', paddingLeft: '64px', paddingTop: '4px' }}>
+            <p style={{ fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#3D5268', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500, margin: '0 0 36px' }}>
+              Ce que nous prenons en charge
+            </p>
 
-          {/* Divider */}
-          <div style={{ width: 48, height: 1, background: 'rgba(200,169,110,0.4)', marginBottom: '28px' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+              {[
+                { num: '01', title: 'Stratégie & positionnement', desc: 'Prix juste, profil acheteur cible, message commercial adapté au marché casablancais.' },
+                { num: '02', title: 'Contenu & visibilité', desc: 'Photos et vidéos professionnelles, diffusion sur Mubawab, Avito, Sarouty, Facebook, Instagram.' },
+                { num: '03', title: 'Gestion commerciale', desc: "Qualification des leads, organisation des visites, suivi des prospects jusqu'à l'offre d'achat." },
+                { num: '04', title: "Suivi jusqu'au notaire", desc: 'Coordination des dossiers, vérification des documents et accompagnement à la signature.' },
+              ].map((item, idx) => (
+                <div key={idx} style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+                  <span style={{ fontSize: '12px', fontFamily: "'Cormorant Garamond', Georgia, serif", color: '#C8A96E', fontWeight: 300, letterSpacing: '0.04em', paddingTop: '2px', minWidth: '22px', flexShrink: 0 }}>{item.num}</span>
+                  <div>
+                    <p style={{ fontSize: '14px', fontWeight: 500, color: '#C4B89A', fontFamily: "'DM Sans', system-ui, sans-serif", margin: '0 0 6px' }}>{item.title}</p>
+                    <p style={{ fontSize: '13px', color: '#4A6075', fontFamily: "'DM Sans', system-ui, sans-serif", lineHeight: 1.65, margin: 0 }}>{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-          <p className="max-w-2xl mb-4" style={{ fontSize: '18px', color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.75' }}>
-            Vous etes promoteur a Casablanca ? Landmark Estate prend en charge la commercialisation complete de votre projet &mdash; de la strategie de prix jusqu&apos;a la signature chez le notaire.
-          </p>
-
-          <p className="max-w-2xl mb-12" style={{ fontSize: '16px', color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400 }}>
-            <span style={{ color: '#C8A96E', fontWeight: 500 }}>Mohamed Sabbar</span>, marketeur et commercial specialise en immobilier, suit personnellement chaque projet en partenariat exclusif.
-          </p>
-
-          {/* 3 Pillars — text only */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-12">
-            {heroPillars.map((p, idx) => (
-              <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <p style={{ fontSize: '15px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500, color: '#C8A96E', margin: 0 }}>{p.title}</p>
-                <p style={{ fontSize: '14px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, color: '#6B7E96', lineHeight: 1.6, margin: 0 }}>{p.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* B2B Engagements */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '40px', paddingTop: '28px', borderTop: '1px solid rgba(200,169,110,0.12)' }}>
-            {[
-              { value: 'Interlocuteur unique', label: 'Mohamed Sabbar suit personnellement chaque projet, de A à Z.' },
-              { value: 'Zéro concurrence interne', label: 'Un seul partenaire commercial dédié à votre projet, en exclusivité.' },
-              { value: 'Résultats mesurables', label: 'Rapport mensuel : vues, contacts, visites et ventes — chiffres réels.' },
-            ].map((item, idx) => (
-              <div key={idx} style={{ flex: '1 1 200px' }}>
-                <p style={{ fontSize: '15px', fontWeight: 500, color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", margin: '0 0 6px' }}>{item.value}</p>
-                <p style={{ fontSize: '13px', color: '#6B7E96', fontFamily: "'DM Sans', system-ui, sans-serif", lineHeight: 1.6, margin: 0 }}>{item.label}</p>
-              </div>
-            ))}
+            <div style={{ marginTop: '44px', paddingTop: '28px', borderTop: '1px solid rgba(200,169,110,0.1)' }}>
+              <p style={{ fontSize: '10px', color: '#3D5268', fontFamily: "'DM Sans', system-ui, sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 10px' }}>Commission de commercialisation</p>
+              <p style={{ fontSize: '28px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#C8A96E', margin: '0 0 6px', lineHeight: 1 }}>2.5% du prix de vente</p>
+              <p style={{ fontSize: '12px', color: '#3D5268', fontFamily: "'DM Sans', system-ui, sans-serif", margin: 0 }}>Tous les services inclus · Zéro frais cachés</p>
+            </div>
           </div>
 
         </div>
@@ -199,8 +173,6 @@ export default function CommercializationPage() {
                 </p>
               </div>
             </div>
-
-            {/* Features Grid */}
             <div className="grid grid-cols-2 gap-6">
               {features.map((feature, idx) => {
                 const Icon = feature.Icon;
