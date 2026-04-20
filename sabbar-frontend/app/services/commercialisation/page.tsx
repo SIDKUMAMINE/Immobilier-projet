@@ -47,85 +47,64 @@ export default function CommercializationPage() {
         </div>
       </div>
 
-      {/* ── HERO B2B — 2 colonnes ── */}
-      <section className="px-[5%]" style={{ paddingTop: '88px', paddingBottom: '88px', background: 'linear-gradient(135deg, rgba(26,40,71,0.55), rgba(5,13,26,0.25))' }}>
-        <div
-          className="max-w-[1400px] mx-auto"
-          style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'start' }}
-        >
+      {/* ── HERO B2B — pleine largeur ── */}
+      <section className="px-[5%]" style={{ paddingTop: '96px', paddingBottom: '80px', background: 'linear-gradient(180deg, rgba(26,40,71,0.45) 0%, rgba(5,13,26,0.15) 100%)' }}>
+        <div className="max-w-[1400px] mx-auto">
 
-          {/* ── Colonne gauche ── */}
-          <div>
-            <div
-              className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 rounded-full"
-              style={{ border: '1px solid rgba(200,169,110,0.28)', background: 'rgba(200,169,110,0.05)' }}
-            >
-              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#C8A96E', display: 'inline-block' }} />
-              <span style={{ fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500 }}>
-                Réservé aux promoteurs · Casablanca
-              </span>
-            </div>
-
-            <h1 style={{ fontSize: '52px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF', lineHeight: 1.12, margin: '0 0 20px' }}>
-              Votre projet vendu.<br />
-              <span style={{ color: '#C8A96E', fontStyle: 'italic' }}>Sans compromis.</span>
-            </h1>
-
-            <div style={{ width: 40, height: 1, background: 'rgba(200,169,110,0.35)', margin: '0 0 28px' }} />
-
-            <p style={{ fontSize: '17px', color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.8', margin: '0 0 14px', maxWidth: '500px' }}>
-              Landmark Estate prend en charge la commercialisation complète de votre projet immobilier à Casablanca — de la stratégie de prix jusqu&apos;à la signature chez le notaire.
-            </p>
-
-            <p style={{ fontSize: '15px', color: '#6B7E96', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.7', maxWidth: '480px', margin: '0 0 52px' }}>
-              <span style={{ color: '#C8A96E', fontWeight: 500 }}>Mohamed Sabbar</span>, marketeur et commercial spécialisé en immobilier, suit personnellement chaque projet en partenariat exclusif.
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              {[
-                { title: 'Un seul interlocuteur', desc: 'Mohamed Sabbar suit chaque dossier personnellement, du diagnostic à la remise des clés.' },
-                { title: 'Exclusivité totale', desc: 'Aucune concurrence interne. Votre projet est notre unique priorité commerciale.' },
-                { title: 'Résultats transparents', desc: 'Rapport mensuel réel — vues, leads, visites, ventes. Rien de caché.' },
-              ].map((item, idx) => (
-                <div key={idx} style={{ display: 'flex', gap: '18px', alignItems: 'flex-start' }}>
-                  <div style={{ width: '1px', background: 'rgba(200,169,110,0.4)', minHeight: '46px', flexShrink: 0, marginTop: '2px' }} />
-                  <div>
-                    <p style={{ fontSize: '14px', fontWeight: 500, color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", margin: '0 0 5px' }}>{item.title}</p>
-                    <p style={{ fontSize: '13px', color: '#5D7087', fontFamily: "'DM Sans', system-ui, sans-serif", lineHeight: 1.65, margin: 0 }}>{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 rounded-full"
+            style={{ border: '1px solid rgba(200,169,110,0.25)', background: 'rgba(200,169,110,0.05)' }}>
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#C8A96E', display: 'inline-block' }} />
+            <span style={{ fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500 }}>
+              Partenariat exclusif · Promoteurs Casablanca
+            </span>
           </div>
 
-          {/* ── Colonne droite ── */}
-          <div style={{ borderLeft: '1px solid rgba(200,169,110,0.1)', paddingLeft: '64px', paddingTop: '4px' }}>
-            <p style={{ fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#3D5268', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500, margin: '0 0 36px' }}>
-              Ce que nous prenons en charge
-            </p>
+          {/* Titre */}
+          <h1 style={{ fontSize: '58px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF', lineHeight: 1.1, margin: '0 0 24px', maxWidth: '820px' }}>
+            La commercialisation de votre projet,<br />
+            <span style={{ color: '#C8A96E', fontStyle: 'italic' }}>prise en charge de A à Z.</span>
+          </h1>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-              {[
-                { num: '01', title: 'Stratégie & positionnement', desc: 'Prix juste, profil acheteur cible, message commercial adapté au marché casablancais.' },
-                { num: '02', title: 'Contenu & visibilité', desc: 'Photos et vidéos professionnelles, diffusion sur Mubawab, Avito, Sarouty, Facebook, Instagram.' },
-                { num: '03', title: 'Gestion commerciale', desc: "Qualification des leads, organisation des visites, suivi des prospects jusqu'à l'offre d'achat." },
-                { num: '04', title: "Suivi jusqu'au notaire", desc: 'Coordination des dossiers, vérification des documents et accompagnement à la signature.' },
-              ].map((item, idx) => (
-                <div key={idx} style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-                  <span style={{ fontSize: '12px', fontFamily: "'Cormorant Garamond', Georgia, serif", color: '#C8A96E', fontWeight: 300, letterSpacing: '0.04em', paddingTop: '2px', minWidth: '22px', flexShrink: 0 }}>{item.num}</span>
-                  <div>
-                    <p style={{ fontSize: '14px', fontWeight: 500, color: '#C4B89A', fontFamily: "'DM Sans', system-ui, sans-serif", margin: '0 0 6px' }}>{item.title}</p>
-                    <p style={{ fontSize: '13px', color: '#4A6075', fontFamily: "'DM Sans', system-ui, sans-serif", lineHeight: 1.65, margin: 0 }}>{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* Sous-titre */}
+          <p style={{ fontSize: '17px', color: '#7A8FA3', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.8', maxWidth: '620px', margin: '0 0 10px' }}>
+            Landmark Estate accompagne les promoteurs immobiliers à Casablanca — stratégie de prix, production de contenu, gestion des leads et suivi jusqu&apos;à la signature notariale.
+          </p>
+          <p style={{ fontSize: '15px', color: '#5A6E82', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: 1.7, maxWidth: '540px', margin: '0 0 64px' }}>
+            <span style={{ color: '#C8A96E', fontWeight: 500 }}>Mohamed Sabbar</span> suit personnellement chaque projet en partenariat exclusif.
+          </p>
 
-            <div style={{ marginTop: '44px', paddingTop: '28px', borderTop: '1px solid rgba(200,169,110,0.1)' }}>
-              <p style={{ fontSize: '10px', color: '#3D5268', fontFamily: "'DM Sans', system-ui, sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 10px' }}>Commission de commercialisation</p>
-              <p style={{ fontSize: '28px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#C8A96E', margin: '0 0 6px', lineHeight: 1 }}>2.5% du prix de vente</p>
-              <p style={{ fontSize: '12px', color: '#3D5268', fontFamily: "'DM Sans', system-ui, sans-serif", margin: 0 }}>Tous les services inclus · Zéro frais cachés</p>
-            </div>
+          {/* Séparateur */}
+          <div style={{ width: '100%', height: '1px', background: 'rgba(200,169,110,0.1)', marginBottom: '48px' }} />
+
+          {/* 3 engagements en ligne */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0' }}>
+            {[
+              {
+                title: 'Interlocuteur unique',
+                desc: 'Mohamed Sabbar suit chaque dossier personnellement — du diagnostic à la remise des clés. Un seul contact, zéro dispersion.'
+              },
+              {
+                title: 'Exclusivité totale',
+                desc: 'Un seul partenaire commercial pour votre projet. Aucune concurrence interne, 100% de focus sur votre succès.'
+              },
+              {
+                title: 'Transparence sur les résultats',
+                desc: 'Rapport mensuel détaillé — vues, leads qualifiés, visites organisées, ventes conclues. Rien de caché.'
+              },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                style={{
+                  paddingRight: idx < 2 ? '48px' : '0',
+                  paddingLeft: idx > 0 ? '48px' : '0',
+                  borderLeft: idx > 0 ? '1px solid rgba(200,169,110,0.12)' : 'none',
+                }}
+              >
+                <p style={{ fontSize: '13px', fontWeight: 500, color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", letterSpacing: '0.04em', textTransform: 'uppercase', margin: '0 0 10px' }}>{item.title}</p>
+                <p style={{ fontSize: '14px', color: '#5A6E82', fontFamily: "'DM Sans', system-ui, sans-serif", lineHeight: 1.75, margin: 0 }}>{item.desc}</p>
+              </div>
+            ))}
           </div>
 
         </div>
