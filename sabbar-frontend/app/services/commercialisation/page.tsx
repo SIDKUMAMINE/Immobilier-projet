@@ -140,29 +140,18 @@ export default function CommercializationPage() {
             ))}
           </div>
 
-          {/* CTA Row */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 16 }}>
-            <Link
-              href="/contact"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl transition-all duration-300"
-              style={{ background: 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)', color: '#0D1F3C', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500, fontSize: '15px', textDecoration: 'none' }}
-              onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 16px 40px rgba(200,169,110,0.3)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}
-            >
-              Discuter un partenariat <ArrowRight size={16} />
-            </Link>
-            <a
-              href="https://wa.me/212605585720"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl transition-all duration-300"
-              style={{ border: '1px solid rgba(200,169,110,0.35)', color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 500, fontSize: '15px', background: 'transparent', textDecoration: 'none' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(200,169,110,0.08)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.transform = 'translateY(0)'; }}
-            >
-              <Phone size={16} />
-              Nous ecrire sur WhatsApp
-            </a>
+          {/* B2B Engagements */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '40px', paddingTop: '28px', borderTop: '1px solid rgba(200,169,110,0.12)' }}>
+            {[
+              { value: 'Interlocuteur unique', label: 'Mohamed Sabbar suit personnellement chaque projet, de A à Z.' },
+              { value: 'Zéro concurrence interne', label: 'Un seul partenaire commercial dédié à votre projet, en exclusivité.' },
+              { value: 'Résultats mesurables', label: 'Rapport mensuel : vues, contacts, visites et ventes — chiffres réels.' },
+            ].map((item, idx) => (
+              <div key={idx} style={{ flex: '1 1 200px' }}>
+                <p style={{ fontSize: '15px', fontWeight: 500, color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", margin: '0 0 6px' }}>{item.value}</p>
+                <p style={{ fontSize: '13px', color: '#6B7E96', fontFamily: "'DM Sans', system-ui, sans-serif", lineHeight: 1.6, margin: 0 }}>{item.label}</p>
+              </div>
+            ))}
           </div>
 
         </div>
