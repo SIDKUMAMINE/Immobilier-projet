@@ -73,8 +73,8 @@ export default function PropertyDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<(number | string)[]>([]);
   const [shareSuccess, setShareSuccess] = useState(false);
-  const [statusSaving, setStatusSaving] = useState(false); /
-  const [isLoggedIn, setIsLoggedIn] = useState(false); /
+  const [statusSaving, setStatusSaving] = useState(false); 
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
   const touchStartRef = useRef<number>(0);
 
 useEffect(() => {
