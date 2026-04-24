@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { API_BASE_URL } from '@/lib/config';
 import { ArrowLeft, MapPin, Heart, Phone, Mail, Share2, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { propertiesApi } from '@/lib/api';
 
@@ -42,7 +43,16 @@ const getTransactionTypeLabel = (type: string): string => {
 const getPropertyTypeLabel = (type: string): string => {
   return propertyTypeMap[type.toLowerCase()] || type;
 };
-
+// ✅ STATUTS DISPONIBLES
+const STATUS_OPTIONS = [
+  { value: 'available',        label: 'Disponible',      color: '#16a34a' },
+  { value: 'sold',             label: 'Vendu',           color: '#dc2626' },
+  { value: 'rented',          label: 'Loué / Occupé',   color: '#2563eb' },
+  { value: 'reserved',        label: 'Réservé',         color: '#d97706' },
+  { value: 'under_offer',     label: 'Sous offre',      color: '#7c3aed' },
+  { value: 'under_contract',  label: 'Sous compromis',  color: '#db2777' },
+  { value: 'unavailable',     label: 'Non disponible',  color: '#6b7280' },
+];
 // LANDMARK color palette
 const COLORS = {
   navy: '#0D1F3C',
@@ -63,14 +73,17 @@ export default function PropertyDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<(number | string)[]>([]);
   const [shareSuccess, setShareSuccess] = useState(false);
+  const [statusSaving, setStatusSaving] = useState(false); /
+  const [isLoggedIn, setIsLoggedIn] = useState(false); /
   const touchStartRef = useRef<number>(0);
 
-  useEffect(() => {
-    const savedFavorites = localStorage.getItem('sabbar_favorites');
-    const favs = savedFavorites ? JSON.parse(savedFavorites) : [];
-    setFavorites(favs);
-    setIsFavorite(favs.includes(parseInt(propertyId)));
-  }, [propertyId]);
+useEffect(() => {
+  const savedFavorites = localStorage.getItem('sabbar_favorites');
+  const favs = savedFavorites ? JSON.parse(savedFavorites) : [];
+  setFavorites(favs);
+  setIsFavorite(favs.includes(parseInt(propertyId)));
+  setIsLoggedIn(!!localStorage.getItem('accessToken'));
+}, [propertyId]);
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -170,7 +183,33 @@ export default function PropertyDetailPage() {
       } catch (err) {
         console.error('Impossible de copier le lien:', err);
       }
-      document.body.removeChild(textArea);
+     document.body.removeChild(textArea);
+    }
+  };
+
+  // ✅ NOUVEAU : Changer le statut directement depuis la page publique
+  const handleStatusChange = async (newStatus: string) => {
+    if (!property) return;
+    setStatusSaving(true);
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) return; // Pas connecté = pas de modification
+      const res = await fetch(`/api/v1/properties/${property.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          'X-Agent-ID': '550e8400-e29b-41d4-a716-446655440000',
+        },
+        body: JSON.stringify({ ...property, status: newStatus }),
+      });
+      if (!res.ok) throw new Error('Erreur mise à jour statut');
+      const updated = await res.json();
+      setProperty(updated);
+    } catch (e: any) {
+      console.error('Erreur statut:', e.message);
+    } finally {
+      setStatusSaving(false);
     }
   };
 
@@ -384,12 +423,25 @@ export default function PropertyDetailPage() {
                   property.bedrooms && { label: 'Chambres', value: property.bedrooms },
                   property.bathrooms && { label: 'Salles de bain', value: property.bathrooms },
                   property.area && { label: 'Surface', value: `${property.area} m²` },
-                  property.status && { label: 'Statut', value: property.status },
+                 property.status && { 
+                   label: 'Statut', 
+                  value: STATUS_OPTIONS.find(s => s.value === property.status)?.label || property.status,
+                  color: STATUS_OPTIONS.find(s => s.value === property.status)?.color,
+                },
                   { label: 'Date de création', value: new Date(property.createdAt || property.created_at).toLocaleDateString('fr-FR') },
                 ].filter(Boolean).map((item: any, i: number, arr: any[]) => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: i < arr.length - 1 ? `1px solid rgba(200,169,110,0.1)` : 'none' }}>
                     <span style={{ color: 'rgba(226,201,138,0.6)', fontFamily: "'DM Sans', sans-serif", fontSize: 14 }}>{item.label}</span>
-                    <span style={{ color: item.gold ? COLORS.gold : COLORS.ivory, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600 }}>{item.value}</span>
+                   <span style={{ 
+  color: item.color ? item.color : (item.gold ? COLORS.gold : COLORS.ivory), 
+  fontFamily: "'DM Sans', sans-serif", 
+  fontSize: 14, 
+  fontWeight: 600,
+  backgroundColor: item.color ? `${item.color}20` : 'transparent',
+  padding: item.color ? '3px 10px' : '0',
+  borderRadius: item.color ? 20 : 0,
+  border: item.color ? `1px solid ${item.color}50` : 'none',
+}}>{item.value}</span>
                   </div>
                 ))}
 
@@ -407,7 +459,45 @@ export default function PropertyDetailPage() {
                 )}
               </div>
             </div>
-
+{/* ✅ NOUVEAU : Modifier le statut */}
+            {localStorage.getItem('accessToken') && (
+              <div style={{ backgroundColor: 'rgba(22,45,79,0.4)', border: `1px solid rgba(200,169,110,0.2)`, borderRadius: 16, padding: 32, marginBottom: 24 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <h2 style={{ fontSize: 22, fontWeight: 300, color: COLORS.ivory, fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+                    Statut de l'annonce
+                  </h2>
+                  {statusSaving && (
+                    <span style={{ color: COLORS.goldLight, fontSize: 12, fontFamily: "'DM Sans', sans-serif" }}>
+                      ⏳ Enregistrement...
+                    </span>
+                  )}
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                  {STATUS_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => handleStatusChange(opt.value)}
+                      disabled={statusSaving}
+                      style={{
+                        padding: '8px 18px',
+                        borderRadius: 999,
+                        border: `2px solid ${opt.color}`,
+                        backgroundColor: property.status === opt.value ? opt.color : 'transparent',
+                        color: property.status === opt.value ? '#fff' : opt.color,
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: statusSaving ? 'not-allowed' : 'pointer',
+                        opacity: statusSaving ? 0.6 : 1,
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             {/* Video */}
             <div style={{ backgroundColor: 'rgba(22,45,79,0.4)', border: `1px solid rgba(200,169,110,0.2)`, borderRadius: 16, padding: 32, marginBottom: 24 }}>
               <h2 style={{ fontSize: 22, fontWeight: 300, color: COLORS.ivory, fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: 20 }}>Vidéo de la propriété</h2>

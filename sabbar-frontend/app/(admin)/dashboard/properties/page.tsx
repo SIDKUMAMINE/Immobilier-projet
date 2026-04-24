@@ -25,10 +25,14 @@ interface Property {
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  available: { label: 'Disponible', color: 'bg-green-100 text-green-700' },
-  sold:      { label: 'Vendu',      color: 'bg-red-100 text-red-700' },
-  rented:    { label: 'Loué',       color: 'bg-blue-100 text-blue-700' },
-  pending:   { label: 'En attente', color: 'bg-amber-100 text-amber-700' },
+  available:      { label: 'Disponible',     color: 'bg-green-100 text-green-700' },
+  sold:           { label: 'Vendu',          color: 'bg-red-100 text-red-700' },
+  rented:         { label: 'Loué / Occupé',  color: 'bg-blue-100 text-blue-700' },
+  reserved:       { label: 'Réservé',        color: 'bg-amber-100 text-amber-700' },
+  under_offer:    { label: 'Sous offre',     color: 'bg-purple-100 text-purple-700' },
+  under_contract: { label: 'Sous compromis', color: 'bg-pink-100 text-pink-700' },
+  unavailable:    { label: 'Non disponible', color: 'bg-slate-100 text-slate-600' },
+  pending:        { label: 'En attente',     color: 'bg-amber-100 text-amber-700' },
 };
 
 const TRANSACTION_LABELS: Record<string, { label: string; color: string }> = {

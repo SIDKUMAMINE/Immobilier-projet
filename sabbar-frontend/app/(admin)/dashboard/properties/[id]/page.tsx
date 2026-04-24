@@ -21,7 +21,6 @@ interface Property {
   district?: string;
   address?: string;
   status: string;
-  // ✨ Nouveaux champs
   has_parking?: boolean;
   has_garden?: boolean;
   has_pool?: boolean;
@@ -34,120 +33,17 @@ interface Property {
 
 // 🇲🇦 VILLES MAROCAINES COMPLÈTES
 const MOROCCAN_CITIES = [
-  // Casablanca-Settat
-  'Casablanca',
-  'Berrechid',
-  'Fédala',
-  'Mohammedia',
-  'Tit Melloul',
-  'Ben Slimane',
-  'Settat',
-  'Kasbah Tadla',
-  'Rommani',
-  
-  // Fès-Meknès
-  'Fès',
-  'Meknès',
-  'Ifrane',
-  'Imouzzer Kandar',
-  'Sefrou',
-  'Moulay Idriss',
-  'Volubilis',
-  'Taounate',
-  'Taza',
-  'Al Hoceïma',
-  
-  // Marrakech-Safi
-  'Marrakech',
-  'Essaouira',
-  'Safi',
-  'Kalaat M\'Gouna',
-  'Ouarzazate',
-  'Taroudant',
-  'Tamatite',
-  'Ounila',
-  'Ouirgane',
-  'Imlil',
-  
-  // Rabat-Salé-Kénitra
-  'Rabat',
-  'Salé',
-  'Kénitra',
-  'Tétouan',
-  'Tanger',
-  'M\'diq',
-  'Fnideq',
-  'Larache',
-  'Ouazzane',
-  'Khémis Sahel',
-  
-  // Tangier-Tetouan-Al Hoceima
-  'Tanger',
-  'Tétouan',
-  'Oued Laou',
-  'Chechaouen',
-  'Ouazzane',
-  'Asilah',
-  'Fahs-Anjra',
-  'Ouezzane',
-  
-  // Drâa-Tafilalet
-  'Errachidia',
-  'Erfoud',
-  'Risani',
-  'Merzouga',
-  'Todra',
-  'Goulmima',
-  'Siege',
-  
-  // Souss-Massa
-  'Agadir',
-  'Inezgane',
-  'Ait-Melloul',
-  'Tiznit',
-  'Sidi Ifni',
-  'Guelmim',
-  'Tan-Tan',
-  'Tarfaya',
-  'Tantan',
-  
-  // Béni Mellal-Khénifra
-  'Béni Mellal',
-  'Khénifra',
-  'Kasbah Tadla',
-  'Rommani',
-  'Kasba Tadla',
-  
-  // Oriental
-  'Oujda',
-  'Berkane',
-  'Nador',
-  'Driouch',
-  'Guercif',
-  'Taourirt',
-  'Jerada',
-  'Saïdia',
-  
-  // Dakhla-Oued Ed-Dahab
-  'Dakhla',
-  'Lagouira',
-  
-  // Laâyoune-Sakia El Hamra
-  'Laâyoune',
-  'Smara',
-  'Boujdour',
-  'Tarfaya',
-  
-  // Autres villes importantes
-  'Azrou',
-  'Khénifra',
-  'Midelt',
-  'Tinghir',
-  'Imintanoute',
-  'Kelaat Mgouna',
-  'Aït Baha',
-  'Bouizakarne',
-  'Garzim',
+  'Casablanca', 'Berrechid', 'Fédala', 'Mohammedia', 'Tit Melloul', 'Ben Slimane', 'Settat', 'Kasbah Tadla', 'Rommani',
+  'Fès', 'Meknès', 'Ifrane', 'Imouzzer Kandar', 'Sefrou', 'Moulay Idriss', 'Volubilis', 'Taounate', 'Taza', 'Al Hoceïma',
+  'Marrakech', 'Essaouira', 'Safi', "Kalaat M'Gouna", 'Ouarzazate', 'Taroudant', 'Tamatite', 'Ounila', 'Ouirgane', 'Imlil',
+  'Rabat', 'Salé', 'Kénitra', 'Tétouan', 'Tanger', "M'diq", 'Fnideq', 'Larache', 'Ouazzane', 'Khémis Sahel',
+  'Oued Laou', 'Chechaouen', 'Asilah', 'Fahs-Anjra', 'Ouezzane',
+  'Errachidia', 'Erfoud', 'Risani', 'Merzouga', 'Todra', 'Goulmima',
+  'Agadir', 'Inezgane', 'Ait-Melloul', 'Tiznit', 'Sidi Ifni', 'Guelmim', 'Tan-Tan', 'Tarfaya', 'Tantan',
+  'Béni Mellal', 'Khénifra', 'Kasba Tadla',
+  'Oujda', 'Berkane', 'Nador', 'Driouch', 'Guercif', 'Taourirt', 'Jerada', 'Saïdia',
+  'Dakhla', 'Lagouira', 'Laâyoune', 'Smara', 'Boujdour',
+  'Azrou', 'Midelt', 'Tinghir', 'Imintanoute', 'Kelaat Mgouna', 'Aït Baha', 'Bouizakarne', 'Garzim',
 ];
 
 const PROPERTY_TYPES = [
@@ -158,7 +54,7 @@ const PROPERTY_TYPES = [
   { value: 'riad', label: 'Riad' },
   { value: 'terrain', label: 'Terrain' },
   { value: 'bureau', label: 'Bureau' },
- { value: 'commercial', label: 'Local commercial' },
+  { value: 'commercial', label: 'Local commercial' },
 ];
 
 const TRANSACTION_TYPES = [
@@ -167,9 +63,15 @@ const TRANSACTION_TYPES = [
   { value: 'vacation_rental', label: 'Location vacances' },
 ];
 
-const PROPERTY_CONDITIONS = [
-  { value: 'new', label: '🆕 Neuf' },
-  { value: 'used', label: '📅 Deuxième main' },
+// ✅ STATUTS
+const STATUS_OPTIONS = [
+  { value: 'available',       label: 'Disponible',     color: '#16a34a' },
+  { value: 'sold',            label: 'Vendu',          color: '#dc2626' },
+  { value: 'rented',          label: 'Loué / Occupé',  color: '#2563eb' },
+  { value: 'reserved',        label: 'Réservé',        color: '#d97706' },
+  { value: 'under_offer',     label: 'Sous offre',     color: '#7c3aed' },
+  { value: 'under_contract',  label: 'Sous compromis', color: '#db2777' },
+  { value: 'unavailable',     label: 'Non disponible', color: '#6b7280' },
 ];
 
 export default function PropertyDetailPage() {
@@ -202,7 +104,6 @@ export default function PropertyDetailPage() {
         const res = await fetch(`${API_BASE_URL}/api/v1/properties/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         if (!res.ok) throw new Error('Annonce non trouvée');
         const data = await res.json();
         setProperty(data);
@@ -215,7 +116,6 @@ export default function PropertyDetailPage() {
         setLoading(false);
       }
     };
-
     load();
   }, [id]);
 
@@ -241,12 +141,10 @@ export default function PropertyDetailPage() {
   // Sauvegarder les modifications
   const handleSave = async () => {
     if (!editForm) return;
-
     setSaving(true);
     setError('');
     try {
       const token = localStorage.getItem('accessToken');
-
       const res = await fetch(`${API_BASE_URL}/api/v1/properties/${id}`, {
         method: 'PUT',
         headers: {
@@ -256,12 +154,10 @@ export default function PropertyDetailPage() {
         },
         body: JSON.stringify(editForm),
       });
-
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.detail || 'Erreur lors de la mise à jour');
       }
-
       const updatedData = await res.json();
       setProperty(updatedData);
       setEditForm(updatedData);
@@ -273,15 +169,40 @@ export default function PropertyDetailPage() {
     }
   };
 
+  // ✅ Changer le statut directement (mode vue)
+  const handleStatusChange = async (newStatus: string) => {
+    if (!property) return;
+    setError('');
+    try {
+      const token = localStorage.getItem('accessToken');
+      const res = await fetch(`${API_BASE_URL}/api/v1/properties/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          'X-Agent-ID': '550e8400-e29b-41d4-a716-446655440000',
+        },
+        body: JSON.stringify({ ...property, status: newStatus }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.detail || 'Erreur mise à jour statut');
+      }
+      const updated = await res.json();
+      setProperty(updated);
+      setEditForm(updated);
+    } catch (e: any) {
+      setError(e.message);
+    }
+  };
+
   // Supprimer l'annonce
   const handleDelete = async () => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cette annonce ?')) return;
-
     setDeleting(true);
     setError('');
     try {
       const token = localStorage.getItem('accessToken');
-
       const res = await fetch(`${API_BASE_URL}/api/v1/properties/${id}`, {
         method: 'DELETE',
         headers: {
@@ -289,12 +210,10 @@ export default function PropertyDetailPage() {
           'X-Agent-ID': '550e8400-e29b-41d4-a716-446655440000',
         },
       });
-
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.detail || 'Erreur lors de la suppression');
       }
-
       router.push('/dashboard/properties');
     } catch (e: any) {
       setError(e.message);
@@ -307,7 +226,7 @@ export default function PropertyDetailPage() {
     return (
       <div className="p-6 text-center">
         <div className="inline-block">
-          <div className="w-8 h-8 border-3 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+          <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
         </div>
         <p className="text-slate-500 mt-3">Chargement...</p>
       </div>
@@ -341,10 +260,11 @@ export default function PropertyDetailPage() {
     );
   }
 
-  // Mode VUE
+  // ─── MODE VUE ───────────────────────────────────────────────────────────────
   if (!isEditing) {
     return (
       <div className="p-6 space-y-6">
+
         {/* Header */}
         <div className="flex items-center justify-between">
           <Link href="/dashboard/properties" className="flex items-center gap-2 text-blue-600 hover:text-blue-700">
@@ -378,7 +298,7 @@ export default function PropertyDetailPage() {
           </div>
         )}
 
-        {/* Title */}
+        {/* Titre */}
         <div>
           <h1 className="text-3xl font-bold text-slate-900">{property.title}</h1>
           <p className="text-slate-500 mt-2">{property.description}</p>
@@ -392,21 +312,18 @@ export default function PropertyDetailPage() {
               {property.price.toLocaleString('fr-MA')} MAD
             </p>
           </div>
-
           <div className="bg-white rounded-lg border border-slate-200 p-4">
             <p className="text-sm text-slate-500">Surface</p>
             <p className="text-2xl font-bold text-slate-900 mt-1">
               {property.area || '—'} m²
             </p>
           </div>
-
           <div className="bg-white rounded-lg border border-slate-200 p-4">
             <p className="text-sm text-slate-500">Chambres</p>
             <p className="text-2xl font-bold text-slate-900 mt-1">
               {property.bedrooms || '—'}
             </p>
           </div>
-
           <div className="bg-white rounded-lg border border-slate-200 p-4">
             <p className="text-sm text-slate-500">Salles de bain</p>
             <p className="text-2xl font-bold text-slate-900 mt-1">
@@ -414,13 +331,36 @@ export default function PropertyDetailPage() {
             </p>
           </div>
         </div>
+
+        {/* ✅ STATUT - Mode vue, modification directe */}
+        <div className="bg-white rounded-lg border border-slate-200 p-5">
+          <p className="text-sm font-semibold text-slate-700 mb-3">Statut de l'annonce</p>
+          <div className="flex flex-wrap gap-2">
+            {STATUS_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => handleStatusChange(opt.value)}
+                className="px-4 py-2 rounded-full text-sm font-semibold border-2 transition-all"
+                style={{
+                  backgroundColor: property.status === opt.value ? opt.color : 'transparent',
+                  borderColor: opt.color,
+                  color: property.status === opt.value ? '#fff' : opt.color,
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
       </div>
     );
   }
 
-  // Mode ÉDITION - COMPLET
+  // ─── MODE ÉDITION ────────────────────────────────────────────────────────────
   return (
     <div className="p-6 space-y-6 max-w-4xl mx-auto">
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Modifier l'annonce</h1>
@@ -580,8 +520,29 @@ export default function PropertyDetailPage() {
         </div>
       </Section>
 
-      {/* Section 3: Critères supplémentaires */}
-      <Section num={3} title="Critères supplémentaires">
+      {/* ✅ Section 3: Statut de l'annonce */}
+      <Section num={3} title="Statut de l'annonce">
+        <div className="flex flex-wrap gap-2">
+          {STATUS_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => set('status', opt.value)}
+              className="px-4 py-2 rounded-full text-sm font-semibold border-2 transition-all"
+              style={{
+                backgroundColor: editForm?.status === opt.value ? opt.color : 'transparent',
+                borderColor: opt.color,
+                color: editForm?.status === opt.value ? '#fff' : opt.color,
+              }}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      {/* Section 4: Critères supplémentaires */}
+      <Section num={4} title="Critères supplémentaires">
         <div className="space-y-6">
           {/* Caractéristiques */}
           <div>
@@ -664,8 +625,8 @@ export default function PropertyDetailPage() {
         </div>
       </Section>
 
-      {/* Section 4: Photos */}
-      <Section num={4} title="Photos">
+      {/* Section 5: Photos */}
+      <Section num={5} title="Photos">
         <div
           className="border-2 border-dashed border-slate-200 rounded-lg p-8 text-center hover:border-blue-300 transition cursor-pointer bg-slate-50"
           onClick={() => photoInputRef.current?.click()}
@@ -704,8 +665,8 @@ export default function PropertyDetailPage() {
         )}
       </Section>
 
-      {/* Section 5: Vidéo */}
-      <Section num={5} title="Vidéo (optionnel)">
+      {/* Section 6: Vidéo */}
+      <Section num={6} title="Vidéo (optionnel)">
         {!videoPreview ? (
           <div
             className="border-2 border-dashed border-slate-200 rounded-lg p-8 text-center hover:border-blue-300 transition cursor-pointer bg-slate-50"
@@ -752,6 +713,7 @@ export default function PropertyDetailPage() {
           {saving ? 'Enregistrement...' : '💾 Sauvegarder'}
         </button>
       </div>
+
     </div>
   );
 }

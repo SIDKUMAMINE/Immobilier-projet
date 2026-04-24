@@ -20,6 +20,16 @@ const MOROCCAN_CITIES = [
   'Dakhla', 'Lagouira', 'Laâyoune', 'Smara', 'Boujdour', 'Tarfaya',
   'Azrou', 'Khénifra', 'Midelt', 'Tinghir', 'Imintanoute', 'Kelaat Mgouna', 'Aït Baha', 'Bouizakarne', 'Garzim',
 ];
+// ✅ STATUTS
+const STATUS_OPTIONS = [
+  { value: 'available',       label: 'Disponible',      color: '#16a34a' },
+  { value: 'sold',            label: 'Vendu',           color: '#dc2626' },
+  { value: 'rented',         label: 'Loué / Occupé',   color: '#2563eb' },
+  { value: 'reserved',       label: 'Réservé',         color: '#d97706' },
+  { value: 'under_offer',    label: 'Sous offre',      color: '#7c3aed' },
+  { value: 'under_contract', label: 'Sous compromis',  color: '#db2777' },
+  { value: 'unavailable',    label: 'Non disponible',  color: '#6b7280' },
+];
 
 // 🎨 PALETTE SABBAR
 const SABBAR_COLORS = {
@@ -300,8 +310,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
               {property.city}
             </span>
           </div>
-
-          {/* Infos */}
+{/* Infos */}
           <div className="flex gap-3 text-xs flex-wrap">
             {property.bedrooms && (
               <span style={{ color: SABBAR_COLORS.goldLight, fontFamily: "'DM Sans', sans-serif" }}>
@@ -314,6 +323,30 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
               </span>
             )}
           </div>
+
+          {/* ✅ NOUVEAU : Badge Statut */}
+          {property.status && (() => {
+            const statusOpt = STATUS_OPTIONS.find(s => s.value === property.status);
+            if (!statusOpt) return null;
+            return (
+              <div className="mt-2">
+                <span style={{
+                  display: 'inline-block',
+                  padding: '3px 10px',
+                  borderRadius: 999,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  fontFamily: "'DM Sans', sans-serif",
+                  backgroundColor: `${statusOpt.color}20`,
+                  color: statusOpt.color,
+                  border: `1px solid ${statusOpt.color}50`,
+                }}>
+                  {statusOpt.label}
+                </span>
+              </div>
+            );
+          })()}
+          
         </div>
       </div>
     </Link>
