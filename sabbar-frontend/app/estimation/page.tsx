@@ -61,6 +61,8 @@ interface EstimationResult {
   priceMax: number;
   pm2Mid: number;
   isLocation: boolean;
+  villeFound: boolean;
+  quartierFound: boolean;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -75,51 +77,119 @@ function fmtRent(n: number): string {
 }
 
 function calculate(form: FormState): EstimationResult {
-  // Recherche flexible ville et quartier
+  const isLocation = form.regime === 'location';
+
+  // ── Recherche ville ──
   const villeKey = Object.keys(PRIX).find((k) =>
-    form.ville.toLowerCase().includes(k) || k.includes(form.ville.toLowerCase())
+    form.ville.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(
+      k.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    ) ||
+    k.normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(
+      form.ville.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    )
   ) ?? '';
 
+  const villeFound = !!villeKey;
   const quartierData = PRIX[villeKey] ?? {};
+
+  // ── Recherche quartier ──
+  const normalize = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+
   const quartierKey = Object.keys(quartierData).find((q) =>
-    q.toLowerCase() === form.quartier.toLowerCase()
+    normalize(q) === normalize(form.quartier) ||
+    normalize(q).includes(normalize(form.quartier)) ||
+    normalize(form.quartier).includes(normalize(q))
   ) ?? '';
 
-  const prixRef = quartierData[quartierKey]
-    ?? (Object.values(quartierData)[0])
-    ?? { min: 8000, max: 14000 };
+  const quartierFound = !!quartierKey;
 
+  // ── Prix de référence ──
+  // Si ville trouvée mais quartier inconnu → moyenne de la ville
+  let prixRef: { min: number; max: number };
+  if (quartierKey) {
+    prixRef = quartierData[quartierKey];
+  } else if (villeKey && Object.values(quartierData).length > 0) {
+    const vals = Object.values(quartierData);
+    prixRef = {
+      min: Math.round(vals.reduce((a, v) => a + v.min, 0) / vals.length),
+      max: Math.round(vals.reduce((a, v) => a + v.max, 0) / vals.length),
+    };
+  } else {
+    // Fallback marché marocain moyen
+    prixRef = { min: 8000, max: 14000 };
+  }
+
+  // ── Coefficients type de bien ──
   let cMin = 1, cMax = 1;
+  const typeCoeffs: Record<string, [number, number]> = {
+    villa:       [1.25, 1.35],
+    riad:        [1.15, 1.30],
+    bureau:      [0.80, 0.90],
+    local:       [0.75, 0.85],
+    terrain:     [0.35, 0.50],
+    appartement: [1.00, 1.00],
+  };
+  const [tc1, tc2] = typeCoeffs[form.type] ?? [1, 1];
+  cMin *= tc1; cMax *= tc2;
 
-  if (form.type === 'villa')   { cMin *= 1.20; cMax *= 1.20; }
-  if (form.type === 'riad')    { cMin *= 1.15; cMax *= 1.30; }
-  if (form.type === 'bureau')  { cMin *= 0.85; cMax *= 0.85; }
-  if (form.type === 'terrain') { cMin *= 0.40; cMax *= 0.50; }
+  // ── Coefficients état ──
+  const etatCoeffs: Record<string, [number, number]> = {
+    neuf:    [1.18, 1.25],
+    bon:     [1.00, 1.00],
+    moyen:   [0.85, 0.88],
+    travaux: [0.68, 0.75],
+  };
+  const [ec1, ec2] = etatCoeffs[form.etat] ?? [1, 1];
+  cMin *= ec1; cMax *= ec2;
 
-  if (form.etat === 'neuf')    { cMin *= 1.15; cMax *= 1.20; }
-  if (form.etat === 'moyen')   { cMin *= 0.88; cMax *= 0.88; }
-  if (form.etat === 'travaux') { cMin *= 0.72; cMax *= 0.72; }
+  // ── Coefficients étage ──
+  const etageCoeffs: Record<string, [number, number]> = {
+    rdc:     [0.90, 0.93],
+    '1':     [0.96, 0.98],
+    '2':     [0.98, 1.00],
+    '3':     [1.00, 1.02],
+    '4':     [1.01, 1.03],
+    dernier: [1.05, 1.10],
+  };
+  const [etc1, etc2] = etageCoeffs[form.etage] ?? [1, 1];
+  cMin *= etc1; cMax *= etc2;
 
-  if (form.etage === 'rdc')     { cMin *= 0.93; cMax *= 0.93; }
-  if (form.etage === 'dernier') { cMin *= 1.05; cMax *= 1.05; }
+  // ── Bonus chambres ──
+  const chambresBonus: Record<string, number> = {
+    '0': 0.90, '1': 0.95, '2': 1.00, '3': 1.05, '4': 1.08, '5': 1.12,
+  };
+  const cb = chambresBonus[form.chambres] ?? 1;
+  cMin *= cb; cMax *= cb;
 
-  const bonus = 1 + form.equip.length * 0.025;
+  // ── Bonus équipements ──
+  const bonus = 1 + form.equip.length * 0.03;
   cMin *= bonus; cMax *= bonus;
 
+  // ── Calcul final ──
   const pm2Min = Math.round(prixRef.min * cMin);
   const pm2Max = Math.round(prixRef.max * cMax);
   const pm2Mid = Math.round((pm2Min + pm2Max) / 2);
-  const isLocation = form.regime === 'location';
 
   if (isLocation) {
-    const rentMin = Math.round(form.surface * pm2Min * 0.005);
-    const rentMax = Math.round(form.surface * pm2Max * 0.005);
-    return { priceMid: Math.round((rentMin + rentMax) / 2), priceMin: rentMin, priceMax: rentMax, pm2Mid, isLocation };
+    // Rendement locatif moyen Maroc : ~4.5% à 6% annuel → 0.375% à 0.5% mensuel
+    const tauxMin = form.type === 'bureau' || form.type === 'local' ? 0.006 : 0.004;
+    const tauxMax = form.type === 'bureau' || form.type === 'local' ? 0.008 : 0.006;
+    const rentMin = Math.round(form.surface * pm2Min * tauxMin / 100) * 100;
+    const rentMax = Math.round(form.surface * pm2Max * tauxMax / 100) * 100;
+    return {
+      priceMid: Math.round((rentMin + rentMax) / 2 / 100) * 100,
+      priceMin: rentMin, priceMax: rentMax,
+      pm2Mid, isLocation, villeFound, quartierFound,
+    };
   }
 
   const priceMin = Math.round((form.surface * pm2Min) / 10000) * 10000;
   const priceMax = Math.round((form.surface * pm2Max) / 10000) * 10000;
-  return { priceMid: Math.round((priceMin + priceMax) / 10000) * 10000, priceMin, priceMax, pm2Mid, isLocation };
+  return {
+    priceMid: Math.round((priceMin + priceMax) / 2 / 10000) * 10000,
+    priceMin, priceMax, pm2Mid, isLocation, villeFound, quartierFound,
+  };
 }
 
 // ─── Styles communs ───────────────────────────────────────────────────────────
@@ -160,14 +230,14 @@ function ChipGroup({
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '10px' }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
       {options.map(({ val, label }) => (
         <button
           key={val}
           type="button"
           onClick={() => handleClick(val)}
           style={{
-            padding: '10px 14px',
+            padding: '10px 18px',
             background: isSelected(val) ? 'rgba(200,169,110,0.15)' : 'rgba(255,255,255,0.04)',
             border: `1px solid ${isSelected(val) ? '#C8A96E' : 'rgba(200,169,110,0.2)'}`,
             borderRadius: '8px',
@@ -176,8 +246,8 @@ function ChipGroup({
             fontFamily: "'DM Sans', system-ui, sans-serif",
             color: isSelected(val) ? '#C8A96E' : 'rgba(249,245,239,0.7)',
             cursor: 'pointer',
-            textAlign: 'center',
             transition: 'all 0.2s',
+            whiteSpace: 'nowrap',
           }}
         >
           {label}
@@ -191,7 +261,7 @@ function Label({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       fontSize: '12px', fontWeight: 500, letterSpacing: '0.1em',
-      textTransform: 'uppercase', color: 'rgba(200,169,110,0.7)', marginBottom: '8px',
+      textTransform: 'uppercase', color: 'rgba(200,169,110,0.7)', marginBottom: '10px',
     }}>
       {children}
     </div>
@@ -201,20 +271,6 @@ function Label({ children }: { children: React.ReactNode }) {
 function FieldError({ msg }: { msg?: string }) {
   if (!msg) return null;
   return <div style={{ fontSize: '12px', color: '#e87070', marginTop: '6px' }}>{msg}</div>;
-}
-
-function SelectInput({ value, onChange, children }: {
-  value: string; onChange: (v: string) => void; children: React.ReactNode;
-}) {
-  return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      style={{ ...inputStyle, WebkitAppearance: 'none', cursor: 'pointer' }}
-    >
-      {children}
-    </select>
-  );
 }
 
 function BtnNext({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
@@ -348,9 +404,8 @@ function EstimationForm() {
     fontFamily: "'DM Sans', system-ui, sans-serif",
   };
 
-  const fieldStyle: React.CSSProperties = { marginBottom: '22px' };
+  const fieldStyle: React.CSSProperties = { marginBottom: '24px' };
   const btnRow: React.CSSProperties = { display: 'flex', gap: '12px', marginTop: '32px' };
-  const grid2: React.CSSProperties = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' };
 
   // ── Step 1 ────────────────────────────────────────────────────────────────
 
@@ -404,7 +459,6 @@ function EstimationForm() {
       <div style={stepTitleStyle}>Localisation</div>
       <div style={stepSubStyle}>Où se situe votre bien ?</div>
 
-      {/* ✅ VILLE — input texte libre */}
       <div style={fieldStyle}>
         <Label>Ville</Label>
         <input
@@ -417,7 +471,6 @@ function EstimationForm() {
         <FieldError msg={errors.ville} />
       </div>
 
-      {/* ✅ QUARTIER — input texte libre */}
       <div style={fieldStyle}>
         <Label>Quartier</Label>
         <input
@@ -445,7 +498,7 @@ function EstimationForm() {
       <div style={stepTitleStyle}>Caractéristiques</div>
       <div style={stepSubStyle}>Décrivez les détails de votre bien</div>
 
-      {/* ✅ SURFACE — input number libre */}
+      {/* Surface */}
       <div style={fieldStyle}>
         <Label>Superficie (m²)</Label>
         <input
@@ -460,31 +513,41 @@ function EstimationForm() {
         <FieldError msg={errors.surface} />
       </div>
 
-      <div style={{ ...grid2, marginBottom: '22px' }}>
-        <div>
-          <Label>Chambres</Label>
-          <SelectInput value={form.chambres} onChange={(v) => set('chambres', v)}>
-            <option value="0">Studio</option>
-            <option value="1">1 chambre</option>
-            <option value="2">2 chambres</option>
-            <option value="3">3 chambres</option>
-            <option value="4">4 chambres</option>
-            <option value="5">5+ chambres</option>
-          </SelectInput>
-        </div>
-        <div>
-          <Label>Étage</Label>
-          <SelectInput value={form.etage} onChange={(v) => set('etage', v)}>
-            <option value="rdc">Rez-de-chaussée</option>
-            <option value="1">1er étage</option>
-            <option value="2">2e étage</option>
-            <option value="3">3e étage</option>
-            <option value="4">4e+ étage</option>
-            <option value="dernier">Dernier étage</option>
-          </SelectInput>
-        </div>
+      {/* ✅ CHAMBRES — ChipGroup au lieu de select */}
+      <div style={fieldStyle}>
+        <Label>Chambres</Label>
+        <ChipGroup
+          options={[
+            { val: '0', label: 'Studio' },
+            { val: '1', label: '1 ch.' },
+            { val: '2', label: '2 ch.' },
+            { val: '3', label: '3 ch.' },
+            { val: '4', label: '4 ch.' },
+            { val: '5', label: '5+ ch.' },
+          ]}
+          value={form.chambres}
+          onChange={(v) => set('chambres', v as string)}
+        />
       </div>
 
+      {/* ✅ ÉTAGE — ChipGroup au lieu de select */}
+      <div style={fieldStyle}>
+        <Label>Étage</Label>
+        <ChipGroup
+          options={[
+            { val: 'rdc', label: 'RDC' },
+            { val: '1', label: '1er' },
+            { val: '2', label: '2e' },
+            { val: '3', label: '3e' },
+            { val: '4', label: '4e+' },
+            { val: 'dernier', label: 'Dernier' },
+          ]}
+          value={form.etage}
+          onChange={(v) => set('etage', v as string)}
+        />
+      </div>
+
+      {/* État */}
       <div style={fieldStyle}>
         <Label>État général</Label>
         <ChipGroup
@@ -499,6 +562,7 @@ function EstimationForm() {
         />
       </div>
 
+      {/* Équipements */}
       <div style={fieldStyle}>
         <Label>Équipements (multi-sélection)</Label>
         <ChipGroup
@@ -534,13 +598,34 @@ function EstimationForm() {
         {r.isLocation ? 'Estimation locative basée sur le marché actuel' : 'Résultat basé sur le marché actuel'}
       </div>
 
+      {/* Avertissement si ville/quartier non reconnus */}
+      {(!r.villeFound || !r.quartierFound) && (
+        <div style={{
+          background: 'rgba(200,169,110,0.08)',
+          border: '1px solid rgba(200,169,110,0.25)',
+          borderRadius: '8px', padding: '12px 16px',
+          fontSize: '13px', color: 'rgba(200,169,110,0.8)',
+          fontFamily: "'DM Sans', system-ui, sans-serif",
+          marginBottom: '20px', lineHeight: 1.5,
+        }}>
+          ⚠️ {!r.villeFound
+            ? 'Ville non reconnue — estimation basée sur les moyennes nationales.'
+            : 'Quartier non reconnu — estimation basée sur la moyenne de la ville.'}
+        </div>
+      )}
+
+      {/* Prix principal */}
       <div style={{
         background: 'rgba(200,169,110,0.07)',
         border: '1px solid rgba(200,169,110,0.3)',
         borderRadius: '12px', padding: '28px',
-        textAlign: 'center', marginBottom: '24px',
+        textAlign: 'center', marginBottom: '20px',
       }}>
-        <div style={{ fontSize: '12px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(200,169,110,0.65)', marginBottom: '10px', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+        <div style={{
+          fontSize: '12px', letterSpacing: '0.15em', textTransform: 'uppercase',
+          color: 'rgba(200,169,110,0.65)', marginBottom: '10px',
+          fontFamily: "'DM Sans', system-ui, sans-serif",
+        }}>
           {r.isLocation ? 'Loyer mensuel estimé' : 'Valeur estimée'}
         </div>
         <div style={{
@@ -550,29 +635,42 @@ function EstimationForm() {
         }}>
           {r.isLocation ? fmtRent(r.priceMid) : fmtMAD(r.priceMid)}
         </div>
-        <div style={{ fontSize: '13px', color: 'rgba(200,169,110,0.5)', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
-          {r.isLocation
+        <div style={{
+          fontSize: '13px', color: 'rgba(200,169,110,0.5)',
+          fontFamily: "'DM Sans', system-ui, sans-serif",
+        }}>
+          Fourchette : {r.isLocation
             ? `${fmtRent(r.priceMin)} — ${fmtRent(r.priceMax)}`
             : `${fmtMAD(r.priceMin)} — ${fmtMAD(r.priceMax)}`}
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+      {/* Détails */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
         {[
           { label: 'Prix / m²', val: `${r.pm2Mid.toLocaleString('fr-FR')} MAD/m²` },
           { label: 'Superficie', val: `${form.surface} m²` },
+          { label: 'Ville', val: form.ville },
           { label: 'Quartier', val: form.quartier },
           { label: 'Type de bien', val: form.type.charAt(0).toUpperCase() + form.type.slice(1) },
+          { label: 'État', val: { neuf: 'Neuf', bon: 'Bon état', moyen: 'À rafraîchir', travaux: 'Gros travaux' }[form.etat] ?? form.etat },
         ].map(({ label, val }) => (
           <div key={label} style={{
             background: 'rgba(255,255,255,0.03)',
             border: '1px solid rgba(200,169,110,0.12)',
             borderRadius: '8px', padding: '14px',
           }}>
-            <div style={{ fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(200,169,110,0.5)', marginBottom: '4px', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+            <div style={{
+              fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase',
+              color: 'rgba(200,169,110,0.5)', marginBottom: '4px',
+              fontFamily: "'DM Sans', system-ui, sans-serif",
+            }}>
               {label}
             </div>
-            <div style={{ fontSize: '16px', fontWeight: 500, color: '#F9F5EF', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+            <div style={{
+              fontSize: '15px', fontWeight: 500, color: '#F9F5EF',
+              fontFamily: "'DM Sans', system-ui, sans-serif",
+            }}>
               {val}
             </div>
           </div>
@@ -584,7 +682,7 @@ function EstimationForm() {
         textAlign: 'center', lineHeight: 1.6, padding: '0 16px',
         fontFamily: "'DM Sans', system-ui, sans-serif", marginBottom: '0',
       }}>
-        Cette estimation est indicative et basée sur les prix du marché marocain.
+        Estimation indicative basée sur les prix du marché marocain actuel.
         Pour une évaluation officielle, contactez nos experts LANDMARK ESTATE.
       </div>
 
