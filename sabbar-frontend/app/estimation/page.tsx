@@ -1,21 +1,8 @@
 'use client';
 
-import type { Metadata } from 'next';
 import { useState, useCallback } from 'react';
 
 // ─── Data ────────────────────────────────────────────────────────────────────
-
-const QUARTIERS: Record<string, string[]> = {
-  casablanca: [
-    'Anfa', 'Maarif', 'Gauthier', 'Ain Diab', 'Bourgogne', 'Sidi Maarouf',
-    'Bouskoura', 'Hay Hassani', 'Californie', 'Val Fleuri', 'Oulfa', 'Bernoussi',
-  ],
-  rabat: ['Agdal', 'Hassan', 'Souissi', 'Les Orangers', 'Hay Riad', 'Youssoufia', 'Akkari'],
-  marrakech: ['Guéliz', 'Hivernage', 'Palmeraie', 'Mellah', 'Agdal Marrakech', 'Targa'],
-  tanger: ['Malabata', 'Marchane', 'Iberia', 'Val Fleuri Tanger', 'Boukhalef', 'Moghogha'],
-  agadir: ['Founty', 'Hay Mohammadi', 'Talborjt', 'Cité Suisse', 'Anza'],
-  fes: ['Saiss', "Route d'Imouzzer", 'Montfleuri', 'Atlas', 'Les Mérinides'],
-};
 
 const PRIX: Record<string, Record<string, { min: number; max: number }>> = {
   casablanca: {
@@ -88,7 +75,20 @@ function fmtRent(n: number): string {
 }
 
 function calculate(form: FormState): EstimationResult {
-  const prixRef = PRIX[form.ville]?.[form.quartier] ?? { min: 8000, max: 14000 };
+  // Recherche flexible ville et quartier
+  const villeKey = Object.keys(PRIX).find((k) =>
+    form.ville.toLowerCase().includes(k) || k.includes(form.ville.toLowerCase())
+  ) ?? '';
+
+  const quartierData = PRIX[villeKey] ?? {};
+  const quartierKey = Object.keys(quartierData).find((q) =>
+    q.toLowerCase() === form.quartier.toLowerCase()
+  ) ?? '';
+
+  const prixRef = quartierData[quartierKey]
+    ?? (Object.values(quartierData)[0])
+    ?? { min: 8000, max: 14000 };
+
   let cMin = 1, cMax = 1;
 
   if (form.type === 'villa')   { cMin *= 1.20; cMax *= 1.20; }
@@ -100,8 +100,8 @@ function calculate(form: FormState): EstimationResult {
   if (form.etat === 'moyen')   { cMin *= 0.88; cMax *= 0.88; }
   if (form.etat === 'travaux') { cMin *= 0.72; cMax *= 0.72; }
 
-  if (form.etage === 'rdc')    { cMin *= 0.93; cMax *= 0.93; }
-  if (form.etage === 'dernier'){ cMin *= 1.05; cMax *= 1.05; }
+  if (form.etage === 'rdc')     { cMin *= 0.93; cMax *= 0.93; }
+  if (form.etage === 'dernier') { cMin *= 1.05; cMax *= 1.05; }
 
   const bonus = 1 + form.equip.length * 0.025;
   cMin *= bonus; cMax *= bonus;
@@ -121,6 +121,21 @@ function calculate(form: FormState): EstimationResult {
   const priceMax = Math.round((form.surface * pm2Max) / 10000) * 10000;
   return { priceMid: Math.round((priceMin + priceMax) / 10000) * 10000, priceMin, priceMax, pm2Mid, isLocation };
 }
+
+// ─── Styles communs ───────────────────────────────────────────────────────────
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  background: 'rgba(255,255,255,0.05)',
+  border: '1px solid rgba(200,169,110,0.2)',
+  borderRadius: '8px',
+  padding: '12px 16px',
+  fontFamily: "'DM Sans', system-ui, sans-serif",
+  fontSize: '15px',
+  color: '#F9F5EF',
+  outline: 'none',
+  boxSizing: 'border-box',
+};
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
@@ -188,27 +203,14 @@ function FieldError({ msg }: { msg?: string }) {
   return <div style={{ fontSize: '12px', color: '#e87070', marginTop: '6px' }}>{msg}</div>;
 }
 
-function SelectInput({ id, value, onChange, children }: {
-  id?: string; value: string; onChange: (v: string) => void; children: React.ReactNode;
+function SelectInput({ value, onChange, children }: {
+  value: string; onChange: (v: string) => void; children: React.ReactNode;
 }) {
   return (
     <select
-      id={id}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      style={{
-        width: '100%',
-        background: 'rgba(255,255,255,0.05)',
-        border: '1px solid rgba(200,169,110,0.2)',
-        borderRadius: '8px',
-        padding: '12px 16px',
-        fontFamily: "'DM Sans', system-ui, sans-serif",
-        fontSize: '15px',
-        color: '#F9F5EF',
-        outline: 'none',
-        WebkitAppearance: 'none',
-        cursor: 'pointer',
-      }}
+      style={{ ...inputStyle, WebkitAppearance: 'none', cursor: 'pointer' }}
     >
       {children}
     </select>
@@ -294,7 +296,7 @@ function EstimationForm() {
   const [result, setResult] = useState<EstimationResult | null>(null);
   const [form, setForm] = useState<FormState>({
     type: '', regime: '', ville: '', quartier: '',
-    surface: 100, chambres: '2', etage: 'rdc', etat: 'bon', equip: [],
+    surface: 0, chambres: '2', etage: 'rdc', etat: 'bon', equip: [],
   });
 
   const set = useCallback(<K extends keyof FormState>(key: K, val: FormState[K]) => {
@@ -312,13 +314,16 @@ function EstimationForm() {
 
   const goStep3 = () => {
     const errs: Record<string, string> = {};
-    if (!form.ville) errs.ville = 'Veuillez sélectionner une ville';
-    if (!form.quartier) errs.quartier = 'Veuillez sélectionner un quartier';
+    if (!form.ville.trim()) errs.ville = 'Veuillez entrer une ville';
+    if (!form.quartier.trim()) errs.quartier = 'Veuillez entrer un quartier';
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setStep(3);
   };
 
   const goStep4 = () => {
+    const errs: Record<string, string> = {};
+    if (!form.surface || form.surface <= 0) errs.surface = 'Veuillez entrer une superficie valide';
+    if (Object.keys(errs).length) { setErrors(errs); return; }
     setResult(calculate(form));
     setStep(4);
   };
@@ -344,9 +349,7 @@ function EstimationForm() {
   };
 
   const fieldStyle: React.CSSProperties = { marginBottom: '22px' };
-
   const btnRow: React.CSSProperties = { display: 'flex', gap: '12px', marginTop: '32px' };
-
   const grid2: React.CSSProperties = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' };
 
   // ── Step 1 ────────────────────────────────────────────────────────────────
@@ -375,7 +378,7 @@ function EstimationForm() {
       </div>
 
       <div style={fieldStyle}>
-        <Label>Régime de vente</Label>
+        <Label>Régime</Label>
         <ChipGroup
           options={[
             { val: 'vente', label: 'Vente' },
@@ -401,30 +404,29 @@ function EstimationForm() {
       <div style={stepTitleStyle}>Localisation</div>
       <div style={stepSubStyle}>Où se situe votre bien ?</div>
 
+      {/* ✅ VILLE — input texte libre */}
       <div style={fieldStyle}>
         <Label>Ville</Label>
-        <SelectInput value={form.ville} onChange={(v) => { set('ville', v); set('quartier', ''); }}>
-          <option value="">Sélectionner la ville</option>
-          <option value="casablanca">Casablanca</option>
-          <option value="rabat">Rabat</option>
-          <option value="marrakech">Marrakech</option>
-          <option value="tanger">Tanger</option>
-          <option value="agadir">Agadir</option>
-          <option value="fes">Fès</option>
-        </SelectInput>
+        <input
+          type="text"
+          placeholder="Ex : Casablanca, Rabat, Marrakech..."
+          value={form.ville}
+          onChange={(e) => { set('ville', e.target.value); set('quartier', ''); }}
+          style={inputStyle}
+        />
         <FieldError msg={errors.ville} />
       </div>
 
+      {/* ✅ QUARTIER — input texte libre */}
       <div style={fieldStyle}>
         <Label>Quartier</Label>
-        <SelectInput value={form.quartier} onChange={(v) => set('quartier', v)}>
-          <option value="">
-            {form.ville ? 'Sélectionner un quartier' : 'Sélectionner d\'abord une ville'}
-          </option>
-          {(QUARTIERS[form.ville] ?? []).map((q) => (
-            <option key={q} value={q}>{q}</option>
-          ))}
-        </SelectInput>
+        <input
+          type="text"
+          placeholder="Ex : Anfa, Maarif, Agdal, Guéliz..."
+          value={form.quartier}
+          onChange={(e) => set('quartier', e.target.value)}
+          style={inputStyle}
+        />
         <FieldError msg={errors.quartier} />
       </div>
 
@@ -443,21 +445,19 @@ function EstimationForm() {
       <div style={stepTitleStyle}>Caractéristiques</div>
       <div style={stepSubStyle}>Décrivez les détails de votre bien</div>
 
+      {/* ✅ SURFACE — input number libre */}
       <div style={fieldStyle}>
-        <Label>Superficie — {form.surface} m²</Label>
+        <Label>Superficie (m²)</Label>
         <input
-          type="range" min={30} max={1000} step={5}
-          value={form.surface}
+          type="number"
+          min={10}
+          max={99999}
+          placeholder="Ex : 120"
+          value={form.surface === 0 ? '' : form.surface}
           onChange={(e) => set('surface', Number(e.target.value))}
-          style={{
-            WebkitAppearance: 'none', width: '100%', height: '3px',
-            background: 'rgba(200,169,110,0.2)', borderRadius: '2px',
-            outline: 'none', cursor: 'pointer', marginBottom: '6px',
-          }}
+          style={inputStyle}
         />
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'rgba(200,169,110,0.5)' }}>
-          <span>30 m²</span><span>1 000 m²</span>
-        </div>
+        <FieldError msg={errors.surface} />
       </div>
 
       <div style={{ ...grid2, marginBottom: '22px' }}>
@@ -530,18 +530,15 @@ function EstimationForm() {
     <div style={cardStyle}>
       <ProgressBar current={4} />
       <div style={stepTitleStyle}>Estimation</div>
-      <div style={{ ...stepSubStyle }}>
+      <div style={stepSubStyle}>
         {r.isLocation ? 'Estimation locative basée sur le marché actuel' : 'Résultat basé sur le marché actuel'}
       </div>
 
-      {/* Main price box */}
       <div style={{
         background: 'rgba(200,169,110,0.07)',
         border: '1px solid rgba(200,169,110,0.3)',
-        borderRadius: '12px',
-        padding: '28px',
-        textAlign: 'center',
-        marginBottom: '24px',
+        borderRadius: '12px', padding: '28px',
+        textAlign: 'center', marginBottom: '24px',
       }}>
         <div style={{ fontSize: '12px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(200,169,110,0.65)', marginBottom: '10px', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
           {r.isLocation ? 'Loyer mensuel estimé' : 'Valeur estimée'}
@@ -560,7 +557,6 @@ function EstimationForm() {
         </div>
       </div>
 
-      {/* Detail cards */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
         {[
           { label: 'Prix / m²', val: `${r.pm2Mid.toLocaleString('fr-FR')} MAD/m²` },
@@ -586,8 +582,7 @@ function EstimationForm() {
       <div style={{
         fontSize: '12px', color: 'rgba(200,169,110,0.4)',
         textAlign: 'center', lineHeight: 1.6, padding: '0 16px',
-        fontFamily: "'DM Sans', system-ui, sans-serif",
-        marginBottom: '0',
+        fontFamily: "'DM Sans', system-ui, sans-serif", marginBottom: '0',
       }}>
         Cette estimation est indicative et basée sur les prix du marché marocain.
         Pour une évaluation officielle, contactez nos experts LANDMARK ESTATE.
@@ -607,20 +602,14 @@ function EstimationForm() {
 
 export default function EstimationPage() {
   return (
-    <main
-      style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #0D1F3C 0%, #162D4F 50%, #0D1F3C 100%)',
-      }}
-    >
-      {/* ── HERO ── */}
-      <section
-        style={{
-          padding: '80px 24px 60px',
-          textAlign: 'center',
-          borderBottom: '1px solid rgba(200, 169, 110, 0.15)',
-        }}
-      >
+    <main style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #0D1F3C 0%, #162D4F 50%, #0D1F3C 100%)',
+    }}>
+      <section style={{
+        padding: '80px 24px 60px', textAlign: 'center',
+        borderBottom: '1px solid rgba(200, 169, 110, 0.15)',
+      }}>
         <p style={{
           fontFamily: "'DM Sans', system-ui, sans-serif",
           fontSize: '13px', fontWeight: 500,
@@ -646,12 +635,10 @@ export default function EstimationPage() {
         </p>
       </section>
 
-      {/* ── FORM ── */}
       <section style={{ maxWidth: '900px', margin: '0 auto', padding: '80px 24px' }}>
         <EstimationForm />
       </section>
 
-      {/* ── TRUST BLOCK ── */}
       <section style={{ borderTop: '1px solid rgba(200, 169, 110, 0.15)', padding: '60px 24px' }}>
         <div style={{
           maxWidth: '900px', margin: '0 auto',
@@ -669,15 +656,11 @@ export default function EstimationPage() {
               <p style={{
                 fontFamily: "'Cormorant Garamond', Georgia, serif",
                 fontSize: '18px', fontWeight: 600, color: '#F9F5EF', marginBottom: '4px',
-              }}>
-                {label}
-              </p>
+              }}>{label}</p>
               <p style={{
                 fontFamily: "'DM Sans', system-ui, sans-serif",
                 fontSize: '13px', color: 'rgba(200, 169, 110, 0.7)',
-              }}>
-                {sub}
-              </p>
+              }}>{sub}</p>
             </div>
           ))}
         </div>

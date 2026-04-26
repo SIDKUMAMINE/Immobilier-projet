@@ -3,13 +3,22 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronDown, X, Menu } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import LandmarkLogo from '@/components/ui/LandmarkLogo';
 
 export default function PublicNavbarClient() {
   const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // ✅ AJOUTÉ
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // ✅ Détection mobile 100% JS — ne dépend PAS de Tailwind
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const isAdminPage = pathname?.startsWith('/dashboard');
   if (isAdminPage) return null;
@@ -19,254 +28,253 @@ export default function PublicNavbarClient() {
     setOpenDropdown(null);
   };
 
+  const NAV_LINKS = [
+    { href: '/', label: 'Accueil' },
+    { href: '/a-propos', label: 'À propos' },
+    { href: '/blog', label: 'Blog' },
+    { href: '/calculateur-roi', label: 'ROI' },
+    { href: '/estimation', label: 'Estimation' },
+  ];
+
   return (
     <nav
-      className="sticky top-0 z-40 border-b"
       style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 40,
         background: 'linear-gradient(to right, #0D1F3C, #162D4F, #0D1F3C)',
-        borderColor: 'rgba(200, 169, 110, 0.2)',
+        borderBottom: '1px solid rgba(200, 169, 110, 0.2)',
       }}
     >
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-center h-20">
+      {/* ── Barre principale ── */}
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 80 }}>
 
           {/* Logo */}
           <Link
             href="/"
             onClick={closeMobileMenu}
-            className="flex items-center gap-3 font-bold transition-colors hover:text-[#C8A96E]"
             style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
               fontFamily: "'Cormorant Garamond', Georgia, serif",
               fontWeight: 400,
-              fontSize: '22px',
+              fontSize: 22,
               color: '#F9F5EF',
+              textDecoration: 'none',
             }}
           >
             <LandmarkLogo size="sm" />
             LANDMARK ESTATE
           </Link>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-2">
+          {/* ── DESKTOP : liens (cachés sur mobile) ── */}
+          {!isMobile && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
 
-            <Link href="/" className="px-4 py-2 transition-colors rounded-lg" style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', fontWeight: 500, color: '#E2C98A' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#C8A96E'; e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#E2C98A'; e.currentTarget.style.backgroundColor = 'transparent'; }}
-            >Accueil</Link>
+              {NAV_LINKS.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  style={{ padding: '8px 14px', color: '#E2C98A', fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, borderRadius: 8, textDecoration: 'none', transition: 'all 0.2s' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = '#C8A96E'; e.currentTarget.style.backgroundColor = 'rgba(200,169,110,0.1)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = '#E2C98A'; e.currentTarget.style.backgroundColor = 'transparent'; }}
+                >
+                  {label}
+                </Link>
+              ))}
 
-            <Link href="/a-propos" className="px-4 py-2 transition-colors rounded-lg" style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', fontWeight: 500, color: '#E2C98A' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#C8A96E'; e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#E2C98A'; e.currentTarget.style.backgroundColor = 'transparent'; }}
-            >À propos</Link>
-
-            {/* Services Dropdown */}
-            <div className="relative" onMouseEnter={() => setOpenDropdown('services')} onMouseLeave={() => setOpenDropdown(null)}>
-              <button className="px-4 py-2 flex items-center gap-1 transition-colors rounded-lg"
-                style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', fontWeight: 500, color: openDropdown === 'services' ? '#C8A96E' : '#E2C98A', backgroundColor: openDropdown === 'services' ? 'rgba(200, 169, 110, 0.1)' : 'transparent' }}
+              {/* Services dropdown */}
+              <div
+                style={{ position: 'relative' }}
+                onMouseEnter={() => setOpenDropdown('services')}
+                onMouseLeave={() => setOpenDropdown(null)}
               >
-                Services
-                <ChevronDown size={16} style={{ transition: 'transform 0.3s ease', transform: openDropdown === 'services' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
-              </button>
-              {openDropdown === 'services' && (
-                <div className="absolute top-full left-0 rounded-lg shadow-lg py-2 w-48 border z-50 mt-0" style={{ backgroundColor: '#162D4F', borderColor: 'rgba(200, 169, 110, 0.3)' }}>
-                  <Link href="/services/intermediations" className="block px-4 py-2 transition-colors" style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', color: '#E2C98A' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.15)'; e.currentTarget.style.color = '#C8A96E'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#E2C98A'; }}
-                  >Intermédiation</Link>
-                  <Link href="/services/commercialisation" className="block px-4 py-2 transition-colors" style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', color: '#E2C98A' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.15)'; e.currentTarget.style.color = '#C8A96E'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#E2C98A'; }}
-                  >Commercialisation</Link>
-                </div>
-              )}
-            </div>
+                <button style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 14px', color: openDropdown === 'services' ? '#C8A96E' : '#E2C98A', backgroundColor: openDropdown === 'services' ? 'rgba(200,169,110,0.1)' : 'transparent', fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, border: 'none', borderRadius: 8, cursor: 'pointer' }}>
+                  Services
+                  <ChevronDown size={15} style={{ transition: 'transform 0.3s', transform: openDropdown === 'services' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                </button>
+                {openDropdown === 'services' && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, backgroundColor: '#162D4F', border: '1px solid rgba(200,169,110,0.3)', borderRadius: 10, padding: '8px 0', width: 200, zIndex: 50 }}>
+                    {[
+                      { href: '/services/intermediations', label: 'Intermédiation' },
+                      { href: '/services/commercialisation', label: 'Commercialisation' },
+                    ].map(({ href, label }) => (
+                      <Link key={href} href={href} style={{ display: 'block', padding: '10px 16px', color: '#E2C98A', fontFamily: "'DM Sans', sans-serif", fontSize: 14, textDecoration: 'none' }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(200,169,110,0.15)'; e.currentTarget.style.color = '#C8A96E'; }}
+                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#E2C98A'; }}
+                      >{label}</Link>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-            {/* Projets Dropdown */}
-            <div className="relative" onMouseEnter={() => setOpenDropdown('projects')} onMouseLeave={() => setOpenDropdown(null)}>
-              <button className="px-4 py-2 flex items-center gap-1 transition-colors rounded-lg"
-                style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', fontWeight: 500, color: openDropdown === 'projects' ? '#C8A96E' : '#E2C98A', backgroundColor: openDropdown === 'projects' ? 'rgba(200, 169, 110, 0.1)' : 'transparent' }}
+              {/* Projets dropdown */}
+              <div
+                style={{ position: 'relative' }}
+                onMouseEnter={() => setOpenDropdown('projects')}
+                onMouseLeave={() => setOpenDropdown(null)}
               >
-                Projets
-                <ChevronDown size={16} style={{ transition: 'transform 0.3s ease', transform: openDropdown === 'projects' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
-              </button>
-              {openDropdown === 'projects' && (
-                <div className="absolute top-full left-0 rounded-lg shadow-lg py-2 w-48 border z-50 mt-0" style={{ backgroundColor: '#162D4F', borderColor: 'rgba(200, 169, 110, 0.3)' }}>
-                  <Link href="/properties" className="block px-4 py-2 transition-colors" style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', color: '#E2C98A' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.15)'; e.currentTarget.style.color = '#C8A96E'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#E2C98A'; }}
-                  >Tous les Projets</Link>
-                  <Link href="/properties" className="block px-4 py-2 transition-colors" style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', color: '#E2C98A' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.15)'; e.currentTarget.style.color = '#C8A96E'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#E2C98A'; }}
-                  >Récents</Link>
-                </div>
-              )}
+                <button style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 14px', color: openDropdown === 'projects' ? '#C8A96E' : '#E2C98A', backgroundColor: openDropdown === 'projects' ? 'rgba(200,169,110,0.1)' : 'transparent', fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, border: 'none', borderRadius: 8, cursor: 'pointer' }}>
+                  Projets
+                  <ChevronDown size={15} style={{ transition: 'transform 0.3s', transform: openDropdown === 'projects' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                </button>
+                {openDropdown === 'projects' && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, backgroundColor: '#162D4F', border: '1px solid rgba(200,169,110,0.3)', borderRadius: 10, padding: '8px 0', width: 200, zIndex: 50 }}>
+                    {[
+                      { href: '/properties', label: 'Tous les Projets' },
+                      { href: '/properties?filter=recent', label: 'Récents' },
+                    ].map(({ href, label }) => (
+                      <Link key={href} href={href} style={{ display: 'block', padding: '10px 16px', color: '#E2C98A', fontFamily: "'DM Sans', sans-serif", fontSize: 14, textDecoration: 'none' }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(200,169,110,0.15)'; e.currentTarget.style.color = '#C8A96E'; }}
+                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#E2C98A'; }}
+                      >{label}</Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
+          )}
 
-            <Link href="/blog" className="px-4 py-2 transition-colors rounded-lg" style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', fontWeight: 500, color: '#E2C98A' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#C8A96E'; e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#E2C98A'; e.currentTarget.style.backgroundColor = 'transparent'; }}
-            >Blog</Link>
+          {/* ── DESKTOP : bouton CTA (caché sur mobile) ── */}
+          {!isMobile && (
+            <Link
+              href="/contact"
+              style={{ padding: '10px 22px', backgroundColor: '#C8A96E', color: '#0D1F3C', fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', borderRadius: 8, textDecoration: 'none' }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#E2C98A'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(200,169,110,0.35)'; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#C8A96E'; e.currentTarget.style.boxShadow = 'none'; }}
+            >
+              Contactez-nous
+            </Link>
+          )}
 
-            <Link href="/calculateur-roi" className="px-4 py-2 transition-colors rounded-lg" style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', fontWeight: 500, color: '#E2C98A' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#C8A96E'; e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#E2C98A'; e.currentTarget.style.backgroundColor = 'transparent'; }}
-            >ROI</Link>
-
-            <Link href="/estimation" className="px-4 py-2 transition-colors rounded-lg" style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', fontWeight: 500, color: '#E2C98A' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#C8A96E'; e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#E2C98A'; e.currentTarget.style.backgroundColor = 'transparent'; }}
-            >Estimation</Link>
-          </div>
-
-          {/* Desktop CTA */}
-          <Link
-            href="/contact"
-            className="hidden md:block px-6 py-2 font-bold rounded-lg transition-all"
-            style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', fontWeight: 500, backgroundColor: '#C8A96E', color: '#0D1F3C', textTransform: 'uppercase', letterSpacing: '0.05em' }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#E2C98A'; e.currentTarget.style.boxShadow = '0 8px 16px rgba(200, 169, 110, 0.3)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#C8A96E'; e.currentTarget.style.boxShadow = 'none'; }}
-          >
-            Contactez-nous
-          </Link>
-
-          {/* ✅ Mobile Hamburger — maintenant connecté à l'état */}
-          <button
-            className="md:hidden p-2 rounded-lg"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Ouvrir le menu"
-            style={{ color: '#C8A96E', backgroundColor: 'rgba(200, 169, 110, 0.1)' }}
-          >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {/* ── MOBILE : bouton hamburger (caché sur desktop) ── */}
+          {isMobile && (
+            <button
+              onClick={() => setMobileMenuOpen(prev => !prev)}
+              aria-label={mobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 46,
+                height: 46,
+                borderRadius: 10,
+                border: '1.5px solid rgba(200,169,110,0.4)',
+                backgroundColor: mobileMenuOpen ? 'rgba(200,169,110,0.2)' : 'rgba(200,169,110,0.1)',
+                color: '#C8A96E',
+                cursor: 'pointer',
+                outline: 'none',
+                WebkitAppearance: 'none',
+                appearance: 'none' as any,
+              }}
+            >
+              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          )}
         </div>
       </div>
 
-      {/* ✅ MENU MOBILE — complètement nouveau */}
-      {mobileMenuOpen && (
+      {/* ══════════════════════════════════════
+          MENU MOBILE DÉROULANT
+          S'affiche sous la barre quand on clique sur ☰
+      ══════════════════════════════════════ */}
+      {isMobile && mobileMenuOpen && (
         <div
           style={{
-            background: 'linear-gradient(to bottom, #162D4F, #0D1F3C)',
-            borderTop: '1px solid rgba(200, 169, 110, 0.2)',
-            padding: '16px 0 24px',
+            background: 'linear-gradient(180deg, #162D4F 0%, #0D1F3C 100%)',
+            borderTop: '1px solid rgba(200,169,110,0.15)',
+            padding: '8px 16px 24px',
           }}
         >
-          <div className="max-w-7xl mx-auto px-4 flex flex-col gap-1">
+          {/* Liens simples */}
+          {NAV_LINKS.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={closeMobileMenu}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '14px 14px',
+                color: '#E2C98A',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 15,
+                fontWeight: 500,
+                borderRadius: 10,
+                textDecoration: 'none',
+                borderBottom: '1px solid rgba(200,169,110,0.08)',
+              }}
+            >
+              {label}
+            </Link>
+          ))}
 
-            {/* Liens simples */}
-            {[
-              { href: '/', label: 'Accueil' },
-              { href: '/a-propos', label: 'À propos' },
-              { href: '/blog', label: 'Blog' },
-              { href: '/calculateur-roi', label: 'ROI' },
-              { href: '/estimation', label: 'Estimation' },
-            ].map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={closeMobileMenu}
-                style={{
-                  display: 'block',
-                  padding: '12px 16px',
-                  color: '#E2C98A',
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                  fontSize: '15px',
-                  fontWeight: 500,
-                  borderRadius: 10,
-                  transition: 'background 0.2s',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(200, 169, 110, 0.1)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
-              >
-                {label}
-              </Link>
-            ))}
+          {/* Services accordion */}
+          <div style={{ borderBottom: '1px solid rgba(200,169,110,0.08)' }}>
+            <button
+              onClick={() => setOpenDropdown(openDropdown === 'services' ? null : 'services')}
+              style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 14px', color: '#E2C98A', fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, background: 'transparent', border: 'none', borderRadius: 10, cursor: 'pointer' }}
+            >
+              Services
+              <ChevronDown size={16} style={{ color: '#C8A96E', transform: openDropdown === 'services' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }} />
+            </button>
+            {openDropdown === 'services' && (
+              <div style={{ paddingLeft: 12, paddingBottom: 8 }}>
+                <Link href="/services/intermediations" onClick={closeMobileMenu} style={{ display: 'block', padding: '10px 14px', color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", fontSize: 14, textDecoration: 'none', borderLeft: '2px solid rgba(200,169,110,0.4)' }}>
+                  Intermédiation
+                </Link>
+                <Link href="/services/commercialisation" onClick={closeMobileMenu} style={{ display: 'block', padding: '10px 14px', color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", fontSize: 14, textDecoration: 'none', borderLeft: '2px solid rgba(200,169,110,0.4)' }}>
+                  Commercialisation
+                </Link>
+              </div>
+            )}
+          </div>
 
-            {/* Services accordion mobile */}
-            <div>
-              <button
-                onClick={() => setOpenDropdown(openDropdown === 'services' ? null : 'services')}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '12px 16px',
-                  color: '#E2C98A',
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                  fontSize: '15px',
-                  fontWeight: 500,
-                  background: 'transparent',
-                  border: 'none',
-                  borderRadius: 10,
-                  cursor: 'pointer',
-                }}
-              >
-                Services
-                <ChevronDown size={16} style={{ transform: openDropdown === 'services' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }} />
-              </button>
-              {openDropdown === 'services' && (
-                <div style={{ paddingLeft: 16 }}>
-                  <Link href="/services/intermediations" onClick={closeMobileMenu} style={{ display: 'block', padding: '10px 16px', color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', borderLeft: '2px solid rgba(200,169,110,0.4)' }}>Intermédiation</Link>
-                  <Link href="/services/commercialisation" onClick={closeMobileMenu} style={{ display: 'block', padding: '10px 16px', color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', borderLeft: '2px solid rgba(200,169,110,0.4)' }}>Commercialisation</Link>
-                </div>
-              )}
-            </div>
+          {/* Projets accordion */}
+          <div style={{ borderBottom: '1px solid rgba(200,169,110,0.08)' }}>
+            <button
+              onClick={() => setOpenDropdown(openDropdown === 'projects' ? null : 'projects')}
+              style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 14px', color: '#E2C98A', fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, background: 'transparent', border: 'none', borderRadius: 10, cursor: 'pointer' }}
+            >
+              Projets
+              <ChevronDown size={16} style={{ color: '#C8A96E', transform: openDropdown === 'projects' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }} />
+            </button>
+            {openDropdown === 'projects' && (
+              <div style={{ paddingLeft: 12, paddingBottom: 8 }}>
+                <Link href="/properties" onClick={closeMobileMenu} style={{ display: 'block', padding: '10px 14px', color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", fontSize: 14, textDecoration: 'none', borderLeft: '2px solid rgba(200,169,110,0.4)' }}>
+                  Tous les Projets
+                </Link>
+                <Link href="/properties?filter=recent" onClick={closeMobileMenu} style={{ display: 'block', padding: '10px 14px', color: '#C8A96E', fontFamily: "'DM Sans', sans-serif", fontSize: 14, textDecoration: 'none', borderLeft: '2px solid rgba(200,169,110,0.4)' }}>
+                  Récents
+                </Link>
+              </div>
+            )}
+          </div>
 
-            {/* Projets accordion mobile */}
-            <div>
-              <button
-                onClick={() => setOpenDropdown(openDropdown === 'projects' ? null : 'projects')}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '12px 16px',
-                  color: '#E2C98A',
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                  fontSize: '15px',
-                  fontWeight: 500,
-                  background: 'transparent',
-                  border: 'none',
-                  borderRadius: 10,
-                  cursor: 'pointer',
-                }}
-              >
-                Projets
-                <ChevronDown size={16} style={{ transform: openDropdown === 'projects' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }} />
-              </button>
-              {openDropdown === 'projects' && (
-                <div style={{ paddingLeft: 16 }}>
-                  <Link href="/properties" onClick={closeMobileMenu} style={{ display: 'block', padding: '10px 16px', color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', borderLeft: '2px solid rgba(200,169,110,0.4)' }}>Tous les Projets</Link>
-                  <Link href="/properties" onClick={closeMobileMenu} style={{ display: 'block', padding: '10px 16px', color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', borderLeft: '2px solid rgba(200,169,110,0.4)' }}>Récents</Link>
-                </div>
-              )}
-            </div>
-
-            {/* CTA mobile */}
-            <div style={{ padding: '12px 16px 0' }}>
-              <Link
-                href="/contact"
-                onClick={closeMobileMenu}
-                style={{
-                  display: 'block',
-                  textAlign: 'center',
-                  padding: '14px 24px',
-                  backgroundColor: '#C8A96E',
-                  color: '#0D1F3C',
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  borderRadius: 10,
-                  textDecoration: 'none',
-                }}
-              >
-                Contactez-nous
-              </Link>
-            </div>
+          {/* CTA doré */}
+          <div style={{ paddingTop: 20 }}>
+            <Link
+              href="/contact"
+              onClick={closeMobileMenu}
+              style={{
+                display: 'block',
+                textAlign: 'center',
+                padding: '15px 24px',
+                backgroundColor: '#C8A96E',
+                color: '#0D1F3C',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 14,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                borderRadius: 10,
+                textDecoration: 'none',
+              }}
+            >
+              Contactez-nous
+            </Link>
           </div>
         </div>
       )}
