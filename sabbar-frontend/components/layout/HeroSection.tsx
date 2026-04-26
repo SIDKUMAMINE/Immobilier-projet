@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import heroBuilding from '@/public/images/cities/cdcdc.jpeg';
 
 export default function HeroSection() {
   return (
@@ -9,7 +8,7 @@ export default function HeroSection() {
       {/* Background Image with Next.js Image for optimization */}
       <div className="absolute inset-0 z-0">
         <Image
-          src={heroBuilding}
+          src="/images/cities/cdcdc.jpeg"
           alt="Building Background"
           fill
           priority
@@ -104,7 +103,7 @@ export default function HeroSection() {
               <div className="text-left">
                 <div 
                   className="text-sm md:text-base text-white mb-1"
-                  style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400,  color: '#C8A96E'  }}
+                  style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, color: '#C8A96E' }}
                 >
                   Réactivité &amp; suivi personnalisé
                 </div>
