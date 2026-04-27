@@ -6,38 +6,185 @@ import { useState, useCallback } from 'react';
 
 const PRIX: Record<string, Record<string, { min: number; max: number }>> = {
   casablanca: {
-    'Anfa': { min: 18000, max: 28000 }, 'Maarif': { min: 14000, max: 20000 },
-    'Gauthier': { min: 15000, max: 22000 }, 'Ain Diab': { min: 20000, max: 35000 },
-    'Bourgogne': { min: 13000, max: 19000 }, 'Sidi Maarouf': { min: 10000, max: 15000 },
-    'Bouskoura': { min: 8000, max: 13000 }, 'Hay Hassani': { min: 8000, max: 12000 },
-    'Californie': { min: 16000, max: 24000 }, 'Val Fleuri': { min: 12000, max: 17000 },
-    'Oulfa': { min: 7000, max: 11000 }, 'Bernoussi': { min: 7000, max: 10000 },
+    'Anfa': { min: 18000, max: 28000 },
+    'Maarif': { min: 14000, max: 20000 },
+    'Gauthier': { min: 15000, max: 22000 },
+    'Ain Diab': { min: 20000, max: 35000 },
+    'Bourgogne': { min: 13000, max: 19000 },
+    'Sidi Maarouf': { min: 10000, max: 15000 },
+    'Bouskoura': { min: 8000, max: 13000 },
+    'Hay Hassani': { min: 8000, max: 12000 },
+    'Californie': { min: 16000, max: 24000 },
+    'Val Fleuri': { min: 12000, max: 17000 },
+    'Oulfa': { min: 7000, max: 11000 },
+    'Bernoussi': { min: 7000, max: 10000 },
+    'Ain Sbaa': { min: 7000, max: 11000 },
+    'Hay Mohammadi': { min: 6000, max: 9000 },
+    'Sidi Bernoussi': { min: 6500, max: 10000 },
+    'Sbata': { min: 7000, max: 10500 },
+    'Derb Sultan': { min: 7500, max: 11000 },
+    'Ben Msik': { min: 6500, max: 9500 },
+    'Salmia': { min: 7000, max: 10000 },
+    'Roches Noires': { min: 8000, max: 12000 },
+    'Polo': { min: 11000, max: 16000 },
+    'Racine': { min: 15000, max: 22000 },
+    'CIL': { min: 9000, max: 14000 },
+    'Beauséjour': { min: 13000, max: 19000 },
+    'Oasis': { min: 12000, max: 18000 },
+    'Quartier des Hopitaux': { min: 11000, max: 16000 },
+    'Hay Nour': { min: 6500, max: 10000 },
+    'Lissasfa': { min: 8000, max: 12000 },
+    'Attacharouk': { min: 7000, max: 10500 },
+    'Lahraouiyine': { min: 5500, max: 9000 },
+    'Dar Bouazza': { min: 9000, max: 14000 },
+    'Mediouna': { min: 5000, max: 8000 },
+    'Nassim': { min: 10000, max: 15000 },
+    'Les Princesses': { min: 11000, max: 16000 },
+    'Hay Oulfa': { min: 7000, max: 11000 },
+    'Ain Chock': { min: 8000, max: 12000 },
+    'Belvedere': { min: 10000, max: 15000 },
+    'Palmier': { min: 12000, max: 18000 },
+    'Ghandi': { min: 9000, max: 13000 },
+    'Maârif Extension': { min: 12000, max: 18000 },
+    'Hay Ennakhil': { min: 7500, max: 11000 },
+    'Sidi Belyout': { min: 8000, max: 13000 },
+    'Habous': { min: 9000, max: 14000 },
+    'Triangle d Or': { min: 14000, max: 21000 },
+    'Quartier Riviera': { min: 13000, max: 19000 },
+    'Ain Sebaa': { min: 7000, max: 11000 },
+    'Zenata': { min: 6000, max: 9500 },
+    'Medina': { min: 8000, max: 13000 },
   },
   rabat: {
-    'Agdal': { min: 14000, max: 22000 }, 'Hassan': { min: 12000, max: 18000 },
-    'Souissi': { min: 16000, max: 25000 }, 'Les Orangers': { min: 11000, max: 16000 },
-    'Hay Riad': { min: 13000, max: 19000 }, 'Youssoufia': { min: 8000, max: 12000 },
+    'Agdal': { min: 14000, max: 22000 },
+    'Hassan': { min: 12000, max: 18000 },
+    'Souissi': { min: 16000, max: 25000 },
+    'Les Orangers': { min: 11000, max: 16000 },
+    'Hay Riad': { min: 13000, max: 19000 },
+    'Youssoufia': { min: 8000, max: 12000 },
     'Akkari': { min: 7000, max: 11000 },
+    'Hay Nahda': { min: 8000, max: 12000 },
+    'Ocean': { min: 10000, max: 15000 },
+    'Diour Jamaa': { min: 9000, max: 14000 },
+    'Aviation': { min: 9000, max: 13000 },
+    'Madinat Al Irfane': { min: 11000, max: 16000 },
+    'Takaddoum': { min: 7500, max: 11000 },
+    'Hay Salam': { min: 7000, max: 11000 },
+    'Temara': { min: 7000, max: 11000 },
+    'Sale': { min: 6000, max: 10000 },
+    'Hay Karima': { min: 6500, max: 9500 },
+    'Hay Inara': { min: 7000, max: 11000 },
+    'Medina Rabat': { min: 9000, max: 15000 },
+    'Ryad': { min: 13000, max: 19000 },
+    'Hay Fadila': { min: 7000, max: 10500 },
+    'Quartier des Ministeres': { min: 12000, max: 18000 },
   },
   marrakech: {
-    'Guéliz': { min: 13000, max: 20000 }, 'Hivernage': { min: 16000, max: 25000 },
-    'Palmeraie': { min: 18000, max: 35000 }, 'Mellah': { min: 9000, max: 15000 },
-    'Agdal Marrakech': { min: 11000, max: 17000 }, 'Targa': { min: 8000, max: 13000 },
+    'Gueliz': { min: 13000, max: 20000 },
+    'Hivernage': { min: 16000, max: 25000 },
+    'Palmeraie': { min: 18000, max: 35000 },
+    'Mellah': { min: 9000, max: 15000 },
+    'Agdal Marrakech': { min: 11000, max: 17000 },
+    'Targa': { min: 8000, max: 13000 },
+    'Medina Marrakech': { min: 10000, max: 18000 },
+    'Sidi Ghanem': { min: 9000, max: 14000 },
+    'Semlalia': { min: 10000, max: 16000 },
+    'Massira': { min: 7000, max: 11000 },
+    'Mhamid': { min: 6500, max: 10000 },
+    'Amelkis': { min: 12000, max: 20000 },
+    'Route de Fes': { min: 8000, max: 13000 },
+    'Douar Laarab': { min: 5000, max: 8000 },
+    'Hay Hassani Marrakech': { min: 7000, max: 11000 },
+    'Bab Doukkala': { min: 9000, max: 14000 },
+    'M Hamid': { min: 6500, max: 10000 },
+    'Sidi Youssef Ben Ali': { min: 6000, max: 9500 },
+    'Route de Casablanca': { min: 8000, max: 13000 },
+    'Nouvelle Ville': { min: 9000, max: 14000 },
   },
   tanger: {
-    'Malabata': { min: 12000, max: 20000 }, 'Marchane': { min: 10000, max: 16000 },
-    'Iberia': { min: 11000, max: 17000 }, 'Val Fleuri Tanger': { min: 9000, max: 14000 },
-    'Boukhalef': { min: 7000, max: 11000 }, 'Moghogha': { min: 6000, max: 10000 },
+    'Malabata': { min: 12000, max: 20000 },
+    'Marchane': { min: 10000, max: 16000 },
+    'Iberia': { min: 11000, max: 17000 },
+    'Val Fleuri Tanger': { min: 9000, max: 14000 },
+    'Boukhalef': { min: 7000, max: 11000 },
+    'Moghogha': { min: 6000, max: 10000 },
+    'Medina Tanger': { min: 8000, max: 14000 },
+    'California Tanger': { min: 10000, max: 16000 },
+    'Mesnana': { min: 7000, max: 11000 },
+    'Charf': { min: 8000, max: 13000 },
+    'Beni Makada': { min: 6000, max: 9500 },
+    'Tanja Balia': { min: 5500, max: 9000 },
+    'Cap Spartel': { min: 12000, max: 20000 },
+    'Gzenaya': { min: 6500, max: 10000 },
+    'Souani': { min: 7000, max: 11000 },
+    'Dradeb': { min: 6000, max: 9500 },
+    'Branes': { min: 7000, max: 11000 },
+    'Hay Al Amal': { min: 6000, max: 9000 },
+    'Quartier Administratif': { min: 9000, max: 14000 },
+    'Achakar': { min: 10000, max: 16000 },
   },
   agadir: {
-    'Founty': { min: 12000, max: 18000 }, 'Hay Mohammadi': { min: 7000, max: 11000 },
-    'Talborjt': { min: 8000, max: 13000 }, 'Cité Suisse': { min: 11000, max: 16000 },
+    'Founty': { min: 12000, max: 18000 },
+    'Hay Mohammadi Agadir': { min: 7000, max: 11000 },
+    'Talborjt': { min: 8000, max: 13000 },
+    'Cite Suisse': { min: 11000, max: 16000 },
     'Anza': { min: 6000, max: 10000 },
+    'Hay Dakhla': { min: 6500, max: 10000 },
+    'Tilila': { min: 7000, max: 11000 },
+    'Quartier Industriel Agadir': { min: 5000, max: 8000 },
+    'Bensergao': { min: 8000, max: 13000 },
+    'Tikiouine': { min: 6000, max: 9500 },
+    'Hay Massira': { min: 7000, max: 11000 },
+    'Agadir Marina': { min: 13000, max: 20000 },
+    'Quartier Industriel': { min: 5000, max: 8000 },
+    'Hay Al Matar': { min: 6500, max: 10000 },
+    'Cité Al Wahda': { min: 7000, max: 11000 },
   },
   fes: {
-    'Saiss': { min: 8000, max: 14000 }, "Route d'Imouzzer": { min: 10000, max: 16000 },
-    'Montfleuri': { min: 9000, max: 14000 }, 'Atlas': { min: 7000, max: 12000 },
-    'Les Mérinides': { min: 8000, max: 13000 },
+    'Saiss': { min: 8000, max: 14000 },
+    'Route d Imouzzer': { min: 10000, max: 16000 },
+    'Montfleuri': { min: 9000, max: 14000 },
+    'Atlas': { min: 7000, max: 12000 },
+    'Les Merinides': { min: 8000, max: 13000 },
+    'Narjiss': { min: 8000, max: 13000 },
+    'Andalous': { min: 7000, max: 11000 },
+    'Agdal Fes': { min: 9000, max: 14000 },
+    'Medina Fes': { min: 6000, max: 10000 },
+    'Aouinet Hajjaj': { min: 6500, max: 10000 },
+    'Ville Nouvelle Fes': { min: 8000, max: 13000 },
+    'Zouagha': { min: 7000, max: 11000 },
+    'Hay Amal Fes': { min: 6500, max: 10000 },
+    'Ain Chkef': { min: 7000, max: 11000 },
+    'Bensouda': { min: 6000, max: 9500 },
+  },
+  meknes: {
+    'Hamria': { min: 7000, max: 12000 },
+    'Nouvelle Ville Meknes': { min: 8000, max: 13000 },
+    'Medina Meknes': { min: 5500, max: 9000 },
+    'Hay Salam Meknes': { min: 6000, max: 9500 },
+    'Marjane': { min: 7500, max: 12000 },
+    'Bassatine': { min: 6500, max: 10000 },
+    'Zitoune': { min: 6000, max: 9000 },
+  },
+  oujda: {
+    'Hay Qods': { min: 5000, max: 8000 },
+    'Hay Al Wifaq': { min: 5500, max: 8500 },
+    'Centre Ville Oujda': { min: 6000, max: 9500 },
+    'Sidi Yahya': { min: 5000, max: 8000 },
+    'Lazaret': { min: 6000, max: 9000 },
+  },
+  kenitra: {
+    'Centre Ville Kenitra': { min: 7000, max: 11000 },
+    'Bir Rami': { min: 8000, max: 13000 },
+    'Hay Mahtat': { min: 6000, max: 9500 },
+    'Saknia': { min: 6500, max: 10000 },
+  },
+  tetouan: {
+    'Martil': { min: 7000, max: 12000 },
+    'M Diq': { min: 9000, max: 15000 },
+    'Centre Ville Tetouan': { min: 6000, max: 10000 },
+    'Cabo Negro': { min: 10000, max: 18000 },
+    'Medina Tetouan': { min: 5500, max: 9000 },
   },
 };
 
@@ -76,36 +223,77 @@ function fmtRent(n: number): string {
   return n.toLocaleString('fr-FR') + ' MAD/mois';
 }
 
+function normalize(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/['']/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function levenshtein(a: string, b: string): number {
+  const m = a.length, n = b.length;
+  const dp: number[][] = Array.from({ length: m + 1 }, (_, i) =>
+    Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0))
+  );
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i - 1] === b[j - 1]
+        ? dp[i - 1][j - 1]
+        : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+  return dp[m][n];
+}
+
+function findBestMatch(input: string, candidates: string[]): string {
+  const nInput = normalize(input);
+  if (!nInput) return '';
+
+  // 1. Exact match
+  const exact = candidates.find(c => normalize(c) === nInput);
+  if (exact) return exact;
+
+  // 2. Contains match
+  const contains = candidates.find(c => {
+    const nc = normalize(c);
+    return nc.includes(nInput) || nInput.includes(nc);
+  });
+  if (contains) return contains;
+
+  // 3. Levenshtein fuzzy (tolerance proportional to length)
+  if (nInput.length >= 4) {
+    const maxDist = nInput.length <= 6 ? 1 : nInput.length <= 10 ? 2 : 3;
+    let bestCandidate = '';
+    let bestDist = Infinity;
+    for (const c of candidates) {
+      const nc = normalize(c);
+      const dist = levenshtein(nInput, nc);
+      if (dist <= maxDist && dist < bestDist) {
+        bestDist = dist;
+        bestCandidate = c;
+      }
+    }
+    if (bestCandidate) return bestCandidate;
+  }
+
+  return '';
+}
+
 function calculate(form: FormState): EstimationResult {
   const isLocation = form.regime === 'location';
 
   // ── Recherche ville ──
-  const villeKey = Object.keys(PRIX).find((k) =>
-    form.ville.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(
-      k.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    ) ||
-    k.normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(
-      form.ville.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    )
-  ) ?? '';
-
+  const villeNorm = normalize(form.ville);
+  const villeKey = findBestMatch(form.ville, Object.keys(PRIX));
   const villeFound = !!villeKey;
   const quartierData = PRIX[villeKey] ?? {};
 
   // ── Recherche quartier ──
-  const normalize = (s: string) =>
-    s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
-
-  const quartierKey = Object.keys(quartierData).find((q) =>
-    normalize(q) === normalize(form.quartier) ||
-    normalize(q).includes(normalize(form.quartier)) ||
-    normalize(form.quartier).includes(normalize(q))
-  ) ?? '';
-
+  const quartierKey = findBestMatch(form.quartier, Object.keys(quartierData));
   const quartierFound = !!quartierKey;
 
   // ── Prix de référence ──
-  // Si ville trouvée mais quartier inconnu → moyenne de la ville
   let prixRef: { min: number; max: number };
   if (quartierKey) {
     prixRef = quartierData[quartierKey];
@@ -116,7 +304,6 @@ function calculate(form: FormState): EstimationResult {
       max: Math.round(vals.reduce((a, v) => a + v.max, 0) / vals.length),
     };
   } else {
-    // Fallback marché marocain moyen
     prixRef = { min: 8000, max: 14000 };
   }
 
@@ -172,7 +359,6 @@ function calculate(form: FormState): EstimationResult {
   const pm2Mid = Math.round((pm2Min + pm2Max) / 2);
 
   if (isLocation) {
-    // Rendement locatif moyen Maroc : ~4.5% à 6% annuel → 0.375% à 0.5% mensuel
     const tauxMin = form.type === 'bureau' || form.type === 'local' ? 0.006 : 0.004;
     const tauxMax = form.type === 'bureau' || form.type === 'local' ? 0.008 : 0.006;
     const rentMin = Math.round(form.surface * pm2Min * tauxMin / 100) * 100;
@@ -498,7 +684,6 @@ function EstimationForm() {
       <div style={stepTitleStyle}>Caractéristiques</div>
       <div style={stepSubStyle}>Décrivez les détails de votre bien</div>
 
-      {/* Surface */}
       <div style={fieldStyle}>
         <Label>Superficie (m²)</Label>
         <input
@@ -513,7 +698,6 @@ function EstimationForm() {
         <FieldError msg={errors.surface} />
       </div>
 
-      {/* ✅ CHAMBRES — ChipGroup au lieu de select */}
       <div style={fieldStyle}>
         <Label>Chambres</Label>
         <ChipGroup
@@ -530,7 +714,6 @@ function EstimationForm() {
         />
       </div>
 
-      {/* ✅ ÉTAGE — ChipGroup au lieu de select */}
       <div style={fieldStyle}>
         <Label>Étage</Label>
         <ChipGroup
@@ -547,7 +730,6 @@ function EstimationForm() {
         />
       </div>
 
-      {/* État */}
       <div style={fieldStyle}>
         <Label>État général</Label>
         <ChipGroup
@@ -562,7 +744,6 @@ function EstimationForm() {
         />
       </div>
 
-      {/* Équipements */}
       <div style={fieldStyle}>
         <Label>Équipements (multi-sélection)</Label>
         <ChipGroup
@@ -598,8 +779,8 @@ function EstimationForm() {
         {r.isLocation ? 'Estimation locative basée sur le marché actuel' : 'Résultat basé sur le marché actuel'}
       </div>
 
-      {/* Avertissement si ville/quartier non reconnus */}
-      {(!r.villeFound || !r.quartierFound) && (
+      {/* Avertissement uniquement si ville non reconnue */}
+      {!r.villeFound && (
         <div style={{
           background: 'rgba(200,169,110,0.08)',
           border: '1px solid rgba(200,169,110,0.25)',
@@ -608,9 +789,7 @@ function EstimationForm() {
           fontFamily: "'DM Sans', system-ui, sans-serif",
           marginBottom: '20px', lineHeight: 1.5,
         }}>
-          ⚠️ {!r.villeFound
-            ? 'Ville non reconnue — estimation basée sur les moyennes nationales.'
-            : 'Quartier non reconnu — estimation basée sur la moyenne de la ville.'}
+          ⚠️ Ville non reconnue — estimation basée sur les moyennes nationales.
         </div>
       )}
 
