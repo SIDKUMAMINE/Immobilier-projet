@@ -30,7 +30,7 @@ export default function PublicNavbarClient() {
   const NAV_LINKS = [
     { href: '/', label: 'Accueil' },
     { href: '/a-propos', label: 'À propos' },
-    { href: '/blog', label: 'Blog' },
+    { href: '/Blog', label: 'Blog' },
     { href: '/calculateur-roi', label: 'ROI' },
     { href: '/estimation', label: 'Estimation' },
   ];
