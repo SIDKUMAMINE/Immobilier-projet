@@ -546,7 +546,7 @@ export default function BlogPage() {
                 </div>
                 <div className="rg">
                   {related.map(a => (
-                    <div key={a.slug} onClick={() => { setOpenSlug(a.slug); window.scrollTo(0,0); }} style={{ background:T.glassDeep, border:`1px solid ${T.border}`, borderRadius:'13px', padding:'22px', cursor:'pointer', transition:'all 0.3s', display:'flex', flexDirection:'column' }}
+                    <div key={a.slug} onClick={() => setOpenSlug(a.slug)} style={{ background:T.glassDeep, border:`1px solid ${T.border}`, borderRadius:'13px', padding:'22px', cursor:'pointer', transition:'all 0.3s', display:'flex', flexDirection:'column' }}
                       onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(200,169,110,0.35)'; e.currentTarget.style.transform='translateY(-3px)'; }}
                       onMouseLeave={e => { e.currentTarget.style.borderColor=T.border; e.currentTarget.style.transform='none'; }}
                     >
@@ -620,7 +620,7 @@ export default function BlogPage() {
           {activeCategory === 'all' && (
             <section style={{ padding:'28px 5% 0', position:'relative', zIndex:1 }}>
               <div style={{ maxWidth:'1200px', margin:'0 auto' }}>
-                <div onClick={() => { setOpenSlug(featured.slug); window.scrollTo(0,0); }} style={{ background:T.glassDeep, border:`1px solid ${T.border}`, borderRadius:'18px', padding:'40px 44px', cursor:'pointer', transition:'all 0.3s', position:'relative', overflow:'hidden' }}
+                <div onClick={() => setOpenSlug(featured.slug)} style={{ background:T.glassDeep, border:`1px solid ${T.border}`, borderRadius:'18px', padding:'40px 44px', cursor:'pointer', transition:'all 0.3s', position:'relative', overflow:'hidden' }}
                   className="fp"
                   onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(200,169,110,0.4)'; e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.boxShadow='0 24px 60px rgba(0,0,0,0.28)'; }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor=T.border; e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='none'; }}
@@ -660,7 +660,7 @@ export default function BlogPage() {
               ) : (
                 <div className="g3">
                   {gridArticles.map((a, i) => (
-                    <div key={a.slug} onClick={() => { setOpenSlug(a.slug); window.scrollTo(0,0); }} style={{ background:T.glassDeep, border:`1px solid ${T.border}`, borderRadius:'14px', padding:'26px', cursor:'pointer', transition:'all 0.3s', height:'100%', display:'flex', flexDirection:'column' }}
+                    <div key={a.slug} onClick={() => setOpenSlug(a.slug)} style={{ background:T.glassDeep, border:`1px solid ${T.border}`, borderRadius:'14px', padding:'26px', cursor:'pointer', transition:'all 0.3s', height:'100%', display:'flex', flexDirection:'column' }}
                       onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(200,169,110,0.38)'; e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow='0 18px 44px rgba(0,0,0,0.22)'; e.currentTarget.style.background='rgba(13,31,60,0.92)'; }}
                       onMouseLeave={e => { e.currentTarget.style.borderColor=T.border; e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='none'; e.currentTarget.style.background=T.glassDeep; }}
                     >
