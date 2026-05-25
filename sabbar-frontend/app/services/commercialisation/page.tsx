@@ -33,6 +33,172 @@ export default function CommercializationPage() {
   return (
     <main style={{ background: 'linear-gradient(to bottom, #0D1F3C, #050D1A)' }}>
 
+      {/* ── STYLES RESPONSIVE ── */}
+      <style>{`
+        .hero-title {
+          font-size: 58px;
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-weight: 300;
+          color: #F9F5EF;
+          line-height: 1.1;
+          margin: 0 0 24px;
+          max-width: 820px;
+        }
+        .hero-subtitle {
+          font-size: 17px;
+          color: #7A8FA3;
+          font-family: 'DM Sans', system-ui, sans-serif;
+          font-weight: 400;
+          line-height: 1.8;
+          max-width: 620px;
+          margin: 0 0 10px;
+        }
+        .hero-note {
+          font-size: 15px;
+          color: #5A6E82;
+          font-family: 'DM Sans', system-ui, sans-serif;
+          font-weight: 400;
+          line-height: 1.7;
+          max-width: 540px;
+          margin: 0 0 64px;
+        }
+        .engagements-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0;
+        }
+        .engagement-item {
+          padding-right: 0;
+          padding-left: 0;
+          border-left: none;
+          padding-bottom: 24px;
+        }
+        .section-title-lg {
+          font-size: 48px;
+        }
+        .description-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 64px;
+          align-items: start;
+        }
+        .features-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 24px;
+        }
+        .steps-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 32px;
+        }
+        .advantages-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 32px;
+        }
+        .cta-buttons {
+          display: flex;
+          flex-direction: row;
+          gap: 16px;
+          justify-content: center;
+        }
+        .hero-section {
+          padding-top: 96px;
+          padding-bottom: 80px;
+        }
+
+        @media (max-width: 768px) {
+          .hero-title {
+            font-size: 32px;
+            margin: 0 0 16px;
+          }
+          .hero-subtitle {
+            font-size: 15px;
+            max-width: 100%;
+          }
+          .hero-note {
+            font-size: 14px;
+            max-width: 100%;
+            margin: 0 0 40px;
+          }
+          .hero-section {
+            padding-top: 48px;
+            padding-bottom: 48px;
+          }
+          .engagements-grid {
+            grid-template-columns: 1fr;
+            gap: 24px;
+          }
+          .engagement-item {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            border-left: none !important;
+            border-top: 1px solid rgba(200,169,110,0.12);
+            padding-top: 24px;
+          }
+          .engagement-item:first-child {
+            border-top: none;
+            padding-top: 0;
+          }
+          .section-title-lg {
+            font-size: 30px;
+          }
+          .description-grid {
+            grid-template-columns: 1fr;
+            gap: 32px;
+          }
+          .features-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+          .steps-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+          .advantages-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+          .cta-buttons {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          .cta-buttons a {
+            justify-content: center;
+          }
+          .engagements-section {
+            padding-top: 40px !important;
+            padding-bottom: 40px !important;
+          }
+          .description-section {
+            padding-top: 48px !important;
+            padding-bottom: 48px !important;
+          }
+          .steps-section {
+            padding-top: 48px !important;
+            padding-bottom: 48px !important;
+          }
+          .advantages-section {
+            padding-top: 48px !important;
+            padding-bottom: 48px !important;
+          }
+          .cta-section {
+            padding-top: 48px !important;
+            padding-bottom: 48px !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .hero-title {
+            font-size: 26px;
+          }
+          .section-title-lg {
+            font-size: 26px;
+          }
+        }
+      `}</style>
+
       {/* Back Button */}
       <div className="py-4 px-[5%] border-b" style={{ background: 'rgba(26, 40, 71, 0.5)', borderColor: 'rgba(200, 169, 110, 0.2)' }}>
         <div className="max-w-[1400px] mx-auto">
@@ -47,8 +213,11 @@ export default function CommercializationPage() {
         </div>
       </div>
 
-      {/* ── HERO B2B — pleine largeur ── */}
-      <section className="px-[5%]" style={{ paddingTop: '96px', paddingBottom: '80px', background: 'linear-gradient(180deg, rgba(26,40,71,0.45) 0%, rgba(5,13,26,0.15) 100%)' }}>
+      {/* ── HERO ── */}
+      <section
+        className="hero-section px-[5%]"
+        style={{ background: 'linear-gradient(180deg, rgba(26,40,71,0.45) 0%, rgba(5,13,26,0.15) 100%)' }}
+      >
         <div className="max-w-[1400px] mx-auto">
 
           {/* Badge */}
@@ -61,24 +230,24 @@ export default function CommercializationPage() {
           </div>
 
           {/* Titre */}
-          <h1 style={{ fontSize: '58px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF', lineHeight: 1.1, margin: '0 0 24px', maxWidth: '820px' }}>
+          <h1 className="hero-title">
             La commercialisation de votre projet,<br />
             <span style={{ color: '#C8A96E', fontStyle: 'italic' }}>prise en charge de A à Z.</span>
           </h1>
 
           {/* Sous-titre */}
-          <p style={{ fontSize: '17px', color: '#7A8FA3', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.8', maxWidth: '620px', margin: '0 0 10px' }}>
+          <p className="hero-subtitle">
             Landmark Estate accompagne les promoteurs immobiliers à Casablanca — stratégie de prix, production de contenu, gestion des leads et suivi jusqu&apos;à la signature notariale.
           </p>
-          <p style={{ fontSize: '15px', color: '#5A6E82', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: 1.7, maxWidth: '540px', margin: '0 0 64px' }}>
+          <p className="hero-note">
             <span style={{ color: '#C8A96E', fontWeight: 500 }}>Mohamed Sabbar</span> suit personnellement chaque projet en partenariat exclusif.
           </p>
 
           {/* Séparateur */}
           <div style={{ width: '100%', height: '1px', background: 'rgba(200,169,110,0.1)', marginBottom: '48px' }} />
 
-          {/* 3 engagements en ligne */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0' }}>
+          {/* 3 engagements */}
+          <div className="engagements-grid">
             {[
               {
                 title: 'Interlocuteur unique',
@@ -95,6 +264,7 @@ export default function CommercializationPage() {
             ].map((item, idx) => (
               <div
                 key={idx}
+                className="engagement-item"
                 style={{
                   paddingRight: idx < 2 ? '48px' : '0',
                   paddingLeft: idx > 0 ? '48px' : '0',
@@ -111,7 +281,7 @@ export default function CommercializationPage() {
       </section>
 
       {/* ENGAGEMENTS QUALITATIFS */}
-      <section className="py-16 px-[5%]" style={{ background: 'rgba(26,40,71,0.4)' }}>
+      <section className="engagements-section py-16 px-[5%]" style={{ background: 'rgba(26,40,71,0.4)' }}>
         <div className="max-w-[1400px] mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {[
@@ -133,11 +303,11 @@ export default function CommercializationPage() {
       </section>
 
       {/* DESCRIPTION + FEATURES */}
-      <section className="py-24 px-[5%]">
+      <section className="description-section py-24 px-[5%]">
         <div className="max-w-[1400px] mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
+          <div className="description-grid">
             <div>
-              <h2 style={{ fontSize: '40px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF', marginBottom: '24px' }}>
+              <h2 className="section-title-lg" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF', marginBottom: '24px' }}>
                 Partenaire commercial<br /><span style={{ color: '#C8A96E' }}>de votre projet</span>
               </h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -152,7 +322,7 @@ export default function CommercializationPage() {
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="features-grid">
               {features.map((feature, idx) => {
                 const Icon = feature.Icon;
                 return (
@@ -179,17 +349,17 @@ export default function CommercializationPage() {
       </section>
 
       {/* PROCESSUS EN 6 ETAPES */}
-      <section className="py-24 px-[5%]" style={{ background: 'rgba(26,40,71,0.4)' }}>
+      <section className="steps-section py-24 px-[5%]" style={{ background: 'rgba(26,40,71,0.4)' }}>
         <div className="max-w-[1400px] mx-auto">
           <div className="text-center mb-16">
-            <h2 className="mb-4" style={{ fontSize: '48px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}>
+            <h2 className="section-title-lg mb-4" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}>
               Notre methodologie en <span style={{ color: '#C8A96E' }}>6 etapes</span>
             </h2>
             <p style={{ color: '#8A9BB0', fontSize: '16px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400 }}>
               Un processus structure du diagnostic a la derniere vente
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="steps-grid">
             {steps.map((step, idx) => (
               <div
                 key={idx}
@@ -217,17 +387,17 @@ export default function CommercializationPage() {
       </section>
 
       {/* AVANTAGES CLES */}
-      <section className="py-24 px-[5%]">
+      <section className="advantages-section py-24 px-[5%]">
         <div className="max-w-[1400px] mx-auto">
           <div className="text-center mb-16">
-            <h2 className="mb-4" style={{ fontSize: '48px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}>
+            <h2 className="section-title-lg mb-4" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}>
               Nos <span style={{ color: '#C8A96E' }}>avantages cles</span>
             </h2>
             <p style={{ color: '#8A9BB0', fontSize: '16px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400 }}>
               Ce qui nous differencie sur le marche casablancais
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="advantages-grid">
             {advantages.map((item, idx) => {
               const Icon = item.Icon;
               return (
@@ -253,17 +423,15 @@ export default function CommercializationPage() {
       </section>
 
       {/* CTA FINAL */}
-      <section className="py-24 px-[5%]" style={{ background: 'rgba(26,40,71,0.4)' }}>
+      <section className="cta-section py-24 px-[5%]" style={{ background: 'rgba(26,40,71,0.4)' }}>
         <div className="max-w-[1000px] mx-auto text-center">
-          <h2 className="mb-6" style={{ fontSize: '48px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}>
+          <h2 className="section-title-lg mb-6" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}>
             Parlons de <span style={{ color: '#C8A96E' }}>votre projet</span>
           </h2>
           <p className="mb-10" style={{ color: '#8A9BB0', fontSize: '16px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.7' }}>
             Une consultation gratuite avec Mohamed Sabbar pour evaluer votre projet et vous proposer une strategie de commercialisation adaptee au marche casablancais.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-
-            {/* ✅ CORRIGÉ : pointe vers la page contact dédiée commercialisation */}
+          <div className="cta-buttons">
             <Link
               href="/services/commercialisation/contact"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl transition-all duration-300"
