@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { API_BASE_URL } from '@/lib/config';
-import { ArrowLeft, MapPin, Heart, Phone, Mail, Share2, ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { ArrowLeft, MapPin, Heart, Phone, Mail, Share2, ChevronLeft, ChevronRight, Play, Copy, Check } from 'lucide-react';
 import { propertiesApi } from '@/lib/api';
 
 const transactionTypeMap: { [key: string]: string } = {
@@ -53,6 +53,8 @@ export default function PropertyDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<(number | string)[]>([]);
   const [shareSuccess, setShareSuccess] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [showSharePanel, setShowSharePanel] = useState(false);
   const [statusSaving, setStatusSaving] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const touchStartRef = useRef<number>(0);
@@ -119,32 +121,50 @@ export default function PropertyDetailPage() {
     localStorage.setItem('sabbar_favorites', JSON.stringify(newFavorites));
   };
 
-  const handleShare = async () => {
-    const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: property.title, text: `Découvrez cette propriété: ${property.title}`, url: shareUrl });
-        setShareSuccess(true);
-        setTimeout(() => setShareSuccess(false), 3000);
-      } catch (error) {
-        if ((error as Error).name !== 'AbortError') copyToClipboard(shareUrl);
-      }
-    } else copyToClipboard(shareUrl);
-  };
+  const getShareUrl = () => typeof window !== 'undefined' ? window.location.href : '';
 
-  const copyToClipboard = async (text: string) => {
+  const copyToClipboard = async () => {
+    const url = getShareUrl();
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(url);
     } catch {
       const ta = document.createElement('textarea');
-      ta.value = text;
+      ta.value = url;
       document.body.appendChild(ta);
       ta.select();
-      try { document.execCommand('copy'); } catch (e) { console.error(e); }
+      try { document.execCommand('copy'); } catch (e) {}
       document.body.removeChild(ta);
     }
-    setShareSuccess(true);
-    setTimeout(() => setShareSuccess(false), 3000);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000);
+  };
+
+  // ✅ Instagram Stories : ouvre l'app Instagram directement
+  const shareToInstagram = () => {
+    const url = getShareUrl();
+    // Sur mobile, tente d'ouvrir l'app Instagram
+    const instagramUrl = `instagram://story-camera`;
+    const fallbackUrl = `https://www.instagram.com/`;
+
+    // Copie le lien dans le presse-papier d'abord
+    copyToClipboard();
+
+    // Tente d'ouvrir Instagram
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = instagramUrl;
+    document.body.appendChild(iframe);
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 2000);
+
+    // Affiche un guide
+    setShowSharePanel(false);
+    alert(`✅ Lien copié !\n\n📱 Pour partager en Story Instagram :\n1. Ouvrez Instagram\n2. Créez une nouvelle Story\n3. Appuyez sur l'autocollant 🔗 Lien\n4. Collez le lien copié\n\nURL : ${url}`);
+  };
+
+  const handleShare = async () => {
+    setShowSharePanel(true);
   };
 
   const handleStatusChange = async (newStatus: string) => {
@@ -248,11 +268,198 @@ export default function PropertyDetailPage() {
     fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: 20,
   };
 
+  const shareUrl = getShareUrl();
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`🏠 ${property.title}\n📍 ${property.city}\n💰 ${property.price?.toLocaleString('fr-FR')} MAD\n\n${shareUrl}`)}`;
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`${property.title} - ${property.city}`)}&url=${encodeURIComponent(shareUrl)}`;
+
   return (
     <main style={{ background: `linear-gradient(to bottom, ${COLORS.navy}, #0f1a2e)`, minHeight: '100vh' }}>
+
+      {/* ── STYLES RESPONSIVE ── */}
+      <style>{`
+        .pd-main-grid {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 32px;
+          align-items: flex-start;
+          max-width: 1400px;
+          margin: 0 auto;
+        }
+        .pd-left-col {
+          flex: 1 1 300px;
+          min-width: 0;
+        }
+        .pd-right-col {
+          flex: 0 1 320px;
+          width: 100%;
+        }
+        .pd-price-sticky {
+          position: sticky;
+          top: 24px;
+        }
+        .pd-share-panel {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          z-index: 100;
+          background: linear-gradient(180deg, #162D4F 0%, #0D1F3C 100%);
+          border-top: 1px solid rgba(200,169,110,0.3);
+          border-radius: 20px 20px 0 0;
+          padding: 24px 20px 40px;
+        }
+        .pd-share-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 99;
+          background: rgba(0,0,0,0.6);
+          backdrop-filter: blur(4px);
+        }
+        .pd-share-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 12px;
+          margin-top: 20px;
+        }
+        .pd-share-btn {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          padding: 14px 8px;
+          border-radius: 12px;
+          border: 1px solid rgba(200,169,110,0.2);
+          background: rgba(22,45,79,0.5);
+          color: #E2C98A;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 11px;
+          font-weight: 500;
+          cursor: pointer;
+          text-decoration: none;
+          text-align: center;
+          transition: all 0.2s;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .pd-share-btn:hover, .pd-share-btn:active {
+          background: rgba(200,169,110,0.15);
+          border-color: rgba(200,169,110,0.5);
+        }
+        .pd-copy-bar {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          background: rgba(13,31,60,0.6);
+          border: 1px solid rgba(200,169,110,0.2);
+          border-radius: 10px;
+          padding: 12px 16px;
+          margin-top: 16px;
+        }
+        .pd-copy-url {
+          flex: 1;
+          color: rgba(226,201,138,0.6);
+          font-family: 'DM Sans', sans-serif;
+          font-size: 12px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .pd-copy-btn {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 14px;
+          border-radius: 8px;
+          border: none;
+          background: linear-gradient(135deg, #C8A96E, #E2C98A);
+          color: #0D1F3C;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 12px;
+          font-weight: 700;
+          cursor: pointer;
+          white-space: nowrap;
+          flex-shrink: 0;
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        @media (max-width: 768px) {
+          .pd-right-col {
+            flex: 1 1 100%;
+          }
+          .pd-price-sticky {
+            position: static;
+          }
+          .pd-share-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+      `}</style>
+
       <BackBar />
 
-      {/* ✅ Image Gallery — hauteur fixe → responsive */}
+      {/* ── Share Panel (Bottom Sheet) ── */}
+      {showSharePanel && (
+        <>
+          <div className="pd-share-overlay" onClick={() => setShowSharePanel(false)} />
+          <div className="pd-share-panel">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ color: COLORS.ivory, fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 22, fontWeight: 300, margin: 0 }}>
+                Partager ce bien
+              </h3>
+              <button onClick={() => setShowSharePanel(false)} style={{ background: 'none', border: 'none', color: COLORS.gold, cursor: 'pointer', padding: 4 }}>✕</button>
+            </div>
+
+            <div className="pd-share-grid">
+              {/* WhatsApp */}
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="pd-share-btn">
+                <span style={{ fontSize: 28 }}>💬</span>
+                WhatsApp
+              </a>
+
+              {/* Facebook */}
+              <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="pd-share-btn">
+                <span style={{ fontSize: 28 }}>📘</span>
+                Facebook
+              </a>
+
+              {/* Twitter/X */}
+              <a href={twitterUrl} target="_blank" rel="noopener noreferrer" className="pd-share-btn">
+                <span style={{ fontSize: 28 }}>🐦</span>
+                Twitter / X
+              </a>
+
+              {/* Instagram Story */}
+              <button className="pd-share-btn" onClick={shareToInstagram}>
+                <span style={{ fontSize: 28 }}>📸</span>
+                Instagram
+              </button>
+            </div>
+
+            {/* Copy URL bar */}
+            <div className="pd-copy-bar">
+              <span className="pd-copy-url">{shareUrl}</span>
+              <button className="pd-copy-btn" onClick={copyToClipboard}>
+                {copied ? <><Check size={14} /> Copié !</> : <><Copy size={14} /> Copier</>}
+              </button>
+            </div>
+
+            {/* Instagram tip */}
+            <div style={{ marginTop: 16, padding: '12px 16px', borderRadius: 10, background: 'rgba(200,169,110,0.08)', border: '1px solid rgba(200,169,110,0.2)' }}>
+              <p style={{ color: COLORS.gold, fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, margin: '0 0 4px' }}>
+                📸 Pour Instagram Story :
+              </p>
+              <p style={{ color: 'rgba(226,201,138,0.7)', fontFamily: "'DM Sans', sans-serif", fontSize: 11, margin: 0, lineHeight: 1.6 }}>
+                1. Copiez le lien ci-dessus<br />
+                2. Ouvrez Instagram → Nouvelle Story<br />
+                3. Appuyez sur l'autocollant 🔗 Lien<br />
+                4. Collez le lien
+              </p>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Image Gallery ── */}
       <section style={{ padding: '32px 5%' }}>
         <div style={{ maxWidth: 1400, margin: '0 auto' }}>
           <div
@@ -261,7 +468,6 @@ export default function PropertyDetailPage() {
               backgroundColor: COLORS.navyLight,
               borderRadius: 16,
               overflow: 'hidden',
-              // ✅ FIX: hauteur responsive (pas de height: 500 fixe)
               width: '100%',
               aspectRatio: '16/9',
               maxHeight: 560,
@@ -310,25 +516,16 @@ export default function PropertyDetailPage() {
         </div>
       </section>
 
-      {/* ✅ Main Content — grid → flex column sur mobile */}
+      {/* ── Main Content ── */}
       <section style={{ padding: '0 5% 64px' }}>
-        <div
-          style={{
-            maxWidth: 1400,
-            margin: '0 auto',
-            // ✅ FIX: On utilise flex + flex-wrap au lieu de grid avec colonnes fixes
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 32,
-            alignItems: 'flex-start',
-          }}
-        >
-          {/* ✅ Left Column — prend toute la largeur sur mobile */}
-          <div style={{ flex: '1 1 300px', minWidth: 0 }}>
+        <div className="pd-main-grid">
+
+          {/* Left Column */}
+          <div className="pd-left-col">
 
             {/* Title */}
             <div style={{ marginBottom: 32 }}>
-              <h1 style={{ fontSize: 'clamp(26px, 5vw, 42px)', fontWeight: 300, color: COLORS.ivory, fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: 12 }}>
+              <h1 style={{ fontSize: 'clamp(24px, 5vw, 42px)', fontWeight: 300, color: COLORS.ivory, fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: 12 }}>
                 {property.title}
               </h1>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: COLORS.gold, fontSize: 16, fontFamily: "'DM Sans', sans-serif" }}>
@@ -416,49 +613,59 @@ export default function PropertyDetailPage() {
             </div>
           </div>
 
-          {/* ✅ Right Column — pleine largeur sur mobile, sidebar sur desktop */}
-          <div style={{ flex: '0 1 320px', width: '100%' }}>
+          {/* Right Column */}
+          <div className="pd-right-col">
+            <div className="pd-price-sticky">
 
-            {/* Price Card */}
-            <div style={{
-              background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldLight})`,
-              borderRadius: 16,
-              padding: 24,
-              marginBottom: 20,
-              // ✅ sticky uniquement sur écran suffisamment large
-              position: 'sticky' as any,
-              top: 24,
-            }}>
-              <p style={{ color: COLORS.navy, fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>PRIX</p>
-              <div style={{ fontSize: 'clamp(22px, 4vw, 32px)', fontWeight: 700, color: COLORS.navy, fontFamily: "'Cormorant Garamond', Georgia, serif", wordBreak: 'break-word' }}>
-                {property.price.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              {/* Price Card */}
+              <div style={{
+                background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldLight})`,
+                borderRadius: 16,
+                padding: 24,
+                marginBottom: 20,
+              }}>
+                <p style={{ color: COLORS.navy, fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>PRIX</p>
+                <div style={{ fontSize: 'clamp(22px, 4vw, 32px)', fontWeight: 700, color: COLORS.navy, fontFamily: "'Cormorant Garamond', Georgia, serif", wordBreak: 'break-word' }}>
+                  {property.price.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </div>
+                <p style={{ color: COLORS.navy, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, marginTop: 2 }}>MAD</p>
               </div>
-              <p style={{ color: COLORS.navy, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, marginTop: 2 }}>MAD</p>
-            </div>
 
-            {/* Contact Card */}
-            <div style={{ backgroundColor: 'rgba(22,45,79,0.5)', border: `1px solid rgba(200,169,110,0.2)`, borderRadius: 16, padding: 24 }}>
-              <h3 style={{ fontSize: 18, fontWeight: 300, color: COLORS.ivory, fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: 16 }}>Nous contacter</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <a href="tel:+212605585720"
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: COLORS.gold, color: COLORS.navy, fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, padding: '12px 16px', borderRadius: 10, textDecoration: 'none' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = COLORS.goldLight; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = COLORS.gold; }}
-                >
-                  <Phone size={16} /> +212 6 05 58 57 20
-                </a>
-                <a href="mailto:Landmarkestate3@gmail.com"
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: 'transparent', color: COLORS.gold, fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, padding: '12px 16px', borderRadius: 10, textDecoration: 'none', border: `1.5px solid ${COLORS.gold}` }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = COLORS.gold; e.currentTarget.style.color = COLORS.navy; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = COLORS.gold; }}
-                >
-                  <Mail size={16} /> Landmarkestate3@gmail.com
-                </a>
-                <button onClick={handleShare}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: shareSuccess ? 'rgba(200,169,110,0.2)' : 'rgba(200,169,110,0.08)', color: shareSuccess ? COLORS.gold : 'rgba(226,201,138,0.7)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '12px 16px', borderRadius: 10, border: `1.5px solid ${shareSuccess ? COLORS.gold : 'rgba(200,169,110,0.25)'}`, cursor: 'pointer', width: '100%', transition: 'all 0.2s' }}>
-                  <Share2 size={16} />
-                  {shareSuccess ? '✓ Lien copié' : 'Partager'}
-                </button>
+              {/* Contact Card */}
+              <div style={{ backgroundColor: 'rgba(22,45,79,0.5)', border: `1px solid rgba(200,169,110,0.2)`, borderRadius: 16, padding: 24 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 300, color: COLORS.ivory, fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: 16 }}>Nous contacter</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <a href="tel:+212605585720"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: COLORS.gold, color: COLORS.navy, fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, padding: '12px 16px', borderRadius: 10, textDecoration: 'none' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = COLORS.goldLight; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = COLORS.gold; }}
+                  >
+                    <Phone size={16} /> +212 6 05 58 57 20
+                  </a>
+                  <a href="mailto:Landmarkestate3@gmail.com"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: 'transparent', color: COLORS.gold, fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, padding: '12px 16px', borderRadius: 10, textDecoration: 'none', border: `1.5px solid ${COLORS.gold}` }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = COLORS.gold; e.currentTarget.style.color = COLORS.navy; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = COLORS.gold; }}
+                  >
+                    <Mail size={16} /> Landmarkestate3@gmail.com
+                  </a>
+
+                  {/* ✅ WhatsApp direct */}
+                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: '#25D366', color: '#fff', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, padding: '12px 16px', borderRadius: 10, textDecoration: 'none' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#20c45a'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#25D366'; }}
+                  >
+                    💬 Partager sur WhatsApp
+                  </a>
+
+                  {/* ✅ Share button → ouvre le panel */}
+                  <button onClick={handleShare}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: 'rgba(200,169,110,0.08)', color: 'rgba(226,201,138,0.7)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '12px 16px', borderRadius: 10, border: `1.5px solid rgba(200,169,110,0.25)`, cursor: 'pointer', width: '100%', transition: 'all 0.2s' }}>
+                    <Share2 size={16} />
+                    Plus d'options de partage
+                  </button>
+                </div>
               </div>
             </div>
           </div>
