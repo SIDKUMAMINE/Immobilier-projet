@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, CheckCircle2, Phone, FileSearch, Users, MessageSquare, ShieldCheck, MapPin, Star } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Phone, FileSearch, Users, MessageSquare, ShieldCheck, MapPin, Star } from 'lucide-react';
 
 export default function IntermediationsPage() {
 
@@ -57,6 +57,175 @@ export default function IntermediationsPage() {
   return (
     <main style={{ background: 'linear-gradient(to bottom, #0D1F3C, #050D1A)' }}>
 
+      {/* ── STYLES RESPONSIVE ── */}
+      <style>{`
+        .hero-title-inter {
+          font-size: 48px;
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-weight: 300;
+          color: #F9F5EF;
+          margin-bottom: 24px;
+        }
+        .hero-section-inter {
+          padding: 96px 5%;
+        }
+        .hero-subtitle-inter {
+          font-size: 18px;
+          color: #8A9BB0;
+          font-family: 'DM Sans', system-ui, sans-serif;
+          font-weight: 400;
+          line-height: 1.7;
+          max-width: 42rem;
+          margin-bottom: 16px;
+        }
+        .hero-note-inter {
+          font-size: 16px;
+          color: #8A9BB0;
+          font-family: 'DM Sans', system-ui, sans-serif;
+          font-weight: 400;
+          max-width: 42rem;
+        }
+        .section-title-inter {
+          font-size: 48px;
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-weight: 300;
+          color: #F9F5EF;
+          margin-bottom: 16px;
+        }
+        .description-title-inter {
+          font-size: 40px;
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-weight: 300;
+          color: #F9F5EF;
+          margin-bottom: 24px;
+        }
+        .description-grid-inter {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 64px;
+          align-items: start;
+        }
+        .features-grid-inter {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 24px;
+        }
+        .steps-grid-inter {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 32px;
+        }
+        .advantages-grid-inter {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 32px;
+        }
+        .cta-buttons-inter {
+          display: flex;
+          flex-direction: row;
+          gap: 16px;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+        .engagements-section-inter {
+          padding: 64px 5%;
+        }
+        .description-section-inter {
+          padding: 96px 5%;
+        }
+        .steps-section-inter {
+          padding: 96px 5%;
+        }
+        .advantages-section-inter {
+          padding: 96px 5%;
+        }
+        .cta-section-inter {
+          padding: 96px 5%;
+        }
+        .mb-section {
+          margin-bottom: 64px;
+        }
+
+        @media (max-width: 768px) {
+          .hero-title-inter {
+            font-size: 30px;
+            margin-bottom: 16px;
+          }
+          .hero-section-inter {
+            padding: 48px 5%;
+          }
+          .hero-subtitle-inter {
+            font-size: 15px;
+            max-width: 100%;
+          }
+          .hero-note-inter {
+            font-size: 14px;
+            max-width: 100%;
+          }
+          .section-title-inter {
+            font-size: 28px;
+          }
+          .description-title-inter {
+            font-size: 28px;
+          }
+          .description-grid-inter {
+            grid-template-columns: 1fr;
+            gap: 32px;
+          }
+          .features-grid-inter {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+          .steps-grid-inter {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+          .advantages-grid-inter {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+          .cta-buttons-inter {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          .cta-buttons-inter a,
+          .cta-buttons-inter div {
+            justify-content: center;
+            text-align: center;
+          }
+          .engagements-section-inter {
+            padding: 40px 5%;
+          }
+          .description-section-inter {
+            padding: 48px 5%;
+          }
+          .steps-section-inter {
+            padding: 48px 5%;
+          }
+          .advantages-section-inter {
+            padding: 48px 5%;
+          }
+          .cta-section-inter {
+            padding: 48px 5%;
+          }
+          .mb-section {
+            margin-bottom: 40px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .hero-title-inter {
+            font-size: 24px;
+          }
+          .section-title-inter {
+            font-size: 24px;
+          }
+          .description-title-inter {
+            font-size: 24px;
+          }
+        }
+      `}</style>
+
       {/* Back Button */}
       <div className="py-4 px-[5%] border-b" style={{ background: 'rgba(26, 40, 71, 0.5)', borderColor: 'rgba(200, 169, 110, 0.2)' }}>
         <div className="max-w-[1400px] mx-auto">
@@ -72,25 +241,22 @@ export default function IntermediationsPage() {
       </div>
 
       {/* HERO */}
-      <section className="py-24 px-[5%]" style={{ background: 'linear-gradient(135deg, rgba(26,40,71,0.5), rgba(26,40,71,0.3))' }}>
+      <section className="hero-section-inter" style={{ background: 'linear-gradient(135deg, rgba(26,40,71,0.5), rgba(26,40,71,0.3))' }}>
         <div className="max-w-[1400px] mx-auto">
-          <h1
-            className="mb-6"
-            style={{ fontSize: '48px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}
-          >
+          <h1 className="hero-title-inter">
             Un accompagnement <span style={{ color: '#C8A96E' }}>de confiance</span>
           </h1>
-          <p className="max-w-2xl mb-4" style={{ fontSize: '18px', color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.7' }}>
+          <p className="hero-subtitle-inter">
             Vous vendez, achetez ou louez un bien a Casablanca ? Landmark Estate vous accompagne a chaque etape avec un seul interlocuteur, une communication claire et aucune mauvaise surprise.
           </p>
-          <p className="max-w-2xl" style={{ fontSize: '16px', color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400 }}>
+          <p className="hero-note-inter">
             <span style={{ color: '#C8A96E', fontWeight: 500 }}>Notre engagement :</span> vous informer a chaque etape, verifier les documents avant toute visite, et rester disponible jusqu&apos;a la remise des cles.
           </p>
         </div>
       </section>
 
       {/* ENGAGEMENTS QUALITATIFS */}
-      <section className="py-16 px-[5%]" style={{ background: 'rgba(26,40,71,0.4)' }}>
+      <section className="engagements-section-inter" style={{ background: 'rgba(26,40,71,0.4)' }}>
         <div className="max-w-[1400px] mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {[
@@ -112,11 +278,11 @@ export default function IntermediationsPage() {
       </section>
 
       {/* DESCRIPTION + FEATURES */}
-      <section className="py-24 px-[5%]">
+      <section className="description-section-inter">
         <div className="max-w-[1400px] mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
+          <div className="description-grid-inter">
             <div>
-              <h2 style={{ fontSize: '40px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF', marginBottom: '24px' }}>
+              <h2 className="description-title-inter">
                 Votre Partenaire<br /><span style={{ color: '#C8A96E' }}>De Confiance</span>
               </h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -133,7 +299,7 @@ export default function IntermediationsPage() {
             </div>
 
             {/* Features Grid */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="features-grid-inter">
               {features.map((feature, idx) => (
                 <div
                   key={idx}
@@ -156,17 +322,17 @@ export default function IntermediationsPage() {
       </section>
 
       {/* PROCESSUS EN 6 ETAPES */}
-      <section className="py-24 px-[5%]" style={{ background: 'rgba(26,40,71,0.4)' }}>
+      <section className="steps-section-inter" style={{ background: 'rgba(26,40,71,0.4)' }}>
         <div className="max-w-[1400px] mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="mb-4" style={{ fontSize: '48px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}>
+          <div className="text-center mb-section">
+            <h2 className="section-title-inter">
               Notre Processus en <span style={{ color: '#C8A96E' }}>6 Etapes</span>
             </h2>
             <p style={{ color: '#8A9BB0', fontSize: '16px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400 }}>
               Un accompagnement structure du debut a la signature
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="steps-grid-inter">
             {steps.map((step, idx) => (
               <div
                 key={idx}
@@ -194,17 +360,17 @@ export default function IntermediationsPage() {
       </section>
 
       {/* AVANTAGES CLES */}
-      <section className="py-24 px-[5%]">
+      <section className="advantages-section-inter">
         <div className="max-w-[1400px] mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="mb-4" style={{ fontSize: '48px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}>
+          <div className="text-center mb-section">
+            <h2 className="section-title-inter">
               Nos <span style={{ color: '#C8A96E' }}>Avantages Cles</span>
             </h2>
             <p style={{ color: '#8A9BB0', fontSize: '16px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400 }}>
               Ce qui nous differencie au quotidien
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="advantages-grid-inter">
             {advantages.map((item, idx) => {
               const Icon = item.Icon;
               return (
@@ -229,18 +395,16 @@ export default function IntermediationsPage() {
         </div>
       </section>
 
-    
-
       {/* CTA FINAL */}
-      <section className="py-24 px-[5%]">
+      <section className="cta-section-inter">
         <div className="max-w-[1000px] mx-auto text-center">
-          <h2 className="mb-6" style={{ fontSize: '48px', fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, color: '#F9F5EF' }}>
+          <h2 className="section-title-inter">
             Parlons de votre <span style={{ color: '#C8A96E' }}>projet</span>
           </h2>
-          <p className="mb-10" style={{ color: '#8A9BB0', fontSize: '16px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.7' }}>
+          <p style={{ color: '#8A9BB0', fontSize: '16px', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, lineHeight: '1.7', marginBottom: '40px' }}>
             Une consultation gratuite suffit pour vous orienter honnetement sur votre projet de vente, d&apos;achat ou de location.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="cta-buttons-inter">
             <Link
               href="/services/intermediations/contact"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl transition-all duration-300"
