@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { Menu } from 'lucide-react';
 
 export default function FloatingHamburgerButton({ onClick }: { onClick: () => void }) {
   const pathname = usePathname();
@@ -13,12 +14,29 @@ export default function FloatingHamburgerButton({ onClick }: { onClick: () => vo
   return (
     <button
       onClick={onClick}
-      className="fixed top-6 right-6 z-50 p-3 bg-gradient-to-r from-teal-700 to-teal-600 text-white rounded-lg shadow-lg hover:shadow-xl hover:from-teal-600 hover:to-teal-500 transition-all duration-300 transform hover:scale-110 flex flex-col gap-1.5"
       aria-label="Menu"
+      style={{
+        position: 'fixed',
+        top: '20px',
+        right: '16px',
+        zIndex: 45,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '44px',
+        height: '44px',
+        borderRadius: '10px',
+        border: '1.5px solid rgba(200,169,110,0.4)',
+        backgroundColor: 'rgba(13, 31, 60, 0.9)',
+        color: '#C8A96E',
+        cursor: 'pointer',
+        outline: 'none',
+        backdropFilter: 'blur(8px)',
+        WebkitTapHighlightColor: 'transparent',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+      }}
     >
-      <span className="w-6 h-0.5 bg-white"></span>
-      <span className="w-6 h-0.5 bg-white"></span>
-      <span className="w-6 h-0.5 bg-white"></span>
+      <Menu size={20} />
     </button>
   );
 }

@@ -11,17 +11,33 @@
   --color-text-secondary: #d1d5db;
 }
 
+/* ── FIX OVERFLOW MOBILE ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 body {
+  overflow-x: hidden;
+  max-width: 100%;
   background-color: #000000;
   color: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Bloquer le scroll quand menu mobile ouvert */
+body.mobile-menu-open {
+  overflow: hidden;
 }
 
 ::-webkit-scrollbar {
