@@ -4,7 +4,7 @@ import './globals.css';
 import PublicFooter from '@/components/PublicFooter';
 import PublicNavbarClient from '@/components/PublicNavbarClient';
 import { AuthProvider } from '@/lib/auth/context';
-import MetaPixel from '@/components/layout/MetaPixel';
+import MetaPixel from '@/components/MetaPixel';
 
 const inter = Inter({ subsets: ['latin'] });
 
