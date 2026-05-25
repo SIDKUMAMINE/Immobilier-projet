@@ -4,6 +4,7 @@ import './globals.css';
 import PublicFooter from '@/components/PublicFooter';
 import PublicNavbarClient from '@/components/PublicNavbarClient';
 import { AuthProvider } from '@/lib/auth/context';
+import MetaPixel from '@/components/layout/MetaPixel';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr">
       <body className={inter.className}>
+        <MetaPixel />  {/* ✅ Pixel Facebook */}
         <AuthProvider>
           <LayoutContent>{children}</LayoutContent>
         </AuthProvider>
@@ -28,8 +30,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
-  // Note: usePathname n'est pas disponible dans un Server Component
-  // On va utiliser une approche différente
   return (
     <>
       <PublicNavbarClient />
@@ -37,4 +37,4 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <PublicFooter />
     </>
   );
-}   
+}
