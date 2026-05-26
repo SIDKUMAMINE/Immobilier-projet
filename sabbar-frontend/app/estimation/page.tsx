@@ -1,26 +1,6 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import dynamic from 'next/dynamic';
-
-// ─── Import dynamique Leaflet (SSR disabled) ──────────────────────────────────
-
-const MapMaroc = dynamic(() => import('./MapMaroc'), {
-  ssr: false,
-  loading: () => (
-    <div style={{
-      height: '280px', borderRadius: '12px',
-      background: 'rgba(13,31,60,0.5)',
-      border: '1px solid rgba(200,169,110,0.18)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      color: 'rgba(200,169,110,0.4)', fontSize: '13px',
-      fontFamily: "'DM Sans', system-ui, sans-serif",
-      letterSpacing: '0.05em',
-    }}>
-      Chargement de la carte...
-    </div>
-  ),
-});
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -129,6 +109,14 @@ const PRIX: Record<string, Record<string, { min: number; max: number }>> = {
   },
 };
 
+// ─── Liste des villes avec labels ────────────────────────────────────────────
+
+const VILLES_LABELS: Record<string, string> = {
+  casablanca: 'Casablanca', rabat: 'Rabat', marrakech: 'Marrakech',
+  tanger: 'Tanger', agadir: 'Agadir', fes: 'Fès',
+  meknes: 'Meknès', oujda: 'Oujda', kenitra: 'Kénitra', tetouan: 'Tétouan',
+};
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface FormState {
@@ -180,7 +168,6 @@ function findBestMatch(input: string, candidates: string[]): string {
   return '';
 }
 
-// Retourne la clé normalisée (ex: "casablanca") à partir du label saisi
 function villeToKey(label: string): string {
   return findBestMatch(label, Object.keys(PRIX));
 }
@@ -247,30 +234,19 @@ const T = {
 
 function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <div style={{
-      fontSize: '11px', fontWeight: 500, letterSpacing: '0.12em',
-      textTransform: 'uppercase', color: T.muted,
-      fontFamily: "'DM Sans', system-ui, sans-serif", marginBottom: '10px',
-    }}>
-      {children}
-      {required && <span style={{ color: T.terra, marginLeft: '4px' }}>*</span>}
+    <div style={{ fontSize: '11px', fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: T.muted, fontFamily: "'DM Sans', system-ui, sans-serif", marginBottom: '10px' }}>
+      {children}{required && <span style={{ color: T.terra, marginLeft: '4px' }}>*</span>}
     </div>
   );
 }
 
 function FieldError({ msg }: { msg?: string }) {
   if (!msg) return null;
-  return (
-    <div style={{ fontSize: '12px', color: T.terra, marginTop: '6px', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
-      {msg}
-    </div>
-  );
+  return <div style={{ fontSize: '12px', color: T.terra, marginTop: '6px', fontFamily: "'DM Sans', system-ui, sans-serif" }}>{msg}</div>;
 }
 
 function ChipGroup({ options, value, multi = false, onChange }: {
-  options: { val: string; label: string }[];
-  value: string | string[]; multi?: boolean;
-  onChange: (v: string | string[]) => void;
+  options: { val: string; label: string }[]; value: string | string[]; multi?: boolean; onChange: (v: string | string[]) => void;
 }) {
   const isSelected = (v: string) => multi ? (value as string[]).includes(v) : value === v;
   const handleClick = (v: string) => {
@@ -281,37 +257,29 @@ function ChipGroup({ options, value, multi = false, onChange }: {
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
       {options.map(({ val, label }) => (
         <button key={val} type="button" onClick={() => handleClick(val)} style={{
-          padding: '9px 18px', borderRadius: '8px', cursor: 'pointer',
-          fontSize: '13px', fontWeight: 500, whiteSpace: 'nowrap',
-          fontFamily: "'DM Sans', system-ui, sans-serif",
-          transition: 'all 0.2s ease',
+          padding: '9px 18px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, whiteSpace: 'nowrap',
+          fontFamily: "'DM Sans', system-ui, sans-serif", transition: 'all 0.2s ease',
           background: isSelected(val) ? 'rgba(200,169,110,0.12)' : 'rgba(13,31,60,0.4)',
           border: `1px solid ${isSelected(val) ? T.gold : T.border}`,
           color: isSelected(val) ? T.gold : 'rgba(226,201,138,0.55)',
-        }}>
-          {label}
-        </button>
+        }}>{label}</button>
       ))}
     </div>
   );
 }
 
 function StepCircle({ n, current }: { n: number; current: number }) {
-  const done = n < current;
-  const active = n === current;
+  const done = n < current; const active = n === current;
   return (
     <div style={{
       width: '34px', height: '34px', borderRadius: '50%', flexShrink: 0,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       fontSize: done ? '14px' : '13px', fontWeight: 500,
-      fontFamily: "'Cormorant Garamond', Georgia, serif",
-      transition: 'all 0.3s',
+      fontFamily: "'Cormorant Garamond', Georgia, serif", transition: 'all 0.3s',
       background: active ? T.gold : done ? 'rgba(200,169,110,0.2)' : 'rgba(200,169,110,0.07)',
       border: `1px solid ${active || done ? T.gold : T.border}`,
       color: active ? T.navy : done ? T.gold : 'rgba(200,169,110,0.35)',
-    }}>
-      {done ? '✓' : n}
-    </div>
+    }}>{done ? '✓' : n}</div>
   );
 }
 
@@ -323,32 +291,18 @@ function ProgressBar({ current }: { current: number }) {
         {[1, 2, 3, 4].map((n, i) => (
           <div key={n} style={{ display: 'flex', alignItems: 'center' }}>
             <StepCircle n={n} current={current} />
-            {i < 3 && (
-              <div style={{
-                width: '56px', height: '1px',
-                background: n < current ? `linear-gradient(90deg, ${T.gold}, rgba(200,169,110,0.3))` : T.border,
-                transition: 'background 0.4s',
-              }} />
-            )}
+            {i < 3 && <div style={{ width: '56px', height: '1px', background: n < current ? `linear-gradient(90deg, ${T.gold}, rgba(200,169,110,0.3))` : T.border, transition: 'background 0.4s' }} />}
           </div>
         ))}
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', padding: '0 2px' }}>
         {labels.map((l, i) => (
-          <span key={l} style={{
-            fontSize: '10px', fontWeight: 500, letterSpacing: '0.08em',
-            textTransform: 'uppercase', fontFamily: "'DM Sans', system-ui, sans-serif",
-            color: i + 1 === current ? T.goldLight : i + 1 < current ? 'rgba(200,169,110,0.4)' : 'rgba(200,169,110,0.2)',
-            transition: 'color 0.3s',
-            width: '25%', textAlign: i === 0 ? 'left' : i === 3 ? 'right' : 'center',
-          }}>{l}</span>
+          <span key={l} style={{ fontSize: '10px', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'DM Sans', system-ui, sans-serif", color: i + 1 === current ? T.goldLight : i + 1 < current ? 'rgba(200,169,110,0.4)' : 'rgba(200,169,110,0.2)', transition: 'color 0.3s', width: '25%', textAlign: i === 0 ? 'left' : i === 3 ? 'right' : 'center' }}>{l}</span>
         ))}
       </div>
     </div>
   );
 }
-
-// ─── Input style ─────────────────────────────────────────────────────────────
 
 const fieldInput: React.CSSProperties = {
   width: '100%', padding: '13px 18px', borderRadius: '9px',
@@ -358,51 +312,137 @@ const fieldInput: React.CSSProperties = {
   transition: 'all 0.25s', boxSizing: 'border-box' as const,
 };
 
-// ─── Buttons ─────────────────────────────────────────────────────────────────
-
 function BtnPrimary({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
   return (
-    <button type="button" onClick={onClick} style={{
-      flex: 1, padding: '14px 28px', borderRadius: '9px', border: 'none', cursor: 'pointer',
-      background: `linear-gradient(135deg, ${T.gold} 0%, ${T.goldLight} 100%)`,
-      color: T.navy, fontFamily: "'DM Sans', system-ui, sans-serif",
-      fontSize: '14px', fontWeight: 600, letterSpacing: '0.04em',
-      transition: 'all 0.25s',
-    }}
+    <button type="button" onClick={onClick} style={{ flex: 1, padding: '14px 28px', borderRadius: '9px', border: 'none', cursor: 'pointer', background: `linear-gradient(135deg, ${T.gold} 0%, ${T.goldLight} 100%)`, color: T.navy, fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', fontWeight: 600, letterSpacing: '0.04em', transition: 'all 0.25s' }}
       onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(200,169,110,0.25)'; }}
       onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
-    >
-      {children}
-    </button>
+    >{children}</button>
   );
 }
 
 function BtnSecondary({ onClick }: { onClick: () => void }) {
   return (
-    <button type="button" onClick={onClick} style={{
-      padding: '14px 24px', borderRadius: '9px', cursor: 'pointer',
-      background: 'transparent', border: `1px solid ${T.border}`,
-      color: T.muted, fontFamily: "'DM Sans', system-ui, sans-serif",
-      fontSize: '14px', fontWeight: 500, transition: 'all 0.2s',
-    }}
+    <button type="button" onClick={onClick} style={{ padding: '14px 24px', borderRadius: '9px', cursor: 'pointer', background: 'transparent', border: `1px solid ${T.border}`, color: T.muted, fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', fontWeight: 500, transition: 'all 0.2s' }}
       onMouseEnter={e => { e.currentTarget.style.borderColor = T.gold; e.currentTarget.style.color = T.gold; }}
       onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}
-    >
-      Retour
-    </button>
+    >Retour</button>
   );
 }
 
-// ─── Card wrapper ─────────────────────────────────────────────────────────────
-
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{
-      background: T.glassDeep, backdropFilter: 'blur(12px)',
-      border: `1px solid ${T.border}`, borderRadius: '20px',
-      padding: '44px 40px', maxWidth: '740px', margin: '0 auto',
-    }}>
+    <div style={{ background: T.glassDeep, backdropFilter: 'blur(12px)', border: `1px solid ${T.border}`, borderRadius: '20px', padding: '44px 40px', maxWidth: '740px', margin: '0 auto' }}>
       {children}
+    </div>
+  );
+}
+
+// ─── Autocomplete Ville ───────────────────────────────────────────────────────
+
+function VilleAutocomplete({ value, onChange, focused, onFocus, onBlur, error }: {
+  value: string; onChange: (v: string) => void;
+  focused: boolean; onFocus: () => void; onBlur: () => void; error?: string;
+}) {
+  const villesAll = Object.values(VILLES_LABELS);
+  const suggestions = value.length > 0
+    ? villesAll.filter(v => normalize(v).includes(normalize(value)) && normalize(v) !== normalize(value))
+    : [];
+  const showDropdown = focused && suggestions.length > 0;
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <FieldLabel required>Ville</FieldLabel>
+      <input
+        type="text"
+        placeholder="Ex : Casablanca, Rabat, Marrakech..."
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        style={{
+          ...fieldInput,
+          border: `1px solid ${focused ? T.borderHov : T.border}`,
+          background: focused ? 'rgba(13,31,60,0.75)' : 'rgba(13,31,60,0.5)',
+          boxShadow: focused ? '0 0 0 3px rgba(200,169,110,0.07)' : 'none',
+        }}
+      />
+      {showDropdown && (
+        <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, zIndex: 300, background: 'rgba(7,18,32,0.98)', border: `1px solid ${T.borderHov}`, borderRadius: '10px', overflow: 'hidden', boxShadow: '0 16px 40px rgba(0,0,0,0.5)' }}>
+          {suggestions.map((v, i) => (
+            <div key={v} onMouseDown={() => onChange(v)}
+              style={{ padding: '12px 18px', cursor: 'pointer', fontSize: '14px', color: T.ivory, fontFamily: "'DM Sans', system-ui, sans-serif", borderBottom: i < suggestions.length - 1 ? `1px solid ${T.border}` : 'none', display: 'flex', alignItems: 'center', gap: '10px' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(200,169,110,0.08)'; e.currentTarget.style.color = T.gold; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = T.ivory; }}
+            >
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: T.gold, opacity: 0.6, flexShrink: 0 }} />
+              {v}
+            </div>
+          ))}
+        </div>
+      )}
+      <FieldError msg={error} />
+    </div>
+  );
+}
+
+// ─── Autocomplete Quartier ────────────────────────────────────────────────────
+
+function QuartierAutocomplete({ value, onChange, villeKey, focused, onFocus, onBlur, error }: {
+  value: string; onChange: (v: string) => void; villeKey: string;
+  focused: boolean; onFocus: () => void; onBlur: () => void; error?: string;
+}) {
+  const quartiersAll = villeKey ? Object.keys(PRIX[villeKey]) : [];
+
+  const suggestions = villeKey
+    ? (value.length > 0
+        ? quartiersAll.filter(q => normalize(q).includes(normalize(value)))
+        : quartiersAll)
+    : [];
+
+  const showDropdown = focused && villeKey && suggestions.length > 0;
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <FieldLabel required>Quartier</FieldLabel>
+      <input
+        type="text"
+        placeholder={villeKey ? `Tapez ou choisissez parmi ${quartiersAll.length} quartiers...` : "Sélectionnez d'abord une ville"}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        disabled={!villeKey}
+        style={{
+          ...fieldInput,
+          border: `1px solid ${focused ? T.borderHov : T.border}`,
+          background: focused ? 'rgba(13,31,60,0.75)' : 'rgba(13,31,60,0.5)',
+          boxShadow: focused ? '0 0 0 3px rgba(200,169,110,0.07)' : 'none',
+          opacity: villeKey ? 1 : 0.5,
+          cursor: villeKey ? 'text' : 'not-allowed',
+        }}
+      />
+      {showDropdown && (
+        <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, zIndex: 300, background: 'rgba(7,18,32,0.98)', border: `1px solid ${T.borderHov}`, borderRadius: '10px', maxHeight: '240px', overflowY: 'auto', boxShadow: '0 20px 50px rgba(0,0,0,0.6)' }}>
+          {suggestions.map((q, i) => (
+            <div key={q} onMouseDown={() => onChange(q)}
+              style={{ padding: '12px 18px', cursor: 'pointer', fontSize: '14px', color: T.ivory, fontFamily: "'DM Sans', system-ui, sans-serif", borderBottom: i < suggestions.length - 1 ? `1px solid ${T.border}` : 'none', display: 'flex', alignItems: 'center', gap: '10px' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(200,169,110,0.08)'; e.currentTarget.style.color = T.gold; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = T.ivory; }}
+            >
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: T.gold, opacity: 0.6, flexShrink: 0 }} />
+              {q}
+            </div>
+          ))}
+        </div>
+      )}
+      {villeKey && !focused && value && (
+        <div style={{ marginTop: '6px', fontSize: '12px', color: T.gold, fontFamily: "'DM Sans', system-ui, sans-serif", display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.gold, display: 'inline-block' }} />
+          {quartiersAll.length} quartiers disponibles · {value}
+        </div>
+      )}
+      <FieldError msg={error} />
     </div>
   );
 }
@@ -428,23 +468,15 @@ function EstimationForm() {
     ...fieldInput,
     border: `1px solid ${focused === name ? T.borderHov : T.border}`,
     background: focused === name ? 'rgba(13,31,60,0.75)' : 'rgba(13,31,60,0.5)',
-    boxShadow: focused === name ? `0 0 0 3px rgba(200,169,110,0.07)` : 'none',
+    boxShadow: focused === name ? '0 0 0 3px rgba(200,169,110,0.07)' : 'none',
   });
 
-  const fp = (name: string) => ({
-    onFocus: () => setFocused(name),
-    onBlur: () => setFocused(null),
-  });
-
+  const fp = (name: string) => ({ onFocus: () => setFocused(name), onBlur: () => setFocused(null) });
   const field: React.CSSProperties = { marginBottom: '22px' };
   const btnRow: React.CSSProperties = { display: 'flex', gap: '12px', marginTop: '36px' };
 
-  const stepTitle = (t: string) => (
-    <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '32px', fontWeight: 300, color: T.ivory, marginBottom: '6px' }}>{t}</h2>
-  );
-  const stepSub = (t: string) => (
-    <p style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', fontWeight: 400, color: T.muted, marginBottom: '32px', lineHeight: 1.6 }}>{t}</p>
-  );
+  const stepTitle = (t: string) => <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '32px', fontWeight: 300, color: T.ivory, marginBottom: '6px' }}>{t}</h2>;
+  const stepSub = (t: string) => <p style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', fontWeight: 400, color: T.muted, marginBottom: '32px', lineHeight: 1.6 }}>{t}</p>;
 
   const goStep2 = () => {
     const errs: Record<string, string> = {};
@@ -476,224 +508,73 @@ function EstimationForm() {
       <ProgressBar current={1} />
       {stepTitle('Type de bien')}
       {stepSub('Sélectionnez la catégorie et le régime de votre bien')}
-
       <div style={field}>
         <FieldLabel>Nature du bien</FieldLabel>
-        <ChipGroup
-          options={[
-            { val: 'appartement', label: 'Appartement' }, { val: 'villa', label: 'Villa' },
-            { val: 'riad', label: 'Riad' }, { val: 'bureau', label: 'Bureau' },
-            { val: 'local', label: 'Local comm.' }, { val: 'terrain', label: 'Terrain' },
-          ]}
-          value={form.type} onChange={v => set('type', v as string)}
-        />
+        <ChipGroup options={[{ val: 'appartement', label: 'Appartement' }, { val: 'villa', label: 'Villa' }, { val: 'riad', label: 'Riad' }, { val: 'bureau', label: 'Bureau' }, { val: 'local', label: 'Local comm.' }, { val: 'terrain', label: 'Terrain' }]} value={form.type} onChange={v => set('type', v as string)} />
         <FieldError msg={errors.type} />
       </div>
-
       <div style={field}>
         <FieldLabel>Régime</FieldLabel>
-        <ChipGroup
-          options={[{ val: 'vente', label: 'Vente' }, { val: 'location', label: 'Location' }]}
-          value={form.regime} onChange={v => set('regime', v as string)}
-        />
+        <ChipGroup options={[{ val: 'vente', label: 'Vente' }, { val: 'location', label: 'Location' }]} value={form.regime} onChange={v => set('regime', v as string)} />
         <FieldError msg={errors.regime} />
       </div>
-
       <div style={btnRow}><BtnPrimary onClick={goStep2}>Continuer →</BtnPrimary></div>
     </Card>
   );
 
-  // ── Step 2 — Localisation avec Carte + Autocomplete ───────────────────────
+  // ── Step 2 — Localisation sans carte ─────────────────────────────────────
   if (step === 2) {
     const villeKey = villeToKey(form.ville);
-
-    // Filtrer les quartiers selon la ville détectée + ce que l'user tape
-    const quartiersDispos: string[] = villeKey
-      ? Object.keys(PRIX[villeKey]).filter(q =>
-          normalize(q).includes(normalize(form.quartier))
-        )
-      : [];
-
-    const showDropdown = focused === 'quartier' && quartiersDispos.length > 0 && form.quartier.length > 0;
-
     return (
       <Card>
         <ProgressBar current={2} />
         {stepTitle('Localisation')}
-        {stepSub('Cliquez sur votre ville sur la carte, puis choisissez le quartier')}
+        {stepSub('Sélectionnez votre ville puis votre quartier')}
 
-        {/* ── CARTE LEAFLET ── */}
-        <div style={{
-          marginBottom: '24px',
-          borderRadius: '12px',
-          overflow: 'hidden',
-          border: `1px solid ${T.border}`,
-        }}>
-          <MapMaroc
-            selectedVille={villeKey}
-            onSelectVille={(label: string) => {
-              set('ville', label);
-              set('quartier', '');
-            }}
-          />
+        {/* Chips villes pour sélection rapide */}
+        <div style={{ marginBottom: '24px' }}>
+          <FieldLabel>Sélection rapide</FieldLabel>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {Object.entries(VILLES_LABELS).map(([key, label]) => (
+              <button key={key} type="button"
+                onClick={() => { set('ville', label); set('quartier', ''); }}
+                style={{
+                  padding: '8px 16px', borderRadius: '8px', cursor: 'pointer',
+                  fontSize: '13px', fontWeight: 500,
+                  fontFamily: "'DM Sans', system-ui, sans-serif",
+                  transition: 'all 0.2s ease',
+                  background: villeKey === key ? 'rgba(200,169,110,0.12)' : 'rgba(13,31,60,0.4)',
+                  border: `1px solid ${villeKey === key ? T.gold : T.border}`,
+                  color: villeKey === key ? T.gold : 'rgba(226,201,138,0.55)',
+                }}
+              >{label}</button>
+            ))}
+          </div>
         </div>
 
-        {/* ── Champ Ville ── */}
+        {/* Autocomplete Ville */}
         <div style={field}>
-          <FieldLabel required>Ville</FieldLabel>
-          <input
-            type="text"
-            placeholder="Ex : Casablanca, Rabat, Marrakech..."
+          <VilleAutocomplete
             value={form.ville}
-            onChange={e => { set('ville', e.target.value); set('quartier', ''); }}
-            style={inputStyle('ville')}
-            {...fp('ville')}
+            onChange={v => { set('ville', v); set('quartier', ''); }}
+            focused={focused === 'ville'}
+            onFocus={() => setFocused('ville')}
+            onBlur={() => setFocused(null)}
+            error={errors.ville}
           />
-          {/* Badge ville reconnue */}
-          {villeKey && (
-            <div style={{
-              marginTop: '6px', fontSize: '12px',
-              color: T.gold, fontFamily: "'DM Sans', system-ui, sans-serif",
-              display: 'flex', alignItems: 'center', gap: '5px',
-            }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.gold, display: 'inline-block' }} />
-              Ville reconnue · {Object.keys(PRIX[villeKey]).length} quartiers disponibles
-            </div>
-          )}
-          <FieldError msg={errors.ville} />
         </div>
 
-        {/* ── Champ Quartier avec autocomplete ── */}
-        <div style={{ ...field, position: 'relative' }}>
-          <FieldLabel required>Quartier</FieldLabel>
-          <input
-            type="text"
-            placeholder={
-              villeKey
-                ? `Ex : ${Object.keys(PRIX[villeKey]).slice(0, 2).join(', ')}...`
-                : "Sélectionnez d'abord une ville"
-            }
+        {/* Autocomplete Quartier */}
+        <div style={field}>
+          <QuartierAutocomplete
             value={form.quartier}
-            onChange={e => set('quartier', e.target.value)}
-            disabled={!villeKey}
-            style={{
-              ...inputStyle('quartier'),
-              opacity: villeKey ? 1 : 0.5,
-              cursor: villeKey ? 'text' : 'not-allowed',
-            }}
-            {...fp('quartier')}
+            onChange={v => set('quartier', v)}
+            villeKey={villeKey}
+            focused={focused === 'quartier'}
+            onFocus={() => setFocused('quartier')}
+            onBlur={() => setFocused(null)}
+            error={errors.quartier}
           />
-
-          {/* Dropdown suggestions */}
-          {showDropdown && (
-            <div style={{
-              position: 'absolute',
-              top: 'calc(100% + 2px)',
-              left: 0, right: 0,
-              zIndex: 200,
-              background: 'rgba(7,18,32,0.98)',
-              border: `1px solid ${T.borderHov}`,
-              borderRadius: '10px',
-              maxHeight: '220px',
-              overflowY: 'auto',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
-            }}>
-              {quartiersDispos.slice(0, 8).map((q, i) => (
-                <div
-                  key={q}
-                  onMouseDown={() => { set('quartier', q); setFocused(null); }}
-                  style={{
-                    padding: '12px 18px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: T.ivory,
-                    fontFamily: "'DM Sans', system-ui, sans-serif",
-                    borderBottom: i < Math.min(quartiersDispos.length, 8) - 1
-                      ? `1px solid ${T.border}` : 'none',
-                    transition: 'background 0.15s',
-                    display: 'flex', alignItems: 'center', gap: '10px',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.background = 'rgba(200,169,110,0.08)';
-                    e.currentTarget.style.color = T.gold;
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = T.ivory;
-                  }}
-                >
-                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: T.gold, opacity: 0.6, flexShrink: 0 }} />
-                  {q}
-                </div>
-              ))}
-              {quartiersDispos.length > 8 && (
-                <div style={{
-                  padding: '10px 18px', fontSize: '12px',
-                  color: 'rgba(200,169,110,0.4)',
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                  textAlign: 'center',
-                }}>
-                  +{quartiersDispos.length - 8} autres quartiers…
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Afficher tous les quartiers si champ vide et ville sélectionnée */}
-          {focused === 'quartier' && !form.quartier && villeKey && (
-            <div style={{
-              position: 'absolute',
-              top: 'calc(100% + 2px)',
-              left: 0, right: 0,
-              zIndex: 200,
-              background: 'rgba(7,18,32,0.98)',
-              border: `1px solid ${T.borderHov}`,
-              borderRadius: '10px',
-              maxHeight: '220px',
-              overflowY: 'auto',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
-            }}>
-              {Object.keys(PRIX[villeKey]).slice(0, 10).map((q, i, arr) => (
-                <div
-                  key={q}
-                  onMouseDown={() => { set('quartier', q); setFocused(null); }}
-                  style={{
-                    padding: '12px 18px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: T.ivory,
-                    fontFamily: "'DM Sans', system-ui, sans-serif",
-                    borderBottom: i < arr.length - 1 ? `1px solid ${T.border}` : 'none',
-                    transition: 'background 0.15s',
-                    display: 'flex', alignItems: 'center', gap: '10px',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.background = 'rgba(200,169,110,0.08)';
-                    e.currentTarget.style.color = T.gold;
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = T.ivory;
-                  }}
-                >
-                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: T.gold, opacity: 0.6, flexShrink: 0 }} />
-                  {q}
-                </div>
-              ))}
-              {Object.keys(PRIX[villeKey]).length > 10 && (
-                <div style={{
-                  padding: '10px 18px', fontSize: '12px',
-                  color: 'rgba(200,169,110,0.4)',
-                  fontFamily: "'DM Sans', system-ui, sans-serif",
-                  textAlign: 'center',
-                }}>
-                  Tapez pour filtrer parmi {Object.keys(PRIX[villeKey]).length} quartiers…
-                </div>
-              )}
-            </div>
-          )}
-
-          <FieldError msg={errors.quartier} />
         </div>
 
         <div style={btnRow}>
@@ -710,66 +591,27 @@ function EstimationForm() {
       <ProgressBar current={3} />
       {stepTitle('Caractéristiques')}
       {stepSub("Décrivez votre bien pour affiner l'estimation")}
-
       <div style={field}>
         <FieldLabel required>Superficie (m²)</FieldLabel>
-        <input
-          type="number" min={10} max={99999} placeholder="Ex : 120"
-          value={form.surface === 0 ? '' : form.surface}
-          onChange={e => set('surface', Number(e.target.value))}
-          style={inputStyle('surface')} {...fp('surface')}
-        />
+        <input type="number" min={10} max={99999} placeholder="Ex : 120" value={form.surface === 0 ? '' : form.surface} onChange={e => set('surface', Number(e.target.value))} style={inputStyle('surface')} {...fp('surface')} />
         <FieldError msg={errors.surface} />
       </div>
-
       <div style={field}>
         <FieldLabel>Chambres</FieldLabel>
-        <ChipGroup
-          options={[
-            { val: '0', label: 'Studio' }, { val: '1', label: '1 ch.' },
-            { val: '2', label: '2 ch.' }, { val: '3', label: '3 ch.' },
-            { val: '4', label: '4 ch.' }, { val: '5', label: '5+ ch.' },
-          ]}
-          value={form.chambres} onChange={v => set('chambres', v as string)}
-        />
+        <ChipGroup options={[{ val: '0', label: 'Studio' }, { val: '1', label: '1 ch.' }, { val: '2', label: '2 ch.' }, { val: '3', label: '3 ch.' }, { val: '4', label: '4 ch.' }, { val: '5', label: '5+ ch.' }]} value={form.chambres} onChange={v => set('chambres', v as string)} />
       </div>
-
       <div style={field}>
         <FieldLabel>Étage</FieldLabel>
-        <ChipGroup
-          options={[
-            { val: 'rdc', label: 'RDC' }, { val: '1', label: '1er' },
-            { val: '2', label: '2e' }, { val: '3', label: '3e' },
-            { val: '4', label: '4e+' }, { val: 'dernier', label: 'Dernier' },
-          ]}
-          value={form.etage} onChange={v => set('etage', v as string)}
-        />
+        <ChipGroup options={[{ val: 'rdc', label: 'RDC' }, { val: '1', label: '1er' }, { val: '2', label: '2e' }, { val: '3', label: '3e' }, { val: '4', label: '4e+' }, { val: 'dernier', label: 'Dernier' }]} value={form.etage} onChange={v => set('etage', v as string)} />
       </div>
-
       <div style={field}>
         <FieldLabel>État général</FieldLabel>
-        <ChipGroup
-          options={[
-            { val: 'neuf', label: 'Neuf' }, { val: 'bon', label: 'Bon état' },
-            { val: 'moyen', label: 'À rafraîchir' }, { val: 'travaux', label: 'Gros travaux' },
-          ]}
-          value={form.etat} onChange={v => set('etat', v as string)}
-        />
+        <ChipGroup options={[{ val: 'neuf', label: 'Neuf' }, { val: 'bon', label: 'Bon état' }, { val: 'moyen', label: 'À rafraîchir' }, { val: 'travaux', label: 'Gros travaux' }]} value={form.etat} onChange={v => set('etat', v as string)} />
       </div>
-
       <div style={field}>
         <FieldLabel>Équipements</FieldLabel>
-        <ChipGroup
-          multi
-          options={[
-            { val: 'parking', label: 'Parking' }, { val: 'terrasse', label: 'Terrasse' },
-            { val: 'piscine', label: 'Piscine' }, { val: 'gardien', label: 'Gardien' },
-            { val: 'ascenseur', label: 'Ascenseur' }, { val: 'vue', label: 'Vue dégagée' },
-          ]}
-          value={form.equip} onChange={v => set('equip', v as string[])}
-        />
+        <ChipGroup multi options={[{ val: 'parking', label: 'Parking' }, { val: 'terrasse', label: 'Terrasse' }, { val: 'piscine', label: 'Piscine' }, { val: 'gardien', label: 'Gardien' }, { val: 'ascenseur', label: 'Ascenseur' }, { val: 'vue', label: 'Vue dégagée' }]} value={form.equip} onChange={v => set('equip', v as string[])} />
       </div>
-
       <div style={btnRow}><BtnSecondary onClick={() => setStep(2)} /><BtnPrimary onClick={goStep4}>Estimer mon bien</BtnPrimary></div>
     </Card>
   );
@@ -779,45 +621,16 @@ function EstimationForm() {
   return (
     <Card>
       <ProgressBar current={4} />
-
       {!r.villeFound && (
-        <div style={{
-          background: 'rgba(181,87,58,0.08)', border: `1px solid rgba(181,87,58,0.25)`,
-          borderRadius: '10px', padding: '12px 16px', marginBottom: '24px',
-          fontSize: '13px', color: 'rgba(181,87,58,0.9)',
-          fontFamily: "'DM Sans', system-ui, sans-serif", lineHeight: 1.5,
-        }}>
+        <div style={{ background: 'rgba(181,87,58,0.08)', border: '1px solid rgba(181,87,58,0.25)', borderRadius: '10px', padding: '12px 16px', marginBottom: '24px', fontSize: '13px', color: 'rgba(181,87,58,0.9)', fontFamily: "'DM Sans', system-ui, sans-serif", lineHeight: 1.5 }}>
           ⚠️ Ville non reconnue — estimation basée sur les moyennes nationales.
         </div>
       )}
-
-      {/* Prix central */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(200,169,110,0.08) 0%, rgba(200,169,110,0.04) 100%)',
-        border: `1px solid rgba(200,169,110,0.28)`,
-        borderRadius: '16px', padding: '36px 28px', textAlign: 'center', marginBottom: '24px',
-      }}>
-        <p style={{
-          fontSize: '11px', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase',
-          color: T.muted, fontFamily: "'DM Sans', system-ui, sans-serif", marginBottom: '12px',
-        }}>
-          {r.isLocation ? 'Loyer mensuel estimé' : 'Valeur estimée'}
-        </p>
-        <p style={{
-          fontFamily: "'Cormorant Garamond', Georgia, serif",
-          fontSize: 'clamp(36px, 5vw, 52px)', fontWeight: 300,
-          color: T.gold, lineHeight: 1, marginBottom: '10px',
-        }}>
-          {r.isLocation ? fmtRent(r.priceMid) : fmtMAD(r.priceMid)}
-        </p>
-        <p style={{ fontSize: '13px', color: 'rgba(200,169,110,0.45)', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
-          Fourchette&nbsp;: {r.isLocation
-            ? `${fmtRent(r.priceMin)} — ${fmtRent(r.priceMax)}`
-            : `${fmtMAD(r.priceMin)} — ${fmtMAD(r.priceMax)}`}
-        </p>
+      <div style={{ background: 'linear-gradient(135deg, rgba(200,169,110,0.08) 0%, rgba(200,169,110,0.04) 100%)', border: '1px solid rgba(200,169,110,0.28)', borderRadius: '16px', padding: '36px 28px', textAlign: 'center', marginBottom: '24px' }}>
+        <p style={{ fontSize: '11px', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', color: T.muted, fontFamily: "'DM Sans', system-ui, sans-serif", marginBottom: '12px' }}>{r.isLocation ? 'Loyer mensuel estimé' : 'Valeur estimée'}</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 'clamp(36px, 5vw, 52px)', fontWeight: 300, color: T.gold, lineHeight: 1, marginBottom: '10px' }}>{r.isLocation ? fmtRent(r.priceMid) : fmtMAD(r.priceMid)}</p>
+        <p style={{ fontSize: '13px', color: 'rgba(200,169,110,0.45)', fontFamily: "'DM Sans', system-ui, sans-serif" }}>Fourchette&nbsp;: {r.isLocation ? `${fmtRent(r.priceMin)} — ${fmtRent(r.priceMax)}` : `${fmtMAD(r.priceMin)} — ${fmtMAD(r.priceMax)}`}</p>
       </div>
-
-      {/* Grille détails */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
         {[
           { label: 'Prix / m²', val: `${r.pm2Mid.toLocaleString('fr-FR')} MAD/m²` },
@@ -827,31 +640,18 @@ function EstimationForm() {
           { label: 'Type de bien', val: form.type.charAt(0).toUpperCase() + form.type.slice(1) },
           { label: 'État', val: ({ neuf: 'Neuf', bon: 'Bon état', moyen: 'À rafraîchir', travaux: 'Gros travaux' } as Record<string,string>)[form.etat] ?? form.etat },
         ].map(({ label, val }) => (
-          <div key={label} style={{
-            background: 'rgba(13,31,60,0.45)', border: `1px solid ${T.border}`,
-            borderRadius: '10px', padding: '14px 16px',
-          }}>
+          <div key={label} style={{ background: 'rgba(13,31,60,0.45)', border: `1px solid ${T.border}`, borderRadius: '10px', padding: '14px 16px' }}>
             <p style={{ fontSize: '10px', fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(200,169,110,0.4)', fontFamily: "'DM Sans', system-ui, sans-serif", marginBottom: '4px' }}>{label}</p>
             <p style={{ fontSize: '15px', fontWeight: 400, color: T.ivory, fontFamily: "'DM Sans', system-ui, sans-serif" }}>{val}</p>
           </div>
         ))}
       </div>
-
-      {/* Disclaimer */}
-      <p style={{
-        fontSize: '12px', color: 'rgba(200,169,110,0.3)',
-        textAlign: 'center', lineHeight: 1.7, padding: '0 8px',
-        fontFamily: "'DM Sans', system-ui, sans-serif", marginBottom: '4px',
-      }}>
-        Estimation indicative basée sur les prix du marché marocain actuel.
-        Pour une évaluation officielle, contactez nos experts LANDMARK ESTATE.
+      <p style={{ fontSize: '12px', color: 'rgba(200,169,110,0.3)', textAlign: 'center', lineHeight: 1.7, padding: '0 8px', fontFamily: "'DM Sans', system-ui, sans-serif", marginBottom: '4px' }}>
+        Estimation indicative basée sur les prix du marché marocain actuel. Pour une évaluation officielle, contactez nos experts LANDMARK ESTATE.
       </p>
-
       <div style={{ display: 'flex', gap: '12px', marginTop: '28px' }}>
         <BtnSecondary onClick={() => setStep(3)} />
-        <BtnPrimary onClick={() => window.location.href = '/estimation/contact'}>
-          Contacter un expert →
-        </BtnPrimary>
+        <BtnPrimary onClick={() => window.location.href = '/estimation/contact'}>Contacter un expert →</BtnPrimary>
       </div>
     </Card>
   );
@@ -869,86 +669,29 @@ export default function EstimationPage() {
         input[type=number]::-webkit-inner-spin-button { opacity: 0.3; }
         @keyframes fadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
         .fade-up { animation: fadeUp 0.65s ease both; }
-        .fade-1 { animation-delay: 0.05s; }
-        .fade-2 { animation-delay: 0.15s; }
-        .fade-3 { animation-delay: 0.25s; }
-        /* ── Leaflet z-index fix ── */
-        .leaflet-pane        { z-index: 10 !important; }
-        .leaflet-top,
-        .leaflet-bottom      { z-index: 20 !important; }
-        .leaflet-control     { z-index: 20 !important; }
-        /* ── Popup Leaflet style ── */
-        .leaflet-popup-content-wrapper {
-          background: #0D1F3C !important;
-          border: 1px solid rgba(200,169,110,0.3) !important;
-          border-radius: 8px !important;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
-        }
-        .leaflet-popup-tip { background: #0D1F3C !important; }
-        .leaflet-popup-content { margin: 10px 14px !important; }
+        .fade-1 { animation-delay: 0.05s; } .fade-2 { animation-delay: 0.15s; } .fade-3 { animation-delay: 0.25s; }
         @media (max-width: 680px) {
           .hero-title { font-size: 38px !important; }
           .card-inner { padding: 28px 20px !important; }
           .stats-grid { grid-template-columns: 1fr 1fr !important; }
         }
       `}</style>
-
-      <main style={{
-        minHeight: '100vh',
-        background: `linear-gradient(160deg, ${T.navy} 0%, #091629 45%, #050D1A 100%)`,
-        position: 'relative', overflow: 'hidden',
-      }}>
-
-        {/* Ambient glow */}
+      <main style={{ minHeight: '100vh', background: `linear-gradient(160deg, ${T.navy} 0%, #091629 45%, #050D1A 100%)`, position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'fixed', top: '-180px', right: '-180px', width: '580px', height: '580px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,169,110,0.07) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
         <div style={{ position: 'fixed', bottom: '-120px', left: '-120px', width: '480px', height: '480px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,169,110,0.04) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
-
-        {/* ── HERO ── */}
         <section style={{ padding: '88px 24px 72px', textAlign: 'center', position: 'relative', zIndex: 1, borderBottom: `1px solid ${T.border}` }}>
-
-          <div className="fade-up fade-1" style={{
-            display: 'inline-flex', alignItems: 'center', gap: '8px',
-            padding: '6px 18px', borderRadius: '100px', marginBottom: '32px',
-            border: `1px solid rgba(200,169,110,0.22)`,
-            background: 'rgba(200,169,110,0.05)',
-          }}>
+          <div className="fade-up fade-1" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 18px', borderRadius: '100px', marginBottom: '32px', border: '1px solid rgba(200,169,110,0.22)', background: 'rgba(200,169,110,0.05)' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.gold, display: 'inline-block' }} />
-            <span style={{ fontSize: '11px', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', color: T.gold, fontFamily: "'DM Sans', system-ui, sans-serif" }}>
-              Service Gratuit · Sans engagement
-            </span>
+            <span style={{ fontSize: '11px', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', color: T.gold, fontFamily: "'DM Sans', system-ui, sans-serif" }}>Service Gratuit · Sans engagement</span>
           </div>
-
-          <h1 className="fade-up fade-2 hero-title" style={{
-            fontFamily: "'Cormorant Garamond', Georgia, serif",
-            fontSize: 'clamp(40px, 6vw, 64px)', fontWeight: 300,
-            color: T.ivory, lineHeight: 1.1, marginBottom: '20px',
-          }}>
-            Estimation de<br />
-            <span style={{ color: T.gold, fontStyle: 'italic' }}>votre bien immobilier</span>
+          <h1 className="fade-up fade-2 hero-title" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 'clamp(40px, 6vw, 64px)', fontWeight: 300, color: T.ivory, lineHeight: 1.1, marginBottom: '20px' }}>
+            Estimation de<br /><span style={{ color: T.gold, fontStyle: 'italic' }}>votre bien immobilier</span>
           </h1>
-
-          <p className="fade-up fade-3" style={{
-            fontFamily: "'DM Sans', system-ui, sans-serif",
-            fontSize: '16px', fontWeight: 400,
-            color: 'rgba(226,201,138,0.6)',
-            maxWidth: '520px', margin: '0 auto 52px', lineHeight: 1.8,
-          }}>
-            Obtenez une évaluation précise et gratuite basée sur les prix réels
-            du marché marocain. Résultat immédiat, expertise humaine sous 24h.
+          <p className="fade-up fade-3" style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '16px', fontWeight: 400, color: 'rgba(226,201,138,0.6)', maxWidth: '520px', margin: '0 auto 52px', lineHeight: 1.8 }}>
+            Obtenez une évaluation précise et gratuite basée sur les prix réels du marché marocain. Résultat immédiat, expertise humaine sous 24h.
           </p>
-
-          <div className="stats-grid" style={{
-            display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '1px', maxWidth: '600px', margin: '0 auto',
-            background: T.border, borderRadius: '12px', overflow: 'hidden',
-            border: `1px solid ${T.border}`,
-          }}>
-            {[
-              { val: '10+', label: 'Villes couvertes' },
-              { val: '100+', label: 'Quartiers analysés' },
-              { val: '24h', label: 'Délai de réponse' },
-              { val: '100%', label: 'Gratuit' },
-            ].map(({ val, label }) => (
+          <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', maxWidth: '600px', margin: '0 auto', background: T.border, borderRadius: '12px', overflow: 'hidden', border: `1px solid ${T.border}` }}>
+            {[{ val: '10+', label: 'Villes couvertes' }, { val: '100+', label: 'Quartiers analysés' }, { val: '24h', label: 'Délai de réponse' }, { val: '100%', label: 'Gratuit' }].map(({ val, label }) => (
               <div key={label} style={{ padding: '18px 12px', background: T.glassDeep, textAlign: 'center' }}>
                 <p style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '24px', fontWeight: 300, color: T.gold, marginBottom: '2px' }}>{val}</p>
                 <p style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '11px', fontWeight: 400, color: 'rgba(226,201,138,0.4)', letterSpacing: '0.04em' }}>{label}</p>
@@ -956,21 +699,12 @@ export default function EstimationPage() {
             ))}
           </div>
         </section>
-
-        {/* ── FORM ── */}
         <section style={{ maxWidth: '900px', margin: '0 auto', padding: '72px 24px', position: 'relative', zIndex: 1 }}>
           <EstimationForm />
         </section>
-
-        {/* ── TRUST BAR ── */}
         <section style={{ borderTop: `1px solid ${T.border}`, padding: '56px 24px', position: 'relative', zIndex: 1 }}>
           <div style={{ maxWidth: '860px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '36px', textAlign: 'center' }}>
-            {[
-              { icon: '⚡', label: 'Réponse sous 24h', sub: 'Délai garanti' },
-              { icon: '🎯', label: '100% Gratuit', sub: 'Sans engagement' },
-              { icon: '🔒', label: 'Confidentiel', sub: 'Données sécurisées' },
-              { icon: '📊', label: 'Expertise locale', sub: 'Marché marocain' },
-            ].map(({ icon, label, sub }) => (
+            {[{ icon: '⚡', label: 'Réponse sous 24h', sub: 'Délai garanti' }, { icon: '🎯', label: '100% Gratuit', sub: 'Sans engagement' }, { icon: '🔒', label: 'Confidentiel', sub: 'Données sécurisées' }, { icon: '📊', label: 'Expertise locale', sub: 'Marché marocain' }].map(({ icon, label, sub }) => (
               <div key={label}>
                 <div style={{ fontSize: '28px', marginBottom: '10px' }}>{icon}</div>
                 <p style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '17px', fontWeight: 300, color: T.ivory, marginBottom: '4px' }}>{label}</p>
@@ -979,14 +713,9 @@ export default function EstimationPage() {
             ))}
           </div>
         </section>
-
-        {/* Footer */}
         <div style={{ borderTop: `1px solid ${T.border}`, padding: '20px 24px', textAlign: 'center' }}>
-          <p style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '12px', color: 'rgba(200,169,110,0.25)' }}>
-            © {new Date().getFullYear()} LANDMARK ESTATE · Estimation indicative, non contractuelle
-          </p>
+          <p style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '12px', color: 'rgba(200,169,110,0.25)' }}>© {new Date().getFullYear()} LANDMARK ESTATE · Estimation indicative, non contractuelle</p>
         </div>
-
       </main>
     </>
   );
