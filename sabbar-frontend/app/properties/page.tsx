@@ -16,12 +16,12 @@ const QUARTIERS_PAR_VILLE: Record<string, string[]> = {
     'Quartier des Hôpitaux','Hay Nour','Lissasfa','Attacharouk','Lahraouiyine',
     'Dar Bouazza','Mediouna','Nassim','Les Princesses','Ain Chock','Belvedere','Ghandi',
     'Hay Ennakhil','Sidi Belyout','Habous','Triangle d\'Or','Quartier Riviera','Zenata',
-    'Medina','Hay Inara','Ain Harrouda','Tit Melloul','Oulad Salah','Sidi Bernoussi',
+    'Medina','Hay Inara','Ain Harrouda','Tit Melloul','Oulad Salah',
     'Sidi Moumen','Hay El Farah','Hay Moulay Rachid','Hay Najah','Ahl Loghlam',
-    'Douar Skouila','Ben Sergao','Bettana','Hay El Hana','Hay El Majd','Sbata',
+    'Douar Skouila','Ben Sergao','Bettana','Hay El Hana','Hay El Majd',
     'Carrières Centrales','Hay Farah','Quartier des Fleurs','Plateau','Ferme Bretonne',
-    'Ain Borja','Sidi Othmane','Hay Hassani','Cité OCP','Cité Bessonneau',
-    'Les Crêtes','Quartier Beausite','Quartier Golf','Ain Chock','Hay Salama',
+    'Ain Borja','Sidi Othmane','Cité OCP','Cité Bessonneau',
+    'Les Crêtes','Quartier Beausite','Quartier Golf','Hay Salama',
     'Quartier du Parc','Route d\'El Jadida','Route de Mediouna','Hay Rezzouk',
     'Chouiter','Nouvelle Médina','Bouchentouf','Riad Salam',
   ],
@@ -30,10 +30,9 @@ const QUARTIERS_PAR_VILLE: Record<string, string[]> = {
     'Hay Nahda','Océan','Diour Jamaa','Aviation','Madinat Al Irfane','Takaddoum',
     'Hay Salam','Medina','Ryad','Hay Fadila','Quartier des Ministères','Orangeraie',
     'Résidence Yacoub El Mansour','Hay El Fath','Haut Agdal','Hay Karima','Hay Inara',
-    'Temara','Ain Aouda','Skhirat','Bouknadel','Kénitra','Hay Nahda','Daourat',
-    'Hay Taqadoum','Les Merinides','Quartier Administratif','Cité Mabrouka',
-    'Cité Yacoub El Mansour','Cité Diour Jamaa','Hay Ryad','Secteur 4','Secteur 5',
-    'Cité OLM','Hay Moulay Ismail','Quartier La Paix','Quartier Palestine',
+    'Temara','Ain Aouda','Skhirat','Bouknadel','Daourat',
+    'Hay Taqadoum','Quartier Administratif','Cité Mabrouka',
+    'Cité Yacoub El Mansour','Hay Moulay Ismail','Quartier La Paix','Quartier Palestine',
     'Hay El Andalous','Résidence Al Wifaq','Quartier Qods','Doura','Oulja',
     'Plage de Skhirat','Quartier Industriel','Technopolis','Hay El Massira',
   ],
@@ -46,7 +45,7 @@ const QUARTIERS_PAR_VILLE: Record<string, string[]> = {
     'Riad Laarouss','Sidi Ben Slimane','Zaouia','Hay Azli','Hay Chabab',
     'Hay Charaf','Hay El Massira','Hay Inara','Hay Nakhil','Hay Qods',
     'Cité Islan','Résidence Targa','Route de l\'Ourika','Route d\'Amizmiz',
-    'Route de Tahanaout','Ain Itti','Bab Doukkala','Quartier Industriel',
+    'Route de Tahanaout','Ain Itti','Quartier Industriel',
     'Hay El Jadid','Sidi Abbad','Arrahma','Ennour','Tassoultante',
     'Aït Imour','Tamesloht','Ouirgane','Asni','Imlil',
   ],
@@ -54,208 +53,173 @@ const QUARTIERS_PAR_VILLE: Record<string, string[]> = {
     'Malabata','Marchane','Iberia','Val Fleuri','Boukhalef','Moghogha','Medina',
     'California','Mesnana','Charf','Beni Makada','Tanja Balia','Cap Spartel',
     'Gzenaya','Souani','Dradeb','Branes','Hay Al Amal','Quartier Administratif',
-    'Achakar','Béni Makada','Cité Tetouan','Hay Salam','Jbel Kbir','Khémis Anjra',
-    'Ksar Sghir','Martil','Mdiq','Oued Laou','Restinga','Smir','Fnideq',
-    'Ain Hayani','Ain Kerma','Ben Dibane','Bettioua','Bir Chifa','Bou Meriem',
-    'Castilla','El Feddane','El Khroub','Ghandouri','Hay Andalous','Hay El Matar',
-    'Hay El Qods','Hay Hassani','Hay Islan','Hay Karima','Hay Moussa','Hay Riad',
-    'Ibn Batouta','Jouamaa','Ksar El Kebir','Layoun','Lotissement Al Amal',
-    'Lotissement Salam','Mghogha','Nouvelle Médina','Quartier des Sports',
-    'Quartier Diplomatique','Rue de Fès','Sidi Amar','Sidi Driss',
-    'Sidi Kacem','Tanger City Center','Villa Harris','Zone Franche',
+    'Achakar','Hay Salam','Jbel Kbir','Ksar Sghir','Fnideq',
+    'Ain Hayani','Ain Kerma','Ben Dibane','Bou Meriem',
+    'El Feddane','Ghandouri','Hay Andalous','Hay El Matar',
+    'Hay El Qods','Hay Islan','Hay Karima','Hay Moussa','Hay Riad',
+    'Ibn Batouta','Jouamaa','Lotissement Al Amal',
+    'Nouvelle Médina','Quartier des Sports',
+    'Quartier Diplomatique','Sidi Amar','Sidi Driss',
+    'Tanger City Center','Zone Franche',
   ],
   'Agadir': [
     'Founty','Hay Mohammadi','Talborjt','Cité Suisse','Anza','Hay Dakhla','Tilila',
     'Bensergao','Tikiouine','Hay Massira','Agadir Marina','Quartier Industriel',
-    'Hay Al Matar','Cité Al Wahda','Baie d\'Agadir','Hay El Houda','Hay Salam',
-    'Inezgane','Ait Melloul','Dcheira El Jihadia','Biougra','Chtouka Ait Baha',
-    'Hay Al Amal','Hay Islan','Hay Youssef','Izourane','Lazaret','Les Amicales',
-    'Lotissement Abattoir','Nouveau Talborjt','Quartier des Orangers',
-    'Résidence Anza','Secteur Bensergao','Sidi Bibi','Taghazout','Tamri',
-    'Tikouine','Village Argan','Zone Commerciale','Zone Touristique',
-    'Quartier Charaf','Oued Souss','Bab Agadir','Cité Arrière Port',
-    'Hay Hassane','Hay Matar','Cite Industrielle','Adrar',
+    'Hay Al Matar','Cité Al Wahda','Hay El Houda','Hay Salam',
+    'Inezgane','Ait Melloul','Dcheira El Jihadia','Biougra',
+    'Hay Al Amal','Hay Islan','Lazaret','Les Amicales',
+    'Nouveau Talborjt','Secteur Bensergao','Taghazout','Tamri',
+    'Zone Touristique','Oued Souss','Adrar',
   ],
   'Fès': [
     'Saïss','Route d\'Imouzzer','Montfleuri','Atlas','Les Mérinides','Narjiss',
     'Andalous','Agdal','Medina','Aouinet Hajjaj','Ville Nouvelle','Zouagha',
     'Hay Amal','Ain Chkef','Bensouda','Aouinat Hajar','Bab Bou Jeloud','Bab Guissa',
-    'Bab R\'Cif','Dokkarat','El Makhfiya','Hay Nouzha','Hay Riad','Jnane Sbil',
-    'Kariat Arma','Kariat Ben Salah','Kariat Hasnaoua','Kariat Olmane',
-    'Lkbour','Lotissement Al Amal','Lotissement El Massira','Mechouar',
-    'Moulay Idriss Zerhoun','N\'Zaha','Oued Fès','Quartier de la Paix',
-    'Quartier Industriel','Résidence Narjiss','Route de Sefrou','Sefrou',
-    'Sidi Brahim','Sidi Harazem','Sidi Ibrahim','Sidi Mohamed Cherif',
-    'Sidi Tarabi','Tghat','Touarga','Ain Kadous','Batha','Boulemane',
-    'Dhar El Mehraz','El Gaouza','Hay Elkods','Kariat Olmane',
-    'Lotissement Nahda','Oued Zhoun','Route Ain Chkef','Hay Al Wafa',
-    'Hay Inara','Hay Moulay Ali','Ben Debbab','Bir Tam Tam',
+    'Dokkarat','Hay Nouzha','Hay Riad','Jnane Sbil',
+    'Kariat Arma','Kariat Ben Salah','Kariat Hasnaoua',
+    'Lotissement Al Amal','Oued Fès','Quartier de la Paix',
+    'Quartier Industriel','Route de Sefrou',
+    'Sidi Brahim','Sidi Harazem','Tghat',
+    'Dhar El Mehraz','Hay Elkods','Lotissement Nahda','Hay Al Wafa',
+    'Hay Inara','Ben Debbab','Bir Tam Tam',
   ],
   'Meknès': [
     'Hamria','Nouvelle Ville','Medina','Hay Salam','Marjane','Bassatine','Zitoune',
-    'Agouray','Ain Karma','Ain Orma','Al Adarissa','Al Wafa','Bab Berdaine',
-    'Bab El Khémis','Bab Mansour','Borj Moulay Omar','Chabab','Douar El Hajjam',
+    'Agouray','Ain Karma','Al Adarissa','Bab Berdaine',
+    'Bab El Khémis','Bab Mansour','Borj Moulay Omar','Chabab',
     'Eslahiat','Hay Arrahma','Hay El Farah','Hay El Majd','Hay Islan',
-    'Hay Nassim','Hay Qods','Hay Riad','Hay Salam','Ismailia','Kasbah','Laâyoune',
-    'Lotissement Al Amal','Lotissement Amal','Mhaya','Mirinides','Ouislane',
-    'Quartier Administratif','Quartier des Orangers','Résidence Hamria',
-    'Riad','Route de Fès','Route d\'Ifrane','Sidi Baba','Sidi Slimane',
-    'Touarga','Wislane','Zitoun','Cité Ismaïlia','Cité Militaire',
-    'Hay Moulay Rachid','Hay Nassim','Tizimi','Plaisance',
+    'Hay Nassim','Hay Qods','Hay Riad','Ismailia','Kasbah','Laâyoune',
+    'Lotissement Al Amal','Mhaya','Ouislane',
+    'Quartier Administratif','Résidence Hamria',
+    'Route de Fès','Route d\'Ifrane','Sidi Baba',
+    'Cité Ismaïlia','Cité Militaire',
+    'Hay Moulay Rachid','Tizimi','Plaisance',
   ],
   'Oujda': [
     'Hay Qods','Hay Al Wifaq','Centre Ville','Sidi Yahya','Lazaret','Ain Sfa',
-    'Ain El Biya','Al Qods','Arfoud','Bab El Jnoub','Bab El Qsabi','Bni Ameur',
-    'Borj Moulay El Mehdi','Centre Administratif','Douar Laghzala','El Amal',
-    'El Arbaa','El Farah','El Fath','El Houda','El Majd','El Massira','El Qods',
+    'Ain El Biya','Bab El Jnoub','El Amal',
+    'El Farah','El Fath','El Houda','El Majd','El Massira','El Qods',
     'El Wafa','Hay Anass','Hay El Adarissa','Hay Islan','Hay Karima',
     'Hay Moulay Rachid','Hay Nahda','Hay Nakhil','Hay Nouzha','Hay Riad',
-    'Hay Salam','Isly','Kotbi','Lazaret','Lotissement Al Amal','Lotissement Atlas',
-    'Mabrouka','Mers El Kheir','Oued Nachef','Quartier Industriel','Résidence Nahda',
-    'Route de Tlemcen','Route Nationale','Sidi Maafa','Sidi Yahya El Gharb',
-    'Université','Wifaq','Hay El Andalous','Hay Ennour','Cite Universitaire',
+    'Hay Salam','Isly','Kotbi','Lotissement Al Amal',
+    'Mabrouka','Quartier Industriel',
+    'Route de Tlemcen','Sidi Maafa',
+    'Wifaq','Hay El Andalous','Hay Ennour','Cite Universitaire',
   ],
   'Kénitra': [
-    'Centre Ville','Bir Rami','Hay Mahtat','Saknia','Ain Sebaa','Bir Rami Est',
-    'Bir Rami Ouest','Bouknadel','Cité Chaoui','Cité Ennour','Cité OCP',
-    'El Boustane','El Farah','El Majd','El Massira','El Qods','Hay Al Amal',
-    'Hay Al Hassani','Hay El Farabi','Hay El Houda','Hay El Menzah',
+    'Centre Ville','Bir Rami','Hay Mahtat','Saknia','Bir Rami Est',
+    'Bir Rami Ouest','Bouknadel','Cité Chaoui','Cité Ennour',
+    'El Boustane','El Farah','El Massira','Hay Al Amal',
+    'Hay El Farabi','Hay El Houda','Hay El Menzah',
     'Hay El Qods','Hay El Wifaq','Hay Inara','Hay Moulay Rachid','Hay Nahda',
     'Hay Nakhil','Hay Nouzha','Hay Riad','Hay Salam','Industriel Nord',
     'Industriel Sud','Kariat Ba Mohamed','Lotissement Al Amal','Mehdia',
-    'Moulay Bousselham','Quartier des Fonctionnaires','Quartier Militaire',
-    'Route de Rabat','Route de Sidi Allal','Sidi Allal Tazi','Sidi Slimane',
+    'Moulay Bousselham','Quartier des Fonctionnaires',
+    'Route de Rabat','Sidi Allal Tazi',
     'Zone Industrielle','Hay Essalam','Quartier Administratif',
   ],
   'Tétouan': [
     'Martil','M\'diq','Centre Ville','Cabo Negro','Medina','Ain Lalla Reïcha',
-    'Azla','Bab El Okla','Bab Mqabar','Bab Nouader','Ben Karrich','Bir Chifa',
-    'Branes','Charf','Dersa','El Bahia','El Hamraoui','El Hamra',
-    'Fontanilla','Hay El Amal','Hay El Houda','Hay El Kods','Hay El Wifaq',
+    'Azla','Bab El Okla','Ben Karrich','Bir Chifa',
+    'Dersa','El Bahia','El Hamraoui',
+    'Hay El Amal','Hay El Houda','Hay El Wifaq',
     'Hay Islan','Hay Karima','Hay Moulay Rachid','Hay Nahda','Hay Nakhil',
-    'Hay Riad','Hay Salam','Izrarn','Jbel Dersa','Jouamaa','Khmis Anjra',
+    'Hay Riad','Hay Salam','Izrarn','Jouamaa',
     'La Fontaine','Lotissement Al Amal','Louzara','Malabata','Mhannech',
     'Oued Laou','Quartier Administratif','Route de Ceuta','Sania',
-    'Sidi Al Mandri','Sidi Driss','Souani','Tamuda Bay',
-    'Torreta','Vieil Espagnol','Ain Hayani','Cité Principale',
+    'Sidi Al Mandri','Souani','Tamuda Bay','Ain Hayani',
   ],
   'Mohammedia': [
     'Centre Ville','Hay Hana','Ain Harrouda','Beni Yakhlef','Ain Sebaa',
-    'Ain Tizgha','Al Alia','Ben Slimane','Cité Hassania','Cité Industrielle',
-    'El Alia','El Qods','Fdhala','Hay Al Amal','Hay Anass','Hay Arrahma',
+    'Cité Hassania','Cité Industrielle',
+    'Hay Al Amal','Hay Anass','Hay Arrahma',
     'Hay El Farah','Hay El Houda','Hay El Majd','Hay Islan','Hay Karima',
     'Hay Moulay Rachid','Hay Nahda','Hay Nakhil','Hay Nouzha','Hay Riad',
-    'Hay Salam','Lotissement Laayoune','Oued El Maleh','Platja','Port',
-    'Quartier des Fonctionnaires','Résidence Al Amal','Route de Casablanca',
-    'Sidi Maarouf','Zone Industrielle','Hay El Aaroui','Chouaïb Doukkali',
+    'Hay Salam','Oued El Maleh','Port',
+    'Quartier des Fonctionnaires','Route de Casablanca',
+    'Zone Industrielle',
   ],
   'Essaouira': [
-    'Medina','Hay Dakhla','Diabat','Ain Errahma','Ain Tissimane','Al Amal',
-    'Douar Laarab','El Ghazoua','Ghazoua','Hay El Hassani','Hay El Massira',
-    'Hay Islan','Kasbah','Ksour','Lotissement Al Amal','Mellah',
-    'Quartier des Dunes','Route d\'Agadir','Sidi Kaouki','Smimou',
-    'Zone Industrielle','Bab Doukkala','Bab Marrakech','El Borj',
+    'Medina','Hay Dakhla','Diabat','Al Amal',
+    'Hay El Hassani','Hay El Massira',
+    'Hay Islan','Kasbah','Mellah',
+    'Route d\'Agadir','Sidi Kaouki',
+    'Zone Industrielle','El Borj',
   ],
   'Salé': [
     'Hay Salam','Tabriquet','Laayayda','Hay Karima','Bab Lamrissa','Hay Inara',
-    'Oulja','Hay El Fath','Hay Nahda','Layayda','Lotissement Karima',
+    'Oulja','Hay El Fath','Hay Nahda','Lotissement Karima',
     'Quartier Al Qods','Résidence Al Amal','Route de Kenitra','Sidi Moussa',
     'Tabriquet Nord','Tabriquet Sud','Zaer','Bouknadel','Hay El Massira',
     'Hay Moulay Rachid','Hay Nakhil','Hay Riad','Kariat Oulad Moussa',
-    'Lotissement El Wifaq','Ouled Aissa','Quartier Industriel',
-    'Sidi Taibi','Zone Industrielle Oulja','Bettana','Hssain',
-  ],
-  'Agadir (Inezgane)': [
-    'Inezgane Centre','Ait Melloul','Hay El Massira','Hay Mohammadi',
-    'Hay Salam','Lotissement Al Amal','Nouveau Inezgane','Quartier Industriel',
-    'Route d\'Agadir','Sidi Bibi','Tilila','Hay El Hassani','Lotissement Nahda',
+    'Lotissement El Wifaq','Quartier Industriel',
+    'Sidi Taibi','Zone Industrielle Oulja','Bettana',
   ],
   'Béni Mellal': [
-    'Centre Ville','Hay El Massira','Hay Salam','Ain Asserdoun','Al Amal',
-    'Boujniba','Cité Industrielle','El Houda','Hay Anass','Hay El Amal',
+    'Centre Ville','Hay El Massira','Hay Salam','Ain Asserdoun',
+    'Hay Anass','Hay El Amal',
     'Hay El Farah','Hay El Houda','Hay El Majd','Hay El Qods','Hay El Wifaq',
     'Hay Hassani','Hay Islan','Hay Karima','Hay Moulay Rachid','Hay Nahda',
     'Hay Nakhil','Hay Nouzha','Hay Riad','Hay Tassila','Kasbah Tadla',
-    'Lotissement Al Amal','Lotissement Atlas','Oued El Abid','Quartier Administratif',
-    'Quartier des Fonctionnaires','Résidence Al Amal','Route de Marrakech',
-    'Souk El Had','Zone Industrielle','Hay Ennour','Fnideq',
+    'Lotissement Al Amal','Oued El Abid','Quartier Administratif',
+    'Route de Marrakech','Souk El Had','Zone Industrielle',
   ],
   'Nador': [
     'Centre Ville','Hay Salam','Beni Ensar','Kariat Arekmane','Selouane',
     'Zaio','Hay Al Amal','Hay El Houda','Hay El Massira','Hay El Qods',
     'Hay Islan','Hay Karima','Hay Moulay Rachid','Hay Nahda','Hay Nakhil',
-    'Hay Riad','Lotissement Al Amal','Marchica','Melloul',
+    'Hay Riad','Lotissement Al Amal','Marchica',
     'Monte Arrouit','Quartier Administratif','Quartier Industriel',
-    'Résidence Al Amal','Route de Melilla','Zeghanghane',
-  ],
-  'Al Hoceïma': [
-    'Centre Ville','Hay Salam','Ajdir','Bades','Bni Bouayach','Imzouren',
-    'Kariat Arekmane','Midar','Rouadi','Targuist','Hay El Amal','Hay El Houda',
-    'Hay El Massira','Hay El Qods','Hay Islan','Hay Karima','Hay Moulay Rachid',
-    'Hay Nahda','Hay Nakhil','Hay Riad','Hay Hassani','Lotissement Al Amal',
-    'Quartier Administratif','Résidence Al Amal','Route de Nador',
+    'Route de Melilla','Zeghanghane',
   ],
   'Laâyoune': [
     'Centre Ville','Hay Salam','Cité Dakhla','Foum El Oued','Hay Al Amal',
     'Hay El Houda','Hay El Massira','Hay El Qods','Hay Islan','Hay Karima',
     'Hay Moulay Rachid','Hay Nahda','Hay Nakhil','Hay Riad','Hay Hassani',
     'Lotissement Al Amal','Naila','Quartier Administratif','Quartier Industriel',
-    'Résidence Al Amal','Route de Boujdour','Smara',
   ],
   'Dakhla': [
     'Centre Ville','Hay Salam','Quartier Industriel','Quartier Administratif',
     'Hay Al Amal','Hay El Houda','Hay El Massira','Hay El Qods','Hay Islan',
     'Hay Karima','Hay Moulay Rachid','Hay Nahda','Hay Nakhil','Hay Riad',
-    'Lotissement Al Amal','Résidence Al Amal','Route de Laâyoune',
-    'Technopole','Zona Franca','Bir Gandouz',
+    'Lotissement Al Amal','Route de Laâyoune','Technopole',
   ],
   'Ouarzazate': [
-    'Centre Ville','Hay Salam','Aït Ben Haddou','Skoura','Draa','Hay Al Amal',
+    'Centre Ville','Hay Salam','Aït Ben Haddou','Skoura','Hay Al Amal',
     'Hay El Houda','Hay El Massira','Hay El Qods','Hay Islan','Hay Karima',
     'Hay Moulay Rachid','Hay Nahda','Hay Nakhil','Hay Riad','Hay Hassani',
     'Kasbah Taourirt','Lotissement Al Amal','Quartier Administratif',
-    'Quartier Industriel','Résidence Al Amal','Route de Marrakech',
-    'Tabount','Tillit','Zaouia',
+    'Quartier Industriel','Route de Marrakech',
   ],
   'Errachidia': [
     'Centre Ville','Hay Salam','Erfoud','Goulmima','Hay Al Amal','Hay El Houda',
     'Hay El Massira','Hay El Qods','Hay Islan','Hay Karima','Hay Moulay Rachid',
     'Hay Nahda','Hay Nakhil','Hay Riad','Hay Hassani','Lotissement Al Amal',
     'Merzouga','Quartier Administratif','Quartier Industriel',
-    'Résidence Al Amal','Rissani','Route de Fès','Tinghir','Todra',
+    'Rissani','Route de Fès','Tinghir','Todra',
   ],
   'Settat': [
     'Centre Ville','Hay Salam','Berrechid','Hay Al Amal','Hay El Houda',
     'Hay El Massira','Hay El Qods','Hay Islan','Hay Karima','Hay Moulay Rachid',
     'Hay Nahda','Hay Nakhil','Hay Riad','Hay Hassani','Lotissement Al Amal',
-    'Quartier Administratif','Quartier Industriel','Résidence Al Amal',
+    'Quartier Administratif','Quartier Industriel',
     'Route de Casablanca','Route de Marrakech',
   ],
-  'Khénifra': [
-    'Centre Ville','Hay Salam','Hay Al Amal','Hay El Houda','Hay El Massira',
-    'Hay El Qods','Hay Islan','Hay Karima','Hay Moulay Rachid','Hay Nahda',
-    'Hay Nakhil','Hay Riad','Hay Hassani','Lotissement Al Amal',
-    'Midelt','Mrirt','Quartier Administratif','Quartier Industriel',
-    'Résidence Al Amal','Route de Meknès',
-  ],
   'Safi': [
-    'Centre Ville','Hay Salam','Chaabat Lahouda','El Arba Ouled Fares',
-    'Hay Al Amal','Hay El Houda','Hay El Massira','Hay El Qods','Hay Islan',
+    'Centre Ville','Hay Salam','Hay Al Amal','Hay El Houda','Hay El Massira','Hay El Qods','Hay Islan',
     'Hay Karima','Hay Moulay Rachid','Hay Nahda','Hay Nakhil','Hay Riad',
     'Hay Hassani','Lalla Fatna','Lotissement Al Amal','Medina',
-    'Quartier Administratif','Quartier Industriel','Résidence Al Amal',
-    'Route de Marrakech','Sidi Bouzid','Sidi Youssef Ben Ali',
+    'Quartier Administratif','Quartier Industriel',
+    'Route de Marrakech','Sidi Bouzid',
   ],
   'Taroudant': [
-    'Centre Ville','Hay Salam','Ait Iazza','Hay Al Amal','Hay El Houda',
+    'Centre Ville','Hay Salam','Hay Al Amal','Hay El Houda',
     'Hay El Massira','Hay El Qods','Hay Islan','Hay Karima','Hay Moulay Rachid',
     'Hay Nahda','Hay Nakhil','Hay Riad','Hay Hassani','Kasbah','Lotissement Al Amal',
-    'Medina','Ouled Berhil','Quartier Administratif','Quartier Industriel',
-    'Résidence Al Amal','Route d\'Agadir','Tioute',
+    'Medina','Quartier Administratif','Quartier Industriel','Route d\'Agadir',
   ],
 };
 
-// 🇲🇦 VILLES (toutes les villes avec quartiers en premier)
 const MOROCCAN_CITIES = [
   ...Object.keys(QUARTIERS_PAR_VILLE),
   'Berrechid','Taza','Taounate','Erfoud','Merzouga','Inezgane',
@@ -269,7 +233,18 @@ function normalize(s: string): string {
   return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
 }
 
-// ✅ STATUTS
+// ─── Statuts — ordre de priorité ─────────────────────────────────────────────
+// Priorité : épinglé > disponible > réservé > sous offre > sous compromis > loué > vendu > indisponible
+const STATUT_PRIORITY: Record<string, number> = {
+  available:      0,
+  reserved:       1,
+  under_offer:    2,
+  under_contract: 3,
+  rented:         4,
+  sold:           5,
+  unavailable:    6,
+};
+
 const STATUS_OPTIONS = [
   { value: 'available',       label: 'Disponible',      color: '#16a34a' },
   { value: 'sold',            label: 'Vendu',           color: '#dc2626' },
@@ -313,6 +288,21 @@ const getTransactionIcon = (transactionType: string) => {
     default: return { icon: Home, label: 'Propriété', color: '#C8A96E' };
   }
 };
+
+// ─── Fonction de tri principale ───────────────────────────────────────────────
+function sortProperties(list: any[]): any[] {
+  return [...list].sort((a, b) => {
+    // 1. Épinglés toujours en tête
+    const pinA = a.is_pinned ? 0 : 1;
+    const pinB = b.is_pinned ? 0 : 1;
+    if (pinA !== pinB) return pinA - pinB;
+
+    // 2. Tri par statut (available=0 ... sold=5 ... unavailable=6)
+    const prioA = STATUT_PRIORITY[a.status] ?? 3;
+    const prioB = STATUT_PRIORITY[b.status] ?? 3;
+    return prioA - prioB;
+  });
+}
 
 // ─── FilterSelect ─────────────────────────────────────────────────────────────
 interface FilterSelectProps {
@@ -435,12 +425,44 @@ const PropertyCard: React.FC<{ property: any }> = ({ property }) => {
   const transactionInfo = getTransactionIcon(property.transaction_type);
   const IconComponent = transactionInfo.icon;
 
+  // Opacité réduite pour les biens vendus/indisponibles
+  const isSoldOrUnavailable = ['sold', 'rented', 'unavailable'].includes(property.status);
+
   return (
     <Link href={`/properties/${property.id}`} className="block">
       <div className="group rounded-lg overflow-hidden border-2 transition-all duration-300 cursor-pointer h-full flex flex-col"
-        style={{ backgroundColor: SABBAR_COLORS.navyDominant + '50', borderColor: property.is_pinned ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.goldAccent + '30' }}>
+        style={{
+          backgroundColor: SABBAR_COLORS.navyDominant + '50',
+          borderColor: property.is_pinned ? SABBAR_COLORS.goldAccent : SABBAR_COLORS.goldAccent + '30',
+          opacity: isSoldOrUnavailable ? 0.65 : 1,
+        }}>
         <div className="relative overflow-hidden h-48 bg-gray-800">
-          <img src={image} alt={property.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+          <img src={image} alt={property.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+            style={{ filter: isSoldOrUnavailable ? 'grayscale(40%)' : 'none' }} />
+
+          {/* Bandeau "VENDU" ou "LOUÉ" */}
+          {isSoldOrUnavailable && (
+            <div style={{
+              position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(0,0,0,0.35)',
+            }}>
+              <div style={{
+                padding: '8px 24px', borderRadius: '4px', fontSize: '16px', fontWeight: 700,
+                fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.1em',
+                color: '#fff', textTransform: 'uppercase',
+                background: property.status === 'sold' ? 'rgba(220,38,38,0.85)'
+                  : property.status === 'rented' ? 'rgba(37,99,235,0.85)'
+                  : 'rgba(107,114,128,0.85)',
+                border: '2px solid rgba(255,255,255,0.3)',
+              }}>
+                {property.status === 'sold' ? 'Vendu'
+                  : property.status === 'rented' ? 'Loué'
+                  : 'Indisponible'}
+              </div>
+            </div>
+          )}
+
           <div className="absolute top-3 right-3 px-3 py-1 rounded-lg text-sm font-bold text-white" style={{ backgroundColor: 'rgba(0,0,0,0.7)', fontFamily: "'DM Sans', sans-serif" }}>
             {property.price.toLocaleString('fr-FR')} MAD
           </div>
@@ -448,7 +470,7 @@ const PropertyCard: React.FC<{ property: any }> = ({ property }) => {
             style={{ backgroundColor: isFavorite ? SABBAR_COLORS.goldAccent : 'rgba(0,0,0,0.6)', color: isFavorite ? SABBAR_COLORS.navyDominant : 'white' }}>
             <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />
           </button>
-          {property.is_pinned && (
+          {property.is_pinned && !isSoldOrUnavailable && (
             <div className="absolute bottom-3 left-3 px-2 py-1 rounded-lg flex items-center gap-1" style={{ backgroundColor: 'rgba(200,169,110,0.95)', color: '#0D1F3C' }}>
               <Pin size={11} />
               <span className="text-xs font-bold" style={{ fontFamily: "'DM Sans', sans-serif" }}>À la une</span>
@@ -509,13 +531,33 @@ export default function PropertiesPage() {
         setLoading(true);
         const response = await propertiesApi.getProperties({ limit: 100, offset: 0 });
         const list = response || [];
-        if (!supabase) { setProperties(list); setFilteredProperties(list); return; }
-        const { data: pinData } = await supabase.from('properties').select('id, is_pinned');
-        const pinMap: Record<string, boolean> = {};
-        (pinData || []).forEach((p: any) => { pinMap[p.id] = p.is_pinned; });
-        const merged = list.map((p: any) => ({ ...p, is_pinned: pinMap[p.id] ?? false }));
-        setProperties(merged);
-        setFilteredProperties(merged);
+
+        if (!supabase) {
+          setProperties(sortProperties(list));
+          setFilteredProperties(sortProperties(list));
+          return;
+        }
+
+        // ✅ Récupère is_pinned ET status depuis Supabase
+        const { data: supaData } = await supabase
+          .from('properties')
+          .select('id, is_pinned, status');
+
+        const supaMap: Record<string, { is_pinned: boolean; status: string }> = {};
+        (supaData || []).forEach((p: any) => {
+          supaMap[p.id] = { is_pinned: p.is_pinned ?? false, status: p.status };
+        });
+
+        const merged = list.map((p: any) => ({
+          ...p,
+          is_pinned: supaMap[p.id]?.is_pinned ?? false,
+          // Priorité au status de Supabase s'il existe, sinon celui de l'API
+          status: supaMap[p.id]?.status ?? p.status,
+        }));
+
+        const sorted = sortProperties(merged);
+        setProperties(sorted);
+        setFilteredProperties(sorted);
       } catch (error) {
         console.error('❌ Erreur chargement:', error);
       } finally {
@@ -548,17 +590,9 @@ export default function PropertiesPage() {
       if (filters.is_furnished && !property.is_furnished) return false;
       return true;
     });
-    const STATUTS_BAS = ['sold', 'rented', 'unavailable', 'under_contract'];
 
-const sorted = [...filtered].sort((a, b) => {
-  // 1. Épinglés toujours en premier
-  if (b.is_pinned !== a.is_pinned) return (b.is_pinned ? 1 : 0) - (a.is_pinned ? 1 : 0);
-  // 2. Biens vendus/loués/indisponibles en bas
-  const aDown = STATUTS_BAS.includes(a.status) ? 1 : 0;
-  const bDown = STATUTS_BAS.includes(b.status) ? 1 : 0;
-  return aDown - bDown;
-});
-    setFilteredProperties(sorted);
+    // ✅ Re-applique le tri après filtrage
+    setFilteredProperties(sortProperties(filtered));
   }, [filters, properties]);
 
   const handleResetFilters = () => setFilters({
