@@ -523,16 +523,14 @@ export default function PropertiesPage() {
       try {
         setLoading(true);
         const response = await propertiesApi.getProperties({ limit: 100, offset: 0 });
-        const list: any[] = response || [];
-
-        // ✅ STATUS vient de l'API REST — on trie directement
-        // Supabase sert UNIQUEMENT pour is_pinned
-        if (!supabase) {
-          const sorted = sortProperties(list);
-          setProperties(sorted);
-          setFilteredProperties(sorted);
-          return;
-        }
+       const list: any[] = response || [];
+// ← AJOUTEZ TEMPORAIREMENT
+if (list.length > 0) {
+  console.log('STATUS des 5 premiers biens:');
+  list.slice(0, 5).forEach((p: any) => {
+    console.log(`- ${p.title?.slice(0,30)} → status: "${p.status}"`);
+  });
+}
 
         // Récupère UNIQUEMENT is_pinned depuis Supabase
         const { data: pinData } = await supabase
