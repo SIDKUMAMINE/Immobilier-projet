@@ -548,7 +548,16 @@ export default function PropertiesPage() {
       if (filters.is_furnished && !property.is_furnished) return false;
       return true;
     });
-    const sorted = [...filtered].sort((a, b) => (b.is_pinned ? 1 : 0) - (a.is_pinned ? 1 : 0));
+    const STATUTS_BAS = ['sold', 'rented', 'unavailable', 'under_contract'];
+
+const sorted = [...filtered].sort((a, b) => {
+  // 1. Épinglés toujours en premier
+  if (b.is_pinned !== a.is_pinned) return (b.is_pinned ? 1 : 0) - (a.is_pinned ? 1 : 0);
+  // 2. Biens vendus/loués/indisponibles en bas
+  const aDown = STATUTS_BAS.includes(a.status) ? 1 : 0;
+  const bDown = STATUTS_BAS.includes(b.status) ? 1 : 0;
+  return aDown - bDown;
+});
     setFilteredProperties(sorted);
   }, [filters, properties]);
 
