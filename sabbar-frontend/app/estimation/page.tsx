@@ -1,7 +1,26 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import Link from 'next/link';
+import dynamic from 'next/dynamic';
+
+// ─── Import dynamique Leaflet (SSR disabled) ──────────────────────────────────
+
+const MapMaroc = dynamic(() => import('./MapMaroc'), {
+  ssr: false,
+  loading: () => (
+    <div style={{
+      height: '280px', borderRadius: '12px',
+      background: 'rgba(13,31,60,0.5)',
+      border: '1px solid rgba(200,169,110,0.18)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      color: 'rgba(200,169,110,0.4)', fontSize: '13px',
+      fontFamily: "'DM Sans', system-ui, sans-serif",
+      letterSpacing: '0.05em',
+    }}>
+      Chargement de la carte...
+    </div>
+  ),
+});
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -159,6 +178,11 @@ function findBestMatch(input: string, candidates: string[]): string {
     if (best) return best;
   }
   return '';
+}
+
+// Retourne la clé normalisée (ex: "casablanca") à partir du label saisi
+function villeToKey(label: string): string {
+  return findBestMatch(label, Object.keys(PRIX));
 }
 
 function calculate(form: FormState): EstimationResult {
@@ -479,45 +503,213 @@ function EstimationForm() {
     </Card>
   );
 
-  // ── Step 2 ────────────────────────────────────────────────────────────────
-  if (step === 2) return (
-    <Card>
-      <ProgressBar current={2} />
-      {stepTitle('Localisation')}
-      {stepSub('Indiquez la ville et le quartier de votre bien')}
+  // ── Step 2 — Localisation avec Carte + Autocomplete ───────────────────────
+  if (step === 2) {
+    const villeKey = villeToKey(form.ville);
 
-      <div style={field}>
-        <FieldLabel required>Ville</FieldLabel>
-        <input
-          type="text" placeholder="Ex : Casablanca, Rabat, Marrakech..."
-          value={form.ville}
-          onChange={e => { set('ville', e.target.value); set('quartier', ''); }}
-          style={inputStyle('ville')} {...fp('ville')}
-        />
-        <FieldError msg={errors.ville} />
-      </div>
+    // Filtrer les quartiers selon la ville détectée + ce que l'user tape
+    const quartiersDispos: string[] = villeKey
+      ? Object.keys(PRIX[villeKey]).filter(q =>
+          normalize(q).includes(normalize(form.quartier))
+        )
+      : [];
 
-      <div style={field}>
-        <FieldLabel required>Quartier</FieldLabel>
-        <input
-          type="text" placeholder="Ex : Anfa, Maarif, Agdal, Guéliz..."
-          value={form.quartier}
-          onChange={e => set('quartier', e.target.value)}
-          style={inputStyle('quartier')} {...fp('quartier')}
-        />
-        <FieldError msg={errors.quartier} />
-      </div>
+    const showDropdown = focused === 'quartier' && quartiersDispos.length > 0 && form.quartier.length > 0;
 
-      <div style={btnRow}><BtnSecondary onClick={() => setStep(1)} /><BtnPrimary onClick={goStep3}>Continuer →</BtnPrimary></div>
-    </Card>
-  );
+    return (
+      <Card>
+        <ProgressBar current={2} />
+        {stepTitle('Localisation')}
+        {stepSub('Cliquez sur votre ville sur la carte, puis choisissez le quartier')}
+
+        {/* ── CARTE LEAFLET ── */}
+        <div style={{
+          marginBottom: '24px',
+          borderRadius: '12px',
+          overflow: 'hidden',
+          border: `1px solid ${T.border}`,
+        }}>
+          <MapMaroc
+            selectedVille={villeKey}
+            onSelectVille={(label: string) => {
+              set('ville', label);
+              set('quartier', '');
+            }}
+          />
+        </div>
+
+        {/* ── Champ Ville ── */}
+        <div style={field}>
+          <FieldLabel required>Ville</FieldLabel>
+          <input
+            type="text"
+            placeholder="Ex : Casablanca, Rabat, Marrakech..."
+            value={form.ville}
+            onChange={e => { set('ville', e.target.value); set('quartier', ''); }}
+            style={inputStyle('ville')}
+            {...fp('ville')}
+          />
+          {/* Badge ville reconnue */}
+          {villeKey && (
+            <div style={{
+              marginTop: '6px', fontSize: '12px',
+              color: T.gold, fontFamily: "'DM Sans', system-ui, sans-serif",
+              display: 'flex', alignItems: 'center', gap: '5px',
+            }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.gold, display: 'inline-block' }} />
+              Ville reconnue · {Object.keys(PRIX[villeKey]).length} quartiers disponibles
+            </div>
+          )}
+          <FieldError msg={errors.ville} />
+        </div>
+
+        {/* ── Champ Quartier avec autocomplete ── */}
+        <div style={{ ...field, position: 'relative' }}>
+          <FieldLabel required>Quartier</FieldLabel>
+          <input
+            type="text"
+            placeholder={
+              villeKey
+                ? `Ex : ${Object.keys(PRIX[villeKey]).slice(0, 2).join(', ')}...`
+                : "Sélectionnez d'abord une ville"
+            }
+            value={form.quartier}
+            onChange={e => set('quartier', e.target.value)}
+            disabled={!villeKey}
+            style={{
+              ...inputStyle('quartier'),
+              opacity: villeKey ? 1 : 0.5,
+              cursor: villeKey ? 'text' : 'not-allowed',
+            }}
+            {...fp('quartier')}
+          />
+
+          {/* Dropdown suggestions */}
+          {showDropdown && (
+            <div style={{
+              position: 'absolute',
+              top: 'calc(100% + 2px)',
+              left: 0, right: 0,
+              zIndex: 200,
+              background: 'rgba(7,18,32,0.98)',
+              border: `1px solid ${T.borderHov}`,
+              borderRadius: '10px',
+              maxHeight: '220px',
+              overflowY: 'auto',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
+            }}>
+              {quartiersDispos.slice(0, 8).map((q, i) => (
+                <div
+                  key={q}
+                  onMouseDown={() => { set('quartier', q); setFocused(null); }}
+                  style={{
+                    padding: '12px 18px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    color: T.ivory,
+                    fontFamily: "'DM Sans', system-ui, sans-serif",
+                    borderBottom: i < Math.min(quartiersDispos.length, 8) - 1
+                      ? `1px solid ${T.border}` : 'none',
+                    transition: 'background 0.15s',
+                    display: 'flex', alignItems: 'center', gap: '10px',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'rgba(200,169,110,0.08)';
+                    e.currentTarget.style.color = T.gold;
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = T.ivory;
+                  }}
+                >
+                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: T.gold, opacity: 0.6, flexShrink: 0 }} />
+                  {q}
+                </div>
+              ))}
+              {quartiersDispos.length > 8 && (
+                <div style={{
+                  padding: '10px 18px', fontSize: '12px',
+                  color: 'rgba(200,169,110,0.4)',
+                  fontFamily: "'DM Sans', system-ui, sans-serif",
+                  textAlign: 'center',
+                }}>
+                  +{quartiersDispos.length - 8} autres quartiers…
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Afficher tous les quartiers si champ vide et ville sélectionnée */}
+          {focused === 'quartier' && !form.quartier && villeKey && (
+            <div style={{
+              position: 'absolute',
+              top: 'calc(100% + 2px)',
+              left: 0, right: 0,
+              zIndex: 200,
+              background: 'rgba(7,18,32,0.98)',
+              border: `1px solid ${T.borderHov}`,
+              borderRadius: '10px',
+              maxHeight: '220px',
+              overflowY: 'auto',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
+            }}>
+              {Object.keys(PRIX[villeKey]).slice(0, 10).map((q, i, arr) => (
+                <div
+                  key={q}
+                  onMouseDown={() => { set('quartier', q); setFocused(null); }}
+                  style={{
+                    padding: '12px 18px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    color: T.ivory,
+                    fontFamily: "'DM Sans', system-ui, sans-serif",
+                    borderBottom: i < arr.length - 1 ? `1px solid ${T.border}` : 'none',
+                    transition: 'background 0.15s',
+                    display: 'flex', alignItems: 'center', gap: '10px',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'rgba(200,169,110,0.08)';
+                    e.currentTarget.style.color = T.gold;
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = T.ivory;
+                  }}
+                >
+                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: T.gold, opacity: 0.6, flexShrink: 0 }} />
+                  {q}
+                </div>
+              ))}
+              {Object.keys(PRIX[villeKey]).length > 10 && (
+                <div style={{
+                  padding: '10px 18px', fontSize: '12px',
+                  color: 'rgba(200,169,110,0.4)',
+                  fontFamily: "'DM Sans', system-ui, sans-serif",
+                  textAlign: 'center',
+                }}>
+                  Tapez pour filtrer parmi {Object.keys(PRIX[villeKey]).length} quartiers…
+                </div>
+              )}
+            </div>
+          )}
+
+          <FieldError msg={errors.quartier} />
+        </div>
+
+        <div style={btnRow}>
+          <BtnSecondary onClick={() => setStep(1)} />
+          <BtnPrimary onClick={goStep3}>Continuer →</BtnPrimary>
+        </div>
+      </Card>
+    );
+  }
 
   // ── Step 3 ────────────────────────────────────────────────────────────────
   if (step === 3) return (
     <Card>
       <ProgressBar current={3} />
       {stepTitle('Caractéristiques')}
-      {stepSub('Décrivez votre bien pour affiner l\'estimation')}
+      {stepSub("Décrivez votre bien pour affiner l'estimation")}
 
       <div style={field}>
         <FieldLabel required>Superficie (m²)</FieldLabel>
@@ -660,7 +852,6 @@ function EstimationForm() {
         <BtnPrimary onClick={() => window.location.href = '/estimation/contact'}>
           Contacter un expert →
         </BtnPrimary>
-
       </div>
     </Card>
   );
@@ -681,6 +872,20 @@ export default function EstimationPage() {
         .fade-1 { animation-delay: 0.05s; }
         .fade-2 { animation-delay: 0.15s; }
         .fade-3 { animation-delay: 0.25s; }
+        /* ── Leaflet z-index fix ── */
+        .leaflet-pane        { z-index: 10 !important; }
+        .leaflet-top,
+        .leaflet-bottom      { z-index: 20 !important; }
+        .leaflet-control     { z-index: 20 !important; }
+        /* ── Popup Leaflet style ── */
+        .leaflet-popup-content-wrapper {
+          background: #0D1F3C !important;
+          border: 1px solid rgba(200,169,110,0.3) !important;
+          border-radius: 8px !important;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
+        }
+        .leaflet-popup-tip { background: #0D1F3C !important; }
+        .leaflet-popup-content { margin: 10px 14px !important; }
         @media (max-width: 680px) {
           .hero-title { font-size: 38px !important; }
           .card-inner { padding: 28px 20px !important; }
@@ -701,7 +906,6 @@ export default function EstimationPage() {
         {/* ── HERO ── */}
         <section style={{ padding: '88px 24px 72px', textAlign: 'center', position: 'relative', zIndex: 1, borderBottom: `1px solid ${T.border}` }}>
 
-          {/* Badge */}
           <div className="fade-up fade-1" style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
             padding: '6px 18px', borderRadius: '100px', marginBottom: '32px',
@@ -714,7 +918,6 @@ export default function EstimationPage() {
             </span>
           </div>
 
-          {/* Title */}
           <h1 className="fade-up fade-2 hero-title" style={{
             fontFamily: "'Cormorant Garamond', Georgia, serif",
             fontSize: 'clamp(40px, 6vw, 64px)', fontWeight: 300,
@@ -724,7 +927,6 @@ export default function EstimationPage() {
             <span style={{ color: T.gold, fontStyle: 'italic' }}>votre bien immobilier</span>
           </h1>
 
-          {/* Subtitle */}
           <p className="fade-up fade-3" style={{
             fontFamily: "'DM Sans', system-ui, sans-serif",
             fontSize: '16px', fontWeight: 400,
@@ -735,7 +937,6 @@ export default function EstimationPage() {
             du marché marocain. Résultat immédiat, expertise humaine sous 24h.
           </p>
 
-          {/* Stats */}
           <div className="stats-grid" style={{
             display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '1px', maxWidth: '600px', margin: '0 auto',
@@ -779,7 +980,7 @@ export default function EstimationPage() {
           </div>
         </section>
 
-        {/* Footer line */}
+        {/* Footer */}
         <div style={{ borderTop: `1px solid ${T.border}`, padding: '20px 24px', textAlign: 'center' }}>
           <p style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '12px', color: 'rgba(200,169,110,0.25)' }}>
             © {new Date().getFullYear()} LANDMARK ESTATE · Estimation indicative, non contractuelle
