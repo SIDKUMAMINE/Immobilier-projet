@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase';
 // ─── Quartiers complets par ville ─────────────────────────────────────────────
 const QUARTIERS_PAR_VILLE: Record<string, string[]> = {
   'Casablanca': [
-    'Anfa','Maarif','Maarif Extension','Gauthier','Ain Diab','Bourgogne','Sidi Maarouf',
+    'Anfa','Maarif','Almaz','Maarif Extension','Gauthier','Ain Diab','Bourgogne','Sidi Maarouf',
     'Bouskoura','Hay Hassani','Californie','Val Fleuri','Oulfa','Hay Oulfa','Bernoussi',
     'Sidi Bernoussi','Ain Sbaa','Ain Sebaa','Hay Mohammadi','Sbata','Derb Sultan','Ben Msik',
     'Salmia','Roches Noires','Polo','Racine','CIL','Beauséjour','Oasis','Palmier',
