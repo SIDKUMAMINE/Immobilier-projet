@@ -136,15 +136,12 @@ const QUARTIERS_PAR_VILLE: Record<string, string[]> = {
     'Hay El Farah','Hay El Houda','Hay El Majd','Hay Islan','Hay Karima',
     'Hay Moulay Rachid','Hay Nahda','Hay Nakhil','Hay Nouzha','Hay Riad',
     'Hay Salam','Oued El Maleh','Port',
-    'Quartier des Fonctionnaires','Route de Casablanca',
-    'Zone Industrielle',
+    'Quartier des Fonctionnaires','Route de Casablanca','Zone Industrielle',
   ],
   'Essaouira': [
     'Medina','Hay Dakhla','Diabat','Al Amal',
-    'Hay El Hassani','Hay El Massira',
-    'Hay Islan','Kasbah','Mellah',
-    'Route d\'Agadir','Sidi Kaouki',
-    'Zone Industrielle','El Borj',
+    'Hay El Hassani','Hay El Massira','Hay Islan','Kasbah','Mellah',
+    'Route d\'Agadir','Sidi Kaouki','Zone Industrielle','El Borj',
   ],
   'Salé': [
     'Hay Salam','Tabriquet','Laayayda','Hay Karima','Bab Lamrissa','Hay Inara',
@@ -152,17 +149,15 @@ const QUARTIERS_PAR_VILLE: Record<string, string[]> = {
     'Quartier Al Qods','Résidence Al Amal','Route de Kenitra','Sidi Moussa',
     'Tabriquet Nord','Tabriquet Sud','Zaer','Bouknadel','Hay El Massira',
     'Hay Moulay Rachid','Hay Nakhil','Hay Riad','Kariat Oulad Moussa',
-    'Lotissement El Wifaq','Quartier Industriel',
-    'Sidi Taibi','Zone Industrielle Oulja','Bettana',
+    'Lotissement El Wifaq','Quartier Industriel','Sidi Taibi','Zone Industrielle Oulja','Bettana',
   ],
   'Béni Mellal': [
     'Centre Ville','Hay El Massira','Hay Salam','Ain Asserdoun',
-    'Hay Anass','Hay El Amal',
-    'Hay El Farah','Hay El Houda','Hay El Majd','Hay El Qods','Hay El Wifaq',
-    'Hay Hassani','Hay Islan','Hay Karima','Hay Moulay Rachid','Hay Nahda',
-    'Hay Nakhil','Hay Nouzha','Hay Riad','Hay Tassila','Kasbah Tadla',
-    'Lotissement Al Amal','Oued El Abid','Quartier Administratif',
-    'Route de Marrakech','Souk El Had','Zone Industrielle',
+    'Hay Anass','Hay El Amal','Hay El Farah','Hay El Houda','Hay El Majd',
+    'Hay El Qods','Hay El Wifaq','Hay Hassani','Hay Islan','Hay Karima',
+    'Hay Moulay Rachid','Hay Nahda','Hay Nakhil','Hay Nouzha','Hay Riad',
+    'Hay Tassila','Kasbah Tadla','Lotissement Al Amal','Oued El Abid',
+    'Quartier Administratif','Route de Marrakech','Souk El Had','Zone Industrielle',
   ],
   'Nador': [
     'Centre Ville','Hay Salam','Beni Ensar','Kariat Arekmane','Selouane',
@@ -206,10 +201,10 @@ const QUARTIERS_PAR_VILLE: Record<string, string[]> = {
     'Route de Casablanca','Route de Marrakech',
   ],
   'Safi': [
-    'Centre Ville','Hay Salam','Hay Al Amal','Hay El Houda','Hay El Massira','Hay El Qods','Hay Islan',
-    'Hay Karima','Hay Moulay Rachid','Hay Nahda','Hay Nakhil','Hay Riad',
-    'Hay Hassani','Lalla Fatna','Lotissement Al Amal','Medina',
-    'Quartier Administratif','Quartier Industriel',
+    'Centre Ville','Hay Salam','Hay Al Amal','Hay El Houda','Hay El Massira',
+    'Hay El Qods','Hay Islan','Hay Karima','Hay Moulay Rachid','Hay Nahda',
+    'Hay Nakhil','Hay Riad','Hay Hassani','Lalla Fatna','Lotissement Al Amal',
+    'Medina','Quartier Administratif','Quartier Industriel',
     'Route de Marrakech','Sidi Bouzid',
   ],
   'Taroudant': [
@@ -233,8 +228,7 @@ function normalize(s: string): string {
   return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
 }
 
-// ─── Statuts — ordre de priorité ─────────────────────────────────────────────
-// Priorité : épinglé > disponible > réservé > sous offre > sous compromis > loué > vendu > indisponible
+// ─── Priorité de tri par statut ───────────────────────────────────────────────
 const STATUT_PRIORITY: Record<string, number> = {
   available:      0,
   reserved:       1,
@@ -244,6 +238,20 @@ const STATUT_PRIORITY: Record<string, number> = {
   sold:           5,
   unavailable:    6,
 };
+
+// ─── Fonction de tri ──────────────────────────────────────────────────────────
+function sortProperties(list: any[]): any[] {
+  return [...list].sort((a, b) => {
+    // Épinglés en premier
+    const pinA = a.is_pinned ? 0 : 1;
+    const pinB = b.is_pinned ? 0 : 1;
+    if (pinA !== pinB) return pinA - pinB;
+    // Puis par statut
+    const prioA = STATUT_PRIORITY[a.status] ?? 3;
+    const prioB = STATUT_PRIORITY[b.status] ?? 3;
+    return prioA - prioB;
+  });
+}
 
 const STATUS_OPTIONS = [
   { value: 'available',       label: 'Disponible',      color: '#16a34a' },
@@ -288,21 +296,6 @@ const getTransactionIcon = (transactionType: string) => {
     default: return { icon: Home, label: 'Propriété', color: '#C8A96E' };
   }
 };
-
-// ─── Fonction de tri principale ───────────────────────────────────────────────
-function sortProperties(list: any[]): any[] {
-  return [...list].sort((a, b) => {
-    // 1. Épinglés toujours en tête
-    const pinA = a.is_pinned ? 0 : 1;
-    const pinB = b.is_pinned ? 0 : 1;
-    if (pinA !== pinB) return pinA - pinB;
-
-    // 2. Tri par statut (available=0 ... sold=5 ... unavailable=6)
-    const prioA = STATUT_PRIORITY[a.status] ?? 3;
-    const prioB = STATUT_PRIORITY[b.status] ?? 3;
-    return prioA - prioB;
-  });
-}
 
 // ─── FilterSelect ─────────────────────────────────────────────────────────────
 interface FilterSelectProps {
@@ -416,7 +409,9 @@ const PropertyCard: React.FC<{ property: any }> = ({ property }) => {
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation();
     const favs = JSON.parse(localStorage.getItem('sabbar_favorites') || '[]');
-    const newFavs = favs.includes(property.id) ? favs.filter((id: number) => id !== property.id) : [...favs, property.id];
+    const newFavs = favs.includes(property.id)
+      ? favs.filter((id: string) => id !== property.id)
+      : [...favs, property.id];
     localStorage.setItem('sabbar_favorites', JSON.stringify(newFavs));
     setIsFavorite(!isFavorite);
   };
@@ -424,8 +419,6 @@ const PropertyCard: React.FC<{ property: any }> = ({ property }) => {
   const image = property.images?.[0] || property.image || '/placeholder.jpg';
   const transactionInfo = getTransactionIcon(property.transaction_type);
   const IconComponent = transactionInfo.icon;
-
-  // Opacité réduite pour les biens vendus/indisponibles
   const isSoldOrUnavailable = ['sold', 'rented', 'unavailable'].includes(property.status);
 
   return (
@@ -437,16 +430,13 @@ const PropertyCard: React.FC<{ property: any }> = ({ property }) => {
           opacity: isSoldOrUnavailable ? 0.65 : 1,
         }}>
         <div className="relative overflow-hidden h-48 bg-gray-800">
-          <img src={image} alt={property.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+          <img src={image} alt={property.title}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
             style={{ filter: isSoldOrUnavailable ? 'grayscale(40%)' : 'none' }} />
 
-          {/* Bandeau "VENDU" ou "LOUÉ" */}
+          {/* Bandeau statut */}
           {isSoldOrUnavailable && (
-            <div style={{
-              position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(0,0,0,0.35)',
-            }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.35)' }}>
               <div style={{
                 padding: '8px 24px', borderRadius: '4px', fontSize: '16px', fontWeight: 700,
                 fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.1em',
@@ -463,7 +453,8 @@ const PropertyCard: React.FC<{ property: any }> = ({ property }) => {
             </div>
           )}
 
-          <div className="absolute top-3 right-3 px-3 py-1 rounded-lg text-sm font-bold text-white" style={{ backgroundColor: 'rgba(0,0,0,0.7)', fontFamily: "'DM Sans', sans-serif" }}>
+          <div className="absolute top-3 right-3 px-3 py-1 rounded-lg text-sm font-bold text-white"
+            style={{ backgroundColor: 'rgba(0,0,0,0.7)', fontFamily: "'DM Sans', sans-serif" }}>
             {property.price.toLocaleString('fr-FR')} MAD
           </div>
           <button onClick={toggleFavorite} className="absolute top-3 left-3 p-2 rounded-full transition-all"
@@ -471,7 +462,8 @@ const PropertyCard: React.FC<{ property: any }> = ({ property }) => {
             <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />
           </button>
           {property.is_pinned && !isSoldOrUnavailable && (
-            <div className="absolute bottom-3 left-3 px-2 py-1 rounded-lg flex items-center gap-1" style={{ backgroundColor: 'rgba(200,169,110,0.95)', color: '#0D1F3C' }}>
+            <div className="absolute bottom-3 left-3 px-2 py-1 rounded-lg flex items-center gap-1"
+              style={{ backgroundColor: 'rgba(200,169,110,0.95)', color: '#0D1F3C' }}>
               <Pin size={11} />
               <span className="text-xs font-bold" style={{ fontFamily: "'DM Sans', sans-serif" }}>À la une</span>
             </div>
@@ -480,7 +472,8 @@ const PropertyCard: React.FC<{ property: any }> = ({ property }) => {
         <div className="p-4 flex-1 flex flex-col">
           <h3 className="text-sm font-bold line-clamp-2 mb-2" style={{ color: SABBAR_COLORS.ivory, fontFamily: "'DM Sans', sans-serif" }}>{property.title}</h3>
           <div className="flex justify-end mb-3">
-            <div className="px-2 py-1 rounded-lg flex items-center gap-1" style={{ backgroundColor: 'rgba(0,0,0,0.7)', border: `1px solid ${transactionInfo.color}`, width: 'fit-content' }}>
+            <div className="px-2 py-1 rounded-lg flex items-center gap-1"
+              style={{ backgroundColor: 'rgba(0,0,0,0.7)', border: `1px solid ${transactionInfo.color}`, width: 'fit-content' }}>
               <IconComponent size={14} style={{ color: transactionInfo.color }} />
               <span className="text-xs font-semibold whitespace-nowrap" style={{ color: transactionInfo.color, fontFamily: "'DM Sans', sans-serif" }}>{transactionInfo.label}</span>
             </div>
@@ -530,34 +523,36 @@ export default function PropertiesPage() {
       try {
         setLoading(true);
         const response = await propertiesApi.getProperties({ limit: 100, offset: 0 });
-        const list = response || [];
+        const list: any[] = response || [];
 
+        // ✅ STATUS vient de l'API REST — on trie directement
+        // Supabase sert UNIQUEMENT pour is_pinned
         if (!supabase) {
-          setProperties(sortProperties(list));
-          setFilteredProperties(sortProperties(list));
+          const sorted = sortProperties(list);
+          setProperties(sorted);
+          setFilteredProperties(sorted);
           return;
         }
 
-        // ✅ Récupère is_pinned ET status depuis Supabase
-        const { data: supaData } = await supabase
+        // Récupère UNIQUEMENT is_pinned depuis Supabase
+        const { data: pinData } = await supabase
           .from('properties')
-          .select('id, is_pinned, status');
+          .select('id, is_pinned');
 
-        const supaMap: Record<string, { is_pinned: boolean; status: string }> = {};
-        (supaData || []).forEach((p: any) => {
-          supaMap[p.id] = { is_pinned: p.is_pinned ?? false, status: p.status };
-        });
+        const pinMap: Record<string, boolean> = {};
+        (pinData || []).forEach((p: any) => { pinMap[p.id] = p.is_pinned ?? false; });
 
+        // Merge : status de l'API + is_pinned de Supabase
         const merged = list.map((p: any) => ({
           ...p,
-          is_pinned: supaMap[p.id]?.is_pinned ?? false,
-          // Priorité au status de Supabase s'il existe, sinon celui de l'API
-          status: supaMap[p.id]?.status ?? p.status,
+          is_pinned: pinMap[p.id] ?? false,
+          // status reste celui de l'API — NE PAS l'écraser avec Supabase
         }));
 
         const sorted = sortProperties(merged);
         setProperties(sorted);
         setFilteredProperties(sorted);
+
       } catch (error) {
         console.error('❌ Erreur chargement:', error);
       } finally {
@@ -590,8 +585,6 @@ export default function PropertiesPage() {
       if (filters.is_furnished && !property.is_furnished) return false;
       return true;
     });
-
-    // ✅ Re-applique le tri après filtrage
     setFilteredProperties(sortProperties(filtered));
   }, [filters, properties]);
 
@@ -714,7 +707,8 @@ export default function PropertiesPage() {
               {filteredProperties.map(property => <PropertyCard key={property.id} property={property} />)}
             </div>
           ) : (
-            <div className="px-6 py-12 rounded-lg border text-center" style={{ backgroundColor: SABBAR_COLORS.navyDominant + '50', borderColor: SABBAR_COLORS.goldAccent + '30', color: SABBAR_COLORS.goldLight, fontFamily: "'DM Sans', sans-serif" }}>
+            <div className="px-6 py-12 rounded-lg border text-center"
+              style={{ backgroundColor: SABBAR_COLORS.navyDominant + '50', borderColor: SABBAR_COLORS.goldAccent + '30', color: SABBAR_COLORS.goldLight, fontFamily: "'DM Sans', sans-serif" }}>
               Aucune propriété ne correspond à vos critères
             </div>
           )}
