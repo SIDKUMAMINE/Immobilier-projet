@@ -119,7 +119,17 @@ export default function PropertiesPage() {
     return matchSearch && matchFilter;
   });
 
-  const sorted = [...filtered].sort((a, b) => (b.is_pinned ? 1 : 0) - (a.is_pinned ? 1 : 0));
+  const STATUT_PRIORITY: Record<string, number> = {
+  available: 0, reserved: 1, under_offer: 2, under_contract: 3,
+  rented: 4, sold: 5, unavailable: 6, pending: 7,
+};
+
+const sorted = [...filtered].sort((a, b) => {
+  // 1. Épinglés en premier
+  if (b.is_pinned !== a.is_pinned) return (b.is_pinned ? 1 : 0) - (a.is_pinned ? 1 : 0);
+  // 2. Vendus/loués/indisponibles en bas
+  return (STATUT_PRIORITY[a.status] ?? 3) - (STATUT_PRIORITY[b.status] ?? 3);
+});
   const pinnedCount = sorted.filter(p => p.is_pinned).length;
 
   return (
