@@ -689,10 +689,11 @@ function QuartierAutocomplete({ value, onChange, villeKey, focused, onFocus, onB
 }) {
   const quartiersAll = villeKey ? Object.keys(PRIX[villeKey]) : [];
   const suggestions = villeKey
-    ? (value.length > 0 ? quartiersAll.filter(q => normalize(q).includes(normalize(value))) : quartiersAll)
+    ? (value.length > 0 ? quartiersAll.filter(q => normalize(q).includes(normalize(value)) || normalize(q) === normalize(value))
+ : quartiersAll)
     : [];
-  const showDropdown = focused && villeKey && suggestions.length > 0;
-  return (
+const showDropdown = focused && !!villeKey && suggestions.length > 0;
+    return (
     <div style={{ position: 'relative' }}>
       <FieldLabel required>Quartier</FieldLabel>
       <input type="text"
