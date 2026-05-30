@@ -9,7 +9,7 @@ import {
   ArrowRight, Plus, Bot, Zap,
   Clock, Phone, ChevronUp, Trophy,
   Pencil, Trash2, X, Check, AlertCircle, RefreshCw,
-  Target, Mail, Star, Home, HandshakeIcon, BarChart3
+  Target, Mail, Star, Home
 } from 'lucide-react';
 
 const T = {
