@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import {
   Users, Phone, Mail, MapPin, DollarSign, Star,
   RefreshCw, Search, Filter, Trash2, Bell, BellOff,
-  Home, HandshakeIcon, BarChart3, ShoppingCart, Tag, FileText,
+Home, Handshake, BarChart3, ShoppingCart, Tag, FileText,
   Zap, CheckCircle2, Clock
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
