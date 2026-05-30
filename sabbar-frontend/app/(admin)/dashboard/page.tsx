@@ -9,7 +9,7 @@ import {
   ArrowRight, Plus, Bot, Zap,
   Clock, Phone, ChevronUp, Trophy,
   Pencil, Trash2, X, Check, AlertCircle, RefreshCw,
-  Target, Mail, Star, Home
+  Target, Mail, Star
 } from 'lucide-react';
 
 const T = {
@@ -24,94 +24,70 @@ const T = {
   borderSoft:'rgba(13,31,60,0.07)',
 };
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 interface Task {
-  id: string;
-  label: string;
-  done: boolean;
-  urgent: boolean;
-  due_date?: string;
+  id: string; label: string; done: boolean; urgent: boolean; due_date?: string;
 }
 
 interface Lead {
-  id: string;
-  created_at: string;
-  full_name: string;
-  email?: string;
-  phone?: string;
-  subject?: string;
-  city?: string;
-  source?: string;
-  status?: string;
-  score?: number;
+  id: string; created_at: string; full_name: string;
+  email?: string; phone?: string; subject?: string;
+  city?: string; source?: string; status?: string; score?: number;
 }
 
-// ─── Source config ────────────────────────────────────────────────────────────
-const SOURCE_CONFIG: Record<string, { label: string; color: string; bg: string; icon: string }> = {
-  estimation:        { label: 'Estimation',       color: '#7c3aed', bg: 'rgba(124,58,237,0.1)',  icon: '🏠' },
-  intermediation:    { label: 'Intermédiation',   color: T.gold,    bg: 'rgba(200,169,110,0.1)', icon: '🤝' },
-  commercialisation: { label: 'Commercialisation',color: T.terra,   bg: 'rgba(181,87,58,0.1)',   icon: '📊' },
-  contact_form:      { label: 'Contact',          color: '#2563eb', bg: 'rgba(37,99,235,0.1)',   icon: '✉️' },
-  achat:             { label: 'Achat',            color: '#16a34a', bg: 'rgba(22,163,74,0.1)',   icon: '🛒' },
-  vente:             { label: 'Vente',            color: '#d97706', bg: 'rgba(217,119,6,0.1)',   icon: '💰' },
+// ─── Source styles ────────────────────────────────────────────────────────────
+const SRC: Record<string, { label: string; color: string; bg: string; icon: string }> = {
+  estimation:        { label: 'Estimation',        color: '#7c3aed', bg: 'rgba(124,58,237,0.12)', icon: '🏠' },
+  intermediation:    { label: 'Intermédiation',    color: T.gold,    bg: 'rgba(200,169,110,0.12)',icon: '🤝' },
+  commercialisation: { label: 'Commercialisation', color: T.terra,   bg: 'rgba(181,87,58,0.12)', icon: '📊' },
+  contact_form:      { label: 'Contact',           color: '#2563eb', bg: 'rgba(37,99,235,0.12)',  icon: '✉️' },
+  achat:             { label: 'Achat',             color: '#16a34a', bg: 'rgba(22,163,74,0.12)',  icon: '🛒' },
+  vente:             { label: 'Vente',             color: '#d97706', bg: 'rgba(217,119,6,0.12)',  icon: '💰' },
 };
 
-function getSource(lead: Lead) {
-  const s = lead.source || 'contact_form';
-  // Détecter achat/vente depuis le subject
-  if (lead.subject?.toLowerCase().includes('achet') || lead.subject?.toLowerCase().includes('achat')) {
-    return SOURCE_CONFIG['achat'] || SOURCE_CONFIG['contact_form'];
-  }
-  if (lead.subject?.toLowerCase().includes('vend') || lead.subject?.toLowerCase().includes('vente')) {
-    return SOURCE_CONFIG['vente'] || SOURCE_CONFIG['contact_form'];
-  }
-  return SOURCE_CONFIG[s] || SOURCE_CONFIG['contact_form'];
+function getLeadSrc(l: Lead) {
+  const subj = (l.subject || '').toLowerCase();
+  if (subj.includes('achet') || subj.includes('achat')) return SRC['achat'];
+  if (subj.includes('vend') || subj.includes('vente')) return SRC['vente'];
+  return SRC[l.source || 'contact_form'] || SRC['contact_form'];
 }
 
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const m = Math.floor(diff / 60000);
-  if (m < 1)  return 'À l\'instant';
+function timeAgo(d: string) {
+  const m = Math.floor((Date.now() - new Date(d).getTime()) / 60000);
+  if (m < 1) return 'À l\'instant';
   if (m < 60) return `Il y a ${m} min`;
   const h = Math.floor(m / 60);
   if (h < 24) return `Il y a ${h}h`;
-  return `Il y a ${Math.floor(h / 24)}j`;
+  return `Il y a ${Math.floor(h/24)}j`;
 }
 
-function isHot(dateStr: string): boolean {
-  return Date.now() - new Date(dateStr).getTime() < 30 * 60 * 1000; // < 30 min
-}
+function isHot(d: string) { return Date.now() - new Date(d).getTime() < 30 * 60 * 1000; }
 
-// ─── Stats statiques ──────────────────────────────────────────────────────────
-const stats = [
-  { label: 'Annonces actives', value: '12',  sub: '+2 ce mois',          icon: Building2,     href: '/dashboard/properties',   accent: T.gold,    trend: '+17%' },
-  { label: 'Leads qualifiés',  value: '28',  sub: '+5 cette semaine',    icon: Users,          href: '/dashboard/leads',         accent: '#16a34a', trend: '+22%' },
-  { label: 'Conversations',    value: '45',  sub: '+12 aujourd\'hui',    icon: MessageSquare,  href: '/dashboard/conversations', accent: '#7c3aed', trend: '+36%' },
-  { label: 'Taux conversion',  value: '87%', sub: '+3% vs mois dernier', icon: TrendingUp,     href: '/dashboard/leads',         accent: T.terra,   trend: '+3pt' },
+// ─── Stats (chiffres statiques — à connecter à l'API si besoin) ───────────────
+const STATS = [
+  { label: 'Annonces actives', value: '12',  sub: '+2 ce mois',          icon: Building2,    href: '/dashboard/properties',   accent: T.gold,    trend: '+17%' },
+  { label: 'Leads qualifiés',  value: '28',  sub: '+5 cette semaine',    icon: Users,         href: '/dashboard/leads',         accent: '#16a34a', trend: '+22%' },
+  { label: 'Conversations',    value: '45',  sub: '+12 aujourd\'hui',    icon: MessageSquare, href: '/dashboard/conversations', accent: '#7c3aed', trend: '+36%' },
+  { label: 'Taux conversion',  value: '87%', sub: '+3% vs mois dernier', icon: TrendingUp,    href: '/dashboard/leads',         accent: T.terra,   trend: '+3pt' },
 ];
 
-// ─── Composant Leads dynamiques ───────────────────────────────────────────────
+// ─── Leads panel — 100% Supabase ─────────────────────────────────────────────
 function LeadsPanel() {
   const [leads, setLeads]         = useState<Lead[]>([]);
   const [loading, setLoading]     = useState(true);
   const [activeTab, setActiveTab] = useState('all');
 
   const TABS = [
-    { key: 'all',              label: 'Tous',            icon: '👥' },
-    { key: 'estimation',       label: 'Estimation',      icon: '🏠' },
-    { key: 'intermediation',   label: 'Intermédiation',  icon: '🤝' },
+    { key: 'all',              label: 'Tous',             icon: '👥' },
+    { key: 'estimation',       label: 'Estimation',       icon: '🏠' },
+    { key: 'intermediation',   label: 'Intermédiation',   icon: '🤝' },
     { key: 'commercialisation',label: 'Commercialisation',icon: '📊' },
-    { key: 'achat',            label: 'Achat',           icon: '🛒' },
-    { key: 'vente',            label: 'Vente',           icon: '💰' },
+    { key: 'achat',            label: 'Achat',            icon: '🛒' },
+    { key: 'vente',            label: 'Vente',            icon: '💰' },
   ];
 
-  const loadLeads = async () => {
+  const load = async () => {
     setLoading(true);
-    if (!supabase) {
-      setLeads([]);
-      setLoading(false);
-      return;
-    }
+    if (!supabase) { setLoading(false); return; }
     const { data } = await supabase
       .from('leads')
       .select('id, created_at, full_name, email, phone, subject, city, source, status, score')
@@ -121,29 +97,30 @@ function LeadsPanel() {
     setLoading(false);
   };
 
-  useEffect(() => { loadLeads(); }, []);
+  useEffect(() => { load(); }, []);
 
-  // Realtime — nouveau lead = mise à jour automatique
+  // Realtime
   useEffect(() => {
     if (!supabase) return;
-    const channel = supabase
-      .channel('leads-realtime')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'leads' }, payload => {
-        setLeads(prev => [payload.new as Lead, ...prev].slice(0, 20));
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    const ch = supabase.channel('dash-leads')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'leads' }, p => {
+        setLeads(prev => [p.new as Lead, ...prev].slice(0, 20));
+      }).subscribe();
+    return () => { supabase.removeChannel(ch); };
   }, []);
 
-  // Filtrage par onglet
+  function tabCount(key: string) {
+    if (key === 'all') return leads.length;
+    if (key === 'achat') return leads.filter(l => (l.subject||'').toLowerCase().includes('achet') || (l.subject||'').toLowerCase().includes('achat')).length;
+    if (key === 'vente') return leads.filter(l => (l.subject||'').toLowerCase().includes('vend') || (l.subject||'').toLowerCase().includes('vente')).length;
+    return leads.filter(l => l.source === key).length;
+  }
+
   const filtered = leads.filter(l => {
     if (activeTab === 'all') return true;
-    if (activeTab === 'achat') {
-      return l.subject?.toLowerCase().includes('achet') || l.subject?.toLowerCase().includes('achat');
-    }
-    if (activeTab === 'vente') {
-      return l.subject?.toLowerCase().includes('vend') || l.subject?.toLowerCase().includes('vente');
-    }
+    const subj = (l.subject || '').toLowerCase();
+    if (activeTab === 'achat') return subj.includes('achet') || subj.includes('achat');
+    if (activeTab === 'vente') return subj.includes('vend') || subj.includes('vente');
     return l.source === activeTab;
   }).slice(0, 5);
 
@@ -157,14 +134,14 @@ function LeadsPanel() {
           <Users size={15} style={{ color:T.gold }} />
           <span style={{ fontFamily:"'Cormorant Garamond',Georgia,serif", fontSize:'18px', fontWeight:400, color:T.navy }}>Derniers leads</span>
           {hotCount > 0 && (
-            <span style={{ padding:'2px 8px', borderRadius:'999px', fontSize:'10px', fontWeight:700, background:'rgba(220,38,38,0.1)', color:'#dc2626', border:'1px solid rgba(220,38,38,0.2)', fontFamily:"'DM Sans',sans-serif" }}>
+            <span style={{ padding:'2px 7px', borderRadius:'999px', fontSize:'10px', fontWeight:700, background:'rgba(220,38,38,0.1)', color:'#dc2626', border:'1px solid rgba(220,38,38,0.2)', fontFamily:"'DM Sans',sans-serif" }}>
               🔥 {hotCount} chaud{hotCount > 1 ? 's' : ''}
             </span>
           )}
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-          <button onClick={loadLeads} style={{ padding:'4px', borderRadius:'6px', background:'transparent', border:'none', cursor:'pointer', color:T.muted, display:'flex' }}>
-            <RefreshCw size={13} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+          <button onClick={load} style={{ padding:'4px', borderRadius:'6px', background:'transparent', border:'none', cursor:'pointer', color:T.muted, display:'flex' }}>
+            <RefreshCw size={13} style={{ animation:loading ? 'spin 1s linear infinite' : 'none' }} />
           </button>
           <Link href="/dashboard/leads" style={{ fontSize:'11px', fontFamily:"'DM Sans',sans-serif", fontWeight:500, color:T.muted, textDecoration:'none', display:'flex', alignItems:'center', gap:'3px' }}>
             Voir tout <ArrowRight size={11} />
@@ -172,41 +149,46 @@ function LeadsPanel() {
         </div>
       </div>
 
-      {/* Onglets sources */}
-      <div style={{ display:'flex', gap:'4px', padding:'10px 16px', borderBottom:`1px solid ${T.borderSoft}`, overflowX:'auto', scrollbarWidth:'none' }}>
+      {/* Onglets */}
+      <div style={{ display:'flex', gap:'4px', padding:'8px 14px', borderBottom:`1px solid ${T.borderSoft}`, overflowX:'auto', scrollbarWidth:'none' }}>
         {TABS.map(tab => {
-          const count = tab.key === 'all' ? leads.length
-            : tab.key === 'achat' ? leads.filter(l => l.subject?.toLowerCase().includes('achet') || l.subject?.toLowerCase().includes('achat')).length
-            : tab.key === 'vente' ? leads.filter(l => l.subject?.toLowerCase().includes('vend') || l.subject?.toLowerCase().includes('vente')).length
-            : leads.filter(l => l.source === tab.key).length;
-
+          const count = tabCount(tab.key);
+          const active = activeTab === tab.key;
           return (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-              style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'4px 10px', borderRadius:'20px', fontSize:'11px', fontWeight: activeTab === tab.key ? 600 : 400, fontFamily:"'DM Sans',sans-serif", cursor:'pointer', whiteSpace:'nowrap', transition:'all 0.15s', border: `1px solid ${activeTab === tab.key ? T.border : 'transparent'}`, background: activeTab === tab.key ? 'rgba(200,169,110,0.1)' : 'transparent', color: activeTab === tab.key ? T.navy : T.muted }}>
+              style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'4px 9px', borderRadius:'20px', fontSize:'10px', fontWeight:active ? 600 : 400, fontFamily:"'DM Sans',sans-serif", cursor:'pointer', whiteSpace:'nowrap', transition:'all 0.15s', border:`1px solid ${active ? T.border : 'transparent'}`, background:active ? 'rgba(200,169,110,0.1)' : 'transparent', color:active ? T.navy : T.muted }}>
               {tab.icon} {tab.label}
-              {count > 0 && <span style={{ padding:'1px 5px', borderRadius:'10px', background: activeTab === tab.key ? T.gold : 'rgba(13,31,60,0.08)', color: activeTab === tab.key ? T.navy : T.muted, fontSize:'10px', fontWeight:700 }}>{count}</span>}
+              {count > 0 && (
+                <span style={{ padding:'1px 5px', borderRadius:'8px', background:active ? T.gold : 'rgba(13,31,60,0.08)', color:active ? T.navy : T.muted, fontSize:'9px', fontWeight:700 }}>{count}</span>
+              )}
             </button>
           );
         })}
       </div>
 
-      {/* Liste leads */}
+      {/* Contenu */}
       {loading ? (
-        <div style={{ padding:'28px', textAlign:'center' }}>
+        <div style={{ padding:'32px', textAlign:'center' }}>
           <RefreshCw size={18} style={{ color:T.gold, margin:'0 auto', display:'block', animation:'spin 1s linear infinite' }} />
+          <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:'12px', color:T.muted, marginTop:'10px' }}>Chargement...</p>
         </div>
       ) : !supabase ? (
-        <div style={{ padding:'20px', textAlign:'center' }}>
+        <div style={{ padding:'24px', textAlign:'center' }}>
           <AlertCircle size={18} style={{ color:T.terra, margin:'0 auto 8px', display:'block' }} />
           <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:'12px', color:T.terra }}>Supabase non configuré</p>
         </div>
       ) : filtered.length === 0 ? (
-        <div style={{ padding:'28px', textAlign:'center' }}>
-          <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:'13px', color:T.muted }}>Aucun lead pour ce filtre</p>
+        <div style={{ padding:'32px', textAlign:'center' }}>
+          <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:'13px', color:T.muted }}>
+            {activeTab === 'all' ? 'Aucun lead pour le moment' : 'Aucun lead pour cette source'}
+          </p>
+          <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:'11px', color:T.muted, marginTop:'4px', opacity:0.7 }}>
+            Les leads arrivent automatiquement depuis les formulaires
+          </p>
         </div>
       ) : (
         filtered.map((lead, i) => {
-          const src = getSource(lead);
+          const src = getLeadSrc(lead);
           const hot = isHot(lead.created_at);
           return (
             <div key={lead.id} className="lm-lead"
@@ -214,19 +196,18 @@ function LeadsPanel() {
               {/* Avatar */}
               <div style={{ position:'relative', flexShrink:0 }}>
                 <div style={{ width:'34px', height:'34px', borderRadius:'50%', background:`linear-gradient(135deg,${T.navy},#1e3a5f)`, display:'flex', alignItems:'center', justifyContent:'center', color:T.goldLight, fontSize:'13px', fontFamily:"'Cormorant Garamond',serif" }}>
-                  {lead.full_name?.charAt(0)?.toUpperCase() || '?'}
+                  {(lead.full_name || '?').charAt(0).toUpperCase()}
                 </div>
                 {hot && <span className="lm-hotdot" style={{ position:'absolute', top:'-1px', right:'-1px', width:'8px', height:'8px', borderRadius:'50%', background:'#dc2626', border:'2px solid #fff' }} />}
               </div>
 
               {/* Infos */}
               <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ display:'flex', alignItems:'center', gap:'6px', marginBottom:'2px' }}>
-                  <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:'13px', fontWeight:500, color:T.navy, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:'5px', marginBottom:'2px', flexWrap:'wrap' }}>
+                  <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:'13px', fontWeight:500, color:T.navy, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'120px' }}>
                     {lead.full_name}
                   </span>
-                  {/* Badge source */}
-                  <span style={{ flexShrink:0, padding:'1px 6px', borderRadius:'4px', fontSize:'9px', fontWeight:700, fontFamily:"'DM Sans',sans-serif", background:src.bg, color:src.color }}>
+                  <span style={{ flexShrink:0, padding:'1px 5px', borderRadius:'4px', fontSize:'9px', fontWeight:700, fontFamily:"'DM Sans',sans-serif", background:src.bg, color:src.color }}>
                     {src.icon} {src.label}
                   </span>
                 </div>
@@ -235,25 +216,27 @@ function LeadsPanel() {
                 </div>
               </div>
 
-              {/* Actions rapides + temps */}
+              {/* Actions */}
               <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:'4px', flexShrink:0 }}>
                 <div style={{ display:'flex', gap:'4px' }}>
                   {lead.phone && (
                     <a href={`tel:${lead.phone}`} onClick={e => e.stopPropagation()}
                       style={{ width:'24px', height:'24px', borderRadius:'6px', background:'rgba(22,163,74,0.1)', display:'flex', alignItems:'center', justifyContent:'center', textDecoration:'none' }}
-                      title={`Appeler ${lead.phone}`}>
+                      title={lead.phone}>
                       <Phone size={11} style={{ color:'#16a34a' }} />
                     </a>
                   )}
                   {lead.email && (
                     <a href={`mailto:${lead.email}?subject=Suite à votre demande — LANDMARK ESTATE`} onClick={e => e.stopPropagation()}
                       style={{ width:'24px', height:'24px', borderRadius:'6px', background:'rgba(200,169,110,0.1)', display:'flex', alignItems:'center', justifyContent:'center', textDecoration:'none' }}
-                      title={`Email ${lead.email}`}>
+                      title={lead.email}>
                       <Mail size={11} style={{ color:T.gold }} />
                     </a>
                   )}
                 </div>
-                <span style={{ fontSize:'10px', color:T.muted, fontFamily:"'DM Sans',sans-serif" }}>{timeAgo(lead.created_at)}</span>
+                <span style={{ fontSize:'10px', color: hot ? '#dc2626' : T.muted, fontFamily:"'DM Sans',sans-serif", fontWeight: hot ? 600 : 400 }}>
+                  {timeAgo(lead.created_at)}
+                </span>
               </div>
             </div>
           );
@@ -267,7 +250,7 @@ function LeadsPanel() {
         </Link>
         {leads.length > 0 && (
           <span style={{ fontSize:'10px', color:T.muted, fontFamily:"'DM Sans',sans-serif" }}>
-            {leads.length} lead{leads.length > 1 ? 's' : ''} total
+            {leads.length} lead{leads.length > 1 ? 's' : ''} au total
           </span>
         )}
       </div>
@@ -275,7 +258,7 @@ function LeadsPanel() {
   );
 }
 
-// ─── Composant Tâches dynamiques ─────────────────────────────────────────────
+// ─── Tasks panel ──────────────────────────────────────────────────────────────
 function TasksPanel() {
   const [tasks, setTasks]         = useState<Task[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -286,67 +269,64 @@ function TasksPanel() {
   const [editId, setEditId]       = useState<string | null>(null);
   const [editLabel, setEditLabel] = useState('');
 
-  const loadTasks = async () => {
+  const load = async () => {
     setLoading(true);
     if (!supabase) {
       setTasks([
-        { id: '1', label: 'Rappeler Karim Alaoui',      done: true,  urgent: false },
-        { id: '2', label: 'Visite villa Marrakech 14h', done: false, urgent: true  },
-        { id: '3', label: 'Envoyer offre Youssef',      done: false, urgent: false },
-        { id: '4', label: 'Mise à jour annonce Anfa',   done: false, urgent: false },
+        { id:'1', label:'Rappeler Karim Alaoui',      done:true,  urgent:false },
+        { id:'2', label:'Visite villa Marrakech 14h', done:false, urgent:true  },
+        { id:'3', label:'Envoyer offre Youssef',      done:false, urgent:false },
+        { id:'4', label:'Mise à jour annonce Anfa',   done:false, urgent:false },
       ]);
-      setLoading(false);
-      return;
+      setLoading(false); return;
     }
     const today = new Date().toISOString().split('T')[0];
-    const { data } = await supabase.from('tasks').select('*').eq('due_date', today).order('created_at', { ascending: true });
+    const { data } = await supabase.from('tasks').select('*').eq('due_date', today).order('created_at', { ascending:true });
     setTasks(data || []);
     setLoading(false);
   };
 
-  useEffect(() => { loadTasks(); }, []);
+  useEffect(() => { load(); }, []);
 
   const toggleDone = async (task: Task) => {
-    const updated = !task.done;
-    setTasks(prev => prev.map(t => t.id === task.id ? { ...t, done: updated } : t));
-    if (supabase) await supabase.from('tasks').update({ done: updated }).eq('id', task.id);
+    const v = !task.done;
+    setTasks(p => p.map(t => t.id === task.id ? {...t, done:v} : t));
+    if (supabase) await supabase.from('tasks').update({ done:v }).eq('id', task.id);
   };
 
   const addTask = async () => {
     if (!newLabel.trim()) return;
     setAdding(true);
     const today = new Date().toISOString().split('T')[0];
-    const newTask: Task = { id: crypto.randomUUID(), label: newLabel.trim(), done: false, urgent: newUrgent, due_date: today };
+    const nt: Task = { id:crypto.randomUUID(), label:newLabel.trim(), done:false, urgent:newUrgent, due_date:today };
     if (supabase) {
-      const { data } = await supabase.from('tasks').insert({ label: newLabel.trim(), done: false, urgent: newUrgent, due_date: today }).select().single();
-      if (data) newTask.id = data.id;
+      const { data } = await supabase.from('tasks').insert({ label:nt.label, done:false, urgent:newUrgent, due_date:today }).select().single();
+      if (data) nt.id = data.id;
     }
-    setTasks(prev => [...prev, newTask]);
+    setTasks(p => [...p, nt]);
     setNewLabel(''); setNewUrgent(false); setShowForm(false); setAdding(false);
   };
 
   const deleteTask = async (id: string) => {
-    setTasks(prev => prev.filter(t => t.id !== id));
+    setTasks(p => p.filter(t => t.id !== id));
     if (supabase) await supabase.from('tasks').delete().eq('id', id);
   };
 
-  const startEdit = (task: Task) => { setEditId(task.id); setEditLabel(task.label); };
+  const toggleUrgent = async (task: Task) => {
+    const v = !task.urgent;
+    setTasks(p => p.map(t => t.id === task.id ? {...t, urgent:v} : t));
+    if (supabase) await supabase.from('tasks').update({ urgent:v }).eq('id', task.id);
+  };
+
   const saveEdit = async () => {
     if (!editLabel.trim() || !editId) return;
-    setTasks(prev => prev.map(t => t.id === editId ? { ...t, label: editLabel.trim() } : t));
-    if (supabase) await supabase.from('tasks').update({ label: editLabel.trim() }).eq('id', editId);
+    setTasks(p => p.map(t => t.id === editId ? {...t, label:editLabel.trim()} : t));
+    if (supabase) await supabase.from('tasks').update({ label:editLabel.trim() }).eq('id', editId);
     setEditId(null); setEditLabel('');
   };
 
-  const toggleUrgent = async (task: Task) => {
-    const updated = !task.urgent;
-    setTasks(prev => prev.map(t => t.id === task.id ? { ...t, urgent: updated } : t));
-    if (supabase) await supabase.from('tasks').update({ urgent: updated }).eq('id', task.id);
-  };
-
-  const doneTasks  = tasks.filter(t => t.done).length;
-  const totalTasks = tasks.length;
-  const taskPct    = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+  const done = tasks.filter(t => t.done).length;
+  const pct  = tasks.length > 0 ? Math.round((done / tasks.length) * 100) : 0;
 
   return (
     <div style={{ background:'#fff', borderRadius:'16px', border:`1px solid ${T.borderSoft}`, overflow:'hidden', boxShadow:'0 2px 12px rgba(13,31,60,0.04)' }}>
@@ -356,16 +336,16 @@ function TasksPanel() {
           <span style={{ fontFamily:"'Cormorant Garamond',Georgia,serif", fontSize:'18px', fontWeight:400, color:T.navy }}>Tâches du jour</span>
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:'7px' }}>
-          {totalTasks > 0 && (
+          {tasks.length > 0 && (
             <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:'11px', fontWeight:600, color:T.terra, padding:'2px 7px', borderRadius:'6px', background:`${T.terra}10` }}>
-              {totalTasks - doneTasks} restantes
+              {tasks.length - done} restantes
             </span>
           )}
-          <button onClick={loadTasks} style={{ padding:'4px', borderRadius:'6px', background:'transparent', border:'none', cursor:'pointer', color:T.muted, display:'flex' }}>
-            <RefreshCw size={12} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+          <button onClick={load} style={{ padding:'4px', borderRadius:'6px', background:'transparent', border:'none', cursor:'pointer', color:T.muted, display:'flex' }}>
+            <RefreshCw size={12} style={{ animation:loading ? 'spin 1s linear infinite' : 'none' }} />
           </button>
           <button onClick={() => setShowForm(v => !v)}
-            style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'4px 9px', borderRadius:'7px', background: showForm ? `${T.terra}10` : `${T.gold}15`, border:`1px solid ${showForm ? T.terra : T.border}`, color: showForm ? T.terra : T.gold, fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:"'DM Sans',sans-serif" }}>
+            style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'4px 9px', borderRadius:'7px', background:showForm ? `${T.terra}10` : `${T.gold}15`, border:`1px solid ${showForm ? T.terra : T.border}`, color:showForm ? T.terra : T.gold, fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:"'DM Sans',sans-serif" }}>
             {showForm ? <><X size={10} /> Annuler</> : <><Plus size={10} /> Ajouter</>}
           </button>
         </div>
@@ -374,19 +354,18 @@ function TasksPanel() {
       {showForm && (
         <div style={{ padding:'12px 20px', background:'rgba(200,169,110,0.04)', borderBottom:`1px solid ${T.borderSoft}`, display:'flex', flexDirection:'column', gap:'9px' }}>
           <input type="text" placeholder="Nom de la tâche..." value={newLabel} onChange={e => setNewLabel(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') addTask(); if (e.key === 'Escape') setShowForm(false); }}
-            autoFocus
-            style={{ width:'100%', padding:'8px 11px', borderRadius:'8px', border:`1px solid ${T.border}`, background:T.ivory, color:T.navy, fontSize:'13px', fontFamily:"'DM Sans',sans-serif", outline:'none', boxSizing:'border-box' }} />
+            onKeyDown={e => { if (e.key==='Enter') addTask(); if (e.key==='Escape') setShowForm(false); }}
+            autoFocus style={{ width:'100%', padding:'8px 11px', borderRadius:'8px', border:`1px solid ${T.border}`, background:T.ivory, color:T.navy, fontSize:'13px', fontFamily:"'DM Sans',sans-serif", outline:'none', boxSizing:'border-box' }} />
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
             <label style={{ display:'flex', alignItems:'center', gap:'6px', cursor:'pointer', userSelect:'none' }}>
               <div onClick={() => setNewUrgent(v => !v)}
-                style={{ width:'15px', height:'15px', borderRadius:'4px', border:`2px solid ${newUrgent ? T.terra : 'rgba(13,31,60,0.2)'}`, background: newUrgent ? T.terra : 'transparent', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', transition:'all 0.2s', flexShrink:0 }}>
+                style={{ width:'15px', height:'15px', borderRadius:'4px', border:`2px solid ${newUrgent ? T.terra : 'rgba(13,31,60,0.2)'}`, background:newUrgent ? T.terra : 'transparent', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0 }}>
                 {newUrgent && <Check size={9} style={{ color:'#fff' }} />}
               </div>
-              <span style={{ fontSize:'12px', color: newUrgent ? T.terra : T.muted, fontFamily:"'DM Sans',sans-serif", fontWeight: newUrgent ? 600 : 400 }}>Urgent</span>
+              <span style={{ fontSize:'12px', color:newUrgent ? T.terra : T.muted, fontFamily:"'DM Sans',sans-serif", fontWeight:newUrgent ? 600 : 400 }}>Urgent</span>
             </label>
             <button onClick={addTask} disabled={adding || !newLabel.trim()}
-              style={{ padding:'6px 14px', borderRadius:'7px', background: newLabel.trim() ? `linear-gradient(135deg,${T.gold},${T.goldLight})` : 'rgba(200,169,110,0.3)', color:T.navy, fontSize:'12px', fontWeight:600, border:'none', cursor: newLabel.trim() ? 'pointer' : 'not-allowed', fontFamily:"'DM Sans',sans-serif" }}>
+              style={{ padding:'6px 14px', borderRadius:'7px', background:newLabel.trim() ? `linear-gradient(135deg,${T.gold},${T.goldLight})` : 'rgba(200,169,110,0.3)', color:T.navy, fontSize:'12px', fontWeight:600, border:'none', cursor:newLabel.trim() ? 'pointer' : 'not-allowed', fontFamily:"'DM Sans',sans-serif" }}>
               {adding ? 'Ajout...' : 'Ajouter'}
             </button>
           </div>
@@ -400,32 +379,31 @@ function TasksPanel() {
       ) : tasks.length === 0 ? (
         <div style={{ padding:'28px', textAlign:'center' }}>
           <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:'13px', color:T.muted }}>Aucune tâche pour aujourd'hui</p>
-          <button onClick={() => setShowForm(true)} style={{ marginTop:'8px', padding:'7px 14px', borderRadius:'8px', background:`rgba(200,169,110,0.1)`, border:`1px solid ${T.border}`, color:T.gold, fontSize:'12px', fontWeight:500, cursor:'pointer', fontFamily:"'DM Sans',sans-serif" }}>
+          <button onClick={() => setShowForm(true)} style={{ marginTop:'8px', padding:'7px 14px', borderRadius:'8px', background:'rgba(200,169,110,0.1)', border:`1px solid ${T.border}`, color:T.gold, fontSize:'12px', fontWeight:500, cursor:'pointer', fontFamily:"'DM Sans',sans-serif" }}>
             + Ajouter une tâche
           </button>
         </div>
       ) : (
         tasks.map((task, i) => (
           <div key={task.id} className="lm-task-row"
-            style={{ padding:'10px 20px', display:'flex', alignItems:'center', gap:'9px', borderBottom: i < tasks.length-1 ? `1px solid ${T.borderSoft}` : 'none', transition:'background 0.15s', opacity: task.done ? 0.5 : 1 }}>
+            style={{ padding:'10px 20px', display:'flex', alignItems:'center', gap:'9px', borderBottom:i < tasks.length-1 ? `1px solid ${T.borderSoft}` : 'none', transition:'background 0.15s', opacity:task.done ? 0.5 : 1 }}>
             <button onClick={() => toggleDone(task)}
-              style={{ flexShrink:0, width:'18px', height:'18px', borderRadius:'50%', border:`2px solid ${task.done ? '#16a34a' : 'rgba(13,31,60,0.15)'}`, background: task.done ? '#16a34a' : 'transparent', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', transition:'all 0.2s' }}>
+              style={{ flexShrink:0, width:'18px', height:'18px', borderRadius:'50%', border:`2px solid ${task.done ? '#16a34a' : 'rgba(13,31,60,0.15)'}`, background:task.done ? '#16a34a' : 'transparent', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', transition:'all 0.2s' }}>
               {task.done && <Check size={10} style={{ color:'#fff' }} />}
             </button>
 
             {editId === task.id ? (
               <input type="text" value={editLabel} onChange={e => setEditLabel(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') setEditId(null); }}
-                autoFocus
-                style={{ flex:1, padding:'4px 7px', borderRadius:'6px', border:`1px solid ${T.gold}`, background:T.ivory, color:T.navy, fontSize:'13px', fontFamily:"'DM Sans',sans-serif", outline:'none' }} />
+                onKeyDown={e => { if (e.key==='Enter') saveEdit(); if (e.key==='Escape') setEditId(null); }}
+                autoFocus style={{ flex:1, padding:'4px 7px', borderRadius:'6px', border:`1px solid ${T.gold}`, background:T.ivory, color:T.navy, fontSize:'13px', fontFamily:"'DM Sans',sans-serif", outline:'none' }} />
             ) : (
-              <span style={{ flex:1, fontFamily:"'DM Sans',sans-serif", fontSize:'13px', color:T.navy, textDecoration: task.done ? 'line-through' : 'none', fontWeight: task.urgent ? 600 : 400 }}>{task.label}</span>
+              <span style={{ flex:1, fontFamily:"'DM Sans',sans-serif", fontSize:'13px', color:T.navy, textDecoration:task.done ? 'line-through' : 'none', fontWeight:task.urgent ? 600 : 400 }}>{task.label}</span>
             )}
 
             <div style={{ display:'flex', alignItems:'center', gap:'4px', flexShrink:0 }}>
               {!task.done && (
                 <button onClick={() => toggleUrgent(task)}
-                  style={{ padding:'1px 6px', borderRadius:'4px', fontSize:'9px', fontWeight:600, fontFamily:"'DM Sans',sans-serif", cursor:'pointer', border:`1px solid ${task.urgent ? T.terra+'40' : 'rgba(13,31,60,0.1)'}`, background: task.urgent ? `${T.terra}10` : 'transparent', color: task.urgent ? T.terra : T.muted }}>
+                  style={{ padding:'1px 6px', borderRadius:'4px', fontSize:'9px', fontWeight:600, fontFamily:"'DM Sans',sans-serif", cursor:'pointer', border:`1px solid ${task.urgent ? T.terra+'40' : 'rgba(13,31,60,0.1)'}`, background:task.urgent ? `${T.terra}10` : 'transparent', color:task.urgent ? T.terra : T.muted }}>
                   {task.urgent ? 'Urgent' : '!'}
                 </button>
               )}
@@ -436,12 +414,12 @@ function TasksPanel() {
                 </>
               ) : (
                 <>
-                  <button onClick={() => startEdit(task)} style={{ padding:'3px', borderRadius:'4px', background:'transparent', border:'none', cursor:'pointer', color:T.muted, display:'flex' }}
-                    onMouseEnter={e => e.currentTarget.style.color = T.gold} onMouseLeave={e => e.currentTarget.style.color = T.muted}>
+                  <button onClick={() => { setEditId(task.id); setEditLabel(task.label); }} style={{ padding:'3px', borderRadius:'4px', background:'transparent', border:'none', cursor:'pointer', color:T.muted, display:'flex' }}
+                    onMouseEnter={e => e.currentTarget.style.color=T.gold} onMouseLeave={e => e.currentTarget.style.color=T.muted}>
                     <Pencil size={11} />
                   </button>
                   <button onClick={() => deleteTask(task.id)} style={{ padding:'3px', borderRadius:'4px', background:'transparent', border:'none', cursor:'pointer', color:T.muted, display:'flex' }}
-                    onMouseEnter={e => e.currentTarget.style.color = T.terra} onMouseLeave={e => e.currentTarget.style.color = T.muted}>
+                    onMouseEnter={e => e.currentTarget.style.color=T.terra} onMouseLeave={e => e.currentTarget.style.color=T.muted}>
                     <Trash2 size={11} />
                   </button>
                 </>
@@ -456,26 +434,19 @@ function TasksPanel() {
         <div style={{ padding:'12px 20px', borderTop:`1px solid ${T.borderSoft}` }}>
           <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'6px' }}>
             <span style={{ fontSize:'11px', fontFamily:"'DM Sans',sans-serif", color:T.muted }}>Progression journée</span>
-            <span style={{ fontSize:'11px', fontFamily:"'DM Sans',sans-serif", fontWeight:600, color:T.navy }}>{taskPct}%</span>
+            <span style={{ fontSize:'11px', fontFamily:"'DM Sans',sans-serif", fontWeight:600, color:T.navy }}>{pct}%</span>
           </div>
           <div style={{ height:'5px', borderRadius:'3px', background:T.borderSoft, overflow:'hidden' }}>
-            <div style={{ height:'100%', width:`${taskPct}%`, background:`linear-gradient(90deg,${T.gold},${T.goldLight})`, borderRadius:'3px', transition:'width 0.5s ease' }} />
+            <div style={{ height:'100%', width:`${pct}%`, background:`linear-gradient(90deg,${T.gold},${T.goldLight})`, borderRadius:'3px', transition:'width 0.5s ease' }} />
           </div>
-          {taskPct === 100 && <div style={{ marginTop:'6px', fontSize:'11px', color:'#16a34a', fontFamily:"'DM Sans',sans-serif", fontWeight:500, textAlign:'center' }}>🎉 Toutes les tâches complètes !</div>}
-        </div>
-      )}
-
-      {!supabase && (
-        <div style={{ padding:'8px 20px', background:'rgba(181,87,58,0.05)', borderTop:`1px solid rgba(181,87,58,0.1)`, display:'flex', alignItems:'center', gap:'5px' }}>
-          <AlertCircle size={10} style={{ color:T.terra }} />
-          <span style={{ fontSize:'10px', color:T.terra, fontFamily:"'DM Sans',sans-serif" }}>Supabase non configuré — tâches non sauvegardées</span>
+          {pct === 100 && <div style={{ marginTop:'6px', fontSize:'11px', color:'#16a34a', fontFamily:"'DM Sans',sans-serif", fontWeight:500, textAlign:'center' }}>🎉 Toutes les tâches complètes !</div>}
         </div>
       )}
     </div>
   );
 }
 
-// ─── Page principale ──────────────────────────────────────────────────────────
+// ─── Dashboard page ───────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const { user } = useAuth();
   const firstName = user?.full_name?.split(' ')[0] || 'Agent';
@@ -486,26 +457,26 @@ export default function DashboardPage() {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@400;500;600&display=swap');
-        .lm-stat { transition:all 0.25s ease; text-decoration:none; display:block; }
-        .lm-stat:hover { transform:translateY(-4px); box-shadow:0 20px 48px rgba(13,31,60,0.1)!important; border-color:rgba(200,169,110,0.4)!important; }
-        .lm-lead:hover { background:rgba(200,169,110,0.04)!important; }
-        .lm-task-row:hover { background:rgba(200,169,110,0.03); }
-        .lm-newbtn:hover { transform:translateY(-2px); box-shadow:0 16px 36px rgba(200,169,110,0.35)!important; }
-        .lm-conv:hover { background:rgba(200,169,110,0.1)!important; color:#C8A96E!important; }
-        .lm-hotdot { animation:pulsedot 1.5s infinite; }
-        .lm-activedot { animation:pulsedot 2s infinite; }
-        @keyframes pulsedot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
-        @keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        .a1{animation:slideUp .4s .05s both} .a2{animation:slideUp .4s .12s both}
-        .a3{animation:slideUp .4s .18s both} .a4{animation:slideUp .4s .24s both}
-        .a5{animation:slideUp .4s .30s both} .a6{animation:slideUp .4s .36s both}
+        .lm-stat{transition:all 0.25s ease;text-decoration:none;display:block;}
+        .lm-stat:hover{transform:translateY(-4px);box-shadow:0 20px 48px rgba(13,31,60,0.1)!important;border-color:rgba(200,169,110,0.4)!important;}
+        .lm-lead:hover{background:rgba(200,169,110,0.04)!important;}
+        .lm-task-row:hover{background:rgba(200,169,110,0.03);}
+        .lm-newbtn:hover{transform:translateY(-2px);box-shadow:0 16px 36px rgba(200,169,110,0.35)!important;}
+        .lm-conv:hover{background:rgba(200,169,110,0.1)!important;color:#C8A96E!important;}
+        .lm-hotdot{animation:pulsedot 1.5s infinite;}
+        .lm-activedot{animation:pulsedot 2s infinite;}
+        @keyframes pulsedot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+        @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        .a1{animation:slideUp .4s .05s both}.a2{animation:slideUp .4s .12s both}
+        .a3{animation:slideUp .4s .18s both}.a4{animation:slideUp .4s .24s both}
+        .a5{animation:slideUp .4s .30s both}.a6{animation:slideUp .4s .36s both}
         ::-webkit-scrollbar{display:none}
       `}</style>
 
       <div style={{ minHeight:'100%', background:T.ivory, fontFamily:"'DM Sans',system-ui,sans-serif" }}>
 
-        {/* ══ HERO ══ */}
+        {/* Hero */}
         <div style={{ background:`linear-gradient(135deg,${T.navy} 0%,${T.navyMid} 60%,#091629 100%)`, padding:'32px 40px 40px', position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:'-100px', right:'-100px', width:'360px', height:'360px', borderRadius:'50%', background:'radial-gradient(circle,rgba(200,169,110,0.1) 0%,transparent 65%)', pointerEvents:'none' }} />
           <div style={{ position:'absolute', bottom:'-60px', left:'25%', width:'240px', height:'240px', borderRadius:'50%', background:'radial-gradient(circle,rgba(200,169,110,0.06) 0%,transparent 65%)', pointerEvents:'none' }} />
@@ -528,7 +499,7 @@ export default function DashboardPage() {
                 <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:'10px', color:'rgba(226,201,138,0.4)', marginTop:'4px', letterSpacing:'0.1em', textTransform:'uppercase' }}>Conversion</div>
               </div>
               <Link href="/dashboard/properties/new" className="lm-newbtn"
-                style={{ display:'inline-flex', alignItems:'center', gap:'7px', padding:'13px 22px', background:`linear-gradient(135deg,${T.gold},${T.goldLight})`, color:T.navy, fontFamily:"'DM Sans',sans-serif", fontSize:'13px', fontWeight:600, borderRadius:'12px', textDecoration:'none', transition:'all 0.25s', letterSpacing:'0.03em', boxShadow:'0 4px 20px rgba(200,169,110,0.25)', whiteSpace:'nowrap' }}>
+                style={{ display:'inline-flex', alignItems:'center', gap:'7px', padding:'13px 22px', background:`linear-gradient(135deg,${T.gold},${T.goldLight})`, color:T.navy, fontFamily:"'DM Sans',sans-serif", fontSize:'13px', fontWeight:600, borderRadius:'12px', textDecoration:'none', transition:'all 0.25s', boxShadow:'0 4px 20px rgba(200,169,110,0.25)', whiteSpace:'nowrap' }}>
                 <Plus size={15} /> Nouvelle annonce
               </Link>
             </div>
@@ -537,9 +508,9 @@ export default function DashboardPage() {
 
         <div style={{ padding:'28px 40px', maxWidth:'1200px', margin:'0 auto' }}>
 
-          {/* ══ STATS ══ */}
+          {/* Stats */}
           <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'14px', marginBottom:'24px' }}>
-            {stats.map((s, i) => {
+            {STATS.map((s, i) => {
               const Icon = s.icon;
               return (
                 <Link key={s.label} href={s.href} className={`lm-stat a${i+1}`}
@@ -561,11 +532,9 @@ export default function DashboardPage() {
             })}
           </div>
 
-          {/* ══ MAIN GRID ══ */}
+          {/* Main grid */}
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 300px', gap:'18px', marginBottom:'22px' }}>
-            {/* ══ LEADS DYNAMIQUES ══ */}
             <LeadsPanel />
-            {/* ══ TÂCHES DYNAMIQUES ══ */}
             <TasksPanel />
 
             {/* Agent IA */}
@@ -601,7 +570,7 @@ export default function DashboardPage() {
                   <Zap size={10} style={{ color:T.gold }} />
                   <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:'10px', fontWeight:500, color:T.gold }}>Dernière action</span>
                 </div>
-                <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:'11px', color:'rgba(226,201,138,0.4)', margin:0, lineHeight:1.5 }}>Lead Karim qualifié — score 92 · Appart. 3ch Casablanca</p>
+                <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:'11px', color:'rgba(226,201,138,0.4)', margin:0, lineHeight:1.5 }}>Lead qualifié automatiquement par l'Agent IA</p>
               </div>
               <Link href="/dashboard/conversations" className="lm-conv"
                 style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'6px', padding:'11px', borderRadius:'9px', border:'1px solid rgba(200,169,110,0.18)', color:'rgba(226,201,138,0.45)', fontFamily:"'DM Sans',sans-serif", fontSize:'12px', fontWeight:500, textDecoration:'none', transition:'all 0.2s', marginTop:'auto' }}>
@@ -610,7 +579,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* ══ BARRE OBJECTIF ══ */}
+          {/* Objectif mensuel */}
           <div style={{ padding:'18px 26px', background:`linear-gradient(135deg,${T.navy} 0%,#1a3558 100%)`, borderRadius:'14px', display:'flex', alignItems:'center', justifyContent:'space-between', boxShadow:'0 4px 24px rgba(13,31,60,0.15)', flexWrap:'wrap', gap:'14px' }}>
             <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
               <div style={{ width:'40px', height:'40px', borderRadius:'10px', background:'rgba(200,169,110,0.12)', border:'1px solid rgba(200,169,110,0.2)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
@@ -634,7 +603,7 @@ export default function DashboardPage() {
                 </div>
                 <div style={{ display:'flex', justifyContent:'space-between', marginTop:'5px' }}>
                   {[1,2,3,4,5].map(n => (
-                    <div key={n} style={{ width:'9px', height:'9px', borderRadius:'50%', background: n<=3 ? T.gold : 'rgba(200,169,110,0.2)', border: n<=3 ? 'none' : '1px solid rgba(200,169,110,0.3)' }} />
+                    <div key={n} style={{ width:'9px', height:'9px', borderRadius:'50%', background:n<=3 ? T.gold : 'rgba(200,169,110,0.2)', border:n<=3 ? 'none' : '1px solid rgba(200,169,110,0.3)' }} />
                   ))}
                 </div>
               </div>
@@ -644,6 +613,7 @@ export default function DashboardPage() {
               </Link>
             </div>
           </div>
+
         </div>
       </div>
     </>
