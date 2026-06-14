@@ -351,154 +351,263 @@ function LeadsSection() {
     </div>
   );
 }
+// ─── Remplace la fonction TasksPanel dans app/(admin)/dashboard/page.tsx ───
+// Copie ce bloc et remplace l'ancienne fonction TasksPanel
 
-// ─── Tasks panel ──────────────────────────────────────────────────────────────
 function TasksPanel() {
-  const [tasks,setTasks]       = useState<Task[]>([]);
-  const [loading,setLoading]   = useState(true);
-  const [newLabel,setNewLabel] = useState('');
-  const [newUrgent,setNewUrgent]=useState(false);
-  const [adding,setAdding]     = useState(false);
-  const [showForm,setShowForm] = useState(false);
-  const [editId,setEditId]     = useState<string|null>(null);
-  const [editLabel,setEditLabel]=useState('');
+  const [tasks,setTasks]        = useState<Task[]>([]);
+  const [loading,setLoading]    = useState(true);
+  const [newLabel,setNewLabel]  = useState('');
+  const [newUrgent,setNewUrgent]= useState(false);
+  const [adding,setAdding]      = useState(false);
+  const [showForm,setShowForm]  = useState(false);
+  const [editId,setEditId]      = useState<string|null>(null);
+  const [editLabel,setEditLabel]= useState('');
 
-  const load=async()=>{
+  const load = async () => {
     setLoading(true);
-    if(!supabase){
+    if (!supabase) {
       setTasks([
-        {id:'1',label:'Rappeler Karim Alaoui',done:true,urgent:false},
+        {id:'1',label:'Rappeler Karim Alaoui',done:true, urgent:false},
         {id:'2',label:'Visite villa Marrakech 14h',done:false,urgent:true},
         {id:'3',label:'Envoyer offre Youssef',done:false,urgent:false},
         {id:'4',label:'Mise à jour annonce Anfa',done:false,urgent:false},
-      ]);setLoading(false);return;
+      ]);
+      setLoading(false); return;
     }
-    const today=new Date().toISOString().split('T')[0];
-    const{data}=await supabase.from('tasks').select('*').eq('due_date',today).order('created_at',{ascending:true});
-    setTasks(data||[]);setLoading(false);
-  };
-  useEffect(()=>{load();},[]);
-
-  const toggleDone=async(t:Task)=>{
-    const v=!t.done;
-    setTasks(p=>p.map(x=>x.id===t.id?{...x,done:v}:x));
-    if(supabase) await supabase.from('tasks').update({done:v}).eq('id',t.id);
-  };
-  const addTask=async()=>{
-    if(!newLabel.trim()) return; setAdding(true);
-    const today=new Date().toISOString().split('T')[0];
-    const nt:Task={id:crypto.randomUUID(),label:newLabel.trim(),done:false,urgent:newUrgent,due_date:today};
-    if(supabase){const{data}=await supabase.from('tasks').insert({label:nt.label,done:false,urgent:newUrgent,due_date:today}).select().single();if(data)nt.id=data.id;}
-    setTasks(p=>[...p,nt]);setNewLabel('');setNewUrgent(false);setShowForm(false);setAdding(false);
-  };
-  const deleteTask=async(id:string)=>{
-    setTasks(p=>p.filter(t=>t.id!==id));
-    if(supabase) await supabase.from('tasks').delete().eq('id',id);
-  };
-  const toggleUrgent=async(t:Task)=>{
-    const v=!t.urgent;
-    setTasks(p=>p.map(x=>x.id===t.id?{...x,urgent:v}:x));
-    if(supabase) await supabase.from('tasks').update({urgent:v}).eq('id',t.id);
-  };
-  const saveEdit=async()=>{
-    if(!editLabel.trim()||!editId) return;
-    setTasks(p=>p.map(t=>t.id===editId?{...t,label:editLabel.trim()}:t));
-    if(supabase) await supabase.from('tasks').update({label:editLabel.trim()}).eq('id',editId);
-    setEditId(null);setEditLabel('');
+    const today = new Date().toISOString().split('T')[0];
+    const { data } = await supabase
+      .from('tasks').select('*').eq('due_date', today)
+      .order('created_at', { ascending: true });
+    setTasks(data || []);
+    setLoading(false);
   };
 
-  const done=tasks.filter(t=>t.done).length;
-  const pct=tasks.length>0?Math.round((done/tasks.length)*100):0;
+  useEffect(() => { load(); }, []);
 
-  return(
-    <div style={{background:'#fff',borderRadius:'16px',border:`1px solid ${T.borderSoft}`,overflow:'hidden',boxShadow:'0 2px 12px rgba(13,31,60,0.04)'}}>
-      <div style={{padding:'16px 20px',borderBottom:`1px solid ${T.borderSoft}`,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-        <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
-          <Target size={15} style={{color:T.terra}}/>
-          <span style={{fontFamily:"'Cormorant Garamond',Georgia,serif",fontSize:'18px',fontWeight:400,color:T.navy}}>Tâches du jour</span>
+  // ── Temps réel : écoute tasks ET leads ──
+  useEffect(() => {
+    if (!supabase) return;
+
+    // Nouvelles tâches (créées manuellement ou par le trigger lead)
+    const taskCh = supabase.channel('tasks-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'tasks' }, payload => {
+        const t = payload.new as Task & { source?: string };
+        const today = new Date().toISOString().split('T')[0];
+        if (t.due_date === today) {
+          setTasks(prev => {
+            if (prev.find(x => x.id === t.id)) return prev;
+            return [...prev, t];
+          });
+        }
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(taskCh); };
+  }, []);
+
+  const toggleDone = async (t: Task) => {
+    const v = !t.done;
+    setTasks(p => p.map(x => x.id === t.id ? { ...x, done: v } : x));
+    if (supabase) await supabase.from('tasks').update({ done: v }).eq('id', t.id);
+  };
+
+  const addTask = async () => {
+    if (!newLabel.trim()) return; setAdding(true);
+    const today = new Date().toISOString().split('T')[0];
+    const nt: Task = { id: crypto.randomUUID(), label: newLabel.trim(), done: false, urgent: newUrgent, due_date: today };
+    if (supabase) {
+      const { data } = await supabase.from('tasks')
+        .insert({ label: nt.label, done: false, urgent: newUrgent, due_date: today, source: 'manual' })
+        .select().single();
+      if (data) nt.id = data.id;
+    }
+    setTasks(p => [...p, nt]);
+    setNewLabel(''); setNewUrgent(false); setShowForm(false); setAdding(false);
+  };
+
+  const deleteTask = async (id: string) => {
+    setTasks(p => p.filter(t => t.id !== id));
+    if (supabase) await supabase.from('tasks').delete().eq('id', id);
+  };
+
+  const toggleUrgent = async (t: Task) => {
+    const v = !t.urgent;
+    setTasks(p => p.map(x => x.id === t.id ? { ...x, urgent: v } : x));
+    if (supabase) await supabase.from('tasks').update({ urgent: v }).eq('id', t.id);
+  };
+
+  const saveEdit = async () => {
+    if (!editLabel.trim() || !editId) return;
+    setTasks(p => p.map(t => t.id === editId ? { ...t, label: editLabel.trim() } : t));
+    if (supabase) await supabase.from('tasks').update({ label: editLabel.trim() }).eq('id', editId);
+    setEditId(null); setEditLabel('');
+  };
+
+  const done = tasks.filter(t => t.done).length;
+  const pct  = tasks.length > 0 ? Math.round((done / tasks.length) * 100) : 0;
+
+  // Tris : urgentes en haut, puis leads non faits, puis reste
+  const sorted = [...tasks].sort((a: any, b: any) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    if (a.urgent !== b.urgent) return a.urgent ? -1 : 1;
+    if (a.source === 'lead' && b.source !== 'lead') return -1;
+    if (b.source === 'lead' && a.source !== 'lead') return 1;
+    return 0;
+  });
+
+  const leadCount = tasks.filter((t: any) => t.source === 'lead' && !t.done).length;
+
+  return (
+    <div style={{ background: '#fff', borderRadius: '16px', border: `1px solid ${T.borderSoft}`, overflow: 'hidden', boxShadow: '0 2px 12px rgba(13,31,60,0.04)' }}>
+
+      {/* ── Header ── */}
+      <div style={{ padding: '16px 20px', borderBottom: `1px solid ${T.borderSoft}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Target size={15} style={{ color: T.terra }} />
+          <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: '18px', fontWeight: 400, color: T.navy }}>Tâches du jour</span>
+          {/* Badge leads à rappeler */}
+          {leadCount > 0 && (
+            <span style={{ padding: '2px 8px', borderRadius: '999px', fontSize: '11px', fontWeight: 700, background: 'rgba(220,38,38,0.1)', color: '#dc2626', border: '1px solid rgba(220,38,38,0.2)', fontFamily: "'DM Sans',sans-serif" }}>
+              🔥 {leadCount} lead{leadCount > 1 ? 's' : ''} à rappeler
+            </span>
+          )}
         </div>
-        <div style={{display:'flex',alignItems:'center',gap:'7px'}}>
-          {tasks.length>0&&<span style={{fontFamily:"'DM Sans',sans-serif",fontSize:'11px',fontWeight:600,color:T.terra,padding:'2px 7px',borderRadius:'6px',background:`${T.terra}10`}}>{tasks.length-done} restantes</span>}
-          <button onClick={load} style={{padding:'4px',borderRadius:'6px',background:'transparent',border:'none',cursor:'pointer',color:T.muted,display:'flex'}}>
-            <RefreshCw size={12} style={{animation:loading?'spin 1s linear infinite':'none'}}/>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+          {tasks.length > 0 && (
+            <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '11px', fontWeight: 600, color: T.terra, padding: '2px 7px', borderRadius: '6px', background: `${T.terra}10` }}>
+              {tasks.length - done} restantes
+            </span>
+          )}
+          <button onClick={load} style={{ padding: '4px', borderRadius: '6px', background: 'transparent', border: 'none', cursor: 'pointer', color: T.muted, display: 'flex' }}>
+            <RefreshCw size={12} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
           </button>
-          <button onClick={()=>setShowForm(v=>!v)}
-            style={{display:'inline-flex',alignItems:'center',gap:'4px',padding:'4px 9px',borderRadius:'7px',background:showForm?`${T.terra}10`:`${T.gold}15`,border:`1px solid ${showForm?T.terra:T.border}`,color:showForm?T.terra:T.gold,fontSize:'11px',fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
-            {showForm?<><X size={10}/>Annuler</>:<><Plus size={10}/>Ajouter</>}
+          <button onClick={() => setShowForm(v => !v)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 9px', borderRadius: '7px', background: showForm ? `${T.terra}10` : `${T.gold}15`, border: `1px solid ${showForm ? T.terra : T.border}`, color: showForm ? T.terra : T.gold, fontSize: '11px', fontWeight: 600, cursor: 'pointer', fontFamily: "'DM Sans',sans-serif" }}>
+            {showForm ? <><X size={10} />Annuler</> : <><Plus size={10} />Ajouter</>}
           </button>
         </div>
       </div>
 
-      {showForm&&(
-        <div style={{padding:'12px 20px',background:'rgba(200,169,110,0.04)',borderBottom:`1px solid ${T.borderSoft}`,display:'flex',flexDirection:'column',gap:'9px'}}>
-          <input type="text" placeholder="Nom de la tâche..." value={newLabel} onChange={e=>setNewLabel(e.target.value)}
-            onKeyDown={e=>{if(e.key==='Enter')addTask();if(e.key==='Escape')setShowForm(false);}}
-            autoFocus style={{width:'100%',padding:'8px 11px',borderRadius:'8px',border:`1px solid ${T.border}`,background:T.ivory,color:T.navy,fontSize:'13px',fontFamily:"'DM Sans',sans-serif",outline:'none',boxSizing:'border-box'}}/>
-          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-            <label style={{display:'flex',alignItems:'center',gap:'6px',cursor:'pointer',userSelect:'none'}}>
-              <div onClick={()=>setNewUrgent(v=>!v)}
-                style={{width:'15px',height:'15px',borderRadius:'4px',border:`2px solid ${newUrgent?T.terra:'rgba(13,31,60,0.2)'}`,background:newUrgent?T.terra:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}}>
-                {newUrgent&&<Check size={9} style={{color:'#fff'}}/>}
+      {/* ── Formulaire ajout ── */}
+      {showForm && (
+        <div style={{ padding: '12px 20px', background: 'rgba(200,169,110,0.04)', borderBottom: `1px solid ${T.borderSoft}`, display: 'flex', flexDirection: 'column', gap: '9px' }}>
+          <input type="text" placeholder="Nom de la tâche..." value={newLabel} onChange={e => setNewLabel(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') addTask(); if (e.key === 'Escape') setShowForm(false); }}
+            autoFocus style={{ width: '100%', padding: '8px 11px', borderRadius: '8px', border: `1px solid ${T.border}`, background: T.ivory, color: T.navy, fontSize: '13px', fontFamily: "'DM Sans',sans-serif", outline: 'none', boxSizing: 'border-box' }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', userSelect: 'none' }}>
+              <div onClick={() => setNewUrgent(v => !v)}
+                style={{ width: '15px', height: '15px', borderRadius: '4px', border: `2px solid ${newUrgent ? T.terra : 'rgba(13,31,60,0.2)'}`, background: newUrgent ? T.terra : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+                {newUrgent && <Check size={9} style={{ color: '#fff' }} />}
               </div>
-              <span style={{fontSize:'12px',color:newUrgent?T.terra:T.muted,fontFamily:"'DM Sans',sans-serif",fontWeight:newUrgent?600:400}}>Urgent</span>
+              <span style={{ fontSize: '12px', color: newUrgent ? T.terra : T.muted, fontFamily: "'DM Sans',sans-serif", fontWeight: newUrgent ? 600 : 400 }}>Urgent</span>
             </label>
-            <button onClick={addTask} disabled={adding||!newLabel.trim()}
-              style={{padding:'6px 14px',borderRadius:'7px',background:newLabel.trim()?`linear-gradient(135deg,${T.gold},${T.goldLight})`:'rgba(200,169,110,0.3)',color:T.navy,fontSize:'12px',fontWeight:600,border:'none',cursor:newLabel.trim()?'pointer':'not-allowed',fontFamily:"'DM Sans',sans-serif"}}>
-              {adding?'Ajout...':'Ajouter'}
+            <button onClick={addTask} disabled={adding || !newLabel.trim()}
+              style={{ padding: '6px 14px', borderRadius: '7px', background: newLabel.trim() ? `linear-gradient(135deg,${T.gold},${T.goldLight})` : 'rgba(200,169,110,0.3)', color: T.navy, fontSize: '12px', fontWeight: 600, border: 'none', cursor: newLabel.trim() ? 'pointer' : 'not-allowed', fontFamily: "'DM Sans',sans-serif" }}>
+              {adding ? 'Ajout...' : 'Ajouter'}
             </button>
           </div>
         </div>
       )}
 
-      {loading?(<div style={{padding:'28px',textAlign:'center'}}><RefreshCw size={16} style={{color:T.gold,margin:'0 auto',display:'block',animation:'spin 1s linear infinite'}}/></div>)
-      :tasks.length===0?(<div style={{padding:'28px',textAlign:'center'}}><p style={{fontFamily:"'DM Sans',sans-serif",fontSize:'13px',color:T.muted}}>Aucune tâche pour aujourd'hui</p><button onClick={()=>setShowForm(true)} style={{marginTop:'8px',padding:'7px 14px',borderRadius:'8px',background:'rgba(200,169,110,0.1)',border:`1px solid ${T.border}`,color:T.gold,fontSize:'12px',fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>+ Ajouter une tâche</button></div>)
-      :(
-        tasks.map((task,i)=>(
+      {/* ── Liste des tâches ── */}
+      {loading ? (
+        <div style={{ padding: '28px', textAlign: 'center' }}>
+          <RefreshCw size={16} style={{ color: T.gold, margin: '0 auto', display: 'block', animation: 'spin 1s linear infinite' }} />
+        </div>
+      ) : tasks.length === 0 ? (
+        <div style={{ padding: '28px', textAlign: 'center' }}>
+          <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '13px', color: T.muted }}>Aucune tâche pour aujourd'hui</p>
+          <button onClick={() => setShowForm(true)} style={{ marginTop: '8px', padding: '7px 14px', borderRadius: '8px', background: 'rgba(200,169,110,0.1)', border: `1px solid ${T.border}`, color: T.gold, fontSize: '12px', fontWeight: 500, cursor: 'pointer', fontFamily: "'DM Sans',sans-serif" }}>
+            + Ajouter une tâche
+          </button>
+        </div>
+      ) : (
+        sorted.map((task: any, i: number) => (
           <div key={task.id} className="lm-task-row"
-            style={{padding:'10px 20px',display:'flex',alignItems:'center',gap:'9px',borderBottom:i<tasks.length-1?`1px solid ${T.borderSoft}`:'none',transition:'background 0.15s',opacity:task.done?0.5:1}}>
-            <button onClick={()=>toggleDone(task)}
-              style={{flexShrink:0,width:'18px',height:'18px',borderRadius:'50%',border:`2px solid ${task.done?'#16a34a':'rgba(13,31,60,0.15)'}`,background:task.done?'#16a34a':'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',transition:'all 0.2s'}}>
-              {task.done&&<Check size={10} style={{color:'#fff'}}/>}
+            style={{ padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '9px', borderBottom: i < sorted.length - 1 ? `1px solid ${T.borderSoft}` : 'none', transition: 'background 0.15s', opacity: task.done ? 0.5 : 1, background: task.source === 'lead' && !task.done ? 'rgba(200,169,110,0.02)' : 'transparent' }}>
+
+            {/* Checkbox */}
+            <button onClick={() => toggleDone(task)}
+              style={{ flexShrink: 0, width: '18px', height: '18px', borderRadius: '50%', border: `2px solid ${task.done ? '#16a34a' : 'rgba(13,31,60,0.15)'}`, background: task.done ? '#16a34a' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}>
+              {task.done && <Check size={10} style={{ color: '#fff' }} />}
             </button>
-            {editId===task.id?(
-              <input type="text" value={editLabel} onChange={e=>setEditLabel(e.target.value)}
-                onKeyDown={e=>{if(e.key==='Enter')saveEdit();if(e.key==='Escape')setEditId(null);}}
-                autoFocus style={{flex:1,padding:'4px 7px',borderRadius:'6px',border:`1px solid ${T.gold}`,background:T.ivory,color:T.navy,fontSize:'13px',fontFamily:"'DM Sans',sans-serif",outline:'none'}}/>
-            ):(
-              <span style={{flex:1,fontFamily:"'DM Sans',sans-serif",fontSize:'13px',color:T.navy,textDecoration:task.done?'line-through':'none',fontWeight:task.urgent?600:400}}>{task.label}</span>
+
+            {/* Label ou champ d'édition */}
+            {editId === task.id ? (
+              <input type="text" value={editLabel} onChange={e => setEditLabel(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') setEditId(null); }}
+                autoFocus style={{ flex: 1, padding: '4px 7px', borderRadius: '6px', border: `1px solid ${T.gold}`, background: T.ivory, color: T.navy, fontSize: '13px', fontFamily: "'DM Sans',sans-serif", outline: 'none' }} />
+            ) : (
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '13px', color: T.navy, textDecoration: task.done ? 'line-through' : 'none', fontWeight: task.urgent ? 600 : 400 }}>
+                  {task.label}
+                </span>
+                {/* Badge "Lead" sur les tâches auto-générées */}
+                {task.source === 'lead' && !task.done && (
+                  <span style={{ marginLeft: '7px', padding: '1px 6px', borderRadius: '4px', fontSize: '9px', fontWeight: 700, fontFamily: "'DM Sans',sans-serif", background: 'rgba(37,99,235,0.1)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.2)', verticalAlign: 'middle' }}>
+                    LEAD
+                  </span>
+                )}
+              </div>
             )}
-            <div style={{display:'flex',alignItems:'center',gap:'4px',flexShrink:0}}>
-              {!task.done&&<button onClick={()=>toggleUrgent(task)} style={{padding:'1px 6px',borderRadius:'4px',fontSize:'9px',fontWeight:600,fontFamily:"'DM Sans',sans-serif",cursor:'pointer',border:`1px solid ${task.urgent?T.terra+'40':'rgba(13,31,60,0.1)'}`,background:task.urgent?`${T.terra}10`:'transparent',color:task.urgent?T.terra:T.muted}}>{task.urgent?'Urgent':'!'}</button>}
-              {editId===task.id?(
-                <><button onClick={saveEdit} style={{padding:'3px',borderRadius:'4px',background:'rgba(22,163,74,0.1)',border:'none',cursor:'pointer',color:'#16a34a',display:'flex'}}><Check size={11}/></button>
-                <button onClick={()=>setEditId(null)} style={{padding:'3px',borderRadius:'4px',background:'rgba(181,87,58,0.1)',border:'none',cursor:'pointer',color:T.terra,display:'flex'}}><X size={11}/></button></>
-              ):(
-                <><button onClick={()=>{setEditId(task.id);setEditLabel(task.label);}} style={{padding:'3px',borderRadius:'4px',background:'transparent',border:'none',cursor:'pointer',color:T.muted,display:'flex'}}
-                    onMouseEnter={e=>e.currentTarget.style.color=T.gold} onMouseLeave={e=>e.currentTarget.style.color=T.muted}><Pencil size={11}/></button>
-                  <button onClick={()=>deleteTask(task.id)} style={{padding:'3px',borderRadius:'4px',background:'transparent',border:'none',cursor:'pointer',color:T.muted,display:'flex'}}
-                    onMouseEnter={e=>e.currentTarget.style.color=T.terra} onMouseLeave={e=>e.currentTarget.style.color=T.muted}><Trash2 size={11}/></button></>
+
+            {/* Actions */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+              {!task.done && (
+                <button onClick={() => toggleUrgent(task)}
+                  style={{ padding: '1px 6px', borderRadius: '4px', fontSize: '9px', fontWeight: 600, fontFamily: "'DM Sans',sans-serif", cursor: 'pointer', border: `1px solid ${task.urgent ? T.terra + '40' : 'rgba(13,31,60,0.1)'}`, background: task.urgent ? `${T.terra}10` : 'transparent', color: task.urgent ? T.terra : T.muted }}>
+                  {task.urgent ? 'Urgent' : '!'}
+                </button>
               )}
-              {!task.urgent&&!task.done&&editId!==task.id&&<Clock size={10} style={{color:'rgba(13,31,60,0.15)'}}/>}
+              {editId === task.id ? (
+                <>
+                  <button onClick={saveEdit} style={{ padding: '3px', borderRadius: '4px', background: 'rgba(22,163,74,0.1)', border: 'none', cursor: 'pointer', color: '#16a34a', display: 'flex' }}><Check size={11} /></button>
+                  <button onClick={() => setEditId(null)} style={{ padding: '3px', borderRadius: '4px', background: 'rgba(181,87,58,0.1)', border: 'none', cursor: 'pointer', color: T.terra, display: 'flex' }}><X size={11} /></button>
+                </>
+              ) : (
+                <>
+                  <button onClick={() => { setEditId(task.id); setEditLabel(task.label); }}
+                    style={{ padding: '3px', borderRadius: '4px', background: 'transparent', border: 'none', cursor: 'pointer', color: T.muted, display: 'flex' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = T.gold)} onMouseLeave={e => (e.currentTarget.style.color = T.muted)}>
+                    <Pencil size={11} />
+                  </button>
+                  <button onClick={() => deleteTask(task.id)}
+                    style={{ padding: '3px', borderRadius: '4px', background: 'transparent', border: 'none', cursor: 'pointer', color: T.muted, display: 'flex' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = T.terra)} onMouseLeave={e => (e.currentTarget.style.color = T.muted)}>
+                    <Trash2 size={11} />
+                  </button>
+                </>
+              )}
+              {!task.urgent && !task.done && editId !== task.id && (
+                <Clock size={10} style={{ color: 'rgba(13,31,60,0.15)' }} />
+              )}
             </div>
           </div>
         ))
       )}
-      {tasks.length>0&&(
-        <div style={{padding:'12px 20px',borderTop:`1px solid ${T.borderSoft}`}}>
-          <div style={{display:'flex',justifyContent:'space-between',marginBottom:'6px'}}>
-            <span style={{fontSize:'11px',fontFamily:"'DM Sans',sans-serif",color:T.muted}}>Progression journée</span>
-            <span style={{fontSize:'11px',fontFamily:"'DM Sans',sans-serif",fontWeight:600,color:T.navy}}>{pct}%</span>
+
+      {/* ── Barre de progression ── */}
+      {tasks.length > 0 && (
+        <div style={{ padding: '12px 20px', borderTop: `1px solid ${T.borderSoft}` }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+            <span style={{ fontSize: '11px', fontFamily: "'DM Sans',sans-serif", color: T.muted }}>Progression journée</span>
+            <span style={{ fontSize: '11px', fontFamily: "'DM Sans',sans-serif", fontWeight: 600, color: T.navy }}>{pct}%</span>
           </div>
-          <div style={{height:'5px',borderRadius:'3px',background:T.borderSoft,overflow:'hidden'}}>
-            <div style={{height:'100%',width:`${pct}%`,background:`linear-gradient(90deg,${T.gold},${T.goldLight})`,borderRadius:'3px',transition:'width 0.5s ease'}}/>
+          <div style={{ height: '5px', borderRadius: '3px', background: T.borderSoft, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${pct}%`, background: `linear-gradient(90deg,${T.gold},${T.goldLight})`, borderRadius: '3px', transition: 'width 0.5s ease' }} />
           </div>
-          {pct===100&&<div style={{marginTop:'6px',fontSize:'11px',color:'#16a34a',fontFamily:"'DM Sans',sans-serif",fontWeight:500,textAlign:'center'}}>🎉 Toutes les tâches complètes !</div>}
+          {pct === 100 && (
+            <div style={{ marginTop: '6px', fontSize: '11px', color: '#16a34a', fontFamily: "'DM Sans',sans-serif", fontWeight: 500, textAlign: 'center' }}>
+              🎉 Toutes les tâches complètes !
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 }
-
 // ─── Page principale ──────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const{user}=useAuth();
