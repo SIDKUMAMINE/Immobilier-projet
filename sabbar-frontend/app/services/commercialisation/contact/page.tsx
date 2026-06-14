@@ -26,47 +26,56 @@ export default function ContactCommercialisationPage() {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
-  // Découpe "Prénom Nom" en first_name + last_name
-  const splitName = (full: string) => {
-    const parts = full.trim().split(' ');
-    return { first: parts[0] || 'Inconnu', last: parts.slice(1).join(' ') || 'Inconnu' };
-  };
+// ─────────────────────────────────────────────────────────────
+// Remplace UNIQUEMENT la fonction handleSubmit dans :
+// app/services/commercialisation/contact/page.tsx
+// ─────────────────────────────────────────────────────────────
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true); setError(null);
-    try {
-      // ✅ Supabase — colonnes réelles de la table
-      if (supabase) {
-        const { first, last } = splitName(formData.name);
-        await supabase.from('leads').insert({
-          first_name: first,
-          last_name:  last,
-          email:      formData.email?.trim() || null,
-          phone:      formData.phone?.trim() || '+212600000000',
-          notes:      `Société: ${formData.company}\nType: ${formData.projectType}\nUnités: ${formData.units}\n\n${formData.message}`.trim(),
-          status:     'new',
-          source:     'web_form',
-          priority:   'high',
-          lead_type:  'promoteur', // 👈 Commercialisation = promoteur immobilier
-        });
-      }
-      // ✅ EmailJS
-      await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
-        from_name: formData.name, from_email: formData.email, phone: formData.phone || 'Non fourni',
-        subject: `[Commercialisation] ${formData.subject}`,
-        message: `Société/Promoteur: ${formData.company || 'Non précisé'}\nType de projet: ${formData.projectType || 'Non précisé'}\nNombre d'unités: ${formData.units || 'Non précisé'}\n\n${formData.message}`,
-        reply_to: formData.email,
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true); setError(null);
+  try {
+    // ✅ Supabase — colonnes réelles + lead_type promoteur
+    if (supabase) {
+      const nameParts = formData.name.trim().split(' ');
+      const firstName = nameParts[0] || 'Inconnu';
+      const lastName  = nameParts.slice(1).join(' ') || 'Inconnu';
+
+      await supabase.from('leads').insert({
+        first_name:       firstName,
+        last_name:        lastName,
+        email:            formData.email?.trim() || null,
+        phone:            formData.phone?.trim() || '+212600000000',
+        status:           'new',
+        source:           'web_form',
+        priority:         'high',
+        lead_type:        'promoteur',          // ← clé du fix
+        company_name:     formData.company || null,
+        notes:            `Type: ${formData.projectType}\nUnités: ${formData.units}\n\n${formData.message}`.trim(),
       });
-      setSubmitted(true);
-      const sentData = { ...formData };
-      setFormData({ name: '', email: '', phone: '', subject: 'Commercialisation exclusive', company: '', projectType: '', units: '', message: '' });
-      setTimeout(() => setSubmitted(false), 8000);
-      setTimeout(() => sendWhatsAppNotification(sentData), 500);
-    } catch (err: any) {
-      setError('Erreur lors de l\'envoi. Veuillez réessayer ou nous contacter par WhatsApp.');
-    } finally { setLoading(false); }
-  };
+    }
+
+    // ✅ EmailJS (inchangé)
+    await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
+      from_name:  formData.name,
+      from_email: formData.email,
+      phone:      formData.phone || 'Non fourni',
+      subject:    `[Commercialisation] ${formData.subject}`,
+      message:    `Société/Promoteur: ${formData.company || 'Non précisé'}\nType de projet: ${formData.projectType || 'Non précisé'}\nNombre d'unités: ${formData.units || 'Non précisé'}\n\n${formData.message}`,
+      reply_to:   formData.email,
+    });
+
+    setSubmitted(true);
+    const sentData = { ...formData };
+    setFormData({ name: '', email: '', phone: '', subject: 'Commercialisation exclusive', company: '', projectType: '', units: '', message: '' });
+    setTimeout(() => setSubmitted(false), 8000);
+    setTimeout(() => sendWhatsAppNotification(sentData), 500);
+  } catch (err: any) {
+    setError('Erreur lors de l\'envoi. Veuillez réessayer ou nous contacter par WhatsApp.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const inputStyle: React.CSSProperties = { width: '100%', padding: '12px 20px', borderRadius: '8px', background: 'rgba(26, 40, 71, 0.5)', border: '1px solid rgba(200, 169, 110, 0.2)', color: '#F9F5EF', fontFamily: 'DM Sans, system-ui, sans-serif', outline: 'none', transition: 'all 0.3s', boxSizing: 'border-box', fontSize: '14px' };
   const labelStyle: React.CSSProperties = { display: 'block', fontSize: '11px', marginBottom: '12px', color: '#E2C98A', fontFamily: 'DM Sans, system-ui, sans-serif', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.8px' };
