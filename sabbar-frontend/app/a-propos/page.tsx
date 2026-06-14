@@ -75,30 +75,71 @@ export default function AProposPage() {
               <div style={{ background: 'rgba(13, 31, 60, 0.6)' }}>
 
                 {/* ── Photo Corrigée ── */}
-                <div style={{ position: 'relative', width: '100%', height: '380px', overflow: 'hidden' }}>
-                  <Image
-                    src="public/med-pic-propos.jpeg"
-                    alt="Mohamed Sabbar — Fondateur Landmark Estate"
-                    fill
-                    style={{ objectFit: 'cover', objectPosition: 'center top', zIndex: 1 }}
-                    priority
-                  />
-                  {/* Dégradé transparent vers le fond sombre */}
-                  <div style={{
-                    position: 'absolute', bottom: 0, left: 0, right: 0, height: '120px',
-                    background: 'linear-gradient(to bottom, transparent, rgba(13,31,60,0.95))',
-                    zIndex: 2
-                  }} />
-                  {/* Nom en overlay */}
-                  <div style={{ position: 'absolute', bottom: '20px', left: '28px', right: '28px', zIndex: 3 }}>
-                    <p style={{ color: '#F9F5EF', fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '26px', fontWeight: 300, lineHeight: 1.2, margin: '0 0 4px' }}>
-                      Mohamed Sabbar
-                    </p>
-                    <p style={{ color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '12px', fontWeight: 500, letterSpacing: '0.06em', margin: 0 }}>
-                      Fondateur · Marketeur &amp; Commercial Immobilier
-                    </p>
-                  </div>
-                </div>
+               <Image
+  src="/med-pic-propos.jpeg"
+  alt="Mohamed Sabbar — Fondateur Landmark Estate"
+  fill
+  style={{ objectFit: 'cover', objectPosition: 'center top', zIndex: 1 }}
+  priority
+/>
+              <div
+  style={{
+    position: 'relative',
+    width: '100%',
+    height: '380px',
+    overflow: 'hidden',
+    backgroundImage: "url('/med-pic-propos.jpeg')",
+    backgroundSize: 'cover',
+    backgroundPosition: 'center top',
+    backgroundRepeat: 'no-repeat'
+  }}
+>
+  <div
+    style={{
+      position: 'absolute',
+      inset: 0,
+      background:
+        'linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(13,31,60,0.92))',
+      zIndex: 1
+    }}
+  />
+
+  <div
+    style={{
+      position: 'absolute',
+      bottom: '20px',
+      left: '28px',
+      right: '28px',
+      zIndex: 2
+    }}
+  >
+    <p
+      style={{
+        color: '#F9F5EF',
+        fontFamily: "'Cormorant Garamond', Georgia, serif",
+        fontSize: '26px',
+        fontWeight: 300,
+        lineHeight: 1.2,
+        margin: '0 0 4px'
+      }}
+    >
+      Mohamed Sabbar
+    </p>
+
+    <p
+      style={{
+        color: '#C8A96E',
+        fontFamily: "'DM Sans', system-ui, sans-serif",
+        fontSize: '12px',
+        fontWeight: 500,
+        letterSpacing: '0.06em',
+        margin: 0
+      }}
+    >
+      Fondateur · Marketeur &amp; Commercial Immobilier
+    </p>
+  </div>
+</div>
 
                 {/* ── Infos sous la photo ── */}
                 <div style={{ padding: '28px 32px 36px' }}>
