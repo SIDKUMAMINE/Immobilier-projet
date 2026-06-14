@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, CheckCircle2, Users, Target, Zap, Shield, TrendingUp } from 'lucide-react';
 
 export default function AProposPage() {
@@ -68,59 +69,74 @@ export default function AProposPage() {
               </div>
             </div>
 
-            {/* Carte fondateur */}
+            {/* Carte fondateur avec photo */}
             <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(200, 169, 110, 0.25)' }}>
               <div style={{ height: '4px', background: 'linear-gradient(90deg, #C8A96E 0%, #E2C98A 50%, rgba(200,169,110,0.2) 100%)' }} />
-              <div style={{ background: 'rgba(13, 31, 60, 0.6)', padding: '36px 40px' }}>
+              <div style={{ background: 'rgba(13, 31, 60, 0.6)' }}>
 
-                {/* En-tete */}
-                <div style={{ marginBottom: '28px', paddingBottom: '24px', borderBottom: '1px solid rgba(200,169,110,0.12)' }}>
-                  <p style={{ color: 'rgba(200,169,110,0.6)', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '11px', fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '8px' }}>
-                    Fondateur
-                  </p>
-                  <p style={{ color: '#F9F5EF', fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '28px', fontWeight: 300, lineHeight: 1.2, margin: '0 0 6px' }}>
-                    Mohamed Sabbar
-                  </p>
-                  <p style={{ color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '13px', fontWeight: 400, margin: 0 }}>
-                    Marketeur &amp; Commercial — Immobilier
-                  </p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '16px' }}>
+                {/* ── Photo ── */}
+                <div style={{ position: 'relative', width: '100%', height: '380px', overflow: 'hidden' }}>
+                  <Image
+                    src="/mohamed-sabbar.jpg"
+                    alt="Mohamed Sabbar — Fondateur Landmark Estate"
+                    fill
+                    style={{ objectFit: 'cover', objectPosition: 'center top' }}
+                    priority
+                  />
+                  {/* Dégradé bas pour transition douce vers la section info */}
+                  <div style={{
+                    position: 'absolute', bottom: 0, left: 0, right: 0, height: '120px',
+                    background: 'linear-gradient(to bottom, transparent, rgba(13,31,60,0.95))',
+                  }} />
+                  {/* Nom en overlay sur la photo */}
+                  <div style={{ position: 'absolute', bottom: '20px', left: '28px', right: '28px' }}>
+                    <p style={{ color: '#F9F5EF', fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '26px', fontWeight: 300, lineHeight: 1.2, margin: '0 0 4px' }}>
+                      Mohamed Sabbar
+                    </p>
+                    <p style={{ color: '#C8A96E', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '12px', fontWeight: 500, letterSpacing: '0.06em', margin: 0 }}>
+                      Fondateur · Marketeur &amp; Commercial Immobilier
+                    </p>
+                  </div>
+                </div>
+
+                {/* ── Infos sous la photo ── */}
+                <div style={{ padding: '28px 32px 36px' }}>
+
+                  {/* Tags */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px solid rgba(200,169,110,0.12)' }}>
                     {['Experience marche local', 'Marketing immobilier', 'Commerce & Negociation'].map((tag, idx) => (
                       <span key={idx} style={{ display: 'inline-block', padding: '4px 12px', border: '1px solid rgba(200,169,110,0.3)', borderRadius: '20px', color: 'rgba(200,169,110,0.8)', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '11px', fontWeight: 400, letterSpacing: '0.04em', background: 'rgba(200,169,110,0.06)' }}>
                         {tag}
                       </span>
                     ))}
                   </div>
-                </div>
 
-                {/* Engagements */}
-                <p style={{ color: 'rgba(200,169,110,0.7)', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '11px', fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>
-                  Nos engagements
-                </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '11px', marginBottom: '28px' }}>
-                  {[
-                    { label: 'Reponse rapide', detail: 'Sous 2h sur WhatsApp, 7j/7' },
-                    { label: 'Suivi personnalise', detail: 'Un seul interlocuteur du debut a la fin' },
-                    { label: 'Connaissance terrain', detail: 'Prix reels, quartiers, tendances du marche casablancais' },
-                    { label: 'Transparence totale', detail: 'Verification TF, pas de frais caches, tout explique clairement' },
-                    { label: 'Disponibilite reelle', detail: 'Visites flexibles, meme le week-end' },
-                  ].map((item, idx) => (
-                    <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <div style={{ width: '6px', height: '6px', background: '#C8A96E', transform: 'rotate(45deg)', flexShrink: 0, marginTop: '7px', opacity: 0.8 }} />
-                      <div>
-                        <span style={{ color: '#F9F5EF', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '13px', fontWeight: 500, display: 'block', lineHeight: 1.4 }}>
-                          {item.label}
-                        </span>
-                        <span style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '12px', fontWeight: 400, lineHeight: 1.4 }}>
-                          {item.detail}
-                        </span>
+                  {/* Engagements */}
+                  <p style={{ color: 'rgba(200,169,110,0.7)', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '11px', fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>
+                    Nos engagements
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
+                    {[
+                      { label: 'Reponse rapide', detail: 'Sous 2h sur WhatsApp, 7j/7' },
+                      { label: 'Suivi personnalise', detail: 'Un seul interlocuteur du debut a la fin' },
+                      { label: 'Connaissance terrain', detail: 'Prix reels, quartiers, tendances du marche casablancais' },
+                      { label: 'Transparence totale', detail: 'Verification TF, pas de frais caches, tout explique clairement' },
+                      { label: 'Disponibilite reelle', detail: 'Visites flexibles, meme le week-end' },
+                    ].map((item, idx) => (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <div style={{ width: '6px', height: '6px', background: '#C8A96E', transform: 'rotate(45deg)', flexShrink: 0, marginTop: '7px', opacity: 0.8 }} />
+                        <div>
+                          <span style={{ color: '#F9F5EF', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '13px', fontWeight: 500, display: 'block', lineHeight: 1.4 }}>
+                            {item.label}
+                          </span>
+                          <span style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '12px', fontWeight: 400, lineHeight: 1.4 }}>
+                            {item.detail}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-
-             
-
               </div>
             </div>
 
