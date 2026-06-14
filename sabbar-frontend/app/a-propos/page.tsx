@@ -88,9 +88,10 @@ export default function AProposPage() {
     width: '100%',
     height: '650px',
     backgroundImage: "url('/med-pic-propos.jpeg')",
-    backgroundSize: 'cover',
-    backgroundPosition: 'center top',
+    backgroundSize: 'contain',
+    backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
+    backgroundColor: '#0D1F3C',
   }}
 >
   <div
