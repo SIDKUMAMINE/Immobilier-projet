@@ -26,21 +26,29 @@ export default function ContactCommercialisationPage() {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
+  // Découpe "Prénom Nom" en first_name + last_name
+  const splitName = (full: string) => {
+    const parts = full.trim().split(' ');
+    return { first: parts[0] || 'Inconnu', last: parts.slice(1).join(' ') || 'Inconnu' };
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true); setError(null);
     try {
-      // ✅ Supabase
+      // ✅ Supabase — colonnes réelles de la table
       if (supabase) {
+        const { first, last } = splitName(formData.name);
         await supabase.from('leads').insert({
-          full_name: formData.name,
-          email:     formData.email,
-          phone:     formData.phone || null,
-          subject:   `Commercialisation — ${formData.projectType || ''}`,
-          message:   `Société: ${formData.company}\nType: ${formData.projectType}\nUnités: ${formData.units}\n\n${formData.message}`,
-          status:    'new',
-          source:    'commercialisation',
-          score:     0,
+          first_name: first,
+          last_name:  last,
+          email:      formData.email?.trim() || null,
+          phone:      formData.phone?.trim() || '+212600000000',
+          notes:      `Société: ${formData.company}\nType: ${formData.projectType}\nUnités: ${formData.units}\n\n${formData.message}`.trim(),
+          status:     'new',
+          source:     'web_form',
+          priority:   'high',
+          lead_type:  'promoteur', // 👈 Commercialisation = promoteur immobilier
         });
       }
       // ✅ EmailJS

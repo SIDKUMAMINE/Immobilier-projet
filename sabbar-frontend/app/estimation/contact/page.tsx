@@ -64,27 +64,40 @@ _Source : Page Estimation — LANDMARK ESTATE_`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
+  // Découpe "Prénom Nom" en first_name + last_name
+  const splitName = (full: string) => {
+    const parts = full.trim().split(' ');
+    const first = parts[0] || 'Inconnu';
+    const last  = parts.slice(1).join(' ') || 'Inconnu';
+    return { first, last };
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true); setError(null);
     try {
-      // ✅ 1. Sauvegarde Supabase
+      // ✅ Supabase — colonnes réelles de la table
       if (supabase) {
+        const { first, last } = splitName(formData.name);
+        const phoneVal = formData.phone?.trim() || null;
+        const emailVal = formData.email?.trim() || null;
+
         await supabase.from('leads').insert({
-          full_name: formData.name,
-          email:     formData.email,
-          phone:     formData.phone || null,
-          city:      formData.ville,
-          message:   `Quartier: ${formData.quartier}\nType: ${formData.typeBien}\nRégime: ${formData.regime}\nSurface: ${formData.surface}m²\nBudget: ${formData.budget}\n\n${formData.message}`,
-          property_type:    formData.typeBien || null,
-          transaction_type: formData.regime === 'Vente' ? 'sale' : formData.regime === 'Location' ? 'rent' : null,
-          status: 'new',
-          source: 'estimation',
-          score:  0,
+          first_name:       first,
+          last_name:        last,
+          email:            emailVal,
+          // phone doit être au format marocain — on envoie null si vide
+          phone:            phoneVal || '+212600000000',
+          preferred_cities: formData.ville ? [formData.ville] : [],
+          notes:            `Quartier: ${formData.quartier}\nType: ${formData.typeBien}\nRégime: ${formData.regime}\nSurface: ${formData.surface}m²\nBudget: ${formData.budget}\n\n${formData.message}`.trim(),
+          status:           'new',
+          source:           'web_form',
+          priority:         'medium',
+          lead_type:        'proprietaire', // 👈 Estimation = propriétaire qui veut valoriser son bien
         });
       }
 
-      // ✅ 2. EmailJS
+      // ✅ EmailJS
       await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
         from_name:  formData.name,
         from_email: formData.email,
@@ -157,7 +170,6 @@ _Source : Page Estimation — LANDMARK ESTATE_`;
         <div style={{ position: 'fixed', top: '-200px', right: '-200px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,169,110,0.06) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
         <div style={{ position: 'fixed', bottom: '-150px', left: '-150px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,169,110,0.04) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
 
-        {/* Topbar */}
         <div style={{ borderBottom: '1px solid rgba(200, 169, 110, 0.12)', background: 'rgba(13, 31, 60, 0.6)', padding: '16px 5%', position: 'relative', zIndex: 1 }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Link href="/estimation" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#C8A96E', textDecoration: 'none', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', fontWeight: 500, transition: 'gap 0.2s' }}
@@ -168,7 +180,6 @@ _Source : Page Estimation — LANDMARK ESTATE_`;
           </div>
         </div>
 
-        {/* Hero */}
         <section style={{ padding: '72px 5% 56px', textAlign: 'center' }}>
           <div style={{ maxWidth: '700px', margin: '0 auto' }}>
             <div className="anim-fade anim-1" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '100px', border: '1px solid rgba(200, 169, 110, 0.25)', background: 'rgba(200, 169, 110, 0.05)', marginBottom: '28px' }}>
@@ -186,21 +197,16 @@ _Source : Page Estimation — LANDMARK ESTATE_`;
 
         <div style={{ width: '100%', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(200,169,110,0.2), transparent)' }} />
 
-        {/* Main */}
         <section style={{ padding: '64px 5% 80px' }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
             <div className="two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '48px', alignItems: 'start' }}>
-
-              {/* Form */}
               <div className="anim-fade anim-2">
                 {submitted && (
                   <div style={{ marginBottom: '28px', padding: '20px 24px', borderRadius: '12px', border: '1px solid rgba(34, 197, 94, 0.3)', background: 'rgba(34, 197, 94, 0.06)', display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
                     <CheckCircle size={22} style={{ color: '#22c55e', flexShrink: 0, marginTop: '1px' }} />
                     <div>
                       <p style={{ color: '#22c55e', fontWeight: 600, fontFamily: "'DM Sans', system-ui, sans-serif", marginBottom: '4px' }}>Message envoyé et sauvegardé !</p>
-                      <p style={{ color: 'rgba(34,197,94,0.7)', fontSize: '13px', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
-                        📋 Lead ajouté à votre dashboard · Mohamed Sabbar vous recontacte sous 24h
-                      </p>
+                      <p style={{ color: 'rgba(34,197,94,0.7)', fontSize: '13px', fontFamily: "'DM Sans', system-ui, sans-serif" }}>📋 Lead ajouté à votre dashboard · Mohamed Sabbar vous recontacte sous 24h</p>
                     </div>
                   </div>
                 )}
@@ -209,7 +215,6 @@ _Source : Page Estimation — LANDMARK ESTATE_`;
                 )}
 
                 <form onSubmit={handleSubmit}>
-                  {/* Section 1 */}
                   <div style={{ marginBottom: '36px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
                       <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #C8A96E, #E2C98A)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 600, color: '#0D1F3C', fontFamily: "'Cormorant Garamond', Georgia, serif", flexShrink: 0 }}>1</div>
@@ -224,7 +229,6 @@ _Source : Page Estimation — LANDMARK ESTATE_`;
 
                   <div style={{ height: '1px', background: 'rgba(200,169,110,0.1)', marginBottom: '36px' }} />
 
-                  {/* Section 2 */}
                   <div style={{ marginBottom: '36px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
                       <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #C8A96E, #E2C98A)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 600, color: '#0D1F3C', fontFamily: "'Cormorant Garamond', Georgia, serif", flexShrink: 0 }}>2</div>
@@ -246,7 +250,6 @@ _Source : Page Estimation — LANDMARK ESTATE_`;
 
                   <div style={{ height: '1px', background: 'rgba(200,169,110,0.1)', marginBottom: '36px' }} />
 
-                  {/* Section 3 */}
                   <div style={{ marginBottom: '32px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
                       <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #C8A96E, #E2C98A)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 600, color: '#0D1F3C', fontFamily: "'Cormorant Garamond', Georgia, serif", flexShrink: 0 }}>3</div>
@@ -264,7 +267,6 @@ _Source : Page Estimation — LANDMARK ESTATE_`;
                 </form>
               </div>
 
-              {/* Side panel */}
               <div className="side-panel anim-fade anim-3" style={{ position: 'sticky', top: '80px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div style={{ background: 'rgba(13, 31, 60, 0.7)', border: '1px solid rgba(200, 169, 110, 0.2)', borderRadius: '16px', padding: '28px', backdropFilter: 'blur(8px)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>

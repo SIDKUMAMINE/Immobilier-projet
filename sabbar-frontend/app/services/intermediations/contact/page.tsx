@@ -22,26 +22,46 @@ export default function ContactIntermediationPage() {
   };
 
   const sendWhatsAppNotification = (data: typeof formData) => {
-    const msg = `🤝 *Nouvelle demande - Intermédiation Immobilière*\n━━━━━━━━━━━━━━━━━━━━━\n\n👤 *Nom:* ${data.name}\n📧 *Email:* ${data.email}\n📞 *Téléphone:* ${data.phone || 'Non fourni'}\n💰 *Budget:* ${data.budget || 'Non précisé'}\n🏠 *Type de bien:* ${data.type || 'Non précisé'}\n\n💬 *Message:*\n${data.message}\n\n_Envoyé depuis la page Intermédiation - LANDMARK ESTATE_`;
+    const msg = `🤝 *Nouvelle demande - Intermédiation Immobilière*\n━━━━━━━━━━━━━━━━━━━━━\n\n👤 *Nom:* ${data.name}\n📧 *Email:* ${data.email}\n📞 *Téléphone:* ${data.phone || 'Non fourni'}\n💰 *Budget:* ${data.budget || 'Non précisé'}\n🏠 *Type de bien:* ${data.type || 'Non précisé'}\n📋 *Demande:* ${data.subject}\n\n💬 *Message:*\n${data.message}\n\n_Envoyé depuis la page Intermédiation - LANDMARK ESTATE_`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
+  // Découpe "Prénom Nom" en first_name + last_name
+  const splitName = (full: string) => {
+    const parts = full.trim().split(' ');
+    return { first: parts[0] || 'Inconnu', last: parts.slice(1).join(' ') || 'Inconnu' };
+  };
+
+  // Détermine le lead_type selon ce que le prospect veut faire
+  const getLeadType = (subject: string): 'acheteur' | 'proprietaire' => {
+    const s = subject.toLowerCase();
+    // Vendre / Louer / Estimation = propriétaire
+    if (s.includes('vend') || s.includes('louer') || s.includes('location') || s.includes('estimation') || s.includes('mettre')) {
+      return 'proprietaire';
+    }
+    // Acheter / Louer un bien (en tant que locataire) = acheteur
+    return 'acheteur';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true); setError(null);
     try {
-      // ✅ Supabase
+      // ✅ Supabase — colonnes réelles de la table
       if (supabase) {
+        const { first, last } = splitName(formData.name);
+        const leadType = getLeadType(formData.subject);
+
         await supabase.from('leads').insert({
-          full_name: formData.name,
-          email:     formData.email,
-          phone:     formData.phone || null,
-          subject:   formData.subject,
-          message:   `Budget: ${formData.budget}\nType: ${formData.type}\n\n${formData.message}`,
-          property_type:    formData.type || null,
-          status:    'new',
-          source:    'intermediation',
-          score:     0,
+          first_name: first,
+          last_name:  last,
+          email:      formData.email?.trim() || null,
+          phone:      formData.phone?.trim() || '+212600000000',
+          notes:      `Demande: ${formData.subject}\nBudget: ${formData.budget}\nType: ${formData.type}\n\n${formData.message}`.trim(),
+          status:     'new',
+          source:     'web_form',
+          priority:   'medium',
+          lead_type:  leadType, // 👈 'acheteur' ou 'proprietaire' selon la demande
         });
       }
       // ✅ EmailJS
