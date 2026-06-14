@@ -82,16 +82,15 @@ export default function AProposPage() {
   style={{ objectFit: 'cover', objectPosition: 'center top', zIndex: 1 }}
   priority
 />
-              <div
+<div
   style={{
     position: 'relative',
     width: '100%',
-    height: '380px',
-    overflow: 'hidden',
+    height: '650px',
     backgroundImage: "url('/med-pic-propos.jpeg')",
     backgroundSize: 'cover',
     backgroundPosition: 'center top',
-    backgroundRepeat: 'no-repeat'
+    backgroundRepeat: 'no-repeat',
   }}
 >
   <div
