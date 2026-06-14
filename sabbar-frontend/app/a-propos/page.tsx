@@ -89,7 +89,7 @@ export default function AProposPage() {
     priority
     style={{
       objectFit: 'cover',
-      objectPosition: 'center 25%',
+      objectPosition: 'center 8%',
     }}
   />
 
