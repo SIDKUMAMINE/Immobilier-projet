@@ -78,20 +78,21 @@ export default function AProposPage() {
   style={{
     position: 'relative',
     width: '100%',
-    height: '700px',
+    height: '900px',
     overflow: 'hidden',
   }}
 >
   <Image
     src="/med-pic-propos2.0.jpeg"
-    alt="Mohamed Sabbar"
-    fill
-    priority
-    style={{
-      objectFit: 'cover',
-      objectPosition: 'center top',
-    }}
-  />
+      alt="Mohamed Sabbar"
+  fill
+  priority
+  quality={100}
+  style={{
+    objectFit: 'contain',
+    objectPosition: 'center center',
+  }}
+/>
 
   {/* Dégradé uniquement en bas */}
   <div
