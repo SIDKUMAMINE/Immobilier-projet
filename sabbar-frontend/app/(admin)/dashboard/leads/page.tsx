@@ -7,7 +7,6 @@ import {
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 
-
 const T = {
   navy:      '#0D1F3C',
   gold:      '#C8A96E',
@@ -69,7 +68,6 @@ const STATUS_OPTS: Record<string, { label: string; color: string; bg: string }> 
 };
 
 const STATUS_ORDER = ['new','contacted','qualified','meeting_scheduled','proposal_sent','negotiation','converted','lost','archived'];
-const EN_COURS     = ['contacted','qualified','meeting_scheduled','proposal_sent','negotiation'];
 
 const PRIORITY_OPTS: Record<string, { label: string; color: string }> = {
   low:    { label: 'Basse',   color: '#6b7280' },
@@ -90,11 +88,10 @@ const TABS = [
   { key: 'other',        label: 'Autre',        icon: '•'  },
 ];
 
-// KPI cards : Acheteur / Propriétaire / Promoteur
 const LEAD_TYPE_CONFIG = {
-  acheteur:    { label: 'Acheteurs',    icon: '🛒', color: '#2563eb', bg: 'rgba(37,99,235,0.06)'   },
-  proprietaire:{ label: 'Propriétaires',icon: '🏠', color: '#C8A96E', bg: 'rgba(200,169,110,0.06)' },
-  promoteur:   { label: 'Promoteurs',   icon: '📊', color: '#B5573A', bg: 'rgba(181,87,58,0.06)'   },
+  acheteur:    { label: 'Acheteurs',     icon: '🛒', color: '#2563eb', bg: 'rgba(37,99,235,0.06)',    href: '/dashboard/leads/acheteurs'     },
+  proprietaire:{ label: 'Propriétaires', icon: '🏠', color: '#C8A96E', bg: 'rgba(200,169,110,0.06)', href: '/dashboard/leads/proprietaires' },
+  promoteur:   { label: 'Promoteurs',    icon: '📊', color: '#B5573A', bg: 'rgba(181,87,58,0.06)',   href: '/dashboard/leads/promoteurs'    },
 };
 
 function displayName(l: Lead)  { return [l.first_name, l.last_name].filter(Boolean).join(' ').trim(); }
@@ -128,30 +125,47 @@ function timeAgo(dateStr?: string) {
   return "À l'instant";
 }
 
-// ── KPI CARD ─────────────────────────────────────────────────
-function KpiCard({ icon, label, value, color, bg }: {
-  icon: string; label: string; value: number; color: string; bg: string;
+// ── KPI CARD cliquable ────────────────────────────────────────
+function KpiCard({ icon, label, value, color, bg, href }: {
+  icon: string; label: string; value: number;
+  color: string; bg: string; href: string;
 }) {
   return (
-    <div style={{
-      background: '#fff', padding: '24px 28px', borderRadius: '14px',
-      border: `1px solid ${T.borderSoft}`, boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
-      display: 'flex', flexDirection: 'column', gap: '14px',
-    }}>
-      {/* Icône + label */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>
-          {icon}
+    <Link href={href} style={{ textDecoration: 'none' }}>
+      <div
+        style={{
+          background: '#fff', padding: '24px 28px', borderRadius: '14px',
+          border: `1px solid ${T.borderSoft}`, boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
+          display: 'flex', flexDirection: 'column', gap: '14px',
+          cursor: 'pointer', transition: 'all 0.18s',
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.transform = 'translateY(-3px)';
+          e.currentTarget.style.boxShadow = '0 8px 24px rgba(13,31,60,0.10)';
+          e.currentTarget.style.borderColor = color + '40';
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.transform = '';
+          e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.03)';
+          e.currentTarget.style.borderColor = T.borderSoft;
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>
+            {icon}
+          </div>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'DM Sans',sans-serif" }}>
+            {label}
+          </span>
         </div>
-        <span style={{ fontSize: '11px', fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'DM Sans',sans-serif" }}>
-          {label}
-        </span>
+        <div style={{ fontSize: '44px', fontWeight: 700, color, fontFamily: "'DM Sans',sans-serif", lineHeight: 1 }}>
+          {value}
+        </div>
+        <div style={{ fontSize: '11px', color: T.muted, fontFamily: "'DM Sans',sans-serif" }}>
+          Voir la gestion →
+        </div>
       </div>
-      {/* Chiffre en DM Sans — lisible, pas en serif */}
-      <div style={{ fontSize: '44px', fontWeight: 700, color, fontFamily: "'DM Sans',sans-serif", lineHeight: 1 }}>
-        {value}
-      </div>
-    </div>
+    </Link>
   );
 }
 
@@ -279,6 +293,7 @@ export default function LeadsPage() {
     const status = statusFilter === 'all' || l.status === statusFilter;
     return tab && srch && status;
   });
+
   const sorted = [...filtered].sort((a, b) =>
     new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
 
@@ -337,7 +352,9 @@ export default function LeadsPage() {
             <h1 style={{ fontFamily:"'Cormorant Garamond',Georgia,serif", fontSize:'32px', fontWeight:300, color:T.navy, margin:0 }}>
               Mes <span style={{ color:T.gold, fontStyle:'italic' }}>Clients</span>
             </h1>
-            <p style={{ fontSize:'12px', color:T.muted, marginTop:'4px' }}>{leads.length} leads — {kpis[0].value} acheteurs · {kpis[1].value} propriétaires · {kpis[2].value} promoteurs</p>
+            <p style={{ fontSize:'12px', color:T.muted, marginTop:'4px' }}>
+              {leads.length} leads — {kpis[0].value} acheteurs · {kpis[1].value} propriétaires · {kpis[2].value} promoteurs
+            </p>
           </div>
           <div style={{ display:'flex', gap:'10px', alignItems:'center' }}>
             <button onClick={requestNotif} style={{ display:'flex', alignItems:'center', gap:'6px', padding:'10px 16px', borderRadius:'9px', border:`1px solid ${notifEnabled ? 'rgba(22,163,74,.3)' : T.borderSoft}`, background:'#fff', color:T.muted, fontSize:'13px', fontWeight:500, cursor:'pointer' }}>
@@ -350,22 +367,20 @@ export default function LeadsPage() {
           </div>
         </div>
 
-        {/* ── 3 KPI CARDS : Acheteur / Propriétaire / Promoteur ── */}
-       
-const kpiLinks: Record<string, string> = {
-  acheteur:     '/dashboard/leads/acheteurs',
-  proprietaire: '/dashboard/leads/proprietaires',
-  promoteur:    '/dashboard/leads/promoteurs',
-};
-
-// Dans le JSX :
-<div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px', marginBottom:'28px' }}>
-  {kpis.map(k => (
-    <Link key={k.key} href={kpiLinks[k.key]} style={{ textDecoration:'none' }}>
-      <KpiCard icon={k.icon} label={k.label} value={k.value} color={k.color} bg={k.bg} />
-    </Link>
-  ))}
-</div>
+        {/* ── 3 KPI CARDS cliquables ── */}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px', marginBottom:'28px' }}>
+          {kpis.map(k => (
+            <KpiCard
+              key={k.key}
+              icon={k.icon}
+              label={k.label}
+              value={k.value}
+              color={k.color}
+              bg={k.bg}
+              href={k.href}
+            />
+          ))}
+        </div>
 
         {/* ── ONGLETS source ── */}
         <div style={{ display:'flex', gap:'8px', marginBottom:'20px', flexWrap:'wrap' }}>
@@ -478,17 +493,13 @@ const kpiLinks: Record<string, string> = {
                   <div style={{ flex:1 }}><label style={lbl}>Prénom *</label><input className="lm-input" style={inp} value={editForm.first_name||''} onChange={e=>setEditForm((f:any)=>({...f,first_name:e.target.value}))} placeholder="Prénom"/></div>
                   <div style={{ flex:1 }}><label style={lbl}>Nom *</label><input className="lm-input" style={inp} value={editForm.last_name||''} onChange={e=>setEditForm((f:any)=>({...f,last_name:e.target.value}))} placeholder="Nom"/></div>
                 </div>
-
                 <div><label style={lbl}>Téléphone *</label><input className="lm-input" style={inp} value={editForm.phone||''} onChange={e=>setEditForm((f:any)=>({...f,phone:e.target.value}))} placeholder="+212600000000"/></div>
                 <div><label style={lbl}>Email</label><input className="lm-input" style={inp} type="email" value={editForm.email||''} onChange={e=>setEditForm((f:any)=>({...f,email:e.target.value}))} placeholder="email@exemple.com"/></div>
                 <div><label style={lbl}>Villes (séparées par virgules)</label><input className="lm-input" style={inp} value={editForm.citiesText||''} onChange={e=>setEditForm((f:any)=>({...f,citiesText:e.target.value}))} placeholder="Tanger, Casablanca"/></div>
-
                 <div style={{ display:'flex', gap:'10px' }}>
                   <div style={{ flex:1 }}><label style={lbl}>Budget min</label><input className="lm-input" style={inp} type="number" value={editForm.budget_min??''} onChange={e=>setEditForm((f:any)=>({...f,budget_min:e.target.value?Number(e.target.value):undefined}))} placeholder="0"/></div>
                   <div style={{ flex:1 }}><label style={lbl}>Budget max</label><input className="lm-input" style={inp} type="number" value={editForm.budget_max??''} onChange={e=>setEditForm((f:any)=>({...f,budget_max:e.target.value?Number(e.target.value):undefined}))} placeholder="0"/></div>
                 </div>
-
-                {/* Type de lead — admin peut modifier */}
                 <div>
                   <label style={lbl}>Type de lead</label>
                   <select value={editForm.lead_type||'acheteur'} onChange={e=>setEditForm((f:any)=>({...f,lead_type:e.target.value}))} style={{...inp,cursor:'pointer'}}>
@@ -497,7 +508,6 @@ const kpiLinks: Record<string, string> = {
                     <option value="promoteur">📊 Promoteur</option>
                   </select>
                 </div>
-
                 <div style={{ display:'flex', gap:'10px' }}>
                   <div style={{ flex:1 }}>
                     <label style={lbl}>Statut</label>
@@ -512,27 +522,22 @@ const kpiLinks: Record<string, string> = {
                     </select>
                   </div>
                 </div>
-
                 <div><label style={lbl}>Assigné à</label><input className="lm-input" style={inp} value={editForm.assigned_to||''} onChange={e=>setEditForm((f:any)=>({...f,assigned_to:e.target.value}))} placeholder="Nom de l'agent"/></div>
-
                 <div>
                   <label style={lbl}>Notes</label>
                   <textarea className="lm-input" value={editForm.notes||''} onChange={e=>setEditForm((f:any)=>({...f,notes:e.target.value}))}
                     style={{...inp,minHeight:'80px',resize:'vertical',lineHeight:1.4}} placeholder="Notes internes…"/>
                 </div>
-
                 {selected.ai_conversation_summary && (
                   <div>
                     <label style={lbl}>Résumé IA</label>
                     <div style={{ fontSize:'13px', color:T.navy, background:T.ivory, padding:'12px', borderRadius:'6px', lineHeight:1.4 }}>{selected.ai_conversation_summary}</div>
                   </div>
                 )}
-
                 <button onClick={saveLead} disabled={saving}
-                  style={{ width:'100%', background:T.navy, color:T.gold, border:'none', padding:'11px', borderRadius:'8px', fontSize:'13px', fontWeight:600, cursor:saving?'wait':'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:'6px', opacity:saving?.7:1 }}>
+                  style={{ width:'100%', background:T.navy, color:T.gold, border:'none', padding:'11px', borderRadius:'8px', fontSize:'13px', fontWeight:600, cursor:saving?'wait':'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:'6px', opacity:saving?0.7:1 }}>
                   <Save size={14}/> {saving ? 'Enregistrement…' : 'Enregistrer les modifications'}
                 </button>
-
                 <button onClick={()=>deleteLead(selected.id)}
                   style={{ width:'100%', background:'#FFEBEE', color:'#C62828', border:'none', padding:'10px', borderRadius:'6px', fontSize:'12px', fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:'6px' }}>
                   <Trash2 size={14}/> Supprimer le prospect
