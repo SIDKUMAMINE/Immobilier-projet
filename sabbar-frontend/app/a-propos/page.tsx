@@ -74,22 +74,24 @@ export default function AProposPage() {
               <div style={{ height: '4px', background: 'linear-gradient(90deg, #C8A96E 0%, #E2C98A 50%, rgba(200,169,110,0.2) 100%)' }} />
               <div style={{ background: 'rgba(13, 31, 60, 0.6)' }}>
 
-                {/* ── Photo ── */}
+                {/* ── Photo en Arrière-plan ── */}
                 <div style={{ position: 'relative', width: '100%', height: '380px', overflow: 'hidden' }}>
                   <Image
-                    src="/mohamed-sabbar.jpg"
+                    src="/med pic prpoes.jpeg"
                     alt="Mohamed Sabbar — Fondateur Landmark Estate"
                     fill
-                    style={{ objectFit: 'cover', objectPosition: 'center top' }}
+                    style={{ objectFit: 'cover', objectPosition: 'center top', zIndex: 1 }}
                     priority
                   />
                   {/* Dégradé bas pour transition douce vers la section info */}
                   <div style={{
-                    position: 'absolute', bottom: 0, left: 0, right: 0, height: '120px',
-                    background: 'linear-gradient(to bottom, transparent, rgba(13,31,60,0.95))',
+                    position: 'absolute', bottom: 0, left: 0, right: 0, height: '140px',
+                    background: 'linear-gradient(to bottom, transparent, rgba(13,31,60,1))',
+                    zIndex: 2
                   }} />
+                  
                   {/* Nom en overlay sur la photo */}
-                  <div style={{ position: 'absolute', bottom: '20px', left: '28px', right: '28px' }}>
+                  <div style={{ position: 'absolute', bottom: '20px', left: '28px', right: '28px', zIndex: 3 }}>
                     <p style={{ color: '#F9F5EF', fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '26px', fontWeight: 300, lineHeight: 1.2, margin: '0 0 4px' }}>
                       Mohamed Sabbar
                     </p>
