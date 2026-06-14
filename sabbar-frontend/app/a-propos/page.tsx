@@ -83,7 +83,7 @@ export default function AProposPage() {
   }}
 >
   <Image
-    src="/med-pic-propos.jpeg"
+    src="/med-pic-propos2.0.jpeg"
     alt="Mohamed Sabbar"
     fill
     priority
