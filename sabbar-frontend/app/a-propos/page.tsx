@@ -61,7 +61,7 @@ export default function AProposPage() {
                   Landmark Estate est nee d&apos;un constat simple : le marche immobilier casablancais manque de transparence et de suivi. Trop d&apos;acquereurs naviguent sans accompagnement, trop de vendeurs attendent sans nouvelles.
                 </p>
                 <p style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, fontSize: '16px', lineHeight: '1.8' }}>
-                  Fondee a Casablanca par <span style={{ color: '#C8A96E', fontWeight: 600 }}>Mohamed Sabbar</span>, notre agence s&apos;est donnee une mission precise : etre l&apos;interlocuteur unique et fiable pour les promoteurs qui souhaitent commercialiser leurs projets, et pour les particuliers qui veulent acheter, vendre ou louer en toute serenite.
+                  Fondee a Casablanca by <span style={{ color: '#C8A96E', fontWeight: 600 }}>Mohamed Sabbar</span>, notre agence s&apos;est donnee une mission precise : etre l&apos;interlocuteur unique et fiable pour les promoteurs qui souhaitent commercialiser leurs projets, et pour les particuliers qui veulent acheter, vendre ou louer en toute serenite.
                 </p>
                 <p style={{ color: '#8A9BB0', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 400, fontSize: '16px', lineHeight: '1.8' }}>
                   Nous operons aujourd&apos;hui sur <strong style={{ color: '#F9F5EF' }}>Casablanca et régions</strong>, avec un portefeuille de biens verifies et une disponibilite reelle — pas une hotline, mais un interlocuteur qui connait votre dossier.
@@ -74,23 +74,22 @@ export default function AProposPage() {
               <div style={{ height: '4px', background: 'linear-gradient(90deg, #C8A96E 0%, #E2C98A 50%, rgba(200,169,110,0.2) 100%)' }} />
               <div style={{ background: 'rgba(13, 31, 60, 0.6)' }}>
 
-                {/* ── Photo en Arrière-plan ── */}
+                {/* ── Photo Corrigée ── */}
                 <div style={{ position: 'relative', width: '100%', height: '380px', overflow: 'hidden' }}>
                   <Image
-                    src="public\med pic prpoes.jpeg"
+                    src="/med-pic-propos.jpeg"
                     alt="Mohamed Sabbar — Fondateur Landmark Estate"
                     fill
                     style={{ objectFit: 'cover', objectPosition: 'center top', zIndex: 1 }}
                     priority
                   />
-                  {/* Dégradé bas pour transition douce vers la section info */}
+                  {/* Dégradé transparent vers le fond sombre */}
                   <div style={{
-                    position: 'absolute', bottom: 0, left: 0, right: 0, height: '140px',
-                    background: 'linear-gradient(to bottom, transparent, rgba(13,31,60,1))',
+                    position: 'absolute', bottom: 0, left: 0, right: 0, height: '120px',
+                    background: 'linear-gradient(to bottom, transparent, rgba(13,31,60,0.95))',
                     zIndex: 2
                   }} />
-                  
-                  {/* Nom en overlay sur la photo */}
+                  {/* Nom en overlay */}
                   <div style={{ position: 'absolute', bottom: '20px', left: '28px', right: '28px', zIndex: 3 }}>
                     <p style={{ color: '#F9F5EF', fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '26px', fontWeight: 300, lineHeight: 1.2, margin: '0 0 4px' }}>
                       Mohamed Sabbar
@@ -107,7 +106,7 @@ export default function AProposPage() {
                   {/* Tags */}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px solid rgba(200,169,110,0.12)' }}>
                     {['Experience marche local', 'Marketing immobilier', 'Commerce & Negociation'].map((tag, idx) => (
-                      <span key={idx} style={{ display: 'inline-block', padding: '4px 12px', border: '1px solid rgba(200,169,110,0.3)', borderRadius: '20px', color: 'rgba(200,169,110,0.8)', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '11px', fontWeight: 400, letterSpacing: '0.04em', background: 'rgba(200,169,110,0.06)' }}>
+                      <span key={idx} style={{ display: 'inline-block', padding: '4px 12px', border: '1px solid rgba(200, 169, 110, 0.3)', borderRadius: '20px', color: 'rgba(200, 169, 110, 0.8)', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '11px', fontWeight: 400, letterSpacing: '0.04em', background: 'rgba(200,169,110,0.06)' }}>
                         {tag}
                       </span>
                     ))}
