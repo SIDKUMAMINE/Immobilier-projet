@@ -73,7 +73,6 @@ export default function AProposPage() {
             <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(200, 169, 110, 0.25)' }}>
               <div style={{ height: '4px', background: 'linear-gradient(90deg, #C8A96E 0%, #E2C98A 50%, rgba(200,169,110,0.2) 100%)' }} />
               <div style={{ background: 'rgba(13, 31, 60, 0.6)' }}>
-
 <div
   style={{
     position: 'relative',
@@ -82,18 +81,18 @@ export default function AProposPage() {
     overflow: 'hidden',
   }}
 >
- <Image
-  src="/med-pic-propos2.0.jpeg"
-  alt="Mohamed Sabbar"
-  fill
-  priority
-  quality={100}
-  style={{
-    objectFit: 'cover',
-    objectPosition: 'center center',
-  }}
-/>
-
+  <Image
+    src="/med-pic-propos2.0.jpeg"
+    alt="Mohamed Sabbar"
+    fill
+    priority
+    quality={100}
+    style={{
+      objectFit: 'contain',
+      objectPosition: 'center center',
+    }}
+  />
+</div>
   {/* Dégradé uniquement en bas */}
   <div
     style={{
