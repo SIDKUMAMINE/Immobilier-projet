@@ -82,14 +82,14 @@ export default function AProposPage() {
     overflow: 'hidden',
   }}
 >
-  <Image
-    src="/med-pic-propos2.0.jpeg"
-      alt="Mohamed Sabbar"
+ <Image
+  src="/med-pic-propos.jpeg"
+  alt="Mohamed Sabbar"
   fill
   priority
   quality={100}
   style={{
-    objectFit: 'contain',
+    objectFit: 'cover',
     objectPosition: 'center center',
   }}
 />
