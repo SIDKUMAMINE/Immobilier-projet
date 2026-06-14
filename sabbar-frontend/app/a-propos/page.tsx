@@ -78,7 +78,7 @@ export default function AProposPage() {
   style={{
     position: 'relative',
     width: '100%',
-    height: '550px',
+    height: '700px',
     overflow: 'hidden',
   }}
 >
@@ -89,9 +89,10 @@ export default function AProposPage() {
     priority
     style={{
       objectFit: 'cover',
-      objectPosition: 'center 15%',
+      objectPosition: 'center top',
     }}
   />
+</div>
 
   {/* Dégradé uniquement en bas */}
   <div
