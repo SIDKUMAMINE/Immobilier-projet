@@ -74,53 +74,55 @@ export default function AProposPage() {
               <div style={{ height: '4px', background: 'linear-gradient(90deg, #C8A96E 0%, #E2C98A 50%, rgba(200,169,110,0.2) 100%)' }} />
               <div style={{ background: 'rgba(13, 31, 60, 0.6)' }}>
 
-                {/* ── Photo Corrigée ── */}
-               <Image
-  src="/med-pic-propos.jpeg"
-  alt="Mohamed Sabbar — Fondateur Landmark Estate"
-  fill
-  style={{ objectFit: 'cover', objectPosition: 'center top', zIndex: 1 }}
-  priority
-/>
 <div
   style={{
     position: 'relative',
     width: '100%',
-    height: '650px',
-    backgroundImage: "url('/med-pic-propos.jpeg')",
-    backgroundSize: 'contain',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundColor: '#0D1F3C',
+    height: '500px',
+    overflow: 'hidden',
   }}
 >
-  <div
+  <Image
+    src="/med-pic-propos.jpeg"
+    alt="Mohamed Sabbar"
+    fill
+    priority
     style={{
-      position: 'absolute',
-      inset: 0,
-      background:
-        'linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(13,31,60,0.92))',
-      zIndex: 1
+      objectFit: 'cover',
+      objectPosition: 'center 25%',
     }}
   />
 
+  {/* Dégradé uniquement en bas */}
   <div
     style={{
       position: 'absolute',
-      bottom: '20px',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      height: '180px',
+      background:
+        'linear-gradient(to top, rgba(13,31,60,0.98) 0%, rgba(13,31,60,0.8) 40%, transparent 100%)',
+      zIndex: 1,
+    }}
+  />
+
+  {/* Texte */}
+  <div
+    style={{
+      position: 'absolute',
+      bottom: '24px',
       left: '28px',
       right: '28px',
-      zIndex: 2
+      zIndex: 2,
     }}
   >
     <p
       style={{
         color: '#F9F5EF',
         fontFamily: "'Cormorant Garamond', Georgia, serif",
-        fontSize: '26px',
-        fontWeight: 300,
-        lineHeight: 1.2,
-        margin: '0 0 4px'
+        fontSize: '32px',
+        marginBottom: '6px',
       }}
     >
       Mohamed Sabbar
@@ -129,14 +131,11 @@ export default function AProposPage() {
     <p
       style={{
         color: '#C8A96E',
-        fontFamily: "'DM Sans', system-ui, sans-serif",
-        fontSize: '12px',
-        fontWeight: 500,
-        letterSpacing: '0.06em',
-        margin: 0
+        fontSize: '13px',
+        letterSpacing: '0.05em',
       }}
     >
-      Fondateur · Marketeur &amp; Commercial Immobilier
+      Fondateur · Marketeur & Commercial Immobilier
     </p>
   </div>
 </div>
