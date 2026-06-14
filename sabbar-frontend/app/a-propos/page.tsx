@@ -92,7 +92,6 @@ export default function AProposPage() {
       objectPosition: 'center top',
     }}
   />
-</div>
 
   {/* Dégradé uniquement en bas */}
   <div
