@@ -77,7 +77,7 @@ export default function AProposPage() {
                 {/* ── Photo en Arrière-plan ── */}
                 <div style={{ position: 'relative', width: '100%', height: '380px', overflow: 'hidden' }}>
                   <Image
-                    src="/med pic prpoes.jpeg"
+                    src="public\med pic prpoes.jpeg"
                     alt="Mohamed Sabbar — Fondateur Landmark Estate"
                     fill
                     style={{ objectFit: 'cover', objectPosition: 'center top', zIndex: 1 }}
