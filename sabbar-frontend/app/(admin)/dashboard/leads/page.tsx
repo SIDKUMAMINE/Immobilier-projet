@@ -5,6 +5,8 @@ import {
   RefreshCw, Search, Filter, Trash2, Bell, BellOff, Save
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import Link from 'next/link';
+
 
 const T = {
   navy:      '#0D1F3C',
@@ -349,11 +351,21 @@ export default function LeadsPage() {
         </div>
 
         {/* ── 3 KPI CARDS : Acheteur / Propriétaire / Promoteur ── */}
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px', marginBottom:'28px' }}>
-          {kpis.map(k => (
-            <KpiCard key={k.key} icon={k.icon} label={k.label} value={k.value} color={k.color} bg={k.bg} />
-          ))}
-        </div>
+       
+const kpiLinks: Record<string, string> = {
+  acheteur:     '/dashboard/leads/acheteurs',
+  proprietaire: '/dashboard/leads/proprietaires',
+  promoteur:    '/dashboard/leads/promoteurs',
+};
+
+// Dans le JSX :
+<div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px', marginBottom:'28px' }}>
+  {kpis.map(k => (
+    <Link key={k.key} href={kpiLinks[k.key]} style={{ textDecoration:'none' }}>
+      <KpiCard icon={k.icon} label={k.label} value={k.value} color={k.color} bg={k.bg} />
+    </Link>
+  ))}
+</div>
 
         {/* ── ONGLETS source ── */}
         <div style={{ display:'flex', gap:'8px', marginBottom:'20px', flexWrap:'wrap' }}>
