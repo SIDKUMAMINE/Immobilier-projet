@@ -94,7 +94,7 @@ export default function AProposPage() {
                     sizes="(max-width: 768px) 100vw, 700px"
                     style={{
                       objectFit: 'contain',
-                      objectPosition: 'center top',
+                      objectPosition: '35% 10%',
                       filter: 'none',
                     }}
                   />
