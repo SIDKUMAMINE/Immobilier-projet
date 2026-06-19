@@ -76,7 +76,7 @@ export default function AProposPage() {
 
               <div style={{ background: 'rgba(13, 31, 60, 0.6)' }}>
 {/* ── Zone photo avec dégradé et nom superposés ── */}
-                 <div
+                <div
                   style={{
                     position: 'relative',
                     width: '100%',
@@ -93,12 +93,11 @@ export default function AProposPage() {
                     quality={100}
                     sizes="(max-width: 768px) 100vw, 700px"
                     style={{
-                      objectFit: 'cover',
-                      objectPosition: '30% top',
+                      objectFit: 'contain',
+                      objectPosition: 'center top',
                       filter: 'none',
                     }}
                   />
-
 
                   {/* Dégradé uniquement tout en bas pour le nom */}
                   <div
