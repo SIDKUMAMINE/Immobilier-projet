@@ -108,9 +108,8 @@ export default function AProposPage() {
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      height: '200px',
-                      background: 'linear-gradient(to bottom, rgba(8,21,42,1) 0%, rgba(8,21,42,0.9) 60%, transparent 100%)',
-                      zIndex: 1,
+                      height: '80px',
+                      background: 'linear-gradient(to bottom, rgba(8,21,42,1) 0%, rgba(8,21,42,0.95) 70%, transparent 100%)',
                     }}
                   />
 
