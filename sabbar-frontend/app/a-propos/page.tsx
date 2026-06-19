@@ -75,17 +75,16 @@ export default function AProposPage() {
               <div style={{ height: '4px', background: 'linear-gradient(90deg, #C8A96E 0%, #E2C98A 50%, rgba(200,169,110,0.2) 100%)' }} />
 
               <div style={{ background: 'rgba(13, 31, 60, 0.6)' }}>
-
-                {/* ── Zone photo avec dégradé et nom superposés ── */}
+{/* ── Zone photo avec dégradé et nom superposés ── */}
                 <div
                   style={{
                     position: 'relative',
                     width: '100%',
-                    height: '600px',
+                    height: '750px',
                     overflow: 'hidden',
+                    background: '#08152A',
                   }}
                 >
-                  {/* Photo — SEUL src à changer si tu renommes autrement */}
                   <Image
                     src="/med-pic-propos.jpeg"
                     alt="Mohamed Sabbar"
@@ -94,22 +93,26 @@ export default function AProposPage() {
                     quality={100}
                     sizes="(max-width: 768px) 100vw, 700px"
                     style={{
-                      objectFit: 'cover',
+                      objectFit: 'contain',
                       objectPosition: 'center top',
+                      filter: 'none',
                     }}
                   />
 
-                  {/* Dégradé en bas de la photo */}
+                  {/* Dégradé uniquement tout en bas pour le nom */}
                   <div
                     style={{
                       position: 'absolute',
-                      inset: 0,
-                      background: 'linear-gradient(to top, rgba(13,31,60,0.98) 0%, rgba(13,31,60,0.6) 30%, transparent 60%)',
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height: '160px',
+                      background: 'linear-gradient(to top, rgba(8,21,42,1) 0%, rgba(8,21,42,0.9) 40%, transparent 100%)',
                       zIndex: 1,
                     }}
                   />
 
-                  {/* Nom + titre par-dessus le dégradé */}
+                  {/* Nom + titre */}
                   <div
                     style={{
                       position: 'absolute',
