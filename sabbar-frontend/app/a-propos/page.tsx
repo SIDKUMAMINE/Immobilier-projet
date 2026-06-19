@@ -93,9 +93,11 @@ export default function AProposPage() {
                     quality={100}
                     sizes="(max-width: 768px) 100vw, 700px"
                     style={{
-                      objectFit: 'contain',
-                      objectPosition: '35% 10%',
+                      objectFit: 'cover',
+                      objectPosition: '40% 15%',
                       filter: 'none',
+                       transform: 'scale(1.15)',
+  transformOrigin: 'center 20%',
                     }}
                   />
 
