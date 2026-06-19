@@ -93,12 +93,12 @@ export default function AProposPage() {
                     quality={100}
                     sizes="(max-width: 768px) 100vw, 700px"
                     style={{
-                      objectFit: 'cover',
-                      objectPosition: '40% 15%',
-                      filter: 'none',
-                       transform: 'scale(1.15)',
-  transformOrigin: 'center 20%',
-                    }}
+  objectFit: 'cover',
+  objectPosition: '40% 5%',
+  filter: 'none',
+  transform: 'scale(1.08)',
+  transformOrigin: '40% 5%',
+}}
                   />
 
                   {/* Dégradé uniquement tout en bas pour le nom */}
