@@ -191,7 +191,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   A
                 </div>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 500, color: T.navy }}>
-                  Bienvenue, Amine 👋
+                  Bienvenue, Agent Mohammed 👋
                 </span>
               </div>
             </div>
