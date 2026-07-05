@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import {
   Users, Phone, Mail, MapPin, DollarSign, Calendar,
   Plus, Trash2, Save, X, Check, RefreshCw, FileText,
-  Eye, ChevronDown, ChevronUp, Search, Filter, ArrowLeft
+  Eye, ChevronDown, ChevronUp, Search, Filter, ArrowLeft, Pencil, AlertTriangle
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -58,6 +58,12 @@ const STATUS_VISIT: Record<string, { label: string; color: string; bg: string }>
   cancelled: { label: 'Annulée',   color: '#6b7280', bg: 'rgba(107,114,128,0.1)' },
 };
 
+const PRIORITIES: Record<string, { label: string; color: string }> = {
+  low:    { label: 'Basse',  color: '#6b7280' },
+  medium: { label: 'Moyenne', color: '#d97706' },
+  high:   { label: 'Haute',  color: '#dc2626' },
+};
+
 const inp: React.CSSProperties = {
   width: '100%', padding: '9px 12px', borderRadius: '8px',
   border: `1px solid ${T.borderSoft}`, fontSize: '13px',
@@ -94,6 +100,28 @@ export default function AcheteursPage() {
   const [voucherForm, setVoucherForm]       = useState({ property_ref: '', visit_id: '' });
   const [saving, setSaving]                 = useState(false);
 
+  // ── CRUD acheteur : état création ──
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    first_name: '', last_name: '', phone: '', email: '',
+    budget_min: '', budget_max: '', preferred_cities: '',
+    priority: 'medium', notes: '',
+  });
+  const [creating, setCreating] = useState(false);
+
+  // ── CRUD acheteur : état édition fiche ──
+  const [editingFiche, setEditingFiche] = useState(false);
+  const [editForm, setEditForm] = useState({
+    first_name: '', last_name: '', phone: '', email: '',
+    budget_min: '', budget_max: '', preferred_cities: '',
+    priority: 'medium', qualification_score: '', notes: '',
+  });
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  // ── CRUD acheteur : état suppression ──
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
   const load = async () => {
     setLoading(true);
     if (!supabase) { setLoading(false); return; }
@@ -121,6 +149,108 @@ export default function AcheteursPage() {
   };
 
   useEffect(() => { load(); }, []);
+
+  // ── CREATE : nouvel acheteur ──
+  const createLead = async () => {
+    if (!supabase || !createForm.first_name.trim()) return;
+    setCreating(true);
+    const cities = createForm.preferred_cities.trim()
+      ? createForm.preferred_cities.split(',').map(c => c.trim()).filter(Boolean)
+      : null;
+    const { data, error } = await supabase.from('leads').insert({
+      lead_type: 'acheteur',
+      first_name: createForm.first_name.trim(),
+      last_name: createForm.last_name.trim() || null,
+      phone: createForm.phone.trim() || null,
+      email: createForm.email.trim() || null,
+      budget_min: createForm.budget_min ? parseFloat(createForm.budget_min) : null,
+      budget_max: createForm.budget_max ? parseFloat(createForm.budget_max) : null,
+      preferred_cities: cities,
+      priority: createForm.priority,
+      notes: createForm.notes.trim() || null,
+      status: 'new',
+    }).select().single();
+
+    if (error) {
+      alert('Erreur lors de la création : ' + error.message);
+    } else if (data) {
+      setLeads(prev => [data, ...prev]);
+      setCreateForm({ first_name: '', last_name: '', phone: '', email: '', budget_min: '', budget_max: '', preferred_cities: '', priority: 'medium', notes: '' });
+      setShowCreateForm(false);
+      setSelected(data);
+      setTab('fiche');
+    }
+    setCreating(false);
+  };
+
+  // ── UPDATE : modifier la fiche acheteur ──
+  const startEditFiche = () => {
+    if (!selected) return;
+    setEditForm({
+      first_name: selected.first_name || '',
+      last_name: selected.last_name || '',
+      phone: selected.phone || '',
+      email: selected.email || '',
+      budget_min: selected.budget_min ? String(selected.budget_min) : '',
+      budget_max: selected.budget_max ? String(selected.budget_max) : '',
+      preferred_cities: citiesLabel(selected.preferred_cities),
+      priority: selected.priority || 'medium',
+      qualification_score: selected.qualification_score != null ? String(selected.qualification_score) : '',
+      notes: selected.notes || '',
+    });
+    setEditingFiche(true);
+  };
+
+  const saveEditFiche = async () => {
+    if (!supabase || !selected) return;
+    setSavingEdit(true);
+    const cities = editForm.preferred_cities.trim()
+      ? editForm.preferred_cities.split(',').map(c => c.trim()).filter(Boolean)
+      : null;
+    const patch = {
+      first_name: editForm.first_name.trim() || null,
+      last_name: editForm.last_name.trim() || null,
+      phone: editForm.phone.trim() || null,
+      email: editForm.email.trim() || null,
+      budget_min: editForm.budget_min ? parseFloat(editForm.budget_min) : null,
+      budget_max: editForm.budget_max ? parseFloat(editForm.budget_max) : null,
+      preferred_cities: cities,
+      priority: editForm.priority,
+      qualification_score: editForm.qualification_score ? parseInt(editForm.qualification_score, 10) : null,
+      notes: editForm.notes.trim() || null,
+    };
+    const { data, error } = await supabase.from('leads').update(patch).eq('id', selected.id).select().single();
+    if (error) {
+      alert('Erreur lors de la mise à jour : ' + error.message);
+    } else if (data) {
+      setLeads(prev => prev.map(l => l.id === selected.id ? data : l));
+      setSelected(data);
+      setEditingFiche(false);
+    }
+    setSavingEdit(false);
+  };
+
+  // ── DELETE : supprimer un acheteur ──
+  const deleteLead = async () => {
+    if (!supabase || !selected) return;
+    setDeleting(true);
+    // On supprime d'abord les enregistrements liés pour éviter les erreurs de clé étrangère
+    await supabase.from('visits').delete().eq('lead_id', selected.id);
+    await supabase.from('visit_vouchers').delete().eq('lead_id', selected.id);
+    await supabase.from('buyer_group_members').delete().eq('lead_id', selected.id);
+    const { error } = await supabase.from('leads').delete().eq('id', selected.id);
+    if (error) {
+      alert('Erreur lors de la suppression : ' + error.message);
+    } else {
+      setLeads(prev => prev.filter(l => l.id !== selected.id));
+      setVisits(prev => prev.filter(v => v.lead_id !== selected.id));
+      setVouchers(prev => prev.filter(v => v.lead_id !== selected.id));
+      setGroups(prev => prev.map(g => ({ ...g, members: g.members?.filter(m => m.id !== selected.id) })));
+      setSelected(null);
+      setDeleteConfirm(false);
+    }
+    setDeleting(false);
+  };
 
   const addVisit = async () => {
     if (!supabase || !selected || !visitForm.visit_date) return;
@@ -234,9 +364,14 @@ export default function AcheteursPage() {
             </h1>
             <p style={{ fontSize: '12px', color: T.muted, marginTop: '4px' }}>{leads.length} acheteurs · {todayVisits.length} visite{todayVisits.length !== 1 ? 's' : ''} aujourd'hui</p>
           </div>
-          <button onClick={load} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', background: '#16a34a', color: '#fff', fontSize: '13px', fontWeight: 500, borderRadius: '9px', border: 'none', cursor: 'pointer' }}>
-            <RefreshCw size={13} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} /> Actualiser
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button onClick={() => setShowCreateForm(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', background: `linear-gradient(135deg,${T.gold},${T.goldLight})`, color: T.navy, fontSize: '13px', fontWeight: 600, borderRadius: '9px', border: 'none', cursor: 'pointer' }}>
+              <Plus size={14} /> Nouvel acheteur
+            </button>
+            <button onClick={load} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', background: '#16a34a', color: '#fff', fontSize: '13px', fontWeight: 500, borderRadius: '9px', border: 'none', cursor: 'pointer' }}>
+              <RefreshCw size={13} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} /> Actualiser
+            </button>
+          </div>
         </div>
 
         {/* KPIs */}
@@ -282,7 +417,7 @@ export default function AcheteursPage() {
                 const lVisits = visits.filter(v => v.lead_id === lead.id);
                 return (
                   <div key={lead.id} className={`ach-card${isSel ? ' sel' : ''}`}
-                    onClick={() => { setSelected(isSel ? null : lead); setTab('fiche'); }}
+                    onClick={() => { setSelected(isSel ? null : lead); setTab('fiche'); setEditingFiche(false); setDeleteConfirm(false); }}
                     style={{ ...card, padding: '16px', position: 'relative', overflow: 'hidden' }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: `linear-gradient(90deg,${T.gold},${T.goldLight})` }} />
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
@@ -332,7 +467,7 @@ export default function AcheteursPage() {
                     {t.icon} {t.label}
                   </button>
                 ))}
-                <button onClick={() => setSelected(null)} style={{ padding: '14px', border: 'none', cursor: 'pointer', background: 'transparent', color: T.muted }}>
+                <button onClick={() => { setSelected(null); setEditingFiche(false); setDeleteConfirm(false); }} style={{ padding: '14px', border: 'none', cursor: 'pointer', background: 'transparent', color: T.muted }}>
                   <X size={16} />
                 </button>
               </div>
@@ -342,73 +477,135 @@ export default function AcheteursPage() {
                 {/* ── TAB : FICHE ── */}
                 {tab === 'fiche' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    {/* Identité */}
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: T.navy, marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Informations acheteur</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                        <div style={{ background: T.ivory, borderRadius: '8px', padding: '12px' }}>
-                          <div style={lbl}>Nom complet</div>
-                          <div style={{ fontSize: '14px', fontWeight: 600, color: T.navy }}>{displayName(selected)}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: T.navy, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Informations acheteur</div>
+                      {!editingFiche && !deleteConfirm && (
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button onClick={startEditFiche} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '7px', background: `${T.gold}20`, border: `1px solid ${T.border}`, color: T.gold, fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                            <Pencil size={12} /> Modifier
+                          </button>
+                          <button onClick={() => setDeleteConfirm(true)} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '7px', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.2)', color: '#dc2626', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                            <Trash2 size={12} /> Supprimer
+                          </button>
                         </div>
-                        <div style={{ background: T.ivory, borderRadius: '8px', padding: '12px' }}>
-                          <div style={lbl}>Téléphone</div>
-                          <a href={`tel:${selected.phone}`} style={{ fontSize: '14px', fontWeight: 600, color: '#16a34a', textDecoration: 'none' }}>{selected.phone || '—'}</a>
-                        </div>
-                        <div style={{ background: T.ivory, borderRadius: '8px', padding: '12px', gridColumn: 'span 2' }}>
-                          <div style={lbl}>Email</div>
-                          <a href={`mailto:${selected.email}`} style={{ fontSize: '13px', color: T.gold, textDecoration: 'none' }}>{selected.email || '—'}</a>
-                        </div>
-                      </div>
+                      )}
                     </div>
 
-                    {/* Critères de recherche */}
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: T.navy, marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Critères de recherche</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                        <div style={{ background: T.ivory, borderRadius: '8px', padding: '12px' }}>
-                          <div style={lbl}>Budget</div>
-                          <div style={{ fontSize: '14px', fontWeight: 700, color: T.gold }}>{fmtBudget(selected.budget_min, selected.budget_max)}</div>
-                        </div>
-                        <div style={{ background: T.ivory, borderRadius: '8px', padding: '12px' }}>
-                          <div style={lbl}>Villes souhaitées</div>
-                          <div style={{ fontSize: '13px', color: T.navy }}>{citiesLabel(selected.preferred_cities) || '—'}</div>
-                        </div>
-                        <div style={{ background: T.ivory, borderRadius: '8px', padding: '12px' }}>
-                          <div style={lbl}>Score qualification</div>
-                          <div style={{ fontSize: '14px', fontWeight: 700, color: selected.qualification_score && selected.qualification_score >= 70 ? '#16a34a' : '#d97706' }}>
-                            {selected.qualification_score ?? '—'} / 100
+                    {/* Confirmation de suppression */}
+                    {deleteConfirm && (
+                      <div style={{ background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.25)', borderRadius: '10px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                          <AlertTriangle size={18} style={{ color: '#dc2626', flexShrink: 0, marginTop: '2px' }} />
+                          <div style={{ fontSize: '13px', color: T.navy, lineHeight: 1.5 }}>
+                            Voulez-vous vraiment supprimer <strong>{displayName(selected)}</strong> ? Cette action supprimera également ses visites, bons de visite et son appartenance aux groupes. Cette opération est irréversible.
                           </div>
                         </div>
-                        <div style={{ background: T.ivory, borderRadius: '8px', padding: '12px' }}>
-                          <div style={lbl}>Priorité</div>
-                          <div style={{ fontSize: '13px', color: T.navy, textTransform: 'capitalize' }}>{selected.priority || 'medium'}</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Notes */}
-                    {selected.notes && (
-                      <div>
-                        <div style={{ fontSize: '13px', fontWeight: 700, color: T.navy, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Notes</div>
-                        <div style={{ background: T.ivory, borderRadius: '8px', padding: '14px', fontSize: '13px', color: T.navy, lineHeight: 1.6 }}>
-                          {selected.notes}
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button onClick={deleteLead} disabled={deleting} style={{ flex: 1, padding: '9px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '7px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                            {deleting ? 'Suppression...' : 'Confirmer la suppression'}
+                          </button>
+                          <button onClick={() => setDeleteConfirm(false)} style={{ padding: '9px 14px', background: 'transparent', border: `1px solid ${T.borderSoft}`, borderRadius: '7px', cursor: 'pointer', color: T.muted }}>Annuler</button>
                         </div>
                       </div>
                     )}
 
-                    {/* Actions rapides */}
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      {selected.phone && (
-                        <a href={`tel:${selected.phone}`} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '11px', background: '#E8F5E9', color: '#2E7D32', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 600 }}>
-                          <Phone size={14} /> Appeler
-                        </a>
-                      )}
-                      {selected.email && (
-                        <a href={`mailto:${selected.email}`} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '11px', background: '#F5F0E6', color: T.gold, borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 600 }}>
-                          <Mail size={14} /> Email
-                        </a>
-                      )}
-                    </div>
+                    {editingFiche ? (
+                      /* ── Mode édition ── */
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                          <div><label style={lbl}>Prénom *</label><input value={editForm.first_name} onChange={e => setEditForm(f => ({ ...f, first_name: e.target.value }))} style={inp} /></div>
+                          <div><label style={lbl}>Nom</label><input value={editForm.last_name} onChange={e => setEditForm(f => ({ ...f, last_name: e.target.value }))} style={inp} /></div>
+                          <div><label style={lbl}>Téléphone</label><input value={editForm.phone} onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))} style={inp} /></div>
+                          <div><label style={lbl}>Email</label><input type="email" value={editForm.email} onChange={e => setEditForm(f => ({ ...f, email: e.target.value }))} style={inp} /></div>
+                          <div><label style={lbl}>Budget min (MAD)</label><input type="number" value={editForm.budget_min} onChange={e => setEditForm(f => ({ ...f, budget_min: e.target.value }))} style={inp} /></div>
+                          <div><label style={lbl}>Budget max (MAD)</label><input type="number" value={editForm.budget_max} onChange={e => setEditForm(f => ({ ...f, budget_max: e.target.value }))} style={inp} /></div>
+                          <div style={{ gridColumn: 'span 2' }}><label style={lbl}>Villes souhaitées (séparées par virgule)</label><input value={editForm.preferred_cities} onChange={e => setEditForm(f => ({ ...f, preferred_cities: e.target.value }))} placeholder="Casablanca, Tanger" style={inp} /></div>
+                          <div>
+                            <label style={lbl}>Priorité</label>
+                            <select value={editForm.priority} onChange={e => setEditForm(f => ({ ...f, priority: e.target.value }))} style={inp}>
+                              {Object.entries(PRIORITIES).map(([k, p]) => <option key={k} value={k}>{p.label}</option>)}
+                            </select>
+                          </div>
+                          <div><label style={lbl}>Score qualification (0-100)</label><input type="number" min={0} max={100} value={editForm.qualification_score} onChange={e => setEditForm(f => ({ ...f, qualification_score: e.target.value }))} style={inp} /></div>
+                        </div>
+                        <div><label style={lbl}>Notes</label><textarea value={editForm.notes} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))} rows={3} style={{ ...inp, resize: 'none' }} /></div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button onClick={saveEditFiche} disabled={savingEdit || !editForm.first_name.trim()} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: `linear-gradient(135deg,${T.gold},${T.goldLight})`, color: T.navy, border: 'none', borderRadius: '7px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                            <Save size={13} /> {savingEdit ? 'Enregistrement...' : 'Enregistrer'}
+                          </button>
+                          <button onClick={() => setEditingFiche(false)} style={{ padding: '10px 16px', background: 'transparent', border: `1px solid ${T.borderSoft}`, borderRadius: '7px', cursor: 'pointer', color: T.muted }}><X size={14} /></button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Identité */}
+                        <div>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                            <div style={{ background: T.ivory, borderRadius: '8px', padding: '12px' }}>
+                              <div style={lbl}>Nom complet</div>
+                              <div style={{ fontSize: '14px', fontWeight: 600, color: T.navy }}>{displayName(selected)}</div>
+                            </div>
+                            <div style={{ background: T.ivory, borderRadius: '8px', padding: '12px' }}>
+                              <div style={lbl}>Téléphone</div>
+                              <a href={`tel:${selected.phone}`} style={{ fontSize: '14px', fontWeight: 600, color: '#16a34a', textDecoration: 'none' }}>{selected.phone || '—'}</a>
+                            </div>
+                            <div style={{ background: T.ivory, borderRadius: '8px', padding: '12px', gridColumn: 'span 2' }}>
+                              <div style={lbl}>Email</div>
+                              <a href={`mailto:${selected.email}`} style={{ fontSize: '13px', color: T.gold, textDecoration: 'none' }}>{selected.email || '—'}</a>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Critères de recherche */}
+                        <div>
+                          <div style={{ fontSize: '13px', fontWeight: 700, color: T.navy, marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Critères de recherche</div>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                            <div style={{ background: T.ivory, borderRadius: '8px', padding: '12px' }}>
+                              <div style={lbl}>Budget</div>
+                              <div style={{ fontSize: '14px', fontWeight: 700, color: T.gold }}>{fmtBudget(selected.budget_min, selected.budget_max)}</div>
+                            </div>
+                            <div style={{ background: T.ivory, borderRadius: '8px', padding: '12px' }}>
+                              <div style={lbl}>Villes souhaitées</div>
+                              <div style={{ fontSize: '13px', color: T.navy }}>{citiesLabel(selected.preferred_cities) || '—'}</div>
+                            </div>
+                            <div style={{ background: T.ivory, borderRadius: '8px', padding: '12px' }}>
+                              <div style={lbl}>Score qualification</div>
+                              <div style={{ fontSize: '14px', fontWeight: 700, color: selected.qualification_score && selected.qualification_score >= 70 ? '#16a34a' : '#d97706' }}>
+                                {selected.qualification_score ?? '—'} / 100
+                              </div>
+                            </div>
+                            <div style={{ background: T.ivory, borderRadius: '8px', padding: '12px' }}>
+                              <div style={lbl}>Priorité</div>
+                              <div style={{ fontSize: '13px', color: T.navy }}>{PRIORITIES[selected.priority || 'medium']?.label || selected.priority || 'medium'}</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Notes */}
+                        {selected.notes && (
+                          <div>
+                            <div style={{ fontSize: '13px', fontWeight: 700, color: T.navy, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Notes</div>
+                            <div style={{ background: T.ivory, borderRadius: '8px', padding: '14px', fontSize: '13px', color: T.navy, lineHeight: 1.6 }}>
+                              {selected.notes}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Actions rapides */}
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          {selected.phone && (
+                            <a href={`tel:${selected.phone}`} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '11px', background: '#E8F5E9', color: '#2E7D32', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 600 }}>
+                              <Phone size={14} /> Appeler
+                            </a>
+                          )}
+                          {selected.email && (
+                            <a href={`mailto:${selected.email}`} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '11px', background: '#F5F0E6', color: T.gold, borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 600 }}>
+                              <Mail size={14} /> Email
+                            </a>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
 
@@ -641,6 +838,50 @@ export default function AcheteursPage() {
           )}
         </div>
       </div>
+
+      {/* ── MODALE : Nouvel acheteur ── */}
+      {showCreateForm && (
+        <div onClick={() => !creating && setShowCreateForm(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(13,31,60,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+          <div onClick={e => e.stopPropagation()} style={{ ...card, width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', padding: '28px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: '24px', fontWeight: 400, color: T.navy, margin: 0 }}>
+                Nouvel <span style={{ color: T.gold, fontStyle: 'italic' }}>acheteur</span>
+              </h2>
+              <button onClick={() => setShowCreateForm(false)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: T.muted }}><X size={18} /></button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div><label style={lbl}>Prénom *</label><input value={createForm.first_name} onChange={e => setCreateForm(f => ({ ...f, first_name: e.target.value }))} style={inp} /></div>
+                <div><label style={lbl}>Nom</label><input value={createForm.last_name} onChange={e => setCreateForm(f => ({ ...f, last_name: e.target.value }))} style={inp} /></div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div><label style={lbl}>Téléphone</label><input value={createForm.phone} onChange={e => setCreateForm(f => ({ ...f, phone: e.target.value }))} style={inp} /></div>
+                <div><label style={lbl}>Email</label><input type="email" value={createForm.email} onChange={e => setCreateForm(f => ({ ...f, email: e.target.value }))} style={inp} /></div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div><label style={lbl}>Budget min (MAD)</label><input type="number" value={createForm.budget_min} onChange={e => setCreateForm(f => ({ ...f, budget_min: e.target.value }))} style={inp} /></div>
+                <div><label style={lbl}>Budget max (MAD)</label><input type="number" value={createForm.budget_max} onChange={e => setCreateForm(f => ({ ...f, budget_max: e.target.value }))} style={inp} /></div>
+              </div>
+              <div><label style={lbl}>Villes souhaitées (séparées par virgule)</label><input value={createForm.preferred_cities} onChange={e => setCreateForm(f => ({ ...f, preferred_cities: e.target.value }))} placeholder="Casablanca, Tanger" style={inp} /></div>
+              <div>
+                <label style={lbl}>Priorité</label>
+                <select value={createForm.priority} onChange={e => setCreateForm(f => ({ ...f, priority: e.target.value }))} style={inp}>
+                  {Object.entries(PRIORITIES).map(([k, p]) => <option key={k} value={k}>{p.label}</option>)}
+                </select>
+              </div>
+              <div><label style={lbl}>Notes</label><textarea value={createForm.notes} onChange={e => setCreateForm(f => ({ ...f, notes: e.target.value }))} rows={3} style={{ ...inp, resize: 'none' }} /></div>
+
+              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                <button onClick={createLead} disabled={creating || !createForm.first_name.trim()} style={{ flex: 1, padding: '11px', background: `linear-gradient(135deg,${T.gold},${T.goldLight})`, color: T.navy, border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', opacity: (!createForm.first_name.trim() || creating) ? 0.6 : 1 }}>
+                  {creating ? 'Création...' : 'Créer l\'acheteur'}
+                </button>
+                <button onClick={() => setShowCreateForm(false)} style={{ padding: '11px 18px', background: 'transparent', border: `1px solid ${T.borderSoft}`, borderRadius: '8px', cursor: 'pointer', color: T.muted }}>Annuler</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
