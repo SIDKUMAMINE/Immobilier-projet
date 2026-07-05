@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import {
   Building2, Phone, Mail, MapPin, DollarSign,
   Plus, Trash2, X, Check, RefreshCw, FileText,
-  ArrowLeft, Search, ChevronRight
+  ArrowLeft, Search, ChevronRight, Pencil, Save, AlertTriangle
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -55,6 +55,12 @@ const STATUS_MANDAT: Record<string, { label: string; color: string; bg: string }
   cancelled: { label: 'Annulé',    color: '#dc2626', bg: 'rgba(220,38,38,0.1)' },
 };
 
+const PRIORITIES: Record<string, { label: string; color: string }> = {
+  low:    { label: 'Basse',  color: '#6b7280' },
+  medium: { label: 'Moyenne', color: '#d97706' },
+  high:   { label: 'Haute',  color: '#dc2626' },
+};
+
 function displayName(l: Lead) { return [l.first_name, l.last_name].filter(Boolean).join(' ').trim() || '—'; }
 function citiesLabel(pc: any): string {
   if (!pc) return '';
@@ -97,6 +103,26 @@ export default function PromoteursPage() {
   const [saving, setSaving]         = useState(false);
   const [updatingPhase, setUpdatingPhase] = useState(false);
 
+  // ── CRUD promoteur : état création ──
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    first_name: '', last_name: '', company_name: '', phone: '', email: '',
+    project_location: '', project_units: '', priority: 'medium', notes: '',
+  });
+  const [creating, setCreating] = useState(false);
+
+  // ── CRUD promoteur : état édition fiche ──
+  const [editingFiche, setEditingFiche] = useState(false);
+  const [editForm, setEditForm] = useState({
+    first_name: '', last_name: '', company_name: '', phone: '', email: '',
+    assigned_to: '', priority: 'medium', notes: '',
+  });
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  // ── CRUD promoteur : état suppression ──
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
   const load = async () => {
     setLoading(true);
     if (!supabase) { setLoading(false); return; }
@@ -111,6 +137,97 @@ export default function PromoteursPage() {
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
+
+  // ── CREATE : nouveau promoteur ──
+  const createLead = async () => {
+    if (!supabase || !createForm.first_name.trim()) return;
+    setCreating(true);
+    const { data, error } = await supabase.from('leads').insert({
+      lead_type: 'promoteur',
+      first_name: createForm.first_name.trim(),
+      last_name: createForm.last_name.trim() || null,
+      company_name: createForm.company_name.trim() || null,
+      phone: createForm.phone.trim() || null,
+      email: createForm.email.trim() || null,
+      project_location: createForm.project_location.trim() || null,
+      project_units: createForm.project_units ? parseInt(createForm.project_units, 10) : null,
+      priority: createForm.priority,
+      notes: createForm.notes.trim() || null,
+      project_phase: 'prospection',
+      status: 'new',
+    }).select().single();
+
+    if (error) {
+      alert('Erreur lors de la création : ' + error.message);
+    } else if (data) {
+      setLeads(prev => [data, ...prev]);
+      setCreateForm({ first_name: '', last_name: '', company_name: '', phone: '', email: '', project_location: '', project_units: '', priority: 'medium', notes: '' });
+      setShowCreateForm(false);
+      setSelected(data);
+      setTab('fiche');
+    }
+    setCreating(false);
+  };
+
+  // ── UPDATE : modifier la fiche promoteur ──
+  const startEditFiche = () => {
+    if (!selected) return;
+    setEditForm({
+      first_name: selected.first_name || '',
+      last_name: selected.last_name || '',
+      company_name: selected.company_name || '',
+      phone: selected.phone || '',
+      email: selected.email || '',
+      assigned_to: selected.assigned_to || '',
+      priority: selected.priority || 'medium',
+      notes: selected.notes || '',
+    });
+    setEditingFiche(true);
+  };
+
+  const saveEditFiche = async () => {
+    if (!supabase || !selected) return;
+    setSavingEdit(true);
+    const patch = {
+      first_name: editForm.first_name.trim() || null,
+      last_name: editForm.last_name.trim() || null,
+      company_name: editForm.company_name.trim() || null,
+      phone: editForm.phone.trim() || null,
+      email: editForm.email.trim() || null,
+      assigned_to: editForm.assigned_to.trim() || null,
+      priority: editForm.priority,
+      notes: editForm.notes.trim() || null,
+    };
+    const { data, error } = await supabase.from('leads').update(patch).eq('id', selected.id).select().single();
+    if (error) {
+      alert('Erreur lors de la mise à jour : ' + error.message);
+    } else if (data) {
+      setLeads(prev => prev.map(l => l.id === selected.id ? data : l));
+      setSelected(data);
+      setEditingFiche(false);
+    }
+    setSavingEdit(false);
+  };
+
+  // ── DELETE : supprimer un promoteur ──
+  const deleteLead = async () => {
+    if (!supabase || !selected) return;
+    setDeleting(true);
+    // On supprime d'abord les enregistrements liés pour éviter les erreurs de clé étrangère
+    await supabase.from('promoteur_actions').delete().eq('lead_id', selected.id);
+    await supabase.from('mandats').delete().eq('lead_id', selected.id);
+    const { error } = await supabase.from('leads').delete().eq('id', selected.id);
+    if (error) {
+      alert('Erreur lors de la suppression : ' + error.message);
+    } else {
+      setLeads(prev => prev.filter(l => l.id !== selected.id));
+      setActions(prev => prev.filter(a => a.lead_id !== selected.id));
+      setMandats(prev => prev.filter(m => m.lead_id !== selected.id));
+      setSelected(null);
+      setDeleteConfirm(false);
+    }
+    setDeleting(false);
+  };
 
   const updatePhase = async (phase: string) => {
     if (!supabase || !selected) return;
@@ -219,9 +336,14 @@ export default function PromoteursPage() {
               {leads.length} promoteurs · {mandats.filter(m => m.status === 'signed').length} mandats signés
             </p>
           </div>
-          <button onClick={load} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', background: '#16a34a', color: '#fff', fontSize: '13px', fontWeight: 500, borderRadius: '9px', border: 'none', cursor: 'pointer' }}>
-            <RefreshCw size={13} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} /> Actualiser
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button onClick={() => setShowCreateForm(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', background: `linear-gradient(135deg,${T.gold},${T.goldLight})`, color: T.navy, fontSize: '13px', fontWeight: 600, borderRadius: '9px', border: 'none', cursor: 'pointer' }}>
+              <Plus size={14} /> Nouveau promoteur
+            </button>
+            <button onClick={load} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', background: '#16a34a', color: '#fff', fontSize: '13px', fontWeight: 500, borderRadius: '9px', border: 'none', cursor: 'pointer' }}>
+              <RefreshCw size={13} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} /> Actualiser
+            </button>
+          </div>
         </div>
 
         {/* KPIs par phase */}
@@ -259,7 +381,7 @@ export default function PromoteursPage() {
                 const leadActions = actions.filter(a => a.lead_id === lead.id);
                 return (
                   <div key={lead.id} className={`prom-card${isSel ? ' sel' : ''}`}
-                    onClick={() => { setSelected(isSel ? null : lead); setTab('fiche'); }}
+                    onClick={() => { setSelected(isSel ? null : lead); setTab('fiche'); setEditingFiche(false); setDeleteConfirm(false); }}
                     style={{ ...card, padding: '16px', position: 'relative', overflow: 'hidden' }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: phase ? phase.color : T.terra }} />
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
@@ -315,7 +437,7 @@ export default function PromoteursPage() {
                     {t.icon} {t.label}
                   </button>
                 ))}
-                <button onClick={() => setSelected(null)} style={{ padding: '13px', border: 'none', cursor: 'pointer', background: 'transparent', color: T.muted }}>
+                <button onClick={() => { setSelected(null); setEditingFiche(false); setDeleteConfirm(false); }} style={{ padding: '13px', border: 'none', cursor: 'pointer', background: 'transparent', color: T.muted }}>
                   <X size={16} />
                 </button>
               </div>
@@ -325,35 +447,96 @@ export default function PromoteursPage() {
                 {/* ── FICHE ── */}
                 {tab === 'fiche' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    <div style={{ fontSize: '13px', fontWeight: 700, color: T.navy, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Informations promoteur</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                      {[
-                        { label: 'Nom complet', value: displayName(selected) },
-                        { label: 'Société', value: selected.company_name || '—' },
-                        { label: 'Téléphone', value: selected.phone, href: `tel:${selected.phone}`, color: '#16a34a' },
-                        { label: 'Email', value: selected.email, href: `mailto:${selected.email}`, color: T.gold },
-                        { label: 'Assigné à', value: selected.assigned_to || '—' },
-                        { label: 'Priorité', value: selected.priority || 'medium' },
-                      ].map((f, i) => (
-                        <div key={i} style={{ background: T.ivory, borderRadius: '8px', padding: '12px' }}>
-                          <div style={lbl}>{f.label}</div>
-                          {(f as any).href ? (
-                            <a href={(f as any).href} style={{ fontSize: '13px', fontWeight: 600, color: (f as any).color, textDecoration: 'none' }}>{f.value || '—'}</a>
-                          ) : (
-                            <div style={{ fontSize: '13px', fontWeight: 600, color: T.navy }}>{f.value || '—'}</div>
-                          )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: T.navy, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Informations promoteur</div>
+                      {!editingFiche && !deleteConfirm && (
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button onClick={startEditFiche} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '7px', background: `${T.gold}20`, border: `1px solid ${T.border}`, color: T.gold, fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                            <Pencil size={12} /> Modifier
+                          </button>
+                          <button onClick={() => setDeleteConfirm(true)} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '7px', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.2)', color: '#dc2626', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                            <Trash2 size={12} /> Supprimer
+                          </button>
                         </div>
-                      ))}
+                      )}
                     </div>
-                    {selected.notes && (
-                      <div style={{ background: T.ivory, borderRadius: '8px', padding: '14px', fontSize: '13px', color: T.navy, lineHeight: 1.6 }}>
-                        <div style={{ ...lbl, marginBottom: '8px' }}>Notes</div>{selected.notes}
+
+                    {/* Confirmation de suppression */}
+                    {deleteConfirm && (
+                      <div style={{ background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.25)', borderRadius: '10px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                          <AlertTriangle size={18} style={{ color: '#dc2626', flexShrink: 0, marginTop: '2px' }} />
+                          <div style={{ fontSize: '13px', color: T.navy, lineHeight: 1.5 }}>
+                            Voulez-vous vraiment supprimer <strong>{displayName(selected)}</strong> ? Cette action supprimera également ses actions de suivi et ses mandats associés. Cette opération est irréversible.
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button onClick={deleteLead} disabled={deleting} style={{ flex: 1, padding: '9px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '7px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                            {deleting ? 'Suppression...' : 'Confirmer la suppression'}
+                          </button>
+                          <button onClick={() => setDeleteConfirm(false)} style={{ padding: '9px 14px', background: 'transparent', border: `1px solid ${T.borderSoft}`, borderRadius: '7px', cursor: 'pointer', color: T.muted }}>Annuler</button>
+                        </div>
                       </div>
                     )}
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      {selected.phone && <a href={`tel:${selected.phone}`} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '11px', background: '#E8F5E9', color: '#2E7D32', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 600 }}><Phone size={14} /> Appeler</a>}
-                      {selected.email && <a href={`mailto:${selected.email}`} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '11px', background: '#F5F0E6', color: T.gold, borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 600 }}><Mail size={14} /> Email</a>}
-                    </div>
+
+                    {editingFiche ? (
+                      /* ── Mode édition ── */
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                          <div><label style={lbl}>Prénom *</label><input value={editForm.first_name} onChange={e => setEditForm(f => ({ ...f, first_name: e.target.value }))} style={inp} /></div>
+                          <div><label style={lbl}>Nom</label><input value={editForm.last_name} onChange={e => setEditForm(f => ({ ...f, last_name: e.target.value }))} style={inp} /></div>
+                          <div><label style={lbl}>Société</label><input value={editForm.company_name} onChange={e => setEditForm(f => ({ ...f, company_name: e.target.value }))} style={inp} /></div>
+                          <div><label style={lbl}>Assigné à</label><input value={editForm.assigned_to} onChange={e => setEditForm(f => ({ ...f, assigned_to: e.target.value }))} style={inp} /></div>
+                          <div><label style={lbl}>Téléphone</label><input value={editForm.phone} onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))} style={inp} /></div>
+                          <div><label style={lbl}>Email</label><input type="email" value={editForm.email} onChange={e => setEditForm(f => ({ ...f, email: e.target.value }))} style={inp} /></div>
+                          <div>
+                            <label style={lbl}>Priorité</label>
+                            <select value={editForm.priority} onChange={e => setEditForm(f => ({ ...f, priority: e.target.value }))} style={inp}>
+                              {Object.entries(PRIORITIES).map(([k, p]) => <option key={k} value={k}>{p.label}</option>)}
+                            </select>
+                          </div>
+                        </div>
+                        <div><label style={lbl}>Notes</label><textarea value={editForm.notes} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))} rows={3} style={{ ...inp, resize: 'none' }} /></div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button onClick={saveEditFiche} disabled={savingEdit || !editForm.first_name.trim()} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: `linear-gradient(135deg,${T.gold},${T.goldLight})`, color: T.navy, border: 'none', borderRadius: '7px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                            <Save size={13} /> {savingEdit ? 'Enregistrement...' : 'Enregistrer'}
+                          </button>
+                          <button onClick={() => setEditingFiche(false)} style={{ padding: '10px 16px', background: 'transparent', border: `1px solid ${T.borderSoft}`, borderRadius: '7px', cursor: 'pointer', color: T.muted }}><X size={14} /></button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* ── Mode affichage ── */
+                      <>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                          {[
+                            { label: 'Nom complet', value: displayName(selected) },
+                            { label: 'Société', value: selected.company_name || '—' },
+                            { label: 'Téléphone', value: selected.phone, href: `tel:${selected.phone}`, color: '#16a34a' },
+                            { label: 'Email', value: selected.email, href: `mailto:${selected.email}`, color: T.gold },
+                            { label: 'Assigné à', value: selected.assigned_to || '—' },
+                            { label: 'Priorité', value: PRIORITIES[selected.priority || 'medium']?.label || selected.priority || 'medium' },
+                          ].map((f, i) => (
+                            <div key={i} style={{ background: T.ivory, borderRadius: '8px', padding: '12px' }}>
+                              <div style={lbl}>{f.label}</div>
+                              {(f as any).href ? (
+                                <a href={(f as any).href} style={{ fontSize: '13px', fontWeight: 600, color: (f as any).color, textDecoration: 'none' }}>{f.value || '—'}</a>
+                              ) : (
+                                <div style={{ fontSize: '13px', fontWeight: 600, color: T.navy }}>{f.value || '—'}</div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        {selected.notes && (
+                          <div style={{ background: T.ivory, borderRadius: '8px', padding: '14px', fontSize: '13px', color: T.navy, lineHeight: 1.6 }}>
+                            <div style={{ ...lbl, marginBottom: '8px' }}>Notes</div>{selected.notes}
+                          </div>
+                        )}
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          {selected.phone && <a href={`tel:${selected.phone}`} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '11px', background: '#E8F5E9', color: '#2E7D32', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 600 }}><Phone size={14} /> Appeler</a>}
+                          {selected.email && <a href={`mailto:${selected.email}`} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '11px', background: '#F5F0E6', color: T.gold, borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 600 }}><Mail size={14} /> Email</a>}
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
 
@@ -559,6 +742,50 @@ export default function PromoteursPage() {
           )}
         </div>
       </div>
+
+      {/* ── MODALE : Nouveau promoteur ── */}
+      {showCreateForm && (
+        <div onClick={() => !creating && setShowCreateForm(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(13,31,60,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+          <div onClick={e => e.stopPropagation()} style={{ ...card, width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', padding: '28px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: '24px', fontWeight: 400, color: T.navy, margin: 0 }}>
+                Nouveau <span style={{ color: T.gold, fontStyle: 'italic' }}>promoteur</span>
+              </h2>
+              <button onClick={() => setShowCreateForm(false)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: T.muted }}><X size={18} /></button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div><label style={lbl}>Prénom *</label><input value={createForm.first_name} onChange={e => setCreateForm(f => ({ ...f, first_name: e.target.value }))} style={inp} /></div>
+                <div><label style={lbl}>Nom</label><input value={createForm.last_name} onChange={e => setCreateForm(f => ({ ...f, last_name: e.target.value }))} style={inp} /></div>
+              </div>
+              <div><label style={lbl}>Société</label><input value={createForm.company_name} onChange={e => setCreateForm(f => ({ ...f, company_name: e.target.value }))} style={inp} /></div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div><label style={lbl}>Téléphone</label><input value={createForm.phone} onChange={e => setCreateForm(f => ({ ...f, phone: e.target.value }))} style={inp} /></div>
+                <div><label style={lbl}>Email</label><input type="email" value={createForm.email} onChange={e => setCreateForm(f => ({ ...f, email: e.target.value }))} style={inp} /></div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div><label style={lbl}>Localisation du projet</label><input value={createForm.project_location} onChange={e => setCreateForm(f => ({ ...f, project_location: e.target.value }))} style={inp} /></div>
+                <div><label style={lbl}>Nombre d'unités</label><input type="number" value={createForm.project_units} onChange={e => setCreateForm(f => ({ ...f, project_units: e.target.value }))} style={inp} /></div>
+              </div>
+              <div>
+                <label style={lbl}>Priorité</label>
+                <select value={createForm.priority} onChange={e => setCreateForm(f => ({ ...f, priority: e.target.value }))} style={inp}>
+                  {Object.entries(PRIORITIES).map(([k, p]) => <option key={k} value={k}>{p.label}</option>)}
+                </select>
+              </div>
+              <div><label style={lbl}>Notes</label><textarea value={createForm.notes} onChange={e => setCreateForm(f => ({ ...f, notes: e.target.value }))} rows={3} style={{ ...inp, resize: 'none' }} /></div>
+
+              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                <button onClick={createLead} disabled={creating || !createForm.first_name.trim()} style={{ flex: 1, padding: '11px', background: `linear-gradient(135deg,${T.gold},${T.goldLight})`, color: T.navy, border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', opacity: (!createForm.first_name.trim() || creating) ? 0.6 : 1 }}>
+                  {creating ? 'Création...' : 'Créer le promoteur'}
+                </button>
+                <button onClick={() => setShowCreateForm(false)} style={{ padding: '11px 18px', background: 'transparent', border: `1px solid ${T.borderSoft}`, borderRadius: '8px', cursor: 'pointer', color: T.muted }}>Annuler</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
