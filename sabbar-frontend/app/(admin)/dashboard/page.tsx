@@ -30,6 +30,9 @@ interface Lead {
   email?:string; phone?:string; subject?:string; message?:string;
   city?:string; source?:string; status?:string; score?:number;
   budget_min?:number; budget_max?:number;
+  // ── Champs réels de la table (mappés au chargement via normalizeLead) ──
+  first_name?:string; last_name?:string; preferred_cities?:any;
+  notes?:string; lead_type?:string; priority?:string;
 }
 
 const SRC: Record<string, {label:string;color:string;bg:string;border:string;icon:string}> = {
@@ -57,17 +60,58 @@ const TABS = [
   {key:'contact_form',label:'Contact',icon:'✉️'},
 ];
 
-function getSrc(l:Lead) {
-  const s=(l.subject||'').toLowerCase();
-  if(s.includes('achet')||s.includes('achat')) return SRC['achat'];
-  if(s.includes('vend')||s.includes('vente')) return SRC['vente'];
-  return SRC[l.source||'contact_form']||SRC['contact_form'];
+// ─── Normalisation : mappe les vraies colonnes Supabase vers la forme attendue ───
+function normalizeLead(raw:any):Lead {
+  // Nom complet : full_name direct, sinon first_name + last_name
+  const full_name = (raw.full_name && String(raw.full_name).trim())
+    || [raw.first_name, raw.last_name].filter(Boolean).join(' ').trim()
+    || '—';
+
+  // Ville : colonne city directe, sinon preferred_cities (array ou JSON)
+  let city:string = raw.city || '';
+  if (!city && raw.preferred_cities) {
+    const pc = raw.preferred_cities;
+    if (Array.isArray(pc)) city = pc.filter(Boolean).join(', ');
+    else { try { const a = JSON.parse(pc); city = Array.isArray(a) ? a.filter(Boolean).join(', ') : String(pc); } catch { city = String(pc); } }
+  }
+
+  // Sujet : colonne subject directe, sinon on extrait la ligne "Demande: ..." des notes
+  let subject:string = raw.subject || '';
+  if (!subject && raw.notes) {
+    const m = String(raw.notes).match(/Demande\s*:\s*(.+)/i);
+    if (m) subject = m[1].trim();
+  }
+
+  return {
+    ...raw,
+    full_name,
+    city: city || undefined,
+    subject: subject || undefined,
+    message: raw.message || raw.notes || undefined,
+  };
 }
+
+// ─── Classe un lead dans un onglet à partir du sujet + du lead_type + de la source ───
 function getSrcKey(l:Lead){
-  const s=(l.subject||'').toLowerCase();
-  if(s.includes('achet')||s.includes('achat')) return 'achat';
-  if(s.includes('vend')||s.includes('vente')) return 'vente';
-  return l.source||'contact_form';
+  const s = (l.subject || '').toLowerCase();
+  const type = (l.lead_type || '').toLowerCase();
+
+  // 1) Intention explicite dans le sujet
+  if (s.includes('estimation')) return 'estimation';
+  if (s.includes('commercialis') || type === 'promoteur') return 'commercialisation';
+  if (s.includes('achet') || s.includes('achat')) return 'achat';
+  if (s.includes('vend') || s.includes('vente')) return 'vente';
+  if (s.includes('louer') || s.includes('location') || s.includes('intermédiation') || s.includes('intermediation')) return 'intermediation';
+
+  // 2) Repli par type de lead
+  if (type === 'acheteur') return 'achat';
+  if (type === 'proprietaire') return 'estimation';
+
+  // 3) Source connue, sinon contact
+  return (l.source && SRC[l.source]) ? l.source : 'contact_form';
+}
+function getSrc(l:Lead){
+  return SRC[getSrcKey(l)] || SRC['contact_form'];
 }
 function timeAgo(d:string){
   const m=Math.floor((Date.now()-new Date(d).getTime())/60000);
@@ -101,7 +145,7 @@ function LeadsSection() {
     setLoading(true);
     if(!supabase){setLoading(false);return;}
     const{data}=await supabase.from('leads').select('*').order('created_at',{ascending:false}).limit(50);
-    setLeads(data||[]);setLoading(false);
+    setLeads((data||[]).map(normalizeLead));setLoading(false);
   };
 
   useEffect(()=>{load();},[]);
@@ -109,7 +153,7 @@ function LeadsSection() {
     if(!supabase) return;
     const ch=supabase.channel('dash-leads-big')
       .on('postgres_changes',{event:'INSERT',schema:'public',table:'leads'},p=>{
-        setLeads(prev=>[p.new as Lead,...prev].slice(0,50));
+        setLeads(prev=>[normalizeLead(p.new),...prev].slice(0,50));
       }).subscribe();
     return()=>{supabase.removeChannel(ch);};
   },[]);
@@ -232,7 +276,7 @@ function LeadsSection() {
                         </div>
                         <div style={{minWidth:0}}>
                           <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:'13px',fontWeight:600,color:T.navy,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'140px'}}>{lead.full_name}</div>
-                          <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:'11px',color:T.muted,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'140px'}}>{lead.email||'—'}</div>
+                          <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:'11px',color:T.muted,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'140px'}}>{lead.email||lead.phone||'—'}</div>
                         </div>
                       </div>
                       <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:'4px'}}>
@@ -304,7 +348,7 @@ function LeadsSection() {
                   {selected.subject&&<div style={{fontSize:'13px',fontWeight:600,color:T.navy,fontFamily:"'DM Sans',sans-serif",marginBottom:'5px'}}>{selected.subject}</div>}
                   {selected.city&&<div style={{fontSize:'12px',color:T.muted,fontFamily:"'DM Sans',sans-serif",marginBottom:'3px'}}>📍 {selected.city}</div>}
                   {fmtBudget(selected.budget_min,selected.budget_max)&&<div style={{fontSize:'12px',color:T.muted,fontFamily:"'DM Sans',sans-serif",marginBottom:'3px'}}>💰 {fmtBudget(selected.budget_min,selected.budget_max)}</div>}
-                  {selected.message&&<p style={{fontSize:'12px',color:T.muted,lineHeight:1.6,margin:'6px 0 0',fontFamily:"'DM Sans',sans-serif"}}>{selected.message}</p>}
+                  {selected.message&&<p style={{fontSize:'12px',color:T.muted,lineHeight:1.6,margin:'6px 0 0',fontFamily:"'DM Sans',sans-serif",whiteSpace:'pre-line'}}>{selected.message}</p>}
                 </div>
               )}
 
@@ -351,9 +395,7 @@ function LeadsSection() {
     </div>
   );
 }
-// ─── Remplace la fonction TasksPanel dans app/(admin)/dashboard/page.tsx ───
-// Copie ce bloc et remplace l'ancienne fonction TasksPanel
-
+// ─── Panneau des tâches du jour ───────────────────────────────────────────────
 function TasksPanel() {
   const [tasks,setTasks]        = useState<Task[]>([]);
   const [loading,setLoading]    = useState(true);
