@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Plus, Trash2, X, RefreshCw, ArrowLeft, Lock, Save, AlertTriangle, Tag } from 'lucide-react';
+import { Plus, Trash2, X, RefreshCw, ArrowLeft, Lock, Save, AlertTriangle, Tag, Pencil } from 'lucide-react';
 import Link from 'next/link';
 
 const T = {
@@ -51,6 +51,11 @@ export default function LeadTypesPage() {
 
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
+  // --- Édition ---
+  const [editId, setEditId]     = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ name: '', color: '' });
+  const [saving, setSaving]     = useState(false);
+
   const load = async () => {
     setLoading(true);
     if (!supabase) { setLoading(false); return; }
@@ -89,6 +94,38 @@ export default function LeadTypesPage() {
       setShowForm(false);
     }
     setCreating(false);
+  };
+
+  // --- Ouvrir / fermer / sauvegarder l'édition ---
+  const startEdit = (t: LeadType) => {
+    setEditId(t.id);
+    setEditForm({ name: t.name, color: t.color });
+    setDeleteConfirm(null);
+    setShowForm(false);
+  };
+
+  const cancelEdit = () => {
+    setEditId(null);
+    setEditForm({ name: '', color: '' });
+  };
+
+  const saveEdit = async (t: LeadType) => {
+    if (!supabase || !editForm.name.trim()) return;
+    setSaving(true);
+    // On met à jour uniquement le libellé (name) et la couleur.
+    // Le slug reste figé pour ne pas casser les leads déjà liés à ce type.
+    const { data, error } = await supabase.from('lead_types')
+      .update({ name: editForm.name.trim(), color: editForm.color })
+      .eq('id', t.id)
+      .select()
+      .single();
+    if (error) {
+      alert('Erreur lors de la modification : ' + error.message);
+    } else if (data) {
+      setTypes(prev => prev.map(x => x.id === t.id ? data : x));
+      setEditId(null);
+    }
+    setSaving(false);
   };
 
   const deleteType = async (t: LeadType) => {
@@ -130,7 +167,7 @@ export default function LeadTypesPage() {
             <p style={{ fontSize: '12px', color: T.muted, marginTop: '4px' }}>{types.length} catégorie{types.length !== 1 ? 's' : ''}</p>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={() => setShowForm(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', background: `linear-gradient(135deg,${T.gold},${T.goldLight})`, color: T.navy, fontSize: '13px', fontWeight: 600, borderRadius: '9px', border: 'none', cursor: 'pointer' }}>
+            <button onClick={() => { setShowForm(true); cancelEdit(); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', background: `linear-gradient(135deg,${T.gold},${T.goldLight})`, color: T.navy, fontSize: '13px', fontWeight: 600, borderRadius: '9px', border: 'none', cursor: 'pointer' }}>
               <Plus size={14} /> Nouveau type
             </button>
             <button onClick={load} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', background: '#16a34a', color: '#fff', fontSize: '13px', fontWeight: 500, borderRadius: '9px', border: 'none', cursor: 'pointer' }}>
@@ -182,6 +219,52 @@ export default function LeadTypesPage() {
           ) : types.map(t => {
             const used = counts[t.slug] || 0;
             const isConfirm = deleteConfirm === t.id;
+            const isEditing = editId === t.id;
+
+            // --- Mode édition : on remplace la ligne par un mini-formulaire ---
+            if (isEditing) {
+              return (
+                <div key={t.id} style={{ ...card, padding: '18px', border: `1px solid ${T.border}` }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 700, color: T.navy, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      <Pencil size={13} /> Modifier le type
+                      {t.is_system && (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', padding: '2px 7px', borderRadius: '999px', fontSize: '10px', fontWeight: 700, background: 'rgba(13,31,60,0.06)', color: T.muted, textTransform: 'none', letterSpacing: 0 }}>
+                          <Lock size={9} /> Système
+                        </span>
+                      )}
+                    </div>
+                    <button onClick={cancelEdit} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: T.muted }}><X size={16} /></button>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div>
+                      <label style={lbl}>Nom du type *</label>
+                      <input value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} style={inp} />
+                      <div style={{ fontSize: '11px', color: T.muted, marginTop: '5px' }}>
+                        Identifiant : <code style={{ color: T.gold }}>{t.slug}</code> <span style={{ opacity: 0.7 }}>(non modifiable)</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label style={lbl}>Couleur</label>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        {COLOR_PRESETS.map(c => (
+                          <button key={c} onClick={() => setEditForm(f => ({ ...f, color: c }))}
+                            style={{ width: '28px', height: '28px', borderRadius: '50%', background: c, cursor: 'pointer', border: editForm.color === c ? `3px solid ${T.navy}` : '2px solid #fff', boxShadow: '0 0 0 1px rgba(13,31,60,0.1)' }} />
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button onClick={() => saveEdit(t)} disabled={saving || !editForm.name.trim()} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: `linear-gradient(135deg,${T.gold},${T.goldLight})`, color: T.navy, border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', opacity: (!editForm.name.trim() || saving) ? 0.6 : 1 }}>
+                        <Save size={13} /> {saving ? 'Enregistrement...' : 'Enregistrer'}
+                      </button>
+                      <button onClick={cancelEdit} style={{ padding: '10px 18px', background: 'transparent', border: `1px solid ${T.borderSoft}`, borderRadius: '8px', cursor: 'pointer', color: T.muted }}>Annuler</button>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            // --- Mode affichage normal ---
             return (
               <div key={t.id} style={{ ...card, padding: '16px 18px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
@@ -202,19 +285,29 @@ export default function LeadTypesPage() {
                     </div>
                   </div>
 
-                  {!t.is_system && (
-                    isConfirm ? (
-                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+                    {isConfirm ? (
+                      <>
                         <button onClick={() => deleteType(t)} style={{ padding: '6px 12px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '7px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>Confirmer</button>
                         <button onClick={() => setDeleteConfirm(null)} style={{ padding: '6px 12px', background: 'transparent', border: `1px solid ${T.borderSoft}`, borderRadius: '7px', fontSize: '12px', color: T.muted, cursor: 'pointer' }}>Annuler</button>
-                      </div>
+                      </>
                     ) : (
-                      <button onClick={() => setDeleteConfirm(t.id)} title="Supprimer ce type"
-                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '7px', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.2)', color: '#dc2626', fontSize: '12px', fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}>
-                        <Trash2 size={12} /> Supprimer
-                      </button>
-                    )
-                  )}
+                      <>
+                        {/* Modifier : disponible pour tous les types (système inclus) */}
+                        <button onClick={() => startEdit(t)} title="Modifier ce type"
+                          style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '7px', background: 'rgba(200,169,110,0.12)', border: '1px solid rgba(200,169,110,0.35)', color: T.navy, fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                          <Pencil size={12} /> Modifier
+                        </button>
+                        {/* Supprimer : uniquement pour les types non-système */}
+                        {!t.is_system && (
+                          <button onClick={() => setDeleteConfirm(t.id)} title="Supprimer ce type"
+                            style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '7px', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.2)', color: '#dc2626', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                            <Trash2 size={12} /> Supprimer
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
 
                 {/* Avertissement si utilisé */}
