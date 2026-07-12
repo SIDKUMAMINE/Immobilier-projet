@@ -122,6 +122,12 @@ export default function AcheteursPage() {
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // ── Gestion des groupes : édition / suppression ──
+  const [editingGroupId, setEditingGroupId]     = useState<string | null>(null);
+  const [groupEditForm, setGroupEditForm]       = useState({ name: '', description: '' });
+  const [savingGroup, setSavingGroup]           = useState(false);
+  const [deleteGroupConfirm, setDeleteGroupConfirm] = useState<string | null>(null);
+
   const load = async () => {
     setLoading(true);
     if (!supabase) { setLoading(false); return; }
@@ -303,6 +309,55 @@ export default function AcheteursPage() {
       if (!lead || g.members?.find(m => m.id === leadId)) return g;
       return { ...g, members: [...(g.members || []), lead] };
     }));
+  };
+
+  // ── UPDATE : modifier un groupe (nom + description) ──
+  const startEditGroup = (g: BuyerGroup) => {
+    setEditingGroupId(g.id);
+    setDeleteGroupConfirm(null);
+    setGroupEditForm({ name: g.name || '', description: g.description || '' });
+  };
+  const saveEditGroup = async (groupId: string) => {
+    if (!supabase || !groupEditForm.name.trim()) return;
+    setSavingGroup(true);
+    const { data, error } = await supabase.from('buyer_groups')
+      .update({ name: groupEditForm.name.trim(), description: groupEditForm.description.trim() || null })
+      .eq('id', groupId).select().single();
+    if (error) {
+      alert('Erreur lors de la modification : ' + error.message);
+    } else if (data) {
+      setGroups(prev => prev.map(g => g.id === groupId ? { ...g, name: data.name, description: data.description } : g));
+      setEditingGroupId(null);
+    }
+    setSavingGroup(false);
+  };
+
+  // ── DELETE : supprimer un groupe entier (garde les acheteurs) ──
+  const deleteGroup = async (groupId: string) => {
+    if (!supabase) return;
+    await supabase.from('buyer_group_members').delete().eq('group_id', groupId);
+    const { error } = await supabase.from('buyer_groups').delete().eq('id', groupId);
+    if (error) {
+      alert('Erreur lors de la suppression du groupe : ' + error.message);
+    } else {
+      setGroups(prev => prev.filter(g => g.id !== groupId));
+      setDeleteGroupConfirm(null);
+    }
+  };
+
+  // ── DELETE : retirer un membre d'un groupe ──
+  const removeFromGroup = async (groupId: string, leadId: string) => {
+    if (!supabase) return;
+    await supabase.from('buyer_group_members').delete().eq('group_id', groupId).eq('lead_id', leadId);
+    setGroups(prev => prev.map(g => g.id === groupId ? { ...g, members: g.members?.filter(m => m.id !== leadId) } : g));
+  };
+
+  // ── Accès à la fiche d'un membre depuis un groupe ──
+  const openMember = (lead: Lead) => {
+    setSelected(lead);
+    setTab('fiche');
+    setEditingFiche(false);
+    setDeleteConfirm(false);
   };
 
   const generateVoucher = async () => {
@@ -761,34 +816,93 @@ export default function AcheteursPage() {
                     {/* Groupes existants */}
                     {groups.length === 0 ? (
                       <div style={{ textAlign: 'center', padding: '32px', color: T.muted, fontSize: '13px' }}>Aucun groupe créé</div>
-                    ) : groups.map(group => (
-                      <div key={group.id} style={{ background: T.ivory, borderRadius: '10px', padding: '14px', border: `1px solid ${T.borderSoft}` }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                          <div>
-                            <div style={{ fontSize: '13px', fontWeight: 700, color: T.navy }}>{group.name}</div>
-                            {group.description && <div style={{ fontSize: '12px', color: T.muted, marginTop: '2px' }}>{group.description}</div>}
-                          </div>
-                          <span style={{ padding: '2px 8px', borderRadius: '999px', fontSize: '10px', fontWeight: 700, background: 'rgba(13,31,60,0.07)', color: T.muted }}>
-                            {group.members?.length || 0} membres
-                          </span>
+                    ) : groups.map(group => {
+                      const available = leads.filter(l => !group.members?.find(m => m.id === l.id));
+                      const isEditingG = editingGroupId === group.id;
+                      const isDeletingG = deleteGroupConfirm === group.id;
+                      return (
+                        <div key={group.id} style={{ background: T.ivory, borderRadius: '10px', padding: '14px', border: `1px solid ${T.borderSoft}` }}>
+
+                          {/* En-tête du groupe — mode édition OU affichage */}
+                          {isEditingG ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '10px' }}>
+                              <input value={groupEditForm.name} onChange={e => setGroupEditForm(f => ({ ...f, name: e.target.value }))} placeholder="Nom du groupe" style={inp} />
+                              <input value={groupEditForm.description} onChange={e => setGroupEditForm(f => ({ ...f, description: e.target.value }))} placeholder="Description" style={inp} />
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <button onClick={() => saveEditGroup(group.id)} disabled={savingGroup || !groupEditForm.name.trim()}
+                                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', padding: '8px', background: `linear-gradient(135deg,${T.gold},${T.goldLight})`, color: T.navy, border: 'none', borderRadius: '7px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                                  <Save size={12} /> {savingGroup ? 'Enregistrement...' : 'Enregistrer'}
+                                </button>
+                                <button onClick={() => setEditingGroupId(null)} style={{ padding: '8px 12px', background: 'transparent', border: `1px solid ${T.borderSoft}`, borderRadius: '7px', cursor: 'pointer', color: T.muted }}><X size={13} /></button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px', gap: '8px' }}>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontSize: '13px', fontWeight: 700, color: T.navy }}>{group.name}</div>
+                                {group.description && <div style={{ fontSize: '12px', color: T.muted, marginTop: '2px' }}>{group.description}</div>}
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                                <span style={{ padding: '2px 8px', borderRadius: '999px', fontSize: '10px', fontWeight: 700, background: 'rgba(13,31,60,0.07)', color: T.muted, whiteSpace: 'nowrap' }}>
+                                  {group.members?.length || 0} membres
+                                </span>
+                                <button onClick={() => startEditGroup(group)} title="Modifier le groupe"
+                                  style={{ display: 'flex', padding: '5px', borderRadius: '6px', background: `${T.gold}15`, border: `1px solid ${T.border}`, color: T.gold, cursor: 'pointer' }}>
+                                  <Pencil size={12} />
+                                </button>
+                                <button onClick={() => { setDeleteGroupConfirm(group.id); setEditingGroupId(null); }} title="Supprimer le groupe"
+                                  style={{ display: 'flex', padding: '5px', borderRadius: '6px', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.2)', color: '#dc2626', cursor: 'pointer' }}>
+                                  <Trash2 size={12} />
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Confirmation suppression du groupe */}
+                          {isDeletingG && (
+                            <div style={{ background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.25)', borderRadius: '8px', padding: '12px', marginBottom: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '12px', color: T.navy, lineHeight: 1.5 }}>
+                                <AlertTriangle size={15} style={{ color: '#dc2626', flexShrink: 0, marginTop: '1px' }} />
+                                <span>Supprimer le groupe <strong>{group.name}</strong> ? Les acheteurs ne seront pas supprimés, uniquement le groupe et ses associations.</span>
+                              </div>
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <button onClick={() => deleteGroup(group.id)} style={{ flex: 1, padding: '8px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>Confirmer</button>
+                                <button onClick={() => setDeleteGroupConfirm(null)} style={{ padding: '8px 12px', background: 'transparent', border: `1px solid ${T.borderSoft}`, borderRadius: '6px', cursor: 'pointer', color: T.muted, fontSize: '12px' }}>Annuler</button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Membres — cliquables (accès fiche) + bouton retirer */}
+                          {group.members && group.members.length > 0 ? (
+                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
+                              {group.members.map(m => (
+                                <span key={m.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '3px 6px 3px 10px', borderRadius: '20px', fontSize: '11px', background: 'rgba(200,169,110,0.1)', color: T.navy, border: `1px solid ${T.border}` }}>
+                                  <button onClick={() => openMember(m)} title="Ouvrir la fiche"
+                                    style={{ background: 'transparent', border: 'none', color: T.navy, fontSize: '11px', fontWeight: 600, cursor: 'pointer', padding: 0, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                    <Eye size={11} style={{ color: T.gold }} /> {displayName(m)}
+                                  </button>
+                                  <button onClick={() => removeFromGroup(group.id, m.id)} title="Retirer du groupe"
+                                    style={{ background: 'transparent', border: 'none', color: T.terra, cursor: 'pointer', padding: 0, display: 'inline-flex', lineHeight: 0 }}>
+                                    <X size={12} />
+                                  </button>
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <div style={{ fontSize: '12px', color: T.muted, marginBottom: '10px', fontStyle: 'italic' }}>Aucun membre pour l'instant</div>
+                          )}
+
+                          {/* Ajouter n'importe quel acheteur au groupe */}
+                          {available.length > 0 && (
+                            <select value="" onChange={e => { if (e.target.value) addToGroup(group.id, e.target.value); }}
+                              style={{ ...inp, fontSize: '12px', padding: '7px 10px', cursor: 'pointer' }}>
+                              <option value="">+ Ajouter un acheteur au groupe...</option>
+                              {available.map(l => <option key={l.id} value={l.id}>{displayName(l)}{l.phone ? ` — ${l.phone}` : ''}</option>)}
+                            </select>
+                          )}
                         </div>
-                        {/* Membres */}
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
-                          {group.members?.map(m => (
-                            <span key={m.id} style={{ padding: '3px 9px', borderRadius: '20px', fontSize: '11px', background: 'rgba(200,169,110,0.1)', color: T.navy, border: `1px solid ${T.border}` }}>
-                              {displayName(m)}
-                            </span>
-                          ))}
-                        </div>
-                        {/* Ajouter l'acheteur sélectionné */}
-                        {selected && !group.members?.find(m => m.id === selected.id) && (
-                          <button onClick={() => addToGroup(group.id, selected.id)}
-                            style={{ padding: '5px 12px', borderRadius: '6px', background: `${T.gold}15`, border: `1px solid ${T.border}`, color: T.gold, fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>
-                            + Ajouter {selected.first_name} à ce groupe
-                          </button>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
 

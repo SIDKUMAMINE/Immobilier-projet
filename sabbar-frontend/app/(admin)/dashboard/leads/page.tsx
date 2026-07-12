@@ -345,6 +345,9 @@ export default function LeadsPage() {
         {/* ── HEADER ── */}
         <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:'28px' }}>
           <div>
+            <Link href="/dashboard/leads/types" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 18px', background: 'rgba(200,169,110,0.15)', border: '1px solid rgba(200,169,110,0.3)', color: '#C8A96E', fontSize: '13px', fontWeight: 600, borderRadius: '9px', textDecoration: 'none' }}>
+  🏷️ Gérer les types
+</Link>
             <div style={{ display:'inline-flex', alignItems:'center', gap:'7px', padding:'4px 12px', borderRadius:'100px', background:'rgba(200,169,110,0.1)', border:`1px solid ${T.border}`, marginBottom:'10px' }}>
               <Users size={11} style={{ color:T.gold }} />
               <span style={{ fontSize:'10px', fontWeight:600, letterSpacing:'0.15em', textTransform:'uppercase', color:T.gold }}>Prospects qualifiés</span>
