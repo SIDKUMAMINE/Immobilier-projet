@@ -10,7 +10,7 @@ const EMAILJS_CONFIG = { publicKey: 'hTTnBv9DSUcGkL6Bl', serviceId: 'service_j97
 const WHATSAPP_NUMBER = '212605585720';
 
 export default function ContactIntermediationPage() {
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', subject: 'Intermédiation immobilière', budget: '', type: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', subject: 'Intermédiation immobilière', budget: '', type: '', ville: '', message: '' });
   const [loading, setLoading]     = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError]         = useState<string | null>(null);
@@ -22,7 +22,7 @@ export default function ContactIntermediationPage() {
   };
 
   const sendWhatsAppNotification = (data: typeof formData) => {
-    const msg = `🤝 *Nouvelle demande - Intermédiation Immobilière*\n━━━━━━━━━━━━━━━━━━━━━\n\n👤 *Nom:* ${data.name}\n📧 *Email:* ${data.email}\n📞 *Téléphone:* ${data.phone || 'Non fourni'}\n💰 *Budget:* ${data.budget || 'Non précisé'}\n🏠 *Type de bien:* ${data.type || 'Non précisé'}\n📋 *Demande:* ${data.subject}\n\n💬 *Message:*\n${data.message}\n\n_Envoyé depuis la page Intermédiation - LANDMARK ESTATE_`;
+    const msg = `🤝 *Nouvelle demande - Intermédiation Immobilière*\n━━━━━━━━━━━━━━━━━━━━━\n\n👤 *Nom:* ${data.name}\n📧 *Email:* ${data.email}\n📞 *Téléphone:* ${data.phone || 'Non fourni'}\n📍 *Localisation:* ${data.ville || 'Non précisée'}\n💰 *Budget:* ${data.budget || 'Non précisé'}\n🏠 *Type de bien:* ${data.type || 'Non précisé'}\n📋 *Demande:* ${data.subject}\n\n💬 *Message:*\n${data.message}\n\n_Envoyé depuis la page Intermédiation - LANDMARK ESTATE_`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -32,15 +32,26 @@ export default function ContactIntermediationPage() {
     return { first: parts[0] || 'Inconnu', last: parts.slice(1).join(' ') || 'Inconnu' };
   };
 
-  // Détermine le lead_type selon ce que le prospect veut faire
+  // ✅ Convertit la tranche de budget affichée en montants réels (DH) pour Supabase
+  const parseBudget = (budget: string): { budget_min: number | null; budget_max: number | null } => {
+    switch (budget) {
+      case 'Moins de 1M DH': return { budget_min: null,      budget_max: 1_000_000 };
+      case '1M - 2M DH':     return { budget_min: 1_000_000, budget_max: 2_000_000 };
+      case '2M - 4M DH':     return { budget_min: 2_000_000, budget_max: 4_000_000 };
+      case '4M DH et plus':  return { budget_min: 4_000_000, budget_max: null };
+      default:               return { budget_min: null,      budget_max: null }; // "À discuter" ou vide
+    }
+  };
+
+  // ✅ Détermine le lead_type selon ce que le prospect veut faire
   const getLeadType = (subject: string): 'acheteur' | 'proprietaire' => {
     const s = subject.toLowerCase();
-    // Vendre / Louer / Estimation = propriétaire
-    if (s.includes('vend') || s.includes('louer') || s.includes('location') || s.includes('estimation') || s.includes('mettre')) {
-      return 'proprietaire';
+    // Acheteur = veut ACHETER ou LOUER UN BIEN (en tant que locataire)
+    if (s.includes('acheter') || s.includes('louer un bien')) {
+      return 'acheteur';
     }
-    // Acheter / Louer un bien (en tant que locataire) = acheteur
-    return 'acheteur';
+    // Propriétaire = vendre / mettre en location / estimation
+    return 'proprietaire';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,13 +62,17 @@ export default function ContactIntermediationPage() {
       if (supabase) {
         const { first, last } = splitName(formData.name);
         const leadType = getLeadType(formData.subject);
+        const { budget_min, budget_max } = parseBudget(formData.budget);
 
         await supabase.from('leads').insert({
           first_name: first,
           last_name:  last,
           email:      formData.email?.trim() || null,
           phone:      formData.phone?.trim() || '+212600000000',
-          notes:      `Demande: ${formData.subject}\nBudget: ${formData.budget}\nType: ${formData.type}\n\n${formData.message}`.trim(),
+          budget_min,                                                    // 👈 prix récupéré depuis la tranche
+          budget_max,                                                    // 👈 prix récupéré depuis la tranche
+          preferred_cities: formData.ville ? [formData.ville] : null,    // 👈 localisation souhaitée
+          notes:      `Demande: ${formData.subject}\nLocalisation: ${formData.ville || 'Non précisée'}\nBudget: ${formData.budget || 'Non précisé'}\nType: ${formData.type || 'Non précisé'}\n\n${formData.message}`.trim(),
           status:     'new',
           source:     'web_form',
           priority:   'medium',
@@ -68,12 +83,12 @@ export default function ContactIntermediationPage() {
       await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
         from_name: formData.name, from_email: formData.email, phone: formData.phone || 'Non fourni',
         subject: `[Intermédiation] ${formData.subject}`,
-        message: `Budget: ${formData.budget || 'Non précisé'}\nType de bien: ${formData.type || 'Non précisé'}\n\n${formData.message}`,
+        message: `Localisation: ${formData.ville || 'Non précisée'}\nBudget: ${formData.budget || 'Non précisé'}\nType de bien: ${formData.type || 'Non précisé'}\n\n${formData.message}`,
         reply_to: formData.email,
       });
       setSubmitted(true);
       const sentData = { ...formData };
-      setFormData({ name: '', email: '', phone: '', subject: 'Intermédiation immobilière', budget: '', type: '', message: '' });
+      setFormData({ name: '', email: '', phone: '', subject: 'Intermédiation immobilière', budget: '', type: '', ville: '', message: '' });
       setTimeout(() => setSubmitted(false), 8000);
       setTimeout(() => sendWhatsAppNotification(sentData), 500);
     } catch (err: any) {
@@ -157,7 +172,10 @@ export default function ContactIntermediationPage() {
                 <div><label style={labelStyle}>Je souhaite <span style={{ color: '#B5573A' }}>*</span></label><select name="subject" value={formData.subject} onChange={handleChange} required style={{ ...inputStyle, cursor: 'pointer' }} {...focusHandlers}><option value="Intermédiation immobilière">Sélectionner</option><option value="Acheter un bien">Acheter un bien</option><option value="Vendre mon bien">Vendre mon bien</option><option value="Louer un bien">Louer un bien</option><option value="Mettre en location">Mettre en location</option><option value="Estimation de mon bien">Estimation de mon bien</option></select></div>
                 <div><label style={labelStyle}>Budget (DH)</label><select name="budget" value={formData.budget} onChange={handleChange} style={{ ...inputStyle, cursor: 'pointer' }} {...focusHandlers}><option value="">Sélectionner</option><option value="Moins de 1M DH">Moins de 1M DH</option><option value="1M - 2M DH">1M - 2M DH</option><option value="2M - 4M DH">2M - 4M DH</option><option value="4M DH et plus">4M DH et plus</option><option value="À discuter">À discuter</option></select></div>
               </div>
-              <div><label style={labelStyle}>Type de bien</label><select name="type" value={formData.type} onChange={handleChange} style={{ ...inputStyle, cursor: 'pointer' }} {...focusHandlers}><option value="">Sélectionner</option><option value="Appartement">Appartement</option><option value="Villa / Maison">Villa / Maison</option><option value="Bureau / Local commercial">Bureau / Local commercial</option><option value="Terrain">Terrain</option><option value="Immeuble">Immeuble</option><option value="Autre">Autre</option></select></div>
+              <div className="ci-form-row-2">
+                <div><label style={labelStyle}>Localisation souhaitée</label><select name="ville" value={formData.ville} onChange={handleChange} style={{ ...inputStyle, cursor: 'pointer' }} {...focusHandlers}><option value="">Sélectionner une ville</option><option value="Casablanca">Casablanca</option><option value="Rabat">Rabat</option><option value="Tanger">Tanger</option><option value="Marrakech">Marrakech</option><option value="Fès">Fès</option><option value="Agadir">Agadir</option><option value="Kénitra">Kénitra</option><option value="Tétouan">Tétouan</option><option value="Mohammedia">Mohammedia</option><option value="El Jadida">El Jadida</option><option value="Salé">Salé</option><option value="Meknès">Meknès</option><option value="Oujda">Oujda</option><option value="Autre">Autre</option></select></div>
+                <div><label style={labelStyle}>Type de bien</label><select name="type" value={formData.type} onChange={handleChange} style={{ ...inputStyle, cursor: 'pointer' }} {...focusHandlers}><option value="">Sélectionner</option><option value="Appartement">Appartement</option><option value="Villa / Maison">Villa / Maison</option><option value="Bureau / Local commercial">Bureau / Local commercial</option><option value="Terrain">Terrain</option><option value="Immeuble">Immeuble</option><option value="Autre">Autre</option></select></div>
+              </div>
               <div><label style={labelStyle}>Message <span style={{ color: '#B5573A' }}>*</span></label><textarea name="message" value={formData.message} onChange={handleChange} placeholder="Décrivez votre projet en détail : localisation souhaitée, critères importants, timeline..." required rows={5} style={{ ...inputStyle, resize: 'none' }} {...focusHandlers} /></div>
               <button type="submit" disabled={loading} style={{ width: '100%', padding: '16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '16px', transition: 'all 0.3s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: loading ? 'rgba(200, 169, 110, 0.4)' : 'linear-gradient(135deg, #C8A96E 0%, #E2C98A 100%)', color: '#0D1F3C', fontFamily: 'DM Sans, system-ui, sans-serif', cursor: loading ? 'not-allowed' : 'pointer', border: 'none', boxSizing: 'border-box' }}
                 onMouseEnter={e => { if (!loading) { e.currentTarget.style.boxShadow = '0 20px 40px rgba(200, 169, 110, 0.3)'; e.currentTarget.style.transform = 'translateY(-2px)'; } }}
